@@ -1,35 +1,57 @@
-# BB Plugins
+<p align="center">
+  <img src="./plugins/taskboard/assets/icon.svg" width="64" height="64" alt="Taskboard ticket icon" />
+</p>
 
-Plugins for [BB](https://github.com/get-bb/bb), the agent IDE — kept together
-in one GitHub repository.
+<h1 align="center">BB Plugins</h1>
+
+<p align="center">
+  Focused extensions for <a href="https://github.com/get-bb/bb">BB</a>, kept together in one extensible workspace.
+</p>
+
+<p align="center">
+  <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
+  <a href="https://www.npmjs.com/package/bb-plugin-taskboard"><img src="https://img.shields.io/npm/v/bb-plugin-taskboard?style=flat-square&label=Taskboard" alt="Taskboard npm version" /></a>
+  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
+</p>
 
 ![Taskboard running inside BB](./docs/media/hero.png)
 
-## Dev productivity
+## Plugins
 
-| | Plugin | What it does |
-| --- | --- | --- |
-| <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
+| | Plugin | Install | What it does |
+| --- | --- | --- | --- |
+| <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | `bb plugin install npm:bb-plugin-taskboard` | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 
-## Install
+## Taskboard quick start
 
-One command per plugin:
-
-```sh
-bb plugin install npm:bb-plugin-<id>
-```
-
-For Taskboard:
+Install the public package:
 
 ```sh
 bb plugin install npm:bb-plugin-taskboard
 ```
 
+Then open **Taskboard → Manage**, choose a BB project, and select exactly one
+external tracker for it. Different BB projects can use different providers.
+
+Taskboard keeps rows and Kanban cards compact, preserves each provider's real
+workflow, opens live issue details, and can send any task to an agent with its
+context attached. See the [Taskboard README](./plugins/taskboard) for GitHub,
+Linear, Jira, CLI, and credential setup.
+
+Update or remove it with BB:
+
+```sh
+bb plugin outdated
+bb plugin update taskboard
+bb plugin remove taskboard
+```
+
 ## Build from source
 
 Each plugin is an independent BB package under `plugins/<id>`. Clone the
-workspace once, install its shared dependencies, and install whichever plugins
-you want as local-path sources:
+workspace once, install the shared dependencies, and register the plugin as a
+local-path source:
 
 ```sh
 git clone https://github.com/MateoCerquetella/bb-plugins.git
@@ -39,7 +61,7 @@ npm run build
 bb plugin install ./plugins/taskboard
 ```
 
-BB reads local-path plugins in place, so updates stay simple:
+BB reads local-path plugins in place, so the development loop stays short:
 
 ```sh
 git pull
@@ -49,9 +71,8 @@ bb plugin reload taskboard
 ```
 
 Direct `bb plugin install git:...` installation targets a repository-root
-manifest and therefore does not apply to this multi-plugin layout. Published
-npm packages provide the one-command install while this repository remains an
-extensible source workspace.
+manifest and therefore does not apply to this multi-plugin layout. Each
+released plugin gets its own npm package for one-command installation.
 
 ## Develop
 
@@ -63,8 +84,8 @@ npm run check
 ```
 
 New plugins belong in `plugins/<id>` with their own `package.json`, source,
-tests, checked-in BB SDK declarations, and README. The root npm workspace will
-pick them up automatically.
+tests, checked-in BB SDK declarations, and README. The root npm workspace picks
+them up automatically.
 
 ## License
 

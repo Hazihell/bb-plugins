@@ -10,6 +10,7 @@
 
 <p align="center">
   <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
+  <a href="https://www.npmjs.com/package/bb-plugin-taskboard"><img src="https://img.shields.io/npm/v/bb-plugin-taskboard?style=flat-square" alt="npm version" /></a>
   <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
   <img src="https://img.shields.io/badge/GitHub%20%C2%B7%20Linear%20%C2%B7%20Jira-supported-2563eb?style=flat-square" alt="GitHub, Linear, and Jira supported" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
@@ -37,33 +38,22 @@ task to an agent without rebuilding context by hand.
 
 ## Install
 
-Taskboard is a full-trust BB plugin. Review the source, then install its public
-npm package:
+Taskboard is a full-trust BB plugin. Review the source, then install the public
+[npm package](https://www.npmjs.com/package/bb-plugin-taskboard):
 
 ```sh
 bb plugin install npm:bb-plugin-taskboard
 ```
 
-To work from source instead:
-
-```sh
-git clone https://github.com/MateoCerquetella/bb-plugins.git
-cd bb-plugins
-npm install
-npm run build
-bb plugin install ./plugins/taskboard
-```
-
 Open **Taskboard → Manage**, choose a BB project, select its tracker, and save
-the connection. This monorepo layout makes room for more BB plugins while each
-plugin remains an independent package under `plugins/<id>`.
+the connection. Each project selects exactly one tracker; other projects can
+choose a different provider.
 
-Update, reload, or remove it later:
+Update, reload, or remove the npm installation later:
 
 ```sh
-git pull
-npm install
-npm run build
+bb plugin outdated
+bb plugin update taskboard
 bb plugin reload taskboard
 bb plugin remove taskboard
 ```
@@ -132,11 +122,12 @@ when needed.
 ## Development
 
 ```sh
-cd plugins/taskboard
+git clone https://github.com/MateoCerquetella/bb-plugins.git
+cd bb-plugins
 npm install
 npm run check
-bb plugin install .
-npm run dev
+bb plugin install ./plugins/taskboard
+npm run dev --workspace bb-plugin-taskboard
 ```
 
 `components/ui/` is vendored BB component source pinned by `components.json`.
