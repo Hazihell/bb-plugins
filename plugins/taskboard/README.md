@@ -1,0 +1,143 @@
+<p align="center">
+  <img src="./assets/icon.svg" width="72" height="72" alt="Taskboard ticket icon" />
+</p>
+
+<h1 align="center">Taskboard</h1>
+
+<p align="center">
+  GitHub, Linear, or Jira tasks inside BB—one focused tracker for every project.
+</p>
+
+<p align="center">
+  <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
+  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
+  <img src="https://img.shields.io/badge/GitHub%20%C2%B7%20Linear%20%C2%B7%20Jira-supported-2563eb?style=flat-square" alt="GitHub, Linear, and Jira supported" />
+  <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
+</p>
+
+![Taskboard inside BB](../../docs/media/hero.png)
+
+Taskboard brings external issues into the place where the work happens. Pick
+exactly one tracker for each BB project, browse a quiet List or Kanban view,
+open live task details, move work through real provider statuses, and hand a
+task to an agent without rebuilding context by hand.
+
+## What it does
+
+- **Project-first tasks** — each BB project selects GitHub, Linear, or Jira;
+  different projects can use different providers.
+- **List and Kanban** — compact rows, provider-native lanes, drag-and-drop, and
+  keyboard status moves without repetitive provider chips on every task.
+- **Live task details** — cached summaries keep browsing fast; opening a task
+  fetches its current description, labels, assignee, and comments.
+- **Agent handoff** — prefill a BB prompt from any task or attach one with the
+  Taskboard mention result.
+- **Human and agent parity** — everything important is also available through
+  `bb taskboard`.
+
+## Install
+
+Taskboard is a full-trust BB plugin. Review the source, then clone the workspace
+and install Taskboard as a local-path plugin:
+
+```sh
+git clone https://github.com/MateoCerquetella/bb-plugins.git
+cd bb-plugins
+npm install
+npm run build
+bb plugin install ./plugins/taskboard
+```
+
+Open **Taskboard → Manage**, choose a BB project, select its tracker, and save
+the connection. This monorepo layout makes room for more BB plugins while each
+plugin remains an independent package under `plugins/<id>`.
+
+Update, reload, or remove it later:
+
+```sh
+git pull
+npm install
+npm run build
+bb plugin reload taskboard
+bb plugin remove taskboard
+```
+
+## Connect a tracker
+
+### GitHub
+
+Taskboard reuses BB's official GitHub plugin and the repositories already
+mapped to the BB project. There is no second GitHub token or repository picker.
+
+```sh
+bb plugin install github
+gh auth login
+bb plugin reload github
+```
+
+### Linear
+
+Choose Linear in **Manage**, then provide the project's Linear personal API key
+and required team key. Taskboard loads that team's queue rather than a broad
+user-wide assigned-issues feed.
+
+### Jira
+
+Choose Jira, then provide the project's Atlassian Cloud URL, account email, API
+token, and JQL. Only HTTPS `*.atlassian.net` origins are accepted.
+
+![Taskboard across projects](../../docs/media/across-projects.png)
+
+## Work with tasks
+
+The panel opens on BB's current project. Use **Across projects** only when you
+want an explicit grouped overview. List and Kanban preserve each provider's
+actual workflow names; rejected writes roll back the optimistic move.
+
+![Live task detail](../../docs/media/task-detail.png)
+
+The CLI uses the current BB project unless `--project <proj_id>` is supplied:
+
+```text
+bb taskboard status [--project <proj_id>] [--json]
+bb taskboard config [--project <proj_id>] [--source linear|github|jira] [provider fields] [--json]
+bb taskboard credentials [--project <proj_id>] [--json]
+bb taskboard refresh [linear|github|jira] [--project <proj_id>] [--json]
+bb taskboard list [--project <proj_id>] [--source linear|github|jira] [--query <text>] [--cached] [--json]
+bb taskboard show <linear|github|jira> <locator> [--project <proj_id>] [--json]
+bb taskboard transitions <linear|github|jira> <locator> [--project <proj_id>] [--json]
+bb taskboard move <linear|github|jira> <locator> --status <id> [--project <proj_id>] [--json]
+```
+
+An explicit source must match the tracker selected for that project. Taskboard
+rejects mismatches before contacting a provider.
+
+## Credentials and privacy
+
+Linear and Jira credentials are isolated by BB project. Secret inputs are
+write-only and stay blank after loading or saving. Taskboard stores the live
+copy in owner-only files, never returns secret values to the frontend or CLI,
+and accepts credentials only through BB's authenticated interaction form.
+
+The external tracker remains authoritative. Taskboard caches task summaries
+and sync metadata in its plugin database; details and comments are fetched live
+when needed.
+
+## Development
+
+```sh
+cd plugins/taskboard
+npm install
+npm run check
+bb plugin install .
+npm run dev
+```
+
+`components/ui/` is vendored BB component source pinned by `components.json`.
+Add another component with `npx shadcn add @bb/<component>`. The checked-in
+`types/` declarations make the source typecheck without a BB checkout; refresh
+them with `bb plugin types .` when updating the minimum BB version.
+
+## License
+
+[MIT](../../LICENSE) © 2026 Mateo Cerquetella.
