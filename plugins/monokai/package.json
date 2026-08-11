@@ -1,0 +1,79 @@
+{
+  "name": "@smsunarto/bb-plugin-monokai",
+  "version": "0.1.0",
+  "description": "A dark Monokai-family palette for bb: one meaning per hue, a single text ladder, and a matching terminal.",
+  "keywords": [
+    "bb",
+    "bb-plugin",
+    "theme",
+    "palette",
+    "monokai",
+    "dark-mode"
+  ],
+  "license": "MIT",
+  "author": "Scott Sunarto",
+  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/monokai#readme",
+  "bugs": {
+    "url": "https://github.com/smsunarto/bb-plugins/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "directory": "plugins/monokai"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "engines": {
+    "bb": ">=0.36",
+    "bbPluginSdk": "^0.4.1"
+  },
+  "bb": {
+    "name": "bb Monokai",
+    "description": "A dark Monokai-family palette for bb: one meaning per hue, a single text ladder, and a matching terminal.",
+    "branding": {
+      "icon": "./assets/icon.svg",
+      "logo": {
+        "light": "./assets/logo.svg",
+        "dark": "./assets/logo-dark.svg"
+      }
+    },
+    "server": "./server.ts",
+    "themes": [
+      {
+        "id": "bb-monokai",
+        "name": "bb Monokai",
+        "description": "Dark-only Monokai-family palette: one meaning per hue, a single text ladder, the shared ANSI content palette, and a monospace-first type stack.",
+        "css": "./themes/bb-monokai.css"
+      }
+    ],
+    "skills": []
+  },
+  "files": [
+    "dist/server.js",
+    "dist/server.meta.json",
+    "themes/",
+    "assets/",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "server.ts"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "better-sqlite3": "^12.0.0",
+    "hono": "^4.11.9",
+    "typescript": "^7.0.0",
+    "zod": "^4.3.6"
+  },
+  "scripts": {
+    "dev": "bun ../../scripts/dev-plugin.ts",
+    "build": "bb plugin build .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  }
+}

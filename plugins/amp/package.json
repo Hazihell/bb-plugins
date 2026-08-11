@@ -1,0 +1,82 @@
+{
+  "name": "@smsunarto/bb-plugin-amp",
+  "version": "0.2.0",
+  "description": "Runs Amp locally or in an Orb as one bb provider through a bundled ACP bridge built on the official @ampcode/sdk.",
+  "keywords": [
+    "bb",
+    "bb-plugin",
+    "amp",
+    "ampcode",
+    "acp",
+    "agent-client-protocol",
+    "coding-agent"
+  ],
+  "license": "MIT",
+  "author": "Scott Sunarto",
+  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/amp#readme",
+  "bugs": {
+    "url": "https://github.com/smsunarto/bb-plugins/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "directory": "plugins/amp"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "engines": {
+    "bb": ">=0.36",
+    "bbPluginSdk": "^0.4.1"
+  },
+  "bb": {
+    "name": "Amp",
+    "description": "Runs Amp locally or in an Orb as one bb provider through a bundled ACP bridge built on the official @ampcode/sdk.",
+    "branding": {
+      "icon": "./assets/icon.svg",
+      "logo": {
+        "light": "./assets/logo.svg",
+        "dark": "./assets/logo-dark.svg"
+      }
+    },
+    "server": "./server.ts",
+    "app": "./app.tsx",
+    "skills": []
+  },
+  "files": [
+    "dist/server.js",
+    "dist/server.meta.json",
+    "dist/app.js",
+    "dist/app.meta.json",
+    "dist/app.css",
+    "dist/bridge.js",
+    "assets/",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "server.ts",
+    "app.tsx",
+    "app.css",
+    "lib/",
+    "src/"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@agentclientprotocol/sdk": "^1.2.1",
+    "@ampcode/sdk": "0.1.0-20260729105907-g72d5ca3",
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^7.0.0",
+    "zod": "^3.25.0"
+  },
+  "scripts": {
+    "dev": "bun ../../scripts/dev-plugin.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --experimental-strip-types test/*.test.ts",
+    "build:bridge": "esbuild src/bridge.ts --bundle --platform=node --format=esm --target=node20 --outfile=dist/bridge.js --banner:js=\"import { createRequire as __bbCreateRequire } from 'node:module'; const require = __bbCreateRequire(import.meta.url);\"",
+    "build": "bun run build:bridge && bb plugin build .",
+    "clean": "rm -rf dist"
+  }
+}
