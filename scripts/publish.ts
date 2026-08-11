@@ -334,6 +334,18 @@ function run(command: string, args: string[], cwd: string): string {
   return execFileSync(command, args, { cwd, encoding: "utf8" }).trim();
 }
 
+/**
+ * Like run(), but the child keeps this terminal.
+ *
+ * `bun publish` can need the user: a web auth handshake, or a 2FA one-time
+ * password. Those prompts go to stdout, so capturing it the way run() does
+ * leaves bun waiting on a keypress for a prompt nobody was shown — the publish
+ * looks hung when it is only asking a question.
+ */
+function runInteractive(command: string, args: string[], cwd: string): void {
+  execFileSync(command, args, { cwd, stdio: "inherit" });
+}
+
 /** Like run(), but a non-zero exit is an answer rather than a failure, and the
     command's own stderr stays off the console. Used for registry probes, where
     "not published yet" arrives as a 404. */
@@ -407,7 +419,7 @@ function main(): void {
 
     console.log(`  publishing ${name}@${version}…`);
     // Scoped names publish RESTRICTED by default; this is what makes them public.
-    run("bun", ["publish", "--access", "public"], dir);
+    runInteractive("bun", ["publish", "--access", "public"], dir);
     console.log(`  ✓ ${name}@${version}`);
   }
 

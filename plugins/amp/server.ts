@@ -72,8 +72,19 @@ export const rpcContract = defineRpcContract({
   },
 });
 
-const PLUGIN_DIR = dirname(fileURLToPath(import.meta.url));
-const BRIDGE_PATH = join(PLUGIN_DIR, "dist", "bridge.js");
+const MODULE_DIR = dirname(fileURLToPath(import.meta.url));
+/**
+ * Where the bridge bundle sits relative to whichever module bb loaded.
+ *
+ * bb picks the entry by install kind: a path source runs `server.ts` from the
+ * plugin root, while a managed npm install runs the prebuilt `dist/server.js`
+ * (plugin-runtime.ts `resolveServerEntry`). So `import.meta.url` is the root in
+ * one case and `dist/` in the other, and a single hard-coded `dist/bridge.js`
+ * resolves to `dist/dist/bridge.js` on every npm install.
+ */
+const BRIDGE_PATH = existsSync(join(MODULE_DIR, "bridge.js"))
+  ? join(MODULE_DIR, "bridge.js")
+  : join(MODULE_DIR, "dist", "bridge.js");
 
 function parseLinkSessionReport(argv: string[]): OrbUsageRecord | null {
   const [command, providerSessionId, executionTarget, ampThreadId, ...extra] = argv;
