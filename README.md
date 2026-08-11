@@ -60,6 +60,11 @@
 <td align="center"><a href="plugins/t3sidebar/"><b>t3sidebar</b></a></td>
 <td>An inbox-style thread list that never re-orders itself. Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
 </tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/usage-tracker/assets/logo-dark.svg" /><img src="plugins/usage-tracker/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/usage-tracker/"><b>Usage Tracker</b></a></td>
+<td>Shows compact Codex and Claude Code 5-hour and weekly limits directly in the sidebar footer.</td>
+</tr>
 </table>
 
 ### Themes
@@ -80,7 +85,7 @@ One command per plugin:
 bb plugin install npm:@smsunarto/bb-plugin-<id>
 ```
 
-`<id>` is the plugin's directory name — `agent-proxy`, `agentation`, `gh-stack`, `notify`, `amp`, `t3sidebar`, or `monokai`. For example:
+`<id>` is the plugin's directory name — `agent-proxy`, `agentation`, `gh-stack`, `notify`, `amp`, `t3sidebar`, `usage-tracker`, or `monokai`. For example:
 
 ```sh
 bb plugin install npm:@smsunarto/bb-plugin-notify
@@ -97,4 +102,3 @@ bun install                              # one hoisted node_modules at the repo 
 bun run build                            # bb plugin build for every plugin
 bb plugin install ./plugins/<id>         # from the repo root
 ```
-

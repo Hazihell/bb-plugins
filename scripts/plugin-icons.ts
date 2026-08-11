@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   BellIcon,
+  BarChartIcon,
   ChatFeedbackIcon,
   GitPullRequestIcon,
   Layers01Icon,
@@ -105,6 +106,10 @@ const customIcons = {
   t3sidebar: {
     name: "PanelLeft",
     nodes: PanelLeftIcon,
+  },
+  "usage-tracker": {
+    name: "BarChart",
+    nodes: BarChartIcon,
   },
   monokai: {
     name: "Palette",
