@@ -21,10 +21,14 @@
  *   bun scripts/publish.ts               # the real thing
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { workspacePlugins, type PluginManifest } from "./plugin-package";
+import {
+  workspacePlugins,
+  unscopedPackageName,
+  type PluginManifest,
+} from "./plugin-package";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
@@ -48,6 +52,27 @@ export const ALLOWED_LICENSES: ReadonlySet<string> = new Set([
   // agentation bundles the upstream `agentation` package into dist/app.js.
   "MIT AND PolyForm-Shield-1.0.0",
 ]);
+
+/**
+ * The unscoped twin of a scoped package name, or null when there is none.
+ *
+ * Both names derive the SAME bb plugin id — `@smsunarto/bb-plugin-notify` and
+ * `bb-plugin-notify` both give `notify`, because derivePluginId() drops the
+ * scope before it strips the prefix. So the mirror is not a second plugin: it
+ * is the same tarball under a second registry name, published so that the
+ * short name cannot be taken by anyone else.
+ *
+ * It ships the real package rather than an empty placeholder on purpose. npm's
+ * Open-Source Terms forbid publishing content that exists only to reserve a
+ * name, and reclaim it without notice; a functional package is not squatting.
+ *
+ * The two names are alternatives, never companions — a user who installed both
+ * would give bb two plugins claiming one id.
+ */
+export function mirrorPackageName(name: string): string | null {
+  const unscoped = unscopedPackageName(name);
+  return unscoped === name ? null : unscoped;
+}
 
 /** Paths that must never reach a tarball, whatever the allowlist says. */
 const FORBIDDEN_PATH =
@@ -361,6 +386,32 @@ function probe(command: string, args: string[], cwd: string): string | null {
   }
 }
 
+/**
+ * Publish the package in `dir` under `name`.
+ *
+ * `bun publish` reads the name from package.json on disk, so shipping the
+ * unscoped mirror means holding that one field rewritten for the length of one
+ * command. The original bytes go back in a `finally`, so an interrupted or
+ * failed publish cannot leave a rewritten manifest in the working tree — only
+ * the tarball's copy differs, and only in `name`.
+ */
+function publishUnder(dir: string, name: string, manifestName: string): void {
+  if (name === manifestName) {
+    runInteractive("bun", ["publish", "--access", "public"], dir);
+    return;
+  }
+  const manifestPath = join(dir, "package.json");
+  const original = readFileSync(manifestPath, "utf8");
+  const patched = JSON.parse(original) as PluginManifest;
+  patched.name = name;
+  writeFileSync(manifestPath, `${JSON.stringify(patched, null, 2)}\n`);
+  try {
+    runInteractive("bun", ["publish", "--access", "public"], dir);
+  } finally {
+    writeFileSync(manifestPath, original);
+  }
+}
+
 function main(): void {
   const dryRun = process.argv.includes("--dry-run");
 
@@ -406,21 +457,29 @@ function main(): void {
       fail(`${id} cannot be published:\n${problems.map((problem) => `    - ${problem}`).join("\n")}`);
     }
 
-    const published = probe("bun", ["info", `${name}@${version}`, "version"], ROOT);
-    if (published === version) {
-      console.log(`  ${name}@${version} already published — skipping`);
-      continue;
-    }
+    // The scoped name, then its unscoped mirror. Each is probed and published
+    // on its own, so a mirror added to an already-released version still goes
+    // out, and a half-finished run resumes without republishing what landed.
+    const names = [name, mirrorPackageName(name)].filter(
+      (candidate): candidate is string => candidate !== null,
+    );
+    for (const target of names) {
+      const published = probe("bun", ["info", `${target}@${version}`, "version"], ROOT);
+      if (published === version) {
+        console.log(`  ${target}@${version} already published — skipping`);
+        continue;
+      }
 
-    if (dryRun) {
-      console.log(`  ${name}@${version} ready (${paths.length} files)`);
-      continue;
-    }
+      if (dryRun) {
+        console.log(`  ${target}@${version} ready (${paths.length} files)`);
+        continue;
+      }
 
-    console.log(`  publishing ${name}@${version}…`);
-    // Scoped names publish RESTRICTED by default; this is what makes them public.
-    runInteractive("bun", ["publish", "--access", "public"], dir);
-    console.log(`  ✓ ${name}@${version}`);
+      console.log(`  publishing ${target}@${version}…`);
+      // Scoped names publish RESTRICTED by default; this is what makes them public.
+      publishUnder(dir, target, name);
+      console.log(`  ✓ ${target}@${version}`);
+    }
   }
 
   console.log(dryRun ? "\ndry run complete — nothing published" : "\ndone");

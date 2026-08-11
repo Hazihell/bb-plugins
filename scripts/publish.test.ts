@@ -5,10 +5,13 @@ import { describe, expect, test } from "bun:test";
 import {
   ALLOWED_LICENSES,
   bbTargets,
+  mirrorPackageName,
   nonRegistryProtocol,
   packedPaths,
   publishProblems,
 } from "./publish";
+import { derivePluginId, workspacePlugins } from "./plugin-package";
+import { join } from "node:path";
 import type { PluginManifest } from "./plugin-package";
 
 /** A manifest and a packed file list that the gate accepts. */
@@ -221,6 +224,29 @@ describe("nonRegistryProtocol", () => {
     expect(nonRegistryProtocol("../sibling")).toBe("path");
     expect(nonRegistryProtocol("owner/repo")).toBe("github shorthand");
   });
+});
+
+// Every plugin ships under two registry names so the short one cannot be
+// squatted. The mirror is only safe because both names collapse to one plugin
+// id — if that ever stopped being true, the mirror would install a SECOND
+// plugin rather than the same one, so the id equality is the real assertion.
+describe("mirrorPackageName", () => {
+  test("a scoped name mirrors to its unscoped twin", () => {
+    expect(mirrorPackageName("@smsunarto/bb-plugin-notify")).toBe("bb-plugin-notify");
+    expect(mirrorPackageName("@smsunarto/bb-plugin-gh-stack")).toBe("bb-plugin-gh-stack");
+  });
+
+  test("an already-unscoped name has no mirror, so it publishes once", () => {
+    expect(mirrorPackageName("bb-plugin-notify")).toBeNull();
+  });
+
+  for (const plugin of workspacePlugins(join(import.meta.dir, ".."))) {
+    test(`${plugin.directory} mirrors to a name bb reads as the same plugin`, () => {
+      const mirror = mirrorPackageName(plugin.name);
+      expect(mirror).toBe(`bb-plugin-${plugin.directory}`);
+      expect(derivePluginId(mirror as string)).toBe(plugin.id);
+    });
+  }
 });
 
 // `bun pm pack` has no --json, so the gate parses its prose. If that parse
