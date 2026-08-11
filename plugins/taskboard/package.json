@@ -1,9 +1,11 @@
 {
   "name": "bb-plugin-taskboard",
   "version": "0.1.0",
-  "private": true,
   "description": "Bring each BB project's GitHub, Linear, or Jira tasks into one focused taskboard.",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "author": "Mateo Cerquetella",
   "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/taskboard#readme",
@@ -39,6 +41,31 @@
     "app": "./app.tsx",
     "skills": []
   },
+  "files": [
+    "dist/server.js",
+    "dist/server.meta.json",
+    "dist/app.js",
+    "dist/app.meta.json",
+    "dist/app.css",
+    "assets/",
+    "components/",
+    "hooks/",
+    "lib/",
+    "sources/",
+    "types/",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "app.css",
+    "app.tsx",
+    "components.json",
+    "contract.ts",
+    "credential-contract.ts",
+    "credentials.ts",
+    "server.ts",
+    "store.ts",
+    "tsconfig.json"
+  ],
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.1.3",
     "@hugeicons/react": "^1.1.6",
@@ -62,12 +89,14 @@
     "typescript": "^5.7.0"
   },
   "scripts": {
-    "build": "bb plugin build .",
+    "build": "env -u BB_CLI bb plugin build .",
     "dev": "bb plugin dev .",
     "typecheck": "tsc --noEmit",
-    "types:check": "bb plugin types --check .",
+    "types:check": "env -u BB_CLI bb plugin types --check .",
+    "types:refresh": "env -u BB_CLI bb plugin types .",
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "verify:build": "node scripts/verify-build.mjs",
-    "check": "npm run types:check && npm run typecheck && npm test && npm run build && npm run verify:build"
+    "check": "npm run types:check && npm run typecheck && npm test && npm run build && npm run verify:build",
+    "prepack": "npm run check"
   }
 }

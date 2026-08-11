@@ -1,4 +1,4 @@
-# Mateo's bb-plugins
+# BB Plugins
 
 Plugins for [BB](https://github.com/get-bb/bb), the agent IDE — kept together
 in one GitHub repository.
@@ -11,7 +11,21 @@ in one GitHub repository.
 | --- | --- | --- |
 | <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 
-## Install from source
+## Install
+
+One command per plugin:
+
+```sh
+bb plugin install npm:bb-plugin-<id>
+```
+
+For Taskboard:
+
+```sh
+bb plugin install npm:bb-plugin-taskboard
+```
+
+## Build from source
 
 Each plugin is an independent BB package under `plugins/<id>`. Clone the
 workspace once, install its shared dependencies, and install whichever plugins
@@ -35,7 +49,9 @@ bb plugin reload taskboard
 ```
 
 Direct `bb plugin install git:...` installation targets a repository-root
-manifest and therefore does not apply to this multi-plugin layout.
+manifest and therefore does not apply to this multi-plugin layout. Published
+npm packages provide the one-command install while this repository remains an
+extensible source workspace.
 
 ## Develop
 
@@ -53,3 +69,9 @@ pick them up automatically.
 ## License
 
 [MIT](./LICENSE) © 2026 Mateo Cerquetella.
+
+## Acknowledgements
+
+Repository layout inspired by
+[smsunarto/bb-plugins](https://github.com/smsunarto/bb-plugins). Thanks to
+Scott Sunarto for the clear multi-plugin structure.

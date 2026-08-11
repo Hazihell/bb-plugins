@@ -12,10 +12,10 @@
   <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
   <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
   <img src="https://img.shields.io/badge/GitHub%20%C2%B7%20Linear%20%C2%B7%20Jira-supported-2563eb?style=flat-square" alt="GitHub, Linear, and Jira supported" />
-  <a href="../../LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
 
-![Taskboard inside BB](../../docs/media/hero.png)
+![Taskboard inside BB](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/hero.png)
 
 Taskboard brings external issues into the place where the work happens. Pick
 exactly one tracker for each BB project, browse a quiet List or Kanban view,
@@ -37,8 +37,14 @@ task to an agent without rebuilding context by hand.
 
 ## Install
 
-Taskboard is a full-trust BB plugin. Review the source, then clone the workspace
-and install Taskboard as a local-path plugin:
+Taskboard is a full-trust BB plugin. Review the source, then install its public
+npm package:
+
+```sh
+bb plugin install npm:bb-plugin-taskboard
+```
+
+To work from source instead:
 
 ```sh
 git clone https://github.com/MateoCerquetella/bb-plugins.git
@@ -86,7 +92,7 @@ user-wide assigned-issues feed.
 Choose Jira, then provide the project's Atlassian Cloud URL, account email, API
 token, and JQL. Only HTTPS `*.atlassian.net` origins are accepted.
 
-![Taskboard across projects](../../docs/media/across-projects.png)
+![Taskboard across projects](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/across-projects.png)
 
 ## Work with tasks
 
@@ -94,7 +100,7 @@ The panel opens on BB's current project. Use **Across projects** only when you
 want an explicit grouped overview. List and Kanban preserve each provider's
 actual workflow names; rejected writes roll back the optimistic move.
 
-![Live task detail](../../docs/media/task-detail.png)
+![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 
 The CLI uses the current BB project unless `--project <proj_id>` is supplied:
 
@@ -136,8 +142,10 @@ npm run dev
 `components/ui/` is vendored BB component source pinned by `components.json`.
 Add another component with `npx shadcn add @bb/<component>`. The checked-in
 `types/` declarations make the source typecheck without a BB checkout; refresh
-them with `bb plugin types .` when updating the minimum BB version.
+them with `npm run types:refresh` when updating the minimum BB version. The
+script deliberately uses this workspace's pinned BB toolchain even when run
+from inside a live BB agent environment.
 
 ## License
 
-[MIT](../../LICENSE) © 2026 Mateo Cerquetella.
+[MIT](./LICENSE) © 2026 Mateo Cerquetella.

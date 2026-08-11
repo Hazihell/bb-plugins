@@ -26,6 +26,11 @@ npm install
 npm run check
 ```
 
+Plugin build/type scripts must clear `BB_CLI` before invoking the workspace's
+`bb` binary. Agent sessions set that variable to the running application; using
+it here would make generated SDK declarations depend on whichever BB build is
+currently open instead of the version pinned by the lockfile.
+
 Before handing off a new plugin, install its local path in BB and verify its
 human UI and CLI surface:
 
