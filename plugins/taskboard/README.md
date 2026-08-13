@@ -27,8 +27,13 @@ task to an agent without rebuilding context by hand.
 
 - **Project-first tasks** — each BB project selects GitHub, Linear, or Jira;
   different projects can use different providers.
-- **List and Kanban** — compact rows, provider-native lanes, drag-and-drop, and
-  keyboard status moves without repetitive provider chips on every task.
+- **List and Kanban** — compact rows plus Linear-style Status, State group,
+  Assignee, Priority, Project, and Labels filters. Filter values within one
+  field match either value; different fields combine to narrow the view.
+- **Project board preferences** — Manage controls which filters are visible,
+  the default List or Kanban layout, and the exact provider status order.
+  Provider-native workflow groups, drag-and-drop, and keyboard status moves
+  remain available without repetitive provider chips on every task.
 - **Live task details** — cached summaries keep browsing fast; opening a task
   fetches its current description, labels, assignee, and comments.
 - **Agent handoff** — prefill a BB prompt from any task or attach one with the
@@ -46,8 +51,9 @@ bb plugin install npm:bb-plugin-taskboard
 ```
 
 Open **Taskboard → Manage**, choose a BB project, select its tracker, and save
-the connection. Each project selects exactly one tracker; other projects can
-choose a different provider.
+the connection. The same page configures that project's filters, default
+layout, and workflow ordering. Each project selects exactly one tracker; other
+projects can choose a different provider and board setup.
 
 Update, reload, or remove the npm installation later:
 
@@ -88,7 +94,11 @@ token, and JQL. Only HTTPS `*.atlassian.net` origins are accepted.
 
 The panel opens on BB's current project. Use **Across projects** only when you
 want an explicit grouped overview. List and Kanban preserve each provider's
-actual workflow names; rejected writes roll back the optimistic move.
+actual workflow names. The primary delivery stages appear in the focused order
+In Review, In Progress, Blocked, Todo, Backlog, then Done by default;
+provider-specific stages remain between the closest matching stages. Change
+that ordering per project in **Manage → Board preferences**. Rejected writes
+roll back the optimistic move.
 
 ![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 

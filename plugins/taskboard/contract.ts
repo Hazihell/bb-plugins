@@ -7,6 +7,20 @@ import {
   projectCredentialsInteractionResponseSchema,
   secretMutationSchema
 } from './credential-contract.js';
+import { projectBoardSettingsSchema } from './board-settings.js';
+export {
+  DEFAULT_WORK_ITEM_FILTER_FIELDS,
+  DEFAULT_WORKFLOW_STATUS_ORDER,
+  defaultProjectBoardSettings,
+  projectBoardSettingsSchema,
+  trackerViewSchema,
+  workItemFilterFieldSchema
+} from './board-settings.js';
+export type {
+  ProjectBoardSettings,
+  TrackerView,
+  WorkItemFilterField
+} from './board-settings.js';
 export {
   bbProjectIdSchema,
   jiraBaseUrlSchema,
@@ -208,6 +222,14 @@ export const taskboardRpcContract = defineRpcContract({
   saveProjectConfig: {
     input: projectConfigMutationSchema,
     output: z.object({ config: projectConfigViewSchema }).strict()
+  },
+  getProjectBoardSettings: {
+    input: z.object({ projectId: bbProjectIdSchema }).strict(),
+    output: z.object({ settings: projectBoardSettingsSchema }).strict()
+  },
+  saveProjectBoardSettings: {
+    input: projectBoardSettingsSchema,
+    output: z.object({ settings: projectBoardSettingsSchema }).strict()
   }
 });
 
