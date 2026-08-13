@@ -1,7 +1,10 @@
 import type { BbPluginApi } from '@bb/plugin-sdk';
 import {
+  defaultProjectBoardSettings,
+  projectBoardSettingsSchema,
   projectSourceConfigSchema,
   workItemSchema,
+  type ProjectBoardSettings,
   type ProjectSourceConfig,
   type WorkItem,
   type WorkSource,
@@ -43,6 +46,13 @@ interface ProjectConfigRow {
   jira_base_url: string;
   jira_email: string;
   jira_jql: string;
+}
+
+interface ProjectBoardSettingsRow {
+  bb_project_id: string;
+  default_view: string;
+  enabled_filters_json: string;
+  status_order_json: string;
 }
 
 export interface StoredSyncState {
@@ -94,6 +104,17 @@ function configFromRow(row: ProjectConfigRow): ProjectSourceConfig {
     jiraBaseUrl: row.jira_base_url,
     jiraEmail: row.jira_email,
     jiraJql: row.jira_jql
+  });
+}
+
+function boardSettingsFromRow(
+  row: ProjectBoardSettingsRow
+): ProjectBoardSettings {
+  return projectBoardSettingsSchema.parse({
+    projectId: row.bb_project_id,
+    defaultView: row.default_view,
+    enabledFilters: JSON.parse(row.enabled_filters_json),
+    statusOrder: JSON.parse(row.status_order_json)
   });
 }
 
@@ -293,6 +314,15 @@ export function createWorkItemStore(bb: BbPluginApi) {
 
       CREATE INDEX idx_project_source_selected
         ON project_source_config(source, bb_project_id);
+    `,
+    `
+      CREATE TABLE project_board_settings (
+        bb_project_id TEXT PRIMARY KEY,
+        default_view TEXT NOT NULL CHECK (default_view IN ('list', 'kanban')),
+        enabled_filters_json TEXT NOT NULL,
+        status_order_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
     `
   ]);
 
@@ -387,6 +417,19 @@ export function createWorkItemStore(bb: BbPluginApi) {
       jira_email,
       jira_jql
     FROM project_source_config
+    WHERE bb_project_id = ?
+  `);
+
+  const readProjectBoardSettings = db.prepare<
+    [string],
+    ProjectBoardSettingsRow
+  >(`
+    SELECT
+      bb_project_id,
+      default_view,
+      enabled_filters_json,
+      status_order_json
+    FROM project_board_settings
     WHERE bb_project_id = ?
   `);
 
@@ -608,6 +651,37 @@ export function createWorkItemStore(bb: BbPluginApi) {
         }
         return configFromRow(readProjectConfig.get(config.projectId)!);
       })();
+    },
+    projectBoardSettings(projectId: string): ProjectBoardSettings {
+      const row = readProjectBoardSettings.get(projectId);
+      return row
+        ? boardSettingsFromRow(row)
+        : defaultProjectBoardSettings(projectId);
+    },
+    saveProjectBoardSettings(input: ProjectBoardSettings): ProjectBoardSettings {
+      const settings = projectBoardSettingsSchema.parse(input);
+      db.prepare<[string, string, string, string, string]>(
+        `
+        INSERT INTO project_board_settings (
+          bb_project_id, default_view, enabled_filters_json, status_order_json,
+          updated_at
+        ) VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(bb_project_id) DO UPDATE SET
+          default_view = excluded.default_view,
+          enabled_filters_json = excluded.enabled_filters_json,
+          status_order_json = excluded.status_order_json,
+          updated_at = excluded.updated_at
+      `
+      ).run(
+        settings.projectId,
+        settings.defaultView,
+        JSON.stringify(settings.enabledFilters),
+        JSON.stringify(settings.statusOrder),
+        new Date().toISOString()
+      );
+      return boardSettingsFromRow(
+        readProjectBoardSettings.get(settings.projectId)!
+      );
     },
     configuredProjectIds(): string[] {
       return db

@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-taskboard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Bring each BB project's GitHub, Linear, or Jira tasks into one focused taskboard.",
   "type": "module",
   "publishConfig": {
@@ -58,6 +58,8 @@
     "THIRD_PARTY_NOTICES.md",
     "app.css",
     "app.tsx",
+    "board-settings.ts",
+    "browse.ts",
     "components.json",
     "contract.ts",
     "credential-contract.ts",

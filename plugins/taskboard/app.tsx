@@ -59,10 +59,30 @@ import type {
   TaskboardRpcContract
 } from './contract.js';
 import {
+  defaultProjectBoardSettings,
+  projectBoardSettingsSchema,
+  type ProjectBoardSettings,
+  type TrackerView,
+  type WorkItemFilterField
+} from './board-settings.js';
+import {
   jiraBaseUrlSchema,
   projectCredentialsInteractionPayloadSchema,
   projectCredentialsInteractionResponseSchema
 } from './credential-contract.js';
+import {
+  assigneeFilterOptions,
+  compareWorkflowStatuses,
+  filterWorkItemsByAttributes,
+  labelFilterOptions,
+  priorityFilterOptions,
+  projectFilterOptions,
+  sortWorkItemsByWorkflow,
+  statusFilterOptions,
+  workflowStatusTone,
+  workflowStatusGroups,
+  type FilterOption
+} from './browse.js';
 import './app.css';
 
 const PANEL_PATH = 'tasks';
@@ -76,9 +96,9 @@ const SIDEBAR_MIN_WIDTH = 180;
 const SIDEBAR_MAX_WIDTH = 340;
 
 const STATE_CATEGORY_ORDER: readonly WorkStateCategory[] = [
-  'backlog',
-  'todo',
   'in_progress',
+  'todo',
+  'backlog',
   'done',
   'canceled'
 ];
@@ -91,12 +111,53 @@ const STATE_CATEGORY_LABELS: Readonly<Record<WorkStateCategory, string>> = {
   canceled: 'Canceled'
 };
 
+const BOARD_FILTER_OPTIONS: readonly {
+  field: WorkItemFilterField;
+  label: string;
+  description: string;
+}[] = [
+  {
+    field: 'state',
+    label: 'State group',
+    description: 'Broad Backlog, Todo, In progress, Done, and Canceled groups.'
+  },
+  {
+    field: 'status',
+    label: 'Status',
+    description: 'Exact provider workflow states such as In Review or Blocked.'
+  },
+  {
+    field: 'assignee',
+    label: 'Assignee',
+    description: 'People assigned to the work, including Unassigned.'
+  },
+  {
+    field: 'priority',
+    label: 'Priority',
+    description: 'Urgent, High, Medium, Low, and unprioritized work.'
+  },
+  {
+    field: 'project',
+    label: 'Project',
+    description: 'The provider project, repository, or Jira project.'
+  },
+  {
+    field: 'labels',
+    label: 'Labels',
+    description: 'Provider labels, including work with no labels.'
+  }
+];
+
 type SourceFilter = typeof ALL_SOURCES | WorkSource;
-type TrackerView = 'list' | 'kanban';
 
 interface TrackerBrowsePreferences {
   source: SourceFilter;
   stateCategories: WorkStateCategory[];
+  statuses: string[];
+  assignees: string[];
+  priorities: string[];
+  externalProjects: string[];
+  labels: string[];
   query: string;
   committedQuery: string;
   view: TrackerView;
@@ -426,11 +487,18 @@ function statusTone(category: WorkStateCategory) {
   return 'outline' as const;
 }
 
-function StateDot({ category }: { category: WorkStateCategory }) {
+function StateDot({
+  category,
+  status
+}: {
+  category: WorkStateCategory;
+  status?: string;
+}) {
   return (
     <span
       aria-hidden
       data-state-category={category}
+      data-status-tone={status ? workflowStatusTone(status, category) : undefined}
       className="tb-state-dot size-3 shrink-0 rounded-full border-2"
     />
   );
@@ -883,32 +951,78 @@ function FilterChip({
 
 function TrackerFilterBar({
   source,
+  enabledFilters,
   stateCategories,
+  statuses,
+  statusOptions,
+  assignees,
+  assigneeOptions,
+  priorities,
+  priorityOptions,
+  externalProjects,
+  projectOptions,
+  labels,
+  labelOptions,
   query,
   view,
   showSourceFilter,
   showViewToggle,
   onSourceChange,
   onStateCategoriesChange,
+  onStatusesChange,
+  onAssigneesChange,
+  onPrioritiesChange,
+  onExternalProjectsChange,
+  onLabelsChange,
   onQueryChange,
   onViewChange,
   onClear
 }: {
   source: SourceFilter;
+  enabledFilters: readonly WorkItemFilterField[];
   stateCategories: readonly WorkStateCategory[];
+  statuses: readonly string[];
+  statusOptions: readonly FilterOption[];
+  assignees: readonly string[];
+  assigneeOptions: readonly FilterOption[];
+  priorities: readonly string[];
+  priorityOptions: readonly FilterOption[];
+  externalProjects: readonly string[];
+  projectOptions: readonly FilterOption[];
+  labels: readonly string[];
+  labelOptions: readonly FilterOption[];
   query: string;
   view: TrackerView;
   showSourceFilter: boolean;
   showViewToggle: boolean;
   onSourceChange: (source: SourceFilter) => void;
   onStateCategoriesChange: (categories: WorkStateCategory[]) => void;
+  onStatusesChange: (statuses: string[]) => void;
+  onAssigneesChange: (assignees: string[]) => void;
+  onPrioritiesChange: (priorities: string[]) => void;
+  onExternalProjectsChange: (projects: string[]) => void;
+  onLabelsChange: (labels: string[]) => void;
   onQueryChange: (query: string) => void;
   onViewChange: (view: TrackerView) => void;
   onClear: () => void;
 }) {
   const filtered =
-    source !== ALL_SOURCES || stateCategories.length > 0 || query.trim() !== '';
+    source !== ALL_SOURCES ||
+    stateCategories.length > 0 ||
+    statuses.length > 0 ||
+    assignees.length > 0 ||
+    priorities.length > 0 ||
+    externalProjects.length > 0 ||
+    labels.length > 0 ||
+    query.trim() !== '';
   const keepOpen = (event: Event) => event.preventDefault();
+  const selectedNames = (
+    selected: readonly string[],
+    options: readonly FilterOption[]
+  ) =>
+    selected.map(
+      value => options.find(option => option.value === value)?.label ?? value
+    );
 
   return (
     <div
@@ -939,31 +1053,148 @@ function TrackerFilterBar({
           </FilterChip>
         ) : null}
 
-        <FilterChip
-          icon="Circle"
-          label="State"
-          selectedNames={stateCategories.map(
-            category => STATE_CATEGORY_LABELS[category]
-          )}
-        >
-          {STATE_CATEGORY_ORDER.map(category => (
-            <DropdownMenuCheckboxItem
-              key={category}
-              checked={stateCategories.includes(category)}
-              onSelect={keepOpen}
-              onCheckedChange={checked =>
-                onStateCategoriesChange(
-                  toggled(stateCategories, category, checked === true)
-                )
-              }
-            >
-              <span className="flex items-center gap-2">
-                <StateDot category={category} />
-                {STATE_CATEGORY_LABELS[category]}
-              </span>
-            </DropdownMenuCheckboxItem>
-          ))}
-        </FilterChip>
+        {enabledFilters.includes('state') ? (
+          <FilterChip
+            icon="Circle"
+            label="State group"
+            selectedNames={stateCategories.map(
+              category => STATE_CATEGORY_LABELS[category]
+            )}
+          >
+            {STATE_CATEGORY_ORDER.map(category => (
+              <DropdownMenuCheckboxItem
+                key={category}
+                checked={stateCategories.includes(category)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onStateCategoriesChange(
+                    toggled(stateCategories, category, checked === true)
+                  )
+                }
+              >
+                <span className="flex items-center gap-2">
+                  <StateDot category={category} />
+                  {STATE_CATEGORY_LABELS[category]}
+                </span>
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
+
+        {enabledFilters.includes('status') ? (
+          <FilterChip
+            icon="Workflow"
+            label="Status"
+            selectedNames={selectedNames(statuses, statusOptions)}
+          >
+            {statusOptions.map(option => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={statuses.includes(option.value)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onStatusesChange(
+                    toggled(statuses, option.value, checked === true)
+                  )
+                }
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
+
+        {enabledFilters.includes('assignee') ? (
+          <FilterChip
+            icon="UserRound"
+            label="Assignee"
+            selectedNames={selectedNames(assignees, assigneeOptions)}
+          >
+            {assigneeOptions.map(option => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={assignees.includes(option.value)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onAssigneesChange(
+                    toggled(assignees, option.value, checked === true)
+                  )
+                }
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
+
+        {enabledFilters.includes('priority') ? (
+          <FilterChip
+            icon="AlertCircle"
+            label="Priority"
+            selectedNames={selectedNames(priorities, priorityOptions)}
+          >
+            {priorityOptions.map(option => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={priorities.includes(option.value)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onPrioritiesChange(
+                    toggled(priorities, option.value, checked === true)
+                  )
+                }
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
+
+        {enabledFilters.includes('project') ? (
+          <FilterChip
+            icon="Folder"
+            label="Project"
+            selectedNames={selectedNames(externalProjects, projectOptions)}
+          >
+            {projectOptions.map(option => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={externalProjects.includes(option.value)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onExternalProjectsChange(
+                    toggled(externalProjects, option.value, checked === true)
+                  )
+                }
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
+
+        {enabledFilters.includes('labels') ? (
+          <FilterChip
+            icon="Layers"
+            label="Labels"
+            selectedNames={selectedNames(labels, labelOptions)}
+          >
+            {labelOptions.map(option => (
+              <DropdownMenuCheckboxItem
+                key={option.value}
+                checked={labels.includes(option.value)}
+                onSelect={keepOpen}
+                onCheckedChange={checked =>
+                  onLabelsChange(
+                    toggled(labels, option.value, checked === true)
+                  )
+                }
+              >
+                {option.label}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </FilterChip>
+        ) : null}
 
         <div className="tb-search-shell relative min-w-40 flex-1 rounded-md @md:max-w-72">
           <Icon
@@ -1041,7 +1272,7 @@ function EmptyState({
         </p>
         <p className="max-w-md text-sm text-muted-foreground">
           {filtered
-            ? 'Try a different state or search query.'
+            ? 'Try a different state, assignee, or search query.'
             : 'Use Manage to choose this project’s external tracker, then refresh.'}
         </p>
       </div>
@@ -1090,6 +1321,7 @@ function WorkItemRow({
       type="button"
       aria-label={`Open ${item.key}: ${item.title}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}`}
       data-state-category={item.stateCategory}
+      data-status-tone={workflowStatusTone(item.status, item.stateCategory)}
       onClick={onOpen}
       className="tb-item-row group grid min-h-9 w-full items-center gap-x-2 border-b border-border-hairline px-2.5 py-1 text-left focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
     >
@@ -1100,7 +1332,7 @@ function WorkItemRow({
         {item.key}
       </span>
       <span className="flex" title={item.status}>
-        <StateDot category={item.stateCategory} />
+        <StateDot category={item.stateCategory} status={item.status} />
       </span>
       <span className="min-w-0 truncate text-sm font-medium text-foreground">
         {item.title}
@@ -1120,15 +1352,9 @@ function WorkItemRow({
   );
 }
 
-function stateGroups(items: readonly WorkItem[]) {
-  return STATE_CATEGORY_ORDER.map(category => ({
-    category,
-    items: items.filter(item => item.stateCategory === category)
-  })).filter(group => group.items.length > 0);
-}
-
 function ListStateGroups({
   items,
+  statusOrder,
   projectsById,
   showProject,
   idPrefix,
@@ -1136,28 +1362,30 @@ function ListStateGroups({
   onOpen
 }: {
   items: readonly WorkItem[];
+  statusOrder: readonly string[];
   projectsById: ReadonlyMap<string, TrackerProject>;
   showProject: boolean;
   idPrefix: string;
   nested?: boolean;
   onOpen: (item: WorkItem) => void;
 }) {
-  return stateGroups(items).map(group => (
+  return workflowStatusGroups(items, statusOrder).map(group => (
     <section
-      key={group.category}
-      aria-labelledby={`${idPrefix}-state-${group.category}`}
+      key={group.key}
+      aria-labelledby={`${idPrefix}-state-${encodeURIComponent(group.key)}`}
     >
       <h3
-        id={`${idPrefix}-state-${group.category}`}
-        data-state-group-header={group.category}
+        id={`${idPrefix}-state-${encodeURIComponent(group.key)}`}
+        data-state-group-header={group.name}
         data-state-category={group.category}
+        data-status-tone={workflowStatusTone(group.name, group.category)}
         className={cn(
           'tb-group-heading sticky z-10 flex h-7 items-center gap-2 border-b px-2.5 text-2xs font-semibold uppercase tracking-[0.12em] backdrop-blur-sm',
           nested ? 'top-9' : 'top-0'
         )}
       >
-        <StateDot category={group.category} />
-        {STATE_CATEGORY_LABELS[group.category]}
+        <StateDot category={group.category} status={group.name} />
+        {group.name}
         <span className="text-xs font-normal tabular-nums text-subtle-foreground">
           {group.items.length}
         </span>
@@ -1187,38 +1415,30 @@ function kanbanLaneKey(name: string, category: WorkStateCategory): string {
 
 function kanbanLanes(
   items: readonly WorkItem[],
-  discovered: readonly WorkStatusOption[]
+  discovered: readonly WorkStatusOption[],
+  statusOrder: readonly string[]
 ): KanbanLane[] {
-  const visible = new Map<string, KanbanLane>();
-  for (const status of items.map(item => ({
-    name: item.status,
-    stateCategory: item.stateCategory
-  }))) {
-    const key = kanbanLaneKey(status.name, status.stateCategory);
-    visible.set(key, {
+  const lanes = new Map<string, KanbanLane>();
+  for (const group of workflowStatusGroups(items, statusOrder)) {
+    const key = kanbanLaneKey(group.name, group.category);
+    lanes.set(key, {
       key,
-      name: status.name,
-      category: status.stateCategory
+      name: group.name,
+      category: group.category
     });
   }
-  const targets = new Map<string, KanbanLane>();
   for (const status of discovered) {
     const key = kanbanLaneKey(status.name, status.stateCategory);
-    if (visible.has(key)) continue;
-    targets.set(key, {
+    if (lanes.has(key)) continue;
+    lanes.set(key, {
       key,
       name: status.name,
       category: status.stateCategory
     });
   }
-  const byWorkflow = (left: KanbanLane, right: KanbanLane) =>
-    STATE_CATEGORY_ORDER.indexOf(left.category) -
-      STATE_CATEGORY_ORDER.indexOf(right.category) ||
-    left.name.localeCompare(right.name);
-  return [
-    ...[...visible.values()].sort(byWorkflow),
-    ...[...targets.values()].sort(byWorkflow)
-  ];
+  return [...lanes.values()].sort((left, right) =>
+    compareWorkflowStatuses(left, right, statusOrder)
+  );
 }
 
 function kanbanItemId(item: WorkItem): string {
@@ -1375,6 +1595,7 @@ function KanbanCard({
       aria-busy={pending}
       aria-label={`${item.key}: ${item.title}. Status ${item.status}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''} Press Space to move, or Enter to open.`}
       data-state-category={item.stateCategory}
+      data-status-tone={workflowStatusTone(item.status, item.stateCategory)}
       data-picked-up={pickedUp ? 'true' : 'false'}
       data-pending={pending ? 'true' : 'false'}
       onPointerDown={onPrepare}
@@ -1395,7 +1616,7 @@ function KanbanCard({
       </span>
       <span className="mt-1.5 flex items-start gap-1.5">
         <span className="mt-1 flex shrink-0">
-          <StateDot category={item.stateCategory} />
+          <StateDot category={item.stateCategory} status={item.status} />
         </span>
         <span className="line-clamp-2 block text-sm font-medium leading-snug text-foreground">
           {item.title}
@@ -1432,10 +1653,12 @@ function KanbanCard({
 
 function KanbanBoard({
   items,
+  statusOrder,
   onOpen,
   onMove
 }: {
   items: readonly WorkItem[];
+  statusOrder: readonly string[];
   onOpen: (item: WorkItem) => void;
   onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
 }) {
@@ -1457,8 +1680,8 @@ function KanbanBoard({
   const [announcement, setAnnouncement] = useState('');
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
   const lanes = useMemo(
-    () => kanbanLanes(items, discovered),
-    [discovered, items]
+    () => kanbanLanes(items, discovered, statusOrder),
+    [discovered, items, statusOrder]
   );
 
   const loadOptions = useCallback(
@@ -1494,7 +1717,7 @@ function KanbanBoard({
         const options = await loadOptions(item);
         const targets = options.filter(option => !option.current);
         setDiscovered(current =>
-          kanbanLanes([], [...current, ...options]).map(lane => ({
+          kanbanLanes([], [...current, ...options], statusOrder).map(lane => ({
             id: lane.key,
             name: lane.name,
             stateCategory: lane.category,
@@ -1533,7 +1756,7 @@ function KanbanBoard({
         setChecking(current => (current === itemId ? null : current));
       }
     },
-    [loadOptions]
+    [loadOptions, statusOrder]
   );
 
   const optionForLane = useCallback(
@@ -1632,7 +1855,11 @@ function KanbanBoard({
           No external statuses in the current results
         </div>
       ) : (
-        <div className="mx-auto flex min-h-full min-w-max max-w-[110rem] gap-2.5">
+        <div
+          dir="ltr"
+          data-kanban-lanes="ordered"
+          className="ml-0 mr-auto flex min-h-full min-w-max max-w-[110rem] flex-row gap-2.5"
+        >
           {lanes.map(lane => {
             const columnItems = items.filter(
               item =>
@@ -1662,6 +1889,10 @@ function KanbanBoard({
                 }
                 data-drop-state={dropState}
                 data-state-category={lane.category}
+                data-status-tone={workflowStatusTone(
+                  lane.name,
+                  lane.category
+                )}
                 onDragOver={event => {
                   if (!pickup && !draggedItemRef.current) return;
                   event.preventDefault();
@@ -1681,7 +1912,7 @@ function KanbanBoard({
                 className="tb-kanban-column flex w-[264px] min-w-[264px] flex-col rounded-lg border border-transparent"
               >
                 <div className="tb-kanban-column-header sticky top-0 z-10 flex h-8 items-center gap-2 px-1">
-                  <StateDot category={lane.category} />
+                  <StateDot category={lane.category} status={lane.name} />
                   <h3
                     id={headingId}
                     className="min-w-0 truncate text-xs font-semibold"
@@ -1841,6 +2072,9 @@ function TrackerList({
 }) {
   const rpc = useRpc<TaskboardRpcContract>();
   const [items, setItems] = useState<WorkItem[] | undefined>();
+  const [boardSettings, setBoardSettings] = useState<ProjectBoardSettings>(() =>
+    defaultProjectBoardSettings(projectId ?? 'proj_across_projects')
+  );
   const [source, setSource] = useState<SourceFilter>(
     projectId === null
       ? (initialPreferences?.source ?? ALL_SOURCES)
@@ -1848,6 +2082,21 @@ function TrackerList({
   );
   const [stateCategories, setStateCategories] = useState<WorkStateCategory[]>(
     initialPreferences?.stateCategories ?? []
+  );
+  const [statuses, setStatuses] = useState<string[]>(
+    initialPreferences?.statuses ?? []
+  );
+  const [assignees, setAssignees] = useState<string[]>(
+    initialPreferences?.assignees ?? []
+  );
+  const [priorities, setPriorities] = useState<string[]>(
+    initialPreferences?.priorities ?? []
+  );
+  const [externalProjects, setExternalProjects] = useState<string[]>(
+    initialPreferences?.externalProjects ?? []
+  );
+  const [labels, setLabels] = useState<string[]>(
+    initialPreferences?.labels ?? []
   );
   const [query, setQuery] = useState(initialPreferences?.query ?? '');
   const [committedQuery, setCommittedQuery] = useState(
@@ -1858,6 +2107,29 @@ function TrackerList({
   );
   const [error, setError] = useState<string | null>(null);
   const requestRevisionRef = useRef(0);
+  const stateFilterEnabled = boardSettings.enabledFilters.includes('state');
+
+  useEffect(() => {
+    if (projectId === null) {
+      setBoardSettings(defaultProjectBoardSettings('proj_across_projects'));
+      return;
+    }
+    let cancelled = false;
+    void rpc
+      .call('getProjectBoardSettings', { projectId })
+      .then(result => {
+        if (cancelled) return;
+        setBoardSettings(result.settings);
+        if (!initialPreferences) setView(result.settings.defaultView);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setBoardSettings(defaultProjectBoardSettings(projectId));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [initialPreferences, projectId, rpc]);
 
   const loadItems = useCallback(async () => {
     const requestRevision = ++requestRevisionRef.current;
@@ -1867,7 +2139,10 @@ function TrackerList({
         ...(projectId === null ? {} : { projectId }),
         ...(projectId === null && source !== ALL_SOURCES ? { source } : {}),
         ...(committedQuery.trim() ? { query: committedQuery.trim() } : {}),
-        ...(stateCategories.length > 0 ? { stateCategories } : {})
+        ...(stateFilterEnabled && stateCategories.length > 0
+          ? { stateCategories }
+          : {}),
+        limit: 500
       });
       if (requestRevision !== requestRevisionRef.current) return;
       setItems(result.items);
@@ -1876,7 +2151,14 @@ function TrackerList({
       setError(describeError(nextError));
       setItems([]);
     }
-  }, [rpc, projectId, source, committedQuery, stateCategories]);
+  }, [
+    rpc,
+    projectId,
+    source,
+    committedQuery,
+    stateCategories,
+    stateFilterEnabled
+  ]);
 
   useEffect(() => {
     void loadItems();
@@ -1895,17 +2177,27 @@ function TrackerList({
     onPreferencesChange(preferenceScope, {
       source,
       stateCategories,
+      statuses,
+      assignees,
+      priorities,
+      externalProjects,
+      labels,
       query,
       committedQuery,
       view
     });
   }, [
     committedQuery,
+    assignees,
+    externalProjects,
+    labels,
     onPreferencesChange,
     preferenceScope,
+    priorities,
     query,
     source,
     stateCategories,
+    statuses,
     view
   ]);
   useEffect(
@@ -1930,17 +2222,68 @@ function TrackerList({
     () => new Map((projects ?? []).map(project => [project.id, project])),
     [projects]
   );
+  const availableAssignees = useMemo(
+    () => assigneeFilterOptions(items ?? [], assignees),
+    [assignees, items]
+  );
+  const availableStatuses = useMemo(
+    () => statusFilterOptions(items ?? [], statuses, boardSettings.statusOrder),
+    [boardSettings.statusOrder, items, statuses]
+  );
+  const availablePriorities = useMemo(
+    () => priorityFilterOptions(items ?? [], priorities),
+    [items, priorities]
+  );
+  const availableExternalProjects = useMemo(
+    () => projectFilterOptions(items ?? [], externalProjects),
+    [externalProjects, items]
+  );
+  const availableLabels = useMemo(
+    () => labelFilterOptions(items ?? [], labels),
+    [items, labels]
+  );
+  const visibleItems = useMemo(
+    () =>
+      sortWorkItemsByWorkflow(
+        filterWorkItemsByAttributes(items ?? [], {
+          statuses: boardSettings.enabledFilters.includes('status')
+            ? statuses
+            : [],
+          assignees: boardSettings.enabledFilters.includes('assignee')
+            ? assignees
+            : [],
+          priorities: boardSettings.enabledFilters.includes('priority')
+            ? priorities
+            : [],
+          projects: boardSettings.enabledFilters.includes('project')
+            ? externalProjects
+            : [],
+          labels: boardSettings.enabledFilters.includes('labels') ? labels : []
+        }),
+        boardSettings.statusOrder
+      ),
+    [
+      assignees,
+      boardSettings.enabledFilters,
+      boardSettings.statusOrder,
+      externalProjects,
+      items,
+      labels,
+      priorities,
+      statuses
+    ]
+  );
   const acrossProjectGroups = useMemo(
     () =>
       (projects ?? []).flatMap(project => {
-        const projectItems = (items ?? []).filter(
+        const projectItems = visibleItems.filter(
           item => item.bbProjectId === project.id
         );
         return projectItems.length > 0
           ? [{ project, items: projectItems }]
           : [];
       }),
-    [items, projects]
+    [projects, visibleItems]
   );
   const duplicateProjectNames = useMemo(() => {
     const counts = new Map<string, number>();
@@ -1955,11 +2298,24 @@ function TrackerList({
   }, [projects]);
   const filtered =
     (projectId === null && source !== ALL_SOURCES) ||
-    stateCategories.length > 0 ||
+    (stateFilterEnabled && stateCategories.length > 0) ||
+    (boardSettings.enabledFilters.includes('status') && statuses.length > 0) ||
+    (boardSettings.enabledFilters.includes('assignee') &&
+      assignees.length > 0) ||
+    (boardSettings.enabledFilters.includes('priority') &&
+      priorities.length > 0) ||
+    (boardSettings.enabledFilters.includes('project') &&
+      externalProjects.length > 0) ||
+    (boardSettings.enabledFilters.includes('labels') && labels.length > 0) ||
     committedQuery.trim() !== '';
   const clearFilters = () => {
     setSource(ALL_SOURCES);
     setStateCategories([]);
+    setStatuses([]);
+    setAssignees([]);
+    setPriorities([]);
+    setExternalProjects([]);
+    setLabels([]);
     setQuery('');
     setCommittedQuery('');
   };
@@ -2007,13 +2363,29 @@ function TrackerList({
       <div className="tb-frame mx-auto flex h-full min-h-0 w-full max-w-[100rem] flex-col overflow-hidden">
         <TrackerFilterBar
           source={projectId === null ? source : ALL_SOURCES}
+          enabledFilters={boardSettings.enabledFilters}
           stateCategories={stateCategories}
+          statuses={statuses}
+          statusOptions={availableStatuses}
+          assignees={assignees}
+          assigneeOptions={availableAssignees}
+          priorities={priorities}
+          priorityOptions={availablePriorities}
+          externalProjects={externalProjects}
+          projectOptions={availableExternalProjects}
+          labels={labels}
+          labelOptions={availableLabels}
           query={query}
           view={view}
           showSourceFilter={projectId === null}
           showViewToggle={projectId !== null}
           onSourceChange={setSource}
           onStateCategoriesChange={setStateCategories}
+          onStatusesChange={setStatuses}
+          onAssigneesChange={setAssignees}
+          onPrioritiesChange={setPriorities}
+          onExternalProjectsChange={setExternalProjects}
+          onLabelsChange={setLabels}
           onQueryChange={setQuery}
           onViewChange={setView}
           onClear={clearFilters}
@@ -2028,11 +2400,11 @@ function TrackerList({
             ? 'Loading work items'
             : error
               ? 'Work items could not be loaded'
-              : items.length === 0
+              : visibleItems.length === 0
                 ? filtered
                   ? 'No work items match the current filters'
                   : 'No work items available'
-                : `${items.length} ${items.length === 1 ? 'work item' : 'work items'} shown`}
+                : `${visibleItems.length} ${visibleItems.length === 1 ? 'work item' : 'work items'} shown`}
         </p>
         <div className="min-h-0 flex-1 overflow-y-auto @container">
           {items === undefined ? (
@@ -2058,11 +2430,12 @@ function TrackerList({
           ) : projectId !== null && view === 'kanban' ? (
             <KanbanBoard
               key={projectId}
-              items={items}
+              items={visibleItems}
+              statusOrder={boardSettings.statusOrder}
               onOpen={onOpen}
               onMove={moveItemStatus}
             />
-          ) : items.length === 0 ? (
+          ) : visibleItems.length === 0 ? (
             <EmptyState filtered={filtered} onClear={clearFilters} />
           ) : projectId === null ? (
             acrossProjectGroups.map(({ project, items: projectItems }) => (
@@ -2088,6 +2461,7 @@ function TrackerList({
                 </h2>
                 <ListStateGroups
                   items={projectItems}
+                  statusOrder={boardSettings.statusOrder}
                   projectsById={projectsById}
                   showProject={false}
                   idPrefix={project.id}
@@ -2098,7 +2472,8 @@ function TrackerList({
             ))
           ) : (
             <ListStateGroups
-              items={items}
+              items={visibleItems}
+              statusOrder={boardSettings.statusOrder}
               projectsById={projectsById}
               showProject={false}
               idPrefix={projectId ?? 'selected-project'}
@@ -2235,6 +2610,10 @@ function TrackerDetail({
             <Badge
               variant={statusTone(item.stateCategory)}
               data-state-category={item.stateCategory}
+              data-status-tone={workflowStatusTone(
+                item.status,
+                item.stateCategory
+              )}
               className="tb-status-pill"
             >
               {item.status}
@@ -2866,6 +3245,221 @@ function ProjectConfigForm({
   );
 }
 
+function boardSettingsFingerprint(settings: ProjectBoardSettings): string {
+  return JSON.stringify({
+    defaultView: settings.defaultView,
+    enabledFilters: settings.enabledFilters,
+    statusOrder: settings.statusOrder
+  });
+}
+
+function ProjectBoardSettingsForm({
+  initialSettings,
+  onSave,
+  onSavingChange
+}: {
+  initialSettings: ProjectBoardSettings;
+  onSave: (settings: ProjectBoardSettings) => Promise<ProjectBoardSettings>;
+  onSavingChange: (saving: boolean) => void;
+}) {
+  const [baseline, setBaseline] = useState(initialSettings);
+  const [settings, setSettings] = useState(initialSettings);
+  const [statusOrderText, setStatusOrderText] = useState(
+    initialSettings.statusOrder.join('\n')
+  );
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBaseline(initialSettings);
+    setSettings(initialSettings);
+    setStatusOrderText(initialSettings.statusOrder.join('\n'));
+    setSaving(false);
+    setSaved(false);
+    setError(null);
+  }, [initialSettings]);
+  useEffect(
+    () => () => {
+      onSavingChange(false);
+    },
+    [onSavingChange]
+  );
+
+  const statusOrder = statusOrderText
+    .split('\n')
+    .map(status => status.trim())
+    .filter(Boolean);
+  const candidate = { ...settings, statusOrder };
+  const dirty =
+    boardSettingsFingerprint(candidate) !== boardSettingsFingerprint(baseline);
+
+  const save = async () => {
+    if (saving || !dirty) return;
+    setSaved(false);
+    setError(null);
+    const parsed = projectBoardSettingsSchema.safeParse(candidate);
+    if (!parsed.success) {
+      setError(
+        parsed.error.issues[0]?.message ?? 'Check the board settings and retry.'
+      );
+      return;
+    }
+
+    setSaving(true);
+    onSavingChange(true);
+    try {
+      const result = await onSave(parsed.data);
+      setBaseline(result);
+      setSettings(result);
+      setStatusOrderText(result.statusOrder.join('\n'));
+      setSaved(true);
+    } catch (nextError) {
+      setError(describeError(nextError));
+    } finally {
+      setSaving(false);
+      onSavingChange(false);
+    }
+  };
+
+  return (
+    <form
+      className="tb-settings-card space-y-5 rounded-lg border p-4 @lg:p-5"
+      onSubmit={event => {
+        event.preventDefault();
+        void save();
+      }}
+    >
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold">Board preferences</h3>
+        <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          Choose the filters shown for this project, its default layout, and
+          the workflow order shared by List and Kanban.
+        </p>
+      </div>
+
+      <fieldset disabled={saving} className="space-y-2">
+        <legend className="text-xs font-medium">Default layout</legend>
+        <div className="grid gap-2 @sm:grid-cols-2">
+          {(['list', 'kanban'] as const).map(view => (
+            <label
+              key={view}
+              data-selected={settings.defaultView === view ? 'true' : 'false'}
+              className="tb-source-option flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-3"
+            >
+              <input
+                type="radio"
+                name="default-board-layout"
+                value={view}
+                checked={settings.defaultView === view}
+                className="sr-only"
+                onChange={() => {
+                  setSettings(current => ({ ...current, defaultView: view }));
+                  setSaved(false);
+                }}
+              />
+              <Icon
+                name={view === 'list' ? 'ListView' : 'Columns2'}
+                className="size-4 text-muted-foreground"
+              />
+              <span className="text-sm font-medium">
+                {view === 'list' ? 'List' : 'Kanban'}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset disabled={saving} className="space-y-2">
+        <legend className="text-xs font-medium">Visible filters</legend>
+        <div className="grid gap-2 @lg:grid-cols-2">
+          {BOARD_FILTER_OPTIONS.map(option => (
+            <label
+              key={option.field}
+              className="flex cursor-pointer items-start gap-3 rounded-lg border border-border px-3 py-3"
+            >
+              <input
+                type="checkbox"
+                checked={settings.enabledFilters.includes(option.field)}
+                className="mt-0.5 size-4 accent-primary"
+                onChange={event => {
+                  setSettings(current => ({
+                    ...current,
+                    enabledFilters: toggled(
+                      current.enabledFilters,
+                      option.field,
+                      event.target.checked
+                    )
+                  }));
+                  setSaved(false);
+                }}
+              />
+              <span className="min-w-0">
+                <span className="block text-sm font-medium">{option.label}</span>
+                <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                  {option.description}
+                </span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <label className="block space-y-1.5 text-xs font-medium">
+        Workflow status order
+        <Textarea
+          aria-label="Workflow status order"
+          value={statusOrderText}
+          disabled={saving}
+          className="tb-field min-h-40 font-mono text-xs"
+          onChange={event => {
+            setStatusOrderText(event.target.value);
+            setSaved(false);
+          }}
+        />
+        <span className="block font-normal leading-relaxed text-muted-foreground">
+          Enter one exact status name per line. Provider-specific statuses not
+          listed here stay near their broad workflow group.
+        </span>
+      </label>
+
+      <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border pt-4">
+        {error ? (
+          <p role="alert" className="mr-auto max-w-xl text-sm text-destructive">
+            {error}
+          </p>
+        ) : saved ? (
+          <span role="status" className="mr-auto text-sm text-success">
+            Board preferences saved
+          </span>
+        ) : dirty ? (
+          <span className="mr-auto text-xs text-muted-foreground">
+            Unsaved board changes
+          </span>
+        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={saving}
+          onClick={() => {
+            const defaults = defaultProjectBoardSettings(settings.projectId);
+            setSettings(defaults);
+            setStatusOrderText(defaults.statusOrder.join('\n'));
+            setSaved(false);
+            setError(null);
+          }}
+        >
+          Reset defaults
+        </Button>
+        <Button type="submit" size="sm" disabled={saving || !dirty}>
+          {saving ? 'Saving…' : 'Save board preferences'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function ManageView({
   projectId,
   projects,
@@ -2879,21 +3473,29 @@ function ManageView({
 }) {
   const rpc = useRpc<TaskboardRpcContract>();
   const [config, setConfig] = useState<ProjectConfigView | null>(null);
+  const [boardSettings, setBoardSettings] =
+    useState<ProjectBoardSettings | null>(null);
   const [loadingConfig, setLoadingConfig] = useState(false);
   const [savingConfig, setSavingConfig] = useState(false);
+  const [savingBoardSettings, setSavingBoardSettings] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadRevision, setLoadRevision] = useState(0);
 
   useEffect(() => {
     setConfig(null);
+    setBoardSettings(null);
     setError(null);
     if (!projectId) return;
     let cancelled = false;
     setLoadingConfig(true);
-    void rpc
-      .call('getProjectConfig', { projectId })
-      .then(result => {
-        if (!cancelled) setConfig(result.config);
+    void Promise.all([
+      rpc.call('getProjectConfig', { projectId }),
+      rpc.call('getProjectBoardSettings', { projectId })
+    ])
+      .then(([configResult, settingsResult]) => {
+        if (cancelled) return;
+        setConfig(configResult.config);
+        setBoardSettings(settingsResult.settings);
       })
       .catch((nextError: unknown) => {
         if (!cancelled) setError(describeError(nextError));
@@ -2914,17 +3516,17 @@ function ManageView({
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               Project settings
             </p>
-            <h2 className="text-lg font-semibold">External tracker</h2>
+            <h2 className="text-lg font-semibold">Project setup</h2>
             <p className="max-w-2xl text-sm text-muted-foreground">
-              One project-scoped connection supplies this project&apos;s
-              external work. Secret values are write-only and never loaded back
-              here.
+              Configure this project&apos;s external tracker, visible filters,
+              default layout, and workflow order. Secret values are write-only
+              and never loaded back here.
             </p>
           </div>
           {projects && projects.length > 0 ? (
             <Select
               value={projectId ?? undefined}
-              disabled={savingConfig}
+              disabled={savingConfig || savingBoardSettings}
               onValueChange={onProjectChange}
             >
               <SelectTrigger
@@ -2958,21 +3560,37 @@ function ManageView({
             </p>
           </div>
         ) : loadingConfig ||
-          (config !== null && config.projectId !== projectId) ? (
+          (config !== null && config.projectId !== projectId) ||
+          (boardSettings !== null && boardSettings.projectId !== projectId) ? (
           <div className="space-y-3">
             <Skeleton className="h-32 w-full rounded-xl" />
             <Skeleton className="h-64 w-full rounded-xl" />
           </div>
-        ) : config ? (
-          <ProjectConfigForm
-            key={config.projectId}
-            initialConfig={config}
-            onSavingChange={setSavingConfig}
-            onSave={async mutation => {
-              const result = await rpc.call('saveProjectConfig', mutation);
-              return result.config;
-            }}
-          />
+        ) : config && boardSettings ? (
+          <>
+            <ProjectConfigForm
+              key={`connection:${config.projectId}`}
+              initialConfig={config}
+              onSavingChange={setSavingConfig}
+              onSave={async mutation => {
+                const result = await rpc.call('saveProjectConfig', mutation);
+                return result.config;
+              }}
+            />
+            <ProjectBoardSettingsForm
+              key={`board:${boardSettings.projectId}`}
+              initialSettings={boardSettings}
+              onSavingChange={setSavingBoardSettings}
+              onSave={async settings => {
+                const result = await rpc.call(
+                  'saveProjectBoardSettings',
+                  settings
+                );
+                setBoardSettings(result.settings);
+                return result.settings;
+              }}
+            />
+          </>
         ) : (
           <div className="rounded-xl border border-destructive/30 bg-card p-5">
             <p role="alert" className="text-sm text-destructive">
@@ -3519,13 +4137,31 @@ function ProjectCredentialsInteraction(props: PluginPendingInteractionProps) {
   );
 }
 
-function ConnectionSettingsInfo() {
+function TaskboardSettingsInfo() {
+  const navigate = useBbNavigate();
+  const { projectId } = useBbContext();
   return (
-    <p className="text-sm text-muted-foreground">
-      Each BB project uses one external tracker. Open Taskboard, choose a
-      project, then use Manage to select GitHub, Linear, or Jira and configure
-      its project-scoped connection.
-    </p>
+    <div className="space-y-3">
+      <p className="text-sm text-muted-foreground">
+        Each BB project has its own tracker connection, filter set, default
+        layout, and workflow status order.
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() =>
+          navigate.toPluginPanel(PANEL_PATH, {
+            subPath: projectId
+              ? routeToSubPath({ kind: 'manage', projectId })
+              : 'manage'
+          })
+        }
+      >
+        <Icon name="Settings" className="size-4" />
+        Open Taskboard project settings
+      </Button>
+    </div>
   );
 }
 
@@ -3540,9 +4176,9 @@ export default definePluginApp(app => {
   });
   app.slots.settingsSection({
     id: 'connections',
-    title: 'Project connections',
-    description: 'Choose one external tracker for each BB project.',
-    component: ConnectionSettingsInfo
+    title: 'Project settings',
+    description: 'Configure each project’s tracker and board experience.',
+    component: TaskboardSettingsInfo
   });
   app.slots.pendingInteraction({
     id: 'taskboard-credentials',

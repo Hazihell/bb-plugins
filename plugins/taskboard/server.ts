@@ -1268,6 +1268,19 @@ export default async function plugin(bb: BbPluginApi) {
     },
     async saveProjectConfig(input) {
       return { config: await persistProjectConfig(input) };
+    },
+    async getProjectBoardSettings(input) {
+      await assertProjectExists(input.projectId);
+      return { settings: store.projectBoardSettings(input.projectId) };
+    },
+    async saveProjectBoardSettings(input) {
+      await assertProjectExists(input.projectId);
+      const settings = store.saveProjectBoardSettings(input);
+      bb.realtime.publish('taskboard:changed', {
+        projectId: settings.projectId,
+        source: null
+      });
+      return { settings };
     }
   };
   bb.rpc.register(taskboardRpcContract, handlers);
