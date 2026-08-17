@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
   <a href="https://www.npmjs.com/package/bb-plugin-taskboard"><img src="https://img.shields.io/npm/v/bb-plugin-taskboard?style=flat-square" alt="npm version" /></a>
-  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
+  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
   <img src="https://img.shields.io/badge/GitHub%20%C2%B7%20Linear%20%C2%B7%20Jira-supported-2563eb?style=flat-square" alt="GitHub, Linear, and Jira supported" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
@@ -141,11 +141,11 @@ npm run dev --workspace bb-plugin-taskboard
 ```
 
 `components/ui/` is vendored BB component source pinned by `components.json`.
-Add another component with `npx shadcn add @bb/<component>`. The checked-in
-`types/` declarations make the source typecheck without a BB checkout; refresh
-them with `npm run types:refresh` when updating the minimum BB version. The
-script deliberately uses this workspace's pinned BB toolchain even when run
-from inside a live BB agent environment.
+Add another component with `npx shadcn add @bb/<component>`. The exact
+`@get-bb/plugin-sdk` development dependency makes the source typecheck without
+a BB checkout. Run `npm run types:refresh` and then `npm install` when updating
+the minimum BB version. The script deliberately uses this workspace's pinned
+BB toolchain even when run from inside a live BB agent environment.
 
 ## License
 

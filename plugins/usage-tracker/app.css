@@ -1,4 +1,5 @@
 .usage-tracker-sidebar {
+  --usage-sidebar-width: 11.75rem;
   --usage-sidebar-surface: var(--sidebar, var(--background));
   --usage-sidebar-raised: var(--popover, var(--card));
   --usage-sidebar-text: var(--sidebar-foreground, var(--foreground));
@@ -9,16 +10,20 @@
   --usage-sidebar-claude: #d97757;
 
   position: relative;
-  width: 11.75rem;
+  width: var(--usage-sidebar-width);
   min-width: 0;
-  max-width: 11.75rem;
-  flex: 0 1 11.75rem;
+  max-width: var(--usage-sidebar-width);
+  flex: 0 1 var(--usage-sidebar-width);
   align-self: center;
   margin-left: auto;
   container-type: inline-size;
   color: var(--usage-sidebar-text);
   font-family: inherit;
   font-variant-numeric: tabular-nums;
+}
+
+.usage-tracker-sidebar[data-provider-count="1"] {
+  --usage-sidebar-width: 6.5rem;
 }
 
 [data-collapsible="icon"] .usage-tracker-sidebar {
@@ -42,6 +47,10 @@
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 1.75rem;
   align-items: center;
   gap: 0.0625rem;
+}
+
+.usage-tracker-sidebar__strip[data-provider-count="1"] {
+  grid-template-columns: minmax(0, 1fr) 1.75rem;
 }
 
 .usage-tracker-sidebar__provider {

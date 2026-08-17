@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-usage-tracker",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Compact Codex and Claude usage limits in bb's sidebar footer.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
@@ -28,8 +28,8 @@
   },
   "type": "module",
   "engines": {
-    "bb": ">=0.36",
-    "bbPluginSdk": "^0.4.1"
+    "bb": ">=0.38",
+    "bbPluginSdk": ">=0.4.6"
   },
   "bb": {
     "name": "Usage Tracker",
@@ -52,6 +52,7 @@
     "dist/app.meta.json",
     "dist/app.css",
     "assets/",
+    "CHANGELOG.md",
     "README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
@@ -66,9 +67,10 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@get-bb/plugin-sdk": "0.4.6",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
-    "bb-app": "^0.36.0",
+    "bb-app": "^0.38.0",
     "typescript": "^5.7.0"
   },
   "scripts": {

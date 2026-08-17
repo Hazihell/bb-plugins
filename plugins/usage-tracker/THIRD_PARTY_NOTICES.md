@@ -42,8 +42,8 @@ Source: <https://github.com/colinhacks/zod>
 
 ## Not shipped here
 
-React and `@bb/plugin-sdk` are provided by bb at run time and are not bundled in
-this package.
+React and `@get-bb/plugin-sdk` are provided by bb at run time and are not
+bundled in this package.
 
 ---
 
