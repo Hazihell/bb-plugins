@@ -149,11 +149,7 @@
 
   .tb-group-heading,
   .tb-project-strip {
-    background: color-mix(
-      in oklch,
-      var(--tb-surface-soft) 44%,
-      var(--tb-surface)
-    );
+    background: var(--surface-recessed-soft-solid);
     color: var(--tb-ink-soft);
   }
 
@@ -254,14 +250,6 @@
     box-shadow:
       inset 2px 0 var(--tb-state-accent),
       inset 0 -1px 0 var(--tb-border);
-  }
-
-  .tb-group-heading[data-status-tone] {
-    background: color-mix(
-      in oklch,
-      var(--tb-state-accent) 5%,
-      var(--tb-surface)
-    );
   }
 
   .tb-source-mark[data-source='linear'],
@@ -405,16 +393,8 @@
   }
 
   .tb-kanban-column[data-state-category] {
-    border-color: color-mix(
-      in oklch,
-      var(--tb-state-accent) 18%,
-      var(--tb-border)
-    );
-    background: color-mix(
-      in oklch,
-      var(--tb-state-accent) 3%,
-      var(--surface-recessed-soft-solid)
-    );
+    border-color: var(--tb-border);
+    background: var(--surface-recessed-soft-solid);
   }
 
   .tb-kanban-column-header {
@@ -422,13 +402,8 @@
   }
 
   .tb-kanban-column[data-state-category] .tb-kanban-column-header {
-    background: color-mix(
-      in oklch,
-      var(--tb-state-accent) 8%,
-      var(--surface-recessed-soft-solid)
-    );
-    box-shadow: inset 0 -1px 0
-      color-mix(in oklch, var(--tb-state-accent) 20%, var(--tb-border));
+    background: var(--surface-recessed-soft-solid);
+    box-shadow: inset 0 -1px 0 var(--tb-border);
   }
 
   .tb-kanban-card {
