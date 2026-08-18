@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { WorkStateCategory } from '../contract.js';
 import type {
+  ExternalWorkItemCreateInput,
   ExternalWorkItemDetail,
   ExternalWorkStatusOption,
   WorkSourceAdapter
@@ -68,6 +69,33 @@ const issueStatusOptionsQuery = `
 const updateIssueStatusMutation = `
   mutation TaskboardLinearUpdateStatus($id: String!, $stateId: String!) {
     issueUpdate(id: $id, input: { stateId: $stateId }) {
+      success
+      issue { ${issueFields} }
+    }
+  }
+`;
+
+const teamForCreateQuery = `
+  query TaskboardLinearCreateTeam($teamKey: String!) {
+    teams(filter: { key: { eqIgnoreCase: $teamKey } }, first: 2) {
+      nodes { id key name }
+    }
+  }
+`;
+
+const createIssueMutation = `
+  mutation TaskboardLinearCreateIssue(
+    $teamId: String!
+    $title: String!
+    $description: String!
+  ) {
+    issueCreate(
+      input: {
+        teamId: $teamId
+        title: $title
+        description: $description
+      }
+    ) {
       success
       issue { ${issueFields} }
     }
@@ -308,6 +336,57 @@ export function createLinearAdapter(options: {
     async statusOptions(locator) {
       if (!configured) throw new Error('Linear is not configured');
       return statusOptions(locator);
+    },
+    async create(input: ExternalWorkItemCreateInput) {
+      if (!configured) throw new Error('Linear is not configured');
+      if (input.destinationId.toLowerCase() !== teamKey.toLowerCase()) {
+        throw new Error(
+          `Linear team ${input.destinationId} is outside the configured scope`
+        );
+      }
+      const teamData = await requestLinear(apiKey, teamForCreateQuery, {
+        teamKey
+      });
+      const teams = z
+        .object({
+          teams: z
+            .object({
+              nodes: z.array(
+                z
+                  .object({
+                    id: z.string().min(1),
+                    key: z.string().min(1),
+                    name: z.string()
+                  })
+                  .strict()
+              )
+            })
+            .strict()
+        })
+        .strict()
+        .parse(teamData).teams.nodes;
+      const team = teams.find(
+        candidate => candidate.key.toLowerCase() === teamKey.toLowerCase()
+      );
+      if (!team) throw new Error(`Linear team ${teamKey} was not found`);
+      const data = await requestLinear(apiKey, createIssueMutation, {
+        teamId: team.id,
+        title: input.title,
+        description: input.description
+      });
+      const created = z
+        .object({
+          issueCreate: z
+            .object({ success: z.boolean(), issue: issueSchema })
+            .strict()
+        })
+        .strict()
+        .parse(data).issueCreate;
+      if (!created.success) throw new Error('Linear rejected the new issue');
+      if (created.issue.team.key.toLowerCase() !== teamKey.toLowerCase()) {
+        throw new Error('Linear created the issue outside the configured team');
+      }
+      return toItem(created.issue);
     },
     async updateStatus(locator, statusId) {
       if (!configured) throw new Error('Linear is not configured');

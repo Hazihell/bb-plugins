@@ -147,6 +147,79 @@ export const workSourceStatusSchema = z
   .strict();
 export type WorkSourceStatus = z.infer<typeof workSourceStatusSchema>;
 
+export const createIssueDestinationSchema = z
+  .object({
+    id: z.string().min(1),
+    label: z.string().min(1)
+  })
+  .strict();
+export type CreateIssueDestination = z.infer<
+  typeof createIssueDestinationSchema
+>;
+
+export const createIssueContextSchema = z
+  .object({
+    projectId: bbProjectIdSchema,
+    projectName: z.string().min(1),
+    source: workSourceSchema,
+    available: z.boolean(),
+    message: z.string().nullable(),
+    destinationLabel: z.enum(['Repository', 'Team', 'Project key']),
+    destinations: z.array(createIssueDestinationSchema),
+    defaultDestinationId: z.string().nullable(),
+    allowsCustomDestination: z.boolean(),
+    defaultIssueType: z.string().nullable()
+  })
+  .strict();
+export type CreateIssueContext = z.infer<typeof createIssueContextSchema>;
+
+export const createIssueInputSchema = z
+  .object({
+    projectId: bbProjectIdSchema,
+    expectedSource: workSourceSchema,
+    title: z.string().trim().min(1).max(500),
+    description: z.string().max(100_000).default(''),
+    destinationId: z.string().trim().min(1).max(500),
+    issueType: z.string().trim().min(1).max(100).nullable().default(null)
+  })
+  .strict();
+export type CreateIssueInput = z.infer<typeof createIssueInputSchema>;
+
+export const issueDraftRequestIdSchema = z.string().uuid();
+
+const issueDraftBaseSchema = z
+  .object({
+    requestId: issueDraftRequestIdSchema,
+    helperThreadId: z.string().min(1),
+    createdAt: z.number().int().nonnegative()
+  })
+  .strict();
+
+export const runningIssueDraftSchema = issueDraftBaseSchema
+  .extend({ status: z.literal('running') })
+  .strict();
+
+export const issueDraftRecordSchema = z.discriminatedUnion('status', [
+  runningIssueDraftSchema,
+  issueDraftBaseSchema
+    .extend({
+      status: z.literal('complete'),
+      title: z.string().trim().min(1).max(500),
+      description: z.string().trim().min(1).max(100_000),
+      completedAt: z.number().int().nonnegative()
+    })
+    .strict(),
+  issueDraftBaseSchema
+    .extend({
+      status: z.literal('failed'),
+      error: z.string().min(1),
+      completedAt: z.number().int().nonnegative()
+    })
+    .strict()
+]);
+export type IssueDraftRecord = z.infer<typeof issueDraftRecordSchema>;
+export type RunningIssueDraft = z.infer<typeof runningIssueDraftSchema>;
+
 const listInputSchema = z
   .object({
     projectId: bbProjectIdSchema.optional(),
@@ -214,6 +287,52 @@ export const taskboardRpcContract = defineRpcContract({
       })
       .strict(),
     output: z.object({ item: workItemSchema }).strict()
+  },
+  getCreateIssueContext: {
+    input: z.object({ projectId: bbProjectIdSchema }).strict(),
+    output: z.object({ context: createIssueContextSchema }).strict()
+  },
+  startIssueDraft: {
+    input: z
+      .object({
+        requestId: issueDraftRequestIdSchema,
+        projectId: bbProjectIdSchema,
+        prompt: z
+          .string()
+          .min(1)
+          .max(64_000)
+          .refine(value => value.trim().length > 0, 'Prompt cannot be blank')
+      })
+      .strict(),
+    output: z
+      .object({
+        requestId: issueDraftRequestIdSchema,
+        helperThreadId: z.string().min(1)
+      })
+      .strict()
+  },
+  getIssueDraft: {
+    input: z.object({ requestId: issueDraftRequestIdSchema }).strict(),
+    output: z.object({ draft: issueDraftRecordSchema.nullable() }).strict()
+  },
+  cancelIssueDraft: {
+    input: z.object({ requestId: issueDraftRequestIdSchema }).strict(),
+    output: z.object({ cancelled: z.literal(true) }).strict()
+  },
+  createIssue: {
+    input: createIssueInputSchema,
+    output: z
+      .object({
+        item: workItemSchema,
+        mention: z
+          .object({
+            provider: z.literal('external-work-item'),
+            id: z.string().min(1),
+            label: z.string().min(1)
+          })
+          .strict()
+      })
+      .strict()
   },
   getProjectConfig: {
     input: z.object({ projectId: bbProjectIdSchema }).strict(),

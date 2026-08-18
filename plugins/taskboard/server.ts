@@ -2,6 +2,7 @@ import type { BbPluginApi, PluginRpcHandlers } from '@get-bb/plugin-sdk';
 import {
   bbProjectIdSchema,
   formatWorkItemContext,
+  issueDraftRecordSchema,
   projectConfigMutationSchema,
   projectCredentialsInteractionResponseSchema,
   projectSourceConfigSchema,
@@ -9,9 +10,13 @@ import {
   workSourceSchema,
   workStatusOptionSchema,
   taskboardRpcContract,
+  type CreateIssueContext,
+  type CreateIssueInput,
+  type IssueDraftRecord,
   type ProjectConfigMutation,
   type ProjectConfigView,
   type ProjectSourceConfig,
+  type RunningIssueDraft,
   type SecretMutation,
   type TrackerProject,
   type WorkItem,
@@ -21,15 +26,23 @@ import {
   type WorkSourceStatus
 } from './contract.js';
 import {
+  buildIssueDraftPrompt,
+  parseIssueDraftOutput,
+  type ParsedIssueDraft
+} from './issue-draft.js';
+import { assertExpectedIssueSource } from './create-issue.js';
+import {
   createProjectCredentialVault,
   type CredentialSource
 } from './credentials.js';
 import {
   createGithubAdapter,
   githubReposForProject,
-  githubStatusOutputSchema
+  githubStatusOutputSchema,
+  loadGithubStatus
 } from './sources/github.js';
 import { createJiraAdapter } from './sources/jira.js';
+import { jiraProjectKeysFromJql } from './sources/jira-scope.js';
 import { createLinearAdapter } from './sources/linear.js';
 import {
   withoutComments,
@@ -42,6 +55,11 @@ import { createWorkItemStore } from './store.js';
 const SOURCES: readonly WorkSource[] = ['linear', 'github', 'jira'];
 const CREDENTIAL_SOURCES: readonly CredentialSource[] = ['linear', 'jira'];
 const SYNC_INTERVAL_MS = 5 * 60_000;
+const ISSUE_DRAFT_TTL_MS = 24 * 60 * 60_000;
+const ISSUE_DRAFT_REQUEST_PREFIX = 'issue-draft:request:';
+const ISSUE_DRAFT_THREAD_PREFIX = 'issue-draft:thread:';
+const ISSUE_DRAFT_CANCELLATION_PREFIX = 'issue-draft:cancellation:';
+const ISSUE_DRAFT_RECONCILIATION_RETRY_MS = 50;
 const KEEP_SECRET = { operation: 'keep' } as const;
 const DEFAULT_PROJECT_CONFIG = {
   source: 'github',
@@ -54,6 +72,18 @@ const DEFAULT_PROJECT_CONFIG = {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function issueDraftRequestKey(requestId: string): string {
+  return `${ISSUE_DRAFT_REQUEST_PREFIX}${requestId}`;
+}
+
+function issueDraftThreadKey(threadId: string): string {
+  return `${ISSUE_DRAFT_THREAD_PREFIX}${threadId}`;
+}
+
+function issueDraftCancellationKey(requestId: string): string {
+  return `${ISSUE_DRAFT_CANCELLATION_PREFIX}${requestId}`;
 }
 
 function scopedItem(projectId: string, item: ExternalWorkItem): WorkItem {
@@ -305,6 +335,11 @@ function parseGithubRepoFromRemote(
 export default async function plugin(bb: BbPluginApi) {
   const store = createWorkItemStore(bb);
   const credentials = createProjectCredentialVault(bb);
+  const issueDraftStarts = new Map<
+    string,
+    Promise<{ requestId: string; helperThreadId: string }>
+  >();
+  const issueDraftReconciliations = new Map<string, Promise<void>>();
 
   async function liveProjects() {
     return bb.sdk.projects.list({ includePersonal: true });
@@ -325,6 +360,233 @@ export default async function plugin(bb: BbPluginApi) {
     const project = projects.find(entry => entry.id === projectId);
     if (!project) throw new Error('BB project was not found');
     return project;
+  }
+
+  async function readIssueDraftRecord(
+    requestId: string
+  ): Promise<IssueDraftRecord | null> {
+    const value = await bb.storage.kv.get<unknown>(
+      issueDraftRequestKey(requestId)
+    );
+    if (value === undefined) return null;
+    const parsed = issueDraftRecordSchema.safeParse(value);
+    if (parsed.success) return parsed.data;
+    bb.log.warn(`Discarding invalid Taskboard issue draft ${requestId}`);
+    await bb.storage.kv.delete(issueDraftRequestKey(requestId));
+    return null;
+  }
+
+  async function writeIssueDraftRecord(
+    record: IssueDraftRecord
+  ): Promise<void> {
+    await bb.storage.kv.set(issueDraftRequestKey(record.requestId), record);
+  }
+
+  async function issueDraftCancellationRequested(
+    requestId: string
+  ): Promise<boolean> {
+    return (
+      (await bb.storage.kv.get(issueDraftCancellationKey(requestId))) !==
+      undefined
+    );
+  }
+
+  async function clearIssueDraftRequest(
+    requestId: string,
+    helperThreadId: string
+  ): Promise<void> {
+    await bb.storage.kv.delete(issueDraftRequestKey(requestId));
+    await bb.storage.kv.delete(issueDraftThreadKey(helperThreadId));
+  }
+
+  async function releaseIssueDraftHelper(threadId: string): Promise<void> {
+    try {
+      await bb.sdk.threads.archive({ threadId });
+    } catch (error) {
+      bb.log.warn(
+        `Could not archive Taskboard issue-draft helper ${threadId}: ${errorMessage(error)}`
+      );
+    }
+    try {
+      await bb.sdk.threads.stop({ threadId });
+    } catch (error) {
+      bb.log.warn(
+        `Could not stop Taskboard issue-draft helper ${threadId}: ${errorMessage(error)}`
+      );
+    }
+  }
+
+  async function finishIssueDraft(
+    threadId: string,
+    result: ParsedIssueDraft | { error: string }
+  ): Promise<void> {
+    const requestId = await bb.storage.kv.get<string>(
+      issueDraftThreadKey(threadId)
+    );
+    if (requestId === undefined) return;
+    const current = await readIssueDraftRecord(requestId);
+    if (current === null || current.status !== 'running') return;
+
+    const completedAt = Date.now();
+    const next: IssueDraftRecord =
+      'error' in result
+        ? { ...current, status: 'failed', error: result.error, completedAt }
+        : {
+            ...current,
+            status: 'complete',
+            title: result.title,
+            description: result.description,
+            completedAt
+          };
+
+    if (await issueDraftCancellationRequested(requestId)) return;
+    await writeIssueDraftRecord(next);
+    if (await issueDraftCancellationRequested(requestId)) {
+      await clearIssueDraftRequest(requestId, threadId);
+      await releaseIssueDraftHelper(threadId);
+      return;
+    }
+    await bb.storage.kv.delete(issueDraftThreadKey(threadId));
+    bb.realtime.publish('taskboard:issue-draft-changed', { requestId });
+    await releaseIssueDraftHelper(threadId);
+  }
+
+  async function finishIssueDraftFromOutput(
+    threadId: string,
+    assistantText: string | null
+  ): Promise<void> {
+    const draft = parseIssueDraftOutput(assistantText ?? '');
+    await finishIssueDraft(
+      threadId,
+      draft ?? {
+        error:
+          'The drafting model did not return a usable title and description.'
+      }
+    );
+  }
+
+  async function reconcileIssueDraftOnce(threadId: string): Promise<void> {
+    const thread = await bb.sdk.threads.get({ threadId });
+    if (thread.status === 'idle') {
+      const { output } = await bb.sdk.threads.output({ threadId });
+      await finishIssueDraftFromOutput(threadId, output);
+    } else if (thread.status === 'error') {
+      await finishIssueDraft(threadId, {
+        error: 'The drafting model failed before returning a ticket.'
+      });
+    }
+  }
+
+  function reconcileIssueDraft(threadId: string): Promise<void> {
+    const pending = issueDraftReconciliations.get(threadId);
+    if (pending) return pending;
+    const request = (async () => {
+      try {
+        await reconcileIssueDraftOnce(threadId);
+      } catch {
+        await new Promise(resolve =>
+          setTimeout(resolve, ISSUE_DRAFT_RECONCILIATION_RETRY_MS)
+        );
+        await reconcileIssueDraftOnce(threadId);
+      }
+    })().finally(() => {
+      if (issueDraftReconciliations.get(threadId) === request) {
+        issueDraftReconciliations.delete(threadId);
+      }
+    });
+    issueDraftReconciliations.set(threadId, request);
+    return request;
+  }
+
+  async function startIssueDraftWorker(input: {
+    requestId: string;
+    projectId: string;
+    prompt: string;
+  }): Promise<{ requestId: string; helperThreadId: string }> {
+    let helperThreadId: string | null = null;
+    try {
+      if (await issueDraftCancellationRequested(input.requestId)) {
+        throw new Error('Issue drafting was cancelled.');
+      }
+      const existing = await readIssueDraftRecord(input.requestId);
+      if (existing !== null) {
+        return {
+          requestId: existing.requestId,
+          helperThreadId: existing.helperThreadId
+        };
+      }
+
+      const project = await projectById(input.projectId);
+      const source = projectConfig(input.projectId, true).source;
+      const helper = await bb.sdk.threads.spawn({
+        projectId: input.projectId,
+        environment: { type: 'project-default' },
+        prompt: buildIssueDraftPrompt({
+          prompt: input.prompt,
+          projectName: project.name,
+          source
+        }),
+        permissionMode: 'auto',
+        visibility: 'hidden',
+        title: 'Draft Taskboard issue'
+      });
+      helperThreadId = helper.id;
+      if (await issueDraftCancellationRequested(input.requestId)) {
+        await releaseIssueDraftHelper(helperThreadId);
+        helperThreadId = null;
+        throw new Error('Issue drafting was cancelled.');
+      }
+
+      const record: RunningIssueDraft = {
+        requestId: input.requestId,
+        helperThreadId,
+        status: 'running',
+        createdAt: Date.now()
+      };
+      await writeIssueDraftRecord(record);
+      await bb.storage.kv.set(
+        issueDraftThreadKey(helperThreadId),
+        input.requestId
+      );
+      if (await issueDraftCancellationRequested(input.requestId)) {
+        await clearIssueDraftRequest(input.requestId, helperThreadId);
+        await releaseIssueDraftHelper(helperThreadId);
+        helperThreadId = null;
+        throw new Error('Issue drafting was cancelled.');
+      }
+      await reconcileIssueDraft(helperThreadId);
+      return { requestId: input.requestId, helperThreadId };
+    } catch (error) {
+      if (helperThreadId !== null) {
+        try {
+          await clearIssueDraftRequest(input.requestId, helperThreadId);
+        } catch (cleanupError) {
+          bb.log.warn(
+            `Could not clear failed Taskboard issue draft ${input.requestId}: ${errorMessage(cleanupError)}`
+          );
+        }
+        await releaseIssueDraftHelper(helperThreadId);
+      }
+      throw error;
+    } finally {
+      await bb.storage.kv.delete(issueDraftCancellationKey(input.requestId));
+    }
+  }
+
+  function startIssueDraft(input: {
+    requestId: string;
+    projectId: string;
+    prompt: string;
+  }): Promise<{ requestId: string; helperThreadId: string }> {
+    const pending = issueDraftStarts.get(input.requestId);
+    if (pending) return pending;
+    const request = startIssueDraftWorker(input).finally(() => {
+      if (issueDraftStarts.get(input.requestId) === request) {
+        issueDraftStarts.delete(input.requestId);
+      }
+    });
+    issueDraftStarts.set(input.requestId, request);
+    return request;
   }
 
   async function assertProjectExists(projectId: string): Promise<void> {
@@ -536,6 +798,72 @@ export default async function plugin(bb: BbPluginApi) {
     ensure = false
   ): Promise<ProjectConfigView> {
     return (await readConsistentProjectConfigView(projectId, ensure)).config;
+  }
+
+  async function getCreateIssueContext(
+    projectId: string
+  ): Promise<CreateIssueContext> {
+    const [project, config, currentAdapters] = await Promise.all([
+      projectById(projectId),
+      readProjectConfigView(projectId, true),
+      adapters(projectId, true)
+    ]);
+    const adapter = currentAdapters.get(config.source);
+    if (!adapter) throw new Error(`Missing ${config.source} adapter`);
+
+    const destinationLabel =
+      config.source === 'github'
+        ? 'Repository'
+        : config.source === 'linear'
+          ? 'Team'
+          : 'Project key';
+    let githubMessage: string | null = null;
+    let githubRepos = config.githubRepos;
+    if (config.source === 'github') {
+      try {
+        const status = await loadGithubStatus(bb);
+        githubRepos = githubReposForProject(status, projectId);
+        if (!status.ghOk) {
+          githubMessage = status.ghError ?? 'GitHub is not authenticated.';
+        }
+      } catch {
+        githubRepos = [];
+        githubMessage =
+          'Install and enable BB’s official GitHub plugin before creating GitHub issues.';
+      }
+    }
+    const destinationIds =
+      config.source === 'github'
+        ? githubRepos
+        : config.source === 'linear'
+          ? config.linearTeamKey
+            ? [config.linearTeamKey]
+            : []
+          : jiraProjectKeysFromJql(config.jiraJql);
+    const destinations = destinationIds.map(id => ({ id, label: id }));
+    const missingDestinationMessage =
+      config.source === 'github' && destinations.length === 0
+        ? 'Map at least one GitHub repository to this BB project.'
+        : config.source === 'linear' && destinations.length === 0
+          ? 'Choose a Linear team key for this BB project in Manage.'
+          : null;
+    const configurationMessage =
+      githubMessage ??
+      (adapter.configured() ? null : adapter.configurationMessage());
+
+    return {
+      projectId,
+      projectName: project.name,
+      source: config.source,
+      available:
+        configurationMessage === null && missingDestinationMessage === null,
+      message: configurationMessage ?? missingDestinationMessage,
+      destinationLabel,
+      destinations,
+      defaultDestinationId: destinations[0]?.id ?? null,
+      allowsCustomDestination: config.source === 'jira',
+      defaultIssueType: config.source === 'jira' ? 'Task' : null
+    };
   }
 
   function readCredentialFormSnapshot(projectId: string) {
@@ -1200,6 +1528,68 @@ export default async function plugin(bb: BbPluginApi) {
     return mutation;
   }
 
+  async function createWorkItem(input: CreateIssueInput): Promise<WorkItem> {
+    await waitForMutations(input.projectId, SOURCES);
+    const config = projectConfig(input.projectId, true);
+    const source = assertExpectedIssueSource(
+      input.expectedSource,
+      config.source
+    );
+    const revision = currentRevision(input.projectId, source);
+    const adapter = (await adapters(input.projectId, true)).get(source);
+    if (!adapter) throw new Error(`Missing ${source} adapter`);
+    if (!adapter.configured()) {
+      throw new Error(
+        adapter.configurationMessage() ?? `${sourceName(source)} is not configured`
+      );
+    }
+
+    const mutation = enqueueMutation(input.projectId, [source], async () => {
+      if (currentRevision(input.projectId, source) !== revision) {
+        throw new Error(
+          `${sourceName(source)} settings changed before the issue was created; try again`
+        );
+      }
+      advanceSourceRevision(input.projectId, source);
+      let externalItem: ExternalWorkItemDetail;
+      try {
+        externalItem = await adapter.create({
+          title: input.title,
+          description: input.description,
+          destinationId: input.destinationId,
+          issueType: input.issueType
+        });
+      } catch (error) {
+        throw new Error(
+          `${sourceName(source)} could not create the issue. ${errorMessage(error)}`
+        );
+      }
+      if (externalItem.source !== source || !externalItem.locator) {
+        throw new Error(
+          `${sourceName(source)} returned an invalid new issue`
+        );
+      }
+      const item = scopedItem(input.projectId, withoutComments(externalItem));
+      store.upsert(item);
+      bb.realtime.publish('taskboard:changed', {
+        projectId: input.projectId,
+        source
+      });
+      return item;
+    });
+    void mutation
+      .then(
+        () => syncAll(input.projectId, source, false),
+        () => syncAll(input.projectId, source, false)
+      )
+      .catch((error: unknown) => {
+        bb.log.warn(
+          `${sourceName(source)} reconciliation failed for ${input.projectId}: ${errorMessage(error)}`
+        );
+      });
+    return mutation;
+  }
+
   const handlers: PluginRpcHandlers<typeof taskboardRpcContract> = {
     async listProjects() {
       return { projects: await listProjects() };
@@ -1262,6 +1652,58 @@ export default async function plugin(bb: BbPluginApi) {
         )
       };
     },
+    async getCreateIssueContext(input) {
+      await assertProjectExists(input.projectId);
+      return { context: await getCreateIssueContext(input.projectId) };
+    },
+    async startIssueDraft(input) {
+      await assertProjectExists(input.projectId);
+      return startIssueDraft(input);
+    },
+    async getIssueDraft(input) {
+      const draft = await readIssueDraftRecord(input.requestId);
+      if (draft?.status === 'running') {
+        try {
+          await reconcileIssueDraft(draft.helperThreadId);
+        } catch (error) {
+          bb.log.warn(
+            `Could not reconcile Taskboard issue draft ${input.requestId}: ${errorMessage(error)}`
+          );
+        }
+      }
+      return { draft: await readIssueDraftRecord(input.requestId) };
+    },
+    async cancelIssueDraft(input) {
+      await bb.storage.kv.set(issueDraftCancellationKey(input.requestId), {
+        createdAt: Date.now()
+      });
+      const draft = await readIssueDraftRecord(input.requestId);
+      if (draft !== null) {
+        await clearIssueDraftRequest(
+          input.requestId,
+          draft.helperThreadId
+        );
+        if (draft.status === 'running') {
+          await releaseIssueDraftHelper(draft.helperThreadId);
+        }
+      }
+      bb.realtime.publish('taskboard:issue-draft-changed', {
+        requestId: input.requestId
+      });
+      return { cancelled: true as const };
+    },
+    async createIssue(input) {
+      await assertProjectExists(input.projectId);
+      const item = await createWorkItem(input);
+      return {
+        item,
+        mention: {
+          provider: 'external-work-item',
+          id: mentionId(item),
+          label: item.key
+        }
+      };
+    },
     async getProjectConfig(input) {
       await assertProjectExists(input.projectId);
       return { config: await readProjectConfigView(input.projectId) };
@@ -1284,6 +1726,54 @@ export default async function plugin(bb: BbPluginApi) {
     }
   };
   bb.rpc.register(taskboardRpcContract, handlers);
+
+  bb.events.on('thread.idle', ({ thread, lastAssistantText }) =>
+    finishIssueDraftFromOutput(thread.id, lastAssistantText)
+  );
+  bb.events.on('thread.failed', ({ thread, error }) =>
+    finishIssueDraft(thread.id, {
+      error: error?.trim() || 'The drafting model failed.'
+    })
+  );
+
+  const issueDraftCleanupNow = Date.now();
+  for (const key of await bb.storage.kv.list(ISSUE_DRAFT_REQUEST_PREFIX)) {
+    const requestId = key.slice(ISSUE_DRAFT_REQUEST_PREFIX.length);
+    const draft = await readIssueDraftRecord(requestId);
+    if (draft === null) continue;
+    if (issueDraftCleanupNow - draft.createdAt > ISSUE_DRAFT_TTL_MS) {
+      await clearIssueDraftRequest(requestId, draft.helperThreadId);
+      if (draft.status === 'running') {
+        await releaseIssueDraftHelper(draft.helperThreadId);
+      }
+    } else if (draft.status === 'running') {
+      try {
+        await reconcileIssueDraft(draft.helperThreadId);
+      } catch (error) {
+        bb.log.warn(
+          `Could not restore Taskboard issue draft ${requestId}: ${errorMessage(error)}`
+        );
+      }
+    }
+  }
+  for (const key of await bb.storage.kv.list(
+    ISSUE_DRAFT_CANCELLATION_PREFIX
+  )) {
+    const value = await bb.storage.kv.get<unknown>(key);
+    const createdAt =
+      typeof value === 'object' &&
+      value !== null &&
+      'createdAt' in value &&
+      typeof value.createdAt === 'number'
+        ? value.createdAt
+        : null;
+    if (
+      createdAt === null ||
+      issueDraftCleanupNow - createdAt > ISSUE_DRAFT_TTL_MS
+    ) {
+      await bb.storage.kv.delete(key);
+    }
+  }
 
   bb.ui.registerMentionProvider({
     id: 'external-work-item',

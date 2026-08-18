@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -13,14 +14,25 @@ import {
   definePluginApp,
   useBbContext,
   useBbNavigate,
+  useComposer,
+  useComposerView,
   useRealtime,
   useRealtimeConnectionState,
   useRpc,
   type PluginNavPanelProps,
   type PluginPendingInteractionProps
 } from '@get-bb/plugin-sdk/app';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -49,6 +61,8 @@ import type {
   ProjectConfigMutation,
   ProjectConfigView,
   ProjectCredentialsInteractionResponse,
+  CreateIssueContext,
+  IssueDraftRecord,
   SecretMutation,
   TrackerProject,
   WorkItem,
@@ -369,6 +383,606 @@ function SourceMark({
       </span>
       <span className="tb-source-mark-name">{name}</span>
     </span>
+  );
+}
+
+interface CreatedIssueResult {
+  item: WorkItem;
+  mention: {
+    provider: 'external-work-item';
+    id: string;
+    label: string;
+  };
+}
+
+function titleFromPrompt(prompt: string): string {
+  const firstLine = prompt
+    .split(/\r?\n/u)
+    .map(line => line.trim())
+    .find(Boolean);
+  if (!firstLine) return '';
+  return firstLine.replace(/^#{1,6}\s+/u, '').slice(0, 120);
+}
+
+function CreateIssueDialog({
+  projectId,
+  open,
+  onOpenChange,
+  draftRequestId,
+  initialPrompt = '',
+  onRegenerate,
+  onCreated
+}: {
+  projectId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  draftRequestId: string;
+  initialPrompt?: string;
+  onRegenerate: () => void;
+  onCreated?: (result: CreatedIssueResult) => void;
+}) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const navigate = useBbNavigate();
+  const formId = useId();
+  const [context, setContext] = useState<CreateIssueContext>();
+  const [contextError, setContextError] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [destinationId, setDestinationId] = useState('');
+  const [issueType, setIssueType] = useState('');
+  const [draftStatus, setDraftStatus] = useState<
+    IssueDraftRecord['status'] | 'idle' | 'manual'
+  >('idle');
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const draftRevisionRef = useRef(0);
+
+  useEffect(() => {
+    if (!open) return;
+    setContext(undefined);
+    setContextError(null);
+    setTitle('');
+    setDescription('');
+    setDestinationId('');
+    setIssueType('');
+    setDraftStatus('idle');
+    setDraftError(null);
+    setCreating(false);
+    setCreateError(null);
+    if (!projectId) {
+      setContextError('Choose a BB project before creating an issue.');
+      return;
+    }
+    let active = true;
+    void rpc
+      .call('getCreateIssueContext', { projectId })
+      .then(result => {
+        if (!active) return;
+        setContext(result.context);
+        setDestinationId(result.context.defaultDestinationId ?? '');
+        setIssueType(result.context.defaultIssueType ?? '');
+      })
+      .catch(error => {
+        if (active) setContextError(describeError(error));
+      });
+    return () => {
+      active = false;
+    };
+  }, [draftRequestId, initialPrompt, open, projectId, rpc]);
+
+  useEffect(() => {
+    if (!open || !projectId || context?.available !== true) return;
+    const revision = ++draftRevisionRef.current;
+    let active = true;
+    const isActive = () =>
+      active && draftRevisionRef.current === revision;
+    const useFallback = (error: unknown) => {
+      if (!isActive()) return;
+      setTitle(titleFromPrompt(initialPrompt));
+      setDescription(initialPrompt.trim());
+      setDraftStatus('failed');
+      setDraftError(describeError(error));
+    };
+
+    setDraftStatus('running');
+    setDraftError(null);
+    void (async () => {
+      try {
+        await rpc.call('startIssueDraft', {
+          requestId: draftRequestId,
+          projectId,
+          prompt: initialPrompt
+        });
+        while (isActive()) {
+          const { draft } = await rpc.call('getIssueDraft', {
+            requestId: draftRequestId
+          });
+          if (!isActive()) return;
+          if (draft === null) {
+            throw new Error('The issue draft is no longer available.');
+          }
+          if (draft.status === 'complete') {
+            setTitle(draft.title);
+            setDescription(draft.description);
+            setDraftStatus('complete');
+            return;
+          }
+          if (draft.status === 'failed') {
+            throw new Error(draft.error);
+          }
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
+      } catch (error) {
+        useFallback(error);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [context?.available, draftRequestId, initialPrompt, open, projectId, rpc]);
+
+  const discardDraft = () => {
+    void rpc
+      .call('cancelIssueDraft', { requestId: draftRequestId })
+      .catch(() => undefined);
+  };
+
+  const closeDialog = () => {
+    draftRevisionRef.current += 1;
+    discardDraft();
+    onOpenChange(false);
+  };
+
+  const useOriginalPrompt = () => {
+    draftRevisionRef.current += 1;
+    discardDraft();
+    setTitle(titleFromPrompt(initialPrompt));
+    setDescription(initialPrompt.trim());
+    setDraftStatus('manual');
+    setDraftError(null);
+  };
+
+  const create = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!projectId || !context?.available || creating) return;
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const result = await rpc.call('createIssue', {
+        projectId,
+        expectedSource: context.source,
+        title,
+        description,
+        destinationId,
+        issueType: context.source === 'jira' ? issueType : null
+      });
+      onCreated?.(result);
+      toast.success(`${result.item.key} created in ${sourceName(result.item.source)}`);
+      discardDraft();
+      onOpenChange(false);
+    } catch (error) {
+      setCreateError(describeError(error));
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const canSubmit =
+    context?.available === true &&
+    !['idle', 'running'].includes(draftStatus) &&
+    title.trim() !== '' &&
+    destinationId.trim() !== '' &&
+    (context.source !== 'jira' || issueType.trim() !== '');
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={nextOpen => {
+        if (!creating) {
+          if (nextOpen) onOpenChange(true);
+          else closeDialog();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <div className="flex items-center gap-2 pr-7">
+            {context ? <SourceGlyph source={context.source} /> : null}
+            <DialogTitle>
+              {context
+                ? `Create ${sourceName(context.source)} issue`
+                : 'Prepare issue'}
+            </DialogTitle>
+          </div>
+          <DialogDescription>
+            {context === undefined
+              ? 'Loading the tracker configured for this BB project…'
+              : !context.available
+                ? `Finish setting up ${sourceName(context.source)} for this project.`
+                : draftStatus === 'complete'
+                  ? `Drafted from your prompt and the ${context.projectName} repository.`
+                  : draftStatus === 'manual'
+                    ? 'The original prompt is ready for review.'
+                  : draftStatus === 'failed'
+                    ? 'The original prompt is ready as an editable fallback.'
+                    : `Reading ${context.projectName} and structuring the ticket…`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {contextError ? (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+            <p role="alert" className="text-sm text-destructive">
+              {contextError}
+            </p>
+          </div>
+        ) : context === undefined ? (
+          <div className="space-y-3 py-1" aria-label="Loading issue form">
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-28 w-full" />
+          </div>
+        ) : !context.available ? (
+          <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+            <p role="alert" className="text-sm text-muted-foreground">
+              {context.message ?? `${sourceName(context.source)} is not ready.`}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                closeDialog();
+                navigate.toPluginPanel(PANEL_PATH, {
+                  subPath: routeToSubPath({
+                    kind: 'manage',
+                    projectId: context.projectId
+                  })
+                });
+              }}
+            >
+              <Icon name="Settings" className="size-4" />
+              Manage Taskboard
+            </Button>
+          </div>
+        ) : (
+          <form id={formId} className="grid gap-4" onSubmit={create}>
+            <div className="grid gap-1.5">
+              <label
+                htmlFor={`${formId}-destination`}
+                className="text-xs font-semibold"
+              >
+                {context.destinationLabel}
+              </label>
+              {context.allowsCustomDestination ? (
+                <Input
+                  id={`${formId}-destination`}
+                  value={destinationId}
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder="ENG"
+                  disabled={creating}
+                  onChange={event => {
+                    setDestinationId(event.target.value);
+                    setCreateError(null);
+                  }}
+                />
+              ) : context.destinations.length > 1 ? (
+                <Select
+                  value={destinationId}
+                  disabled={creating}
+                  onValueChange={value => {
+                    setDestinationId(value);
+                    setCreateError(null);
+                  }}
+                >
+                  <SelectTrigger id={`${formId}-destination`} className="w-full">
+                    <SelectValue placeholder={`Choose ${context.destinationLabel.toLowerCase()}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {context.destinations.map(destination => (
+                      <SelectItem key={destination.id} value={destination.id}>
+                        {destination.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div
+                  id={`${formId}-destination`}
+                  className="flex h-9 items-center rounded-md border border-border bg-surface-recessed-solid px-3 text-sm"
+                >
+                  {context.destinations[0]?.label}
+                </div>
+              )}
+              {context.source === 'jira' && context.destinations.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Taskboard could not infer a project key from the JQL, so enter it here.
+                </p>
+              ) : null}
+            </div>
+
+            {context.source === 'jira' ? (
+              <div className="grid gap-1.5">
+                <label htmlFor={`${formId}-type`} className="text-xs font-semibold">
+                  Issue type
+                </label>
+                <Input
+                  id={`${formId}-type`}
+                  value={issueType}
+                  placeholder="Task"
+                  disabled={creating}
+                  onChange={event => {
+                    setIssueType(event.target.value);
+                    setCreateError(null);
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {draftStatus === 'idle' || draftStatus === 'running' ? (
+              <div
+                className="grid gap-3 rounded-lg border border-border bg-surface-recessed-solid p-3"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="flex items-start gap-2.5">
+                  <Icon
+                    name="Loading"
+                    className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      Structuring your issue
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      A model is reading relevant repository context and turning
+                      the prompt into a title, description, and acceptance criteria.
+                    </p>
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={useOriginalPrompt}
+                  >
+                    Use original prompt
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div
+                  className={cn(
+                    'flex items-start gap-2.5 rounded-lg border p-3',
+                    draftStatus === 'failed'
+                      ? 'border-destructive/30 bg-destructive/5'
+                      : 'border-border bg-surface-recessed-solid'
+                  )}
+                >
+                  <Icon
+                    name={
+                      draftStatus === 'failed'
+                        ? 'AlertCircle'
+                        : draftStatus === 'manual'
+                          ? 'ListTodo'
+                          : 'AiContentGenerator01'
+                    }
+                    className={cn(
+                      'mt-0.5 size-4 shrink-0',
+                      draftStatus === 'failed'
+                        ? 'text-destructive'
+                        : 'text-muted-foreground'
+                    )}
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {draftStatus === 'failed'
+                        ? 'Repository-aware draft unavailable'
+                        : draftStatus === 'manual'
+                          ? 'Using the original prompt'
+                        : 'Drafted with repository context'}
+                    </p>
+                    <p
+                      className={cn(
+                        'text-xs',
+                        draftStatus === 'failed'
+                          ? 'text-destructive'
+                          : 'text-muted-foreground'
+                      )}
+                    >
+                      {draftStatus === 'failed'
+                        ? `${draftError ?? 'The drafting model failed.'} Review the original prompt below before creating.`
+                        : draftStatus === 'manual'
+                          ? 'Review and edit the prompt below before creating the issue.'
+                        : 'Review and edit the generated ticket before it is created.'}
+                    </p>
+                    {draftStatus === 'failed' || draftStatus === 'manual' ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="mt-1 -ml-2"
+                        disabled={creating}
+                        onClick={onRegenerate}
+                      >
+                        <Icon
+                          name="ArrowReloadHorizontal"
+                          className="size-3.5"
+                        />
+                        Try repository draft again
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor={`${formId}-title`}
+                    className="text-xs font-semibold"
+                  >
+                    Title
+                  </label>
+                  <Input
+                    id={`${formId}-title`}
+                    value={title}
+                    autoFocus
+                    maxLength={500}
+                    placeholder="What needs to be done?"
+                    disabled={creating}
+                    onChange={event => {
+                      setTitle(event.target.value);
+                      setCreateError(null);
+                    }}
+                  />
+                </div>
+
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor={`${formId}-description`}
+                    className="text-xs font-semibold"
+                  >
+                    Description
+                  </label>
+                  <Textarea
+                    id={`${formId}-description`}
+                    value={description}
+                    rows={9}
+                    maxLength={100_000}
+                    placeholder="Add context, acceptance criteria, or links…"
+                    disabled={creating}
+                    onChange={event => {
+                      setDescription(event.target.value);
+                      setCreateError(null);
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Markdown is supported by GitHub and Linear. Jira receives formatted text.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {createError ? (
+              <p role="alert" className="text-sm text-destructive">
+                {createError}
+              </p>
+            ) : null}
+
+            <DialogFooter className="border-t border-border-hairline pt-4">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={creating}
+                onClick={closeDialog}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" disabled={!canSubmit || creating}>
+                {creating ? 'Creating…' : `Create ${sourceName(context.source)} issue`}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ComposerCreateIssueAction() {
+  const view = useComposerView();
+  const composer = useComposer();
+  const { projectId: contextProjectId } = useBbContext();
+  const [open, setOpen] = useState(false);
+  const [draftSession, setDraftSession] = useState<{
+    requestId: string;
+    prompt: string;
+  } | null>(null);
+  const projectId =
+    view.scope.kind === 'new-thread'
+      ? (view.scope.projectId ?? contextProjectId)
+      : contextProjectId;
+  const hasPrompt = view.draft.text.trim().length > 0;
+  const guidance = !projectId
+    ? 'Choose a project to create an issue'
+    : !hasPrompt
+      ? 'Write a prompt to create an issue'
+      : 'Turn prompt into Taskboard issue';
+
+  return (
+    <TooltipProvider delayDuration={300}>
+      <div className="flex items-center" data-taskboard-create-action>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7 bg-transparent text-foreground hover:bg-state-hover"
+                aria-label="Create Taskboard issue"
+                data-taskboard-create-button
+                disabled={!projectId || !hasPrompt || view.run.isSubmitting}
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => {
+                  if (!projectId) {
+                    toast.error('Choose a BB project before creating an issue.');
+                    return;
+                  }
+                  if (!hasPrompt) {
+                    toast.info(
+                      'Write a prompt first, then click the Taskboard ticket.'
+                    );
+                    composer.focus();
+                    return;
+                  }
+                  setDraftSession({
+                    requestId: globalThis.crypto.randomUUID(),
+                    prompt: view.draft.text
+                  });
+                  setOpen(true);
+                }}
+              >
+                <Icon name="Ticket" className="size-4" aria-hidden="true" />
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top">{guidance}</TooltipContent>
+        </Tooltip>
+        {draftSession ? (
+          <CreateIssueDialog
+            projectId={projectId}
+            open={open}
+            onOpenChange={setOpen}
+            draftRequestId={draftSession.requestId}
+            initialPrompt={draftSession.prompt}
+            onRegenerate={() => {
+              setDraftSession(current =>
+                current
+                  ? {
+                      ...current,
+                      requestId: globalThis.crypto.randomUUID()
+                    }
+                  : current
+              );
+            }}
+            onCreated={result => {
+              composer.insertMention(result.mention);
+              composer.focus();
+            }}
+          />
+        ) : null}
+      </div>
+    </TooltipProvider>
   );
 }
 
@@ -4305,6 +4919,13 @@ function TaskboardSettingsInfo() {
 }
 
 export default definePluginApp(app => {
+  app.composer.customize({
+    id: 'create-taskboard-issue',
+    scopes: ['thread', 'new-thread'],
+    actions: [
+      { id: 'create-issue', component: ComposerCreateIssueAction }
+    ]
+  });
   app.slots.navPanel({
     id: 'taskboard',
     title: 'Taskboard',

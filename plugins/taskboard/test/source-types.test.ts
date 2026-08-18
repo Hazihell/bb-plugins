@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { assertExpectedIssueSource } from '../create-issue.ts';
 import type { ExternalWorkItemDetail } from '../sources/types.ts';
 import { withoutComments } from '../sources/types.ts';
+import { jiraProjectKeysFromJql } from '../sources/jira-scope.ts';
 
 test('cached summaries never retain provider comments', () => {
   const detail: ExternalWorkItemDetail = {
@@ -32,4 +34,28 @@ test('cached summaries never retain provider comments', () => {
   assert.equal('comments' in summary, false);
   assert.equal(summary.key, 'TASK-42');
   assert.deepEqual(summary.labels, ['release']);
+});
+
+test('finds Jira project keys from common configured JQL scopes', () => {
+  assert.deepEqual(
+    jiraProjectKeysFromJql(
+      'project = eng OR project in ("Web", mobile) ORDER BY updated DESC'
+    ),
+    ['ENG', 'WEB', 'MOBILE']
+  );
+  assert.deepEqual(
+    jiraProjectKeysFromJql(
+      'assignee = currentUser() AND resolution = Unresolved'
+    ),
+    []
+  );
+  assert.deepEqual(jiraProjectKeysFromJql('project = "Engineering Team"'), []);
+});
+
+test('binds issue creation to the tracker reviewed in the modal', () => {
+  assert.equal(assertExpectedIssueSource('linear', 'linear'), 'linear');
+  assert.throws(
+    () => assertExpectedIssueSource('linear', 'jira'),
+    /changed from Linear to Jira/u
+  );
 });
