@@ -107,6 +107,7 @@ import {
   contextSelectionToken,
   previousProjectRouteContext,
   projectRouteContext,
+  shouldApplyContextProject,
   type NavigationEntryLike,
   type ProjectRouteContext
 } from './project-selection.js';
@@ -4600,7 +4601,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     }
   }, [subPath]);
   useEffect(() => {
-    if (projects === undefined) return;
+    if (projects === undefined || !shouldApplyContextProject(route)) return;
     const token = contextSelectionToken(
       selectionContextThreadId,
       selectionContextProjectId,
@@ -4610,13 +4611,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     handledContextSelectionRef.current = token;
     if (contextTargetProjectId === null) return;
 
-    const alreadyInContext =
-      (route.kind === 'project' || route.kind === 'item') &&
-      route.projectId === contextTargetProjectId;
-    const alreadyManagingContext =
-      route.kind === 'manage' && route.projectId === contextTargetProjectId;
     storeLastProjectId(contextTargetProjectId);
-    if (alreadyInContext || alreadyManagingContext) return;
 
     const nextRoute: TrackerRoute =
       route.kind === 'manage'
@@ -4841,7 +4836,11 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
   );
 }
 
-function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
+function TaskboardRightPanel({
+  projectId
+}: {
+  projectId: string | null | undefined;
+}) {
   const rpc = useRpc<TaskboardRpcContract>();
   const navigate = useBbNavigate();
   const [itemRoute, setItemRoute] = useState<Extract<
@@ -4892,8 +4891,10 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
     }
   };
 
+  const activeItemRoute =
+    projectId && itemRoute?.projectId === projectId ? itemRoute : null;
   const fullRoute: TrackerRoute =
-    itemRoute ??
+    activeItemRoute ??
     (projectId
       ? { kind: 'project', projectId }
       : { kind: 'root' });
@@ -4905,7 +4906,7 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
         className="tb-linear flex h-full min-h-0 flex-col text-foreground"
       >
         <header className="tb-topbar flex h-11 shrink-0 items-center gap-2 border-b px-2.5">
-          {itemRoute ? (
+          {activeItemRoute ? (
             <Button
               type="button"
               variant="ghost"
@@ -4919,10 +4920,12 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
           ) : null}
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs font-semibold">
-              {itemRoute ? itemRoute.locator : 'Taskboard'}
+              {activeItemRoute ? activeItemRoute.locator : 'Taskboard'}
             </p>
             <p className="truncate text-2xs text-muted-foreground">
-              {projectId
+              {projectId === undefined
+                ? 'Loading thread project…'
+                : projectId
                 ? pinned
                   ? 'Pinned across chats'
                   : 'Open beside this chat'
@@ -5002,7 +5005,9 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
           </p>
         ) : null}
         <div className="min-h-0 flex-1 overflow-hidden">
-          {!projectId ? (
+          {projectId === undefined ? (
+            <LoadingRows />
+          ) : projectId === null ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
               <Icon name="Folder" className="size-5 text-muted-foreground" />
               <p className="text-sm font-medium">Choose a project</p>
@@ -5010,9 +5015,9 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
                 Select a BB project in the composer to load its Taskboard here.
               </p>
             </div>
-          ) : itemRoute ? (
+          ) : activeItemRoute ? (
             <TrackerDetail
-              route={itemRoute}
+              route={activeItemRoute}
               refreshGeneration={refreshGeneration}
             />
           ) : (
@@ -5042,8 +5047,34 @@ function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
   );
 }
 
-function TaskboardThreadPanel(_props: PluginThreadPanelProps) {
-  const { projectId } = useBbContext();
+function TaskboardThreadPanel({ threadId }: PluginThreadPanelProps) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const { projectId: contextProjectId, threadId: contextThreadId } =
+    useBbContext();
+  const fallbackProjectId =
+    contextThreadId === threadId ? contextProjectId : null;
+  const [projectId, setProjectId] = useState<string | null | undefined>();
+
+  useEffect(() => {
+    let cancelled = false;
+    setProjectId(undefined);
+    void rpc
+      .call('threadProject', { threadId })
+      .then(result => {
+        if (!cancelled) setProjectId(result.projectId);
+      })
+      .catch(nextError => {
+        if (cancelled) return;
+        setProjectId(fallbackProjectId);
+        toast.error('Could not resolve this thread’s Taskboard project.', {
+          description: describeError(nextError)
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fallbackProjectId, rpc, threadId]);
+
   return <TaskboardRightPanel projectId={projectId} />;
 }
 

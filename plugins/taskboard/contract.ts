@@ -235,6 +235,10 @@ export const taskboardRpcContract = defineRpcContract({
     input: z.null(),
     output: z.object({ projects: z.array(trackerProjectSchema) }).strict()
   },
+  threadProject: {
+    input: z.object({ threadId: z.string().min(1) }).strict(),
+    output: z.object({ projectId: bbProjectIdSchema }).strict()
+  },
   status: {
     input: z.object({ projectId: bbProjectIdSchema }).strict(),
     output: z.object({ sources: z.array(workSourceStatusSchema) }).strict()

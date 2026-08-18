@@ -1594,6 +1594,11 @@ export default async function plugin(bb: BbPluginApi) {
     async listProjects() {
       return { projects: await listProjects() };
     },
+    async threadProject(input) {
+      const thread = await bb.sdk.threads.get({ threadId: input.threadId });
+      await assertProjectExists(thread.projectId);
+      return { projectId: thread.projectId };
+    },
     async status(input) {
       await assertProjectExists(input.projectId);
       return { sources: await statuses(input.projectId) };
