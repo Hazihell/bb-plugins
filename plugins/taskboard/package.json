@@ -1,6 +1,6 @@
 {
   "name": "bb-plugin-taskboard",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Bring each BB project's GitHub, Linear, or Jira tasks into one focused taskboard.",
   "type": "module",
   "publishConfig": {
