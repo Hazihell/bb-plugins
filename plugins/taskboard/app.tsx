@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -13,18 +14,33 @@ import {
   definePluginApp,
   useBbContext,
   useBbNavigate,
+  useComposer,
+  useComposerView,
   useRealtime,
   useRealtimeConnectionState,
   useRpc,
   type PluginNavPanelProps,
-  type PluginPendingInteractionProps
+  type PluginNewThreadPanelProps,
+  type PluginPendingInteractionProps,
+  type PluginThreadHeaderActionProps,
+  type PluginThreadPanelProps
 } from '@get-bb/plugin-sdk/app';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Icon, type IconName } from '@/components/ui/icon';
@@ -49,6 +65,8 @@ import type {
   ProjectConfigMutation,
   ProjectConfigView,
   ProjectCredentialsInteractionResponse,
+  CreateIssueContext,
+  IssueDraftRecord,
   SecretMutation,
   TrackerProject,
   WorkItem,
@@ -89,13 +107,17 @@ import {
   contextSelectionToken,
   previousProjectRouteContext,
   projectRouteContext,
+  shouldApplyContextProject,
   type NavigationEntryLike,
   type ProjectRouteContext
 } from './project-selection.js';
 import './app.css';
 
 const PANEL_PATH = 'tasks';
+const THREAD_PANEL_ACTION_ID = 'taskboard-panel';
 const ALL_SOURCES = 'all';
+const RIGHT_PANEL_PINNED_STORAGE_KEY = 'bb-taskboard:right-panel-pinned';
+const RIGHT_PANEL_PIN_EVENT = 'bb-taskboard:right-panel-pin-changed';
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'bb-taskboard:sidebar-collapsed';
 const SIDEBAR_WIDTH_STORAGE_KEY = 'bb-taskboard:sidebar-width';
 const LAST_PROJECT_STORAGE_KEY = 'bb-taskboard:last-project';
@@ -372,6 +394,606 @@ function SourceMark({
   );
 }
 
+interface CreatedIssueResult {
+  item: WorkItem;
+  mention: {
+    provider: 'external-work-item';
+    id: string;
+    label: string;
+  };
+}
+
+function titleFromPrompt(prompt: string): string {
+  const firstLine = prompt
+    .split(/\r?\n/u)
+    .map(line => line.trim())
+    .find(Boolean);
+  if (!firstLine) return '';
+  return firstLine.replace(/^#{1,6}\s+/u, '').slice(0, 120);
+}
+
+function CreateIssueDialog({
+  projectId,
+  open,
+  onOpenChange,
+  draftRequestId,
+  initialPrompt = '',
+  onRegenerate,
+  onCreated
+}: {
+  projectId: string | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  draftRequestId: string;
+  initialPrompt?: string;
+  onRegenerate: () => void;
+  onCreated?: (result: CreatedIssueResult) => void;
+}) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const navigate = useBbNavigate();
+  const formId = useId();
+  const [context, setContext] = useState<CreateIssueContext>();
+  const [contextError, setContextError] = useState<string | null>(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [destinationId, setDestinationId] = useState('');
+  const [issueType, setIssueType] = useState('');
+  const [draftStatus, setDraftStatus] = useState<
+    IssueDraftRecord['status'] | 'idle' | 'manual'
+  >('idle');
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const draftRevisionRef = useRef(0);
+
+  useEffect(() => {
+    if (!open) return;
+    setContext(undefined);
+    setContextError(null);
+    setTitle('');
+    setDescription('');
+    setDestinationId('');
+    setIssueType('');
+    setDraftStatus('idle');
+    setDraftError(null);
+    setCreating(false);
+    setCreateError(null);
+    if (!projectId) {
+      setContextError('Choose a BB project before creating an issue.');
+      return;
+    }
+    let active = true;
+    void rpc
+      .call('getCreateIssueContext', { projectId })
+      .then(result => {
+        if (!active) return;
+        setContext(result.context);
+        setDestinationId(result.context.defaultDestinationId ?? '');
+        setIssueType(result.context.defaultIssueType ?? '');
+      })
+      .catch(error => {
+        if (active) setContextError(describeError(error));
+      });
+    return () => {
+      active = false;
+    };
+  }, [draftRequestId, initialPrompt, open, projectId, rpc]);
+
+  useEffect(() => {
+    if (!open || !projectId || context?.available !== true) return;
+    const revision = ++draftRevisionRef.current;
+    let active = true;
+    const isActive = () =>
+      active && draftRevisionRef.current === revision;
+    const useFallback = (error: unknown) => {
+      if (!isActive()) return;
+      setTitle(titleFromPrompt(initialPrompt));
+      setDescription(initialPrompt.trim());
+      setDraftStatus('failed');
+      setDraftError(describeError(error));
+    };
+
+    setDraftStatus('running');
+    setDraftError(null);
+    void (async () => {
+      try {
+        await rpc.call('startIssueDraft', {
+          requestId: draftRequestId,
+          projectId,
+          prompt: initialPrompt
+        });
+        while (isActive()) {
+          const { draft } = await rpc.call('getIssueDraft', {
+            requestId: draftRequestId
+          });
+          if (!isActive()) return;
+          if (draft === null) {
+            throw new Error('The issue draft is no longer available.');
+          }
+          if (draft.status === 'complete') {
+            setTitle(draft.title);
+            setDescription(draft.description);
+            setDraftStatus('complete');
+            return;
+          }
+          if (draft.status === 'failed') {
+            throw new Error(draft.error);
+          }
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
+      } catch (error) {
+        useFallback(error);
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [context?.available, draftRequestId, initialPrompt, open, projectId, rpc]);
+
+  const discardDraft = () => {
+    void rpc
+      .call('cancelIssueDraft', { requestId: draftRequestId })
+      .catch(() => undefined);
+  };
+
+  const closeDialog = () => {
+    draftRevisionRef.current += 1;
+    discardDraft();
+    onOpenChange(false);
+  };
+
+  const useOriginalPrompt = () => {
+    draftRevisionRef.current += 1;
+    discardDraft();
+    setTitle(titleFromPrompt(initialPrompt));
+    setDescription(initialPrompt.trim());
+    setDraftStatus('manual');
+    setDraftError(null);
+  };
+
+  const create = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!projectId || !context?.available || creating) return;
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const result = await rpc.call('createIssue', {
+        projectId,
+        expectedSource: context.source,
+        title,
+        description,
+        destinationId,
+        issueType: context.source === 'jira' ? issueType : null
+      });
+      onCreated?.(result);
+      toast.success(`${result.item.key} created in ${sourceName(result.item.source)}`);
+      discardDraft();
+      onOpenChange(false);
+    } catch (error) {
+      setCreateError(describeError(error));
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const canSubmit =
+    context?.available === true &&
+    !['idle', 'running'].includes(draftStatus) &&
+    title.trim() !== '' &&
+    destinationId.trim() !== '' &&
+    (context.source !== 'jira' || issueType.trim() !== '');
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={nextOpen => {
+        if (!creating) {
+          if (nextOpen) onOpenChange(true);
+          else closeDialog();
+        }
+      }}
+    >
+      <DialogContent className="sm:max-w-xl">
+        <DialogHeader>
+          <div className="flex items-center gap-2 pr-7">
+            {context ? <SourceGlyph source={context.source} /> : null}
+            <DialogTitle>
+              {context
+                ? `Create ${sourceName(context.source)} issue`
+                : 'Prepare issue'}
+            </DialogTitle>
+          </div>
+          <DialogDescription>
+            {context === undefined
+              ? 'Loading the tracker configured for this BB project…'
+              : !context.available
+                ? `Finish setting up ${sourceName(context.source)} for this project.`
+                : draftStatus === 'complete'
+                  ? `Drafted from your prompt and the ${context.projectName} repository.`
+                  : draftStatus === 'manual'
+                    ? 'The original prompt is ready for review.'
+                  : draftStatus === 'failed'
+                    ? 'The original prompt is ready as an editable fallback.'
+                    : `Reading ${context.projectName} and structuring the ticket…`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {contextError ? (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+            <p role="alert" className="text-sm text-destructive">
+              {contextError}
+            </p>
+          </div>
+        ) : context === undefined ? (
+          <div className="space-y-3 py-1" aria-label="Loading issue form">
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-9 w-full" />
+            <Skeleton className="h-28 w-full" />
+          </div>
+        ) : !context.available ? (
+          <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+            <p role="alert" className="text-sm text-muted-foreground">
+              {context.message ?? `${sourceName(context.source)} is not ready.`}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                closeDialog();
+                navigate.toPluginPanel(PANEL_PATH, {
+                  subPath: routeToSubPath({
+                    kind: 'manage',
+                    projectId: context.projectId
+                  })
+                });
+              }}
+            >
+              <Icon name="Settings" className="size-4" />
+              Manage Taskboard
+            </Button>
+          </div>
+        ) : (
+          <form id={formId} className="grid gap-4" onSubmit={create}>
+            <div className="grid gap-1.5">
+              <label
+                htmlFor={`${formId}-destination`}
+                className="text-xs font-semibold"
+              >
+                {context.destinationLabel}
+              </label>
+              {context.allowsCustomDestination ? (
+                <Input
+                  id={`${formId}-destination`}
+                  value={destinationId}
+                  autoCapitalize="characters"
+                  autoCorrect="off"
+                  spellCheck={false}
+                  placeholder="ENG"
+                  disabled={creating}
+                  onChange={event => {
+                    setDestinationId(event.target.value);
+                    setCreateError(null);
+                  }}
+                />
+              ) : context.destinations.length > 1 ? (
+                <Select
+                  value={destinationId}
+                  disabled={creating}
+                  onValueChange={value => {
+                    setDestinationId(value);
+                    setCreateError(null);
+                  }}
+                >
+                  <SelectTrigger id={`${formId}-destination`} className="w-full">
+                    <SelectValue placeholder={`Choose ${context.destinationLabel.toLowerCase()}`} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {context.destinations.map(destination => (
+                      <SelectItem key={destination.id} value={destination.id}>
+                        {destination.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div
+                  id={`${formId}-destination`}
+                  className="flex h-9 items-center rounded-md border border-border bg-surface-recessed-solid px-3 text-sm"
+                >
+                  {context.destinations[0]?.label}
+                </div>
+              )}
+              {context.source === 'jira' && context.destinations.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Taskboard could not infer a project key from the JQL, so enter it here.
+                </p>
+              ) : null}
+            </div>
+
+            {context.source === 'jira' ? (
+              <div className="grid gap-1.5">
+                <label htmlFor={`${formId}-type`} className="text-xs font-semibold">
+                  Issue type
+                </label>
+                <Input
+                  id={`${formId}-type`}
+                  value={issueType}
+                  placeholder="Task"
+                  disabled={creating}
+                  onChange={event => {
+                    setIssueType(event.target.value);
+                    setCreateError(null);
+                  }}
+                />
+              </div>
+            ) : null}
+
+            {draftStatus === 'idle' || draftStatus === 'running' ? (
+              <div
+                className="grid gap-3 rounded-lg border border-border bg-surface-recessed-solid p-3"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="flex items-start gap-2.5">
+                  <Icon
+                    name="Loading"
+                    className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      Structuring your issue
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      A model is reading relevant repository context and turning
+                      the prompt into a title, description, and acceptance criteria.
+                    </p>
+                  </div>
+                </div>
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-32 w-full" />
+                <div className="flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={useOriginalPrompt}
+                  >
+                    Use original prompt
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div
+                  className={cn(
+                    'flex items-start gap-2.5 rounded-lg border p-3',
+                    draftStatus === 'failed'
+                      ? 'border-destructive/30 bg-destructive/5'
+                      : 'border-border bg-surface-recessed-solid'
+                  )}
+                >
+                  <Icon
+                    name={
+                      draftStatus === 'failed'
+                        ? 'AlertCircle'
+                        : draftStatus === 'manual'
+                          ? 'ListTodo'
+                          : 'AiContentGenerator01'
+                    }
+                    className={cn(
+                      'mt-0.5 size-4 shrink-0',
+                      draftStatus === 'failed'
+                        ? 'text-destructive'
+                        : 'text-muted-foreground'
+                    )}
+                    aria-hidden="true"
+                  />
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium">
+                      {draftStatus === 'failed'
+                        ? 'Repository-aware draft unavailable'
+                        : draftStatus === 'manual'
+                          ? 'Using the original prompt'
+                        : 'Drafted with repository context'}
+                    </p>
+                    <p
+                      className={cn(
+                        'text-xs',
+                        draftStatus === 'failed'
+                          ? 'text-destructive'
+                          : 'text-muted-foreground'
+                      )}
+                    >
+                      {draftStatus === 'failed'
+                        ? `${draftError ?? 'The drafting model failed.'} Review the original prompt below before creating.`
+                        : draftStatus === 'manual'
+                          ? 'Review and edit the prompt below before creating the issue.'
+                        : 'Review and edit the generated ticket before it is created.'}
+                    </p>
+                    {draftStatus === 'failed' || draftStatus === 'manual' ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="mt-1 -ml-2"
+                        disabled={creating}
+                        onClick={onRegenerate}
+                      >
+                        <Icon
+                          name="ArrowReloadHorizontal"
+                          className="size-3.5"
+                        />
+                        Try repository draft again
+                      </Button>
+                    ) : null}
+                  </div>
+                </div>
+
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor={`${formId}-title`}
+                    className="text-xs font-semibold"
+                  >
+                    Title
+                  </label>
+                  <Input
+                    id={`${formId}-title`}
+                    value={title}
+                    autoFocus
+                    maxLength={500}
+                    placeholder="What needs to be done?"
+                    disabled={creating}
+                    onChange={event => {
+                      setTitle(event.target.value);
+                      setCreateError(null);
+                    }}
+                  />
+                </div>
+
+                <div className="grid gap-1.5">
+                  <label
+                    htmlFor={`${formId}-description`}
+                    className="text-xs font-semibold"
+                  >
+                    Description
+                  </label>
+                  <Textarea
+                    id={`${formId}-description`}
+                    value={description}
+                    rows={9}
+                    maxLength={100_000}
+                    placeholder="Add context, acceptance criteria, or links…"
+                    disabled={creating}
+                    onChange={event => {
+                      setDescription(event.target.value);
+                      setCreateError(null);
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Markdown is supported by GitHub and Linear. Jira receives formatted text.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {createError ? (
+              <p role="alert" className="text-sm text-destructive">
+                {createError}
+              </p>
+            ) : null}
+
+            <DialogFooter className="border-t border-border-hairline pt-4">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={creating}
+                onClick={closeDialog}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" disabled={!canSubmit || creating}>
+                {creating ? 'Creating…' : `Create ${sourceName(context.source)} issue`}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ComposerCreateIssueAction() {
+  const view = useComposerView();
+  const composer = useComposer();
+  const { projectId: contextProjectId } = useBbContext();
+  const [open, setOpen] = useState(false);
+  const [draftSession, setDraftSession] = useState<{
+    requestId: string;
+    prompt: string;
+  } | null>(null);
+  const projectId =
+    view.scope.kind === 'new-thread'
+      ? (view.scope.projectId ?? contextProjectId)
+      : contextProjectId;
+  const hasPrompt = view.draft.text.trim().length > 0;
+  const guidance = !projectId
+    ? 'Choose a project to create an issue'
+    : !hasPrompt
+      ? 'Write a prompt to create an issue'
+      : 'Turn prompt into Taskboard issue';
+
+  return (
+    <TooltipProvider delayDuration={300}>
+      <div className="flex items-center" data-taskboard-create-action>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7 bg-transparent text-foreground hover:bg-state-hover"
+                aria-label="Create Taskboard issue"
+                data-taskboard-create-button
+                disabled={!projectId || !hasPrompt || view.run.isSubmitting}
+                onMouseDown={event => event.preventDefault()}
+                onClick={() => {
+                  if (!projectId) {
+                    toast.error('Choose a BB project before creating an issue.');
+                    return;
+                  }
+                  if (!hasPrompt) {
+                    toast.info(
+                      'Write a prompt first, then click the Taskboard ticket.'
+                    );
+                    composer.focus();
+                    return;
+                  }
+                  setDraftSession({
+                    requestId: globalThis.crypto.randomUUID(),
+                    prompt: view.draft.text
+                  });
+                  setOpen(true);
+                }}
+              >
+                <Icon name="Ticket" className="size-4" aria-hidden="true" />
+              </Button>
+            </span>
+          </TooltipTrigger>
+          <TooltipContent side="top">{guidance}</TooltipContent>
+        </Tooltip>
+        {draftSession ? (
+          <CreateIssueDialog
+            projectId={projectId}
+            open={open}
+            onOpenChange={setOpen}
+            draftRequestId={draftSession.requestId}
+            initialPrompt={draftSession.prompt}
+            onRegenerate={() => {
+              setDraftSession(current =>
+                current
+                  ? {
+                      ...current,
+                      requestId: globalThis.crypto.randomUUID()
+                    }
+                  : current
+              );
+            }}
+            onCreated={result => {
+              composer.insertMention(result.mention);
+              composer.focus();
+            }}
+          />
+        ) : null}
+      </div>
+    </TooltipProvider>
+  );
+}
+
 function parseTrackerRoute(rawSubPath: string): TrackerRoute {
   const path = rawSubPath.split('?', 1)[0] ?? '';
   const segments = path.split('/').filter(Boolean);
@@ -459,6 +1081,28 @@ function useRefreshOnReconnect(refresh: () => void): void {
   }, [connectionState]);
 }
 
+function loadRightPanelPinned(): boolean {
+  try {
+    return (
+      window.localStorage.getItem(RIGHT_PANEL_PINNED_STORAGE_KEY) === 'true'
+    );
+  } catch {
+    return false;
+  }
+}
+
+function storeRightPanelPinned(pinned: boolean): void {
+  try {
+    window.localStorage.setItem(
+      RIGHT_PANEL_PINNED_STORAGE_KEY,
+      String(pinned)
+    );
+    window.dispatchEvent(new Event(RIGHT_PANEL_PIN_EVENT));
+  } catch {
+    // Persistence is best-effort in sandboxed browser contexts.
+  }
+}
+
 function loadSidebarCollapsed(): boolean {
   try {
     return (
@@ -512,12 +1156,6 @@ function formatUpdatedAt(value: string): string {
     month: 'short',
     day: 'numeric'
   }).format(new Date(timestamp));
-}
-
-function statusTone(category: WorkStateCategory) {
-  if (category === 'done') return 'secondary' as const;
-  if (category === 'in_progress') return 'default' as const;
-  return 'outline' as const;
 }
 
 function StateDot({
@@ -1336,41 +1974,185 @@ function LoadingRows() {
   );
 }
 
+function WorkItemStatusMenu({
+  item,
+  variant,
+  onMove
+}: {
+  item: WorkItem;
+  variant: 'row' | 'detail';
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
+}) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const [options, setOptions] = useState<WorkStatusOption[] | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [pendingStatusId, setPendingStatusId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const identity = `${item.bbProjectId}:${item.source}:${item.locator}`;
+
+  useEffect(() => {
+    setOptions(undefined);
+    setError(null);
+  }, [identity, item.status]);
+
+  const loadOptions = useCallback(async () => {
+    if (loading || options !== undefined) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await rpc.call('statusOptions', {
+        projectId: item.bbProjectId,
+        source: item.source,
+        locator: item.locator
+      });
+      setOptions(result.options);
+    } catch (nextError) {
+      setError(describeError(nextError));
+    } finally {
+      setLoading(false);
+    }
+  }, [item.bbProjectId, item.locator, item.source, loading, options, rpc]);
+
+  const changeStatus = async (option: WorkStatusOption) => {
+    const current =
+      option.current ||
+      (option.name === item.status &&
+        option.stateCategory === item.stateCategory);
+    if (current || pendingStatusId !== null) return;
+    setPendingStatusId(option.id);
+    try {
+      await onMove(item, option);
+      toast.success(`${item.key} moved to ${option.name}`);
+    } catch (nextError) {
+      toast.error(`Could not update ${item.key}`, {
+        description: describeError(nextError)
+      });
+    } finally {
+      setPendingStatusId(null);
+    }
+  };
+
+  const trigger =
+    variant === 'row' ? (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-5 rounded-full p-0"
+        aria-label={`Change status for ${item.key}. Current status: ${item.status}`}
+        disabled={pendingStatusId !== null}
+      >
+        <StateDot category={item.stateCategory} status={item.status} />
+      </Button>
+    ) : (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="tb-status-pill h-7 gap-1.5 rounded-full px-2.5 text-xs"
+        aria-label={`Change status for ${item.key}. Current status: ${item.status}`}
+        data-state-category={item.stateCategory}
+        data-status-tone={workflowStatusTone(
+          item.status,
+          item.stateCategory
+        )}
+        disabled={pendingStatusId !== null}
+      >
+        <StateDot category={item.stateCategory} status={item.status} />
+        {pendingStatusId === null ? item.status : 'Updating…'}
+        <Icon name="ChevronDown" className="size-3 opacity-60" />
+      </Button>
+    );
+
+  return (
+    <DropdownMenu
+      onOpenChange={open => {
+        if (open) void loadOptions();
+      }}
+    >
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={variant === 'row' ? 'start' : 'end'}
+        className="min-w-48"
+      >
+        {loading && options === undefined ? (
+          <DropdownMenuItem disabled>
+            <Icon name="Loading" className="size-3.5 animate-spin" />
+            Loading statuses…
+          </DropdownMenuItem>
+        ) : error ? (
+          <DropdownMenuItem disabled className="max-w-64 text-destructive">
+            {error}
+          </DropdownMenuItem>
+        ) : options?.length ? (
+          options.map(option => {
+            const current =
+              option.current ||
+              (option.name === item.status &&
+                option.stateCategory === item.stateCategory);
+            return (
+              <DropdownMenuItem
+                key={option.id}
+                disabled={current || pendingStatusId !== null}
+                onSelect={() => void changeStatus(option)}
+              >
+                <StateDot
+                  category={option.stateCategory}
+                  status={option.name}
+                />
+                <span className="min-w-0 flex-1 truncate">{option.name}</span>
+                {current ? <Icon name="Check" className="size-3.5" /> : null}
+              </DropdownMenuItem>
+            );
+          })
+        ) : (
+          <DropdownMenuItem disabled>No status changes available</DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function WorkItemRow({
   item,
   project,
   showProject,
+  onMove,
   onOpen
 }: {
   item: WorkItem;
   project: TrackerProject | undefined;
   showProject: boolean;
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
   onOpen: () => void;
 }) {
   const priority = visiblePriority(item.priority);
   const assignee = visibleAssignee(item.assignee);
   return (
-    <button
-      type="button"
-      aria-label={`Open ${item.key}: ${item.title}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}`}
+    <div
       data-state-category={item.stateCategory}
       data-status-tone={workflowStatusTone(item.status, item.stateCategory)}
-      onClick={onOpen}
-      className="tb-item-row group grid min-h-9 w-full items-center gap-x-2 border-b border-border-hairline px-2.5 py-1 text-left focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+      className="tb-item-row group relative grid min-h-9 w-full items-center gap-x-2 border-b border-border-hairline px-2.5 py-1 text-left"
     >
-      <span className="tb-priority-slot flex size-4 items-center justify-center">
+      <button
+        type="button"
+        aria-label={`Open ${item.key}: ${item.title}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}`}
+        onClick={onOpen}
+        className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+      />
+      <span className="tb-priority-slot pointer-events-none relative z-[1] flex size-4 items-center justify-center">
         {priority ? <PriorityMark priority={priority} /> : null}
       </span>
-      <span className="tb-key min-w-0 truncate text-xs font-medium tabular-nums">
+      <span className="tb-key pointer-events-none relative z-[1] min-w-0 truncate text-xs font-medium tabular-nums">
         {item.key}
       </span>
-      <span className="flex" title={item.status}>
-        <StateDot category={item.stateCategory} status={item.status} />
+      <span className="relative z-10 flex items-center justify-center">
+        <WorkItemStatusMenu item={item} variant="row" onMove={onMove} />
       </span>
-      <span className="min-w-0 truncate text-sm font-medium text-foreground">
+      <span className="pointer-events-none relative z-[1] min-w-0 truncate text-sm font-medium text-foreground">
         {item.title}
       </span>
-      <span className="tb-row-trailing tb-meta flex min-w-0 items-center gap-2 overflow-hidden text-xs">
+      <span className="tb-row-trailing tb-meta pointer-events-none relative z-[1] flex min-w-0 items-center gap-2 overflow-hidden text-xs">
         {showProject && project ? (
           <span className="max-w-28 truncate" title={project.name}>
             {project.name}
@@ -1381,7 +2163,7 @@ function WorkItemRow({
           {formatUpdatedAt(item.updatedAt)}
         </time>
       </span>
-    </button>
+    </div>
   );
 }
 
@@ -1392,6 +2174,7 @@ function ListStateGroups({
   showProject,
   idPrefix,
   nested = false,
+  onMove,
   onOpen
 }: {
   items: readonly WorkItem[];
@@ -1400,6 +2183,7 @@ function ListStateGroups({
   showProject: boolean;
   idPrefix: string;
   nested?: boolean;
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
   onOpen: (item: WorkItem) => void;
 }) {
   return workflowStatusGroups(items, statusOrder).map(group => (
@@ -1429,6 +2213,7 @@ function ListStateGroups({
           item={item}
           project={projectsById.get(item.bbProjectId)}
           showProject={showProject}
+          onMove={onMove}
           onOpen={() => onOpen(item)}
         />
       ))}
@@ -2543,6 +3328,7 @@ function TrackerList({
                   showProject={false}
                   idPrefix={project.id}
                   nested
+                  onMove={moveItemStatus}
                   onOpen={onOpen}
                 />
               </section>
@@ -2554,6 +3340,7 @@ function TrackerList({
               projectsById={projectsById}
               showProject={false}
               idPrefix={projectId ?? 'selected-project'}
+              onMove={moveItemStatus}
               onOpen={onOpen}
             />
           )}
@@ -2637,6 +3424,35 @@ function TrackerDetail({
   });
   useRefreshOnReconnect(() => void load());
 
+  const moveItemStatus = useCallback(
+    async (_selectedItem: WorkItem, option: WorkStatusOption) => {
+      if (!item) throw new Error('The work item is not loaded.');
+      const previous = item;
+      setItem({
+        ...item,
+        status: option.name,
+        stateCategory: option.stateCategory
+      });
+      try {
+        const result = await rpc.call('updateItemStatus', {
+          projectId: route.projectId,
+          source: route.source,
+          locator: route.locator,
+          statusId: option.id
+        });
+        setItem(current =>
+          current
+            ? { ...current, ...result.item, comments: current.comments }
+            : current
+        );
+      } catch (nextError) {
+        setItem(previous);
+        throw nextError;
+      }
+    },
+    [item, route.locator, route.projectId, route.source, rpc]
+  );
+
   if (item === undefined) {
     return (
       <div className="space-y-4 p-4 md:p-5">
@@ -2684,17 +3500,11 @@ function TrackerDetail({
         <article className="mx-auto w-full min-w-0 max-w-[55rem] flex-1 px-7 pb-16 pt-8 @3xl:px-13 @3xl:pt-11">
           <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <span className="font-medium tabular-nums">{item.key}</span>
-            <Badge
-              variant={statusTone(item.stateCategory)}
-              data-state-category={item.stateCategory}
-              data-status-tone={workflowStatusTone(
-                item.status,
-                item.stateCategory
-              )}
-              className="tb-status-pill"
-            >
-              {item.status}
-            </Badge>
+            <WorkItemStatusMenu
+              item={item}
+              variant="detail"
+              onMove={moveItemStatus}
+            />
             <SourceMark source={item.source} />
           </div>
           <div className="flex flex-col gap-4 @lg:flex-row @lg:items-start">
@@ -3791,7 +4601,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     }
   }, [subPath]);
   useEffect(() => {
-    if (projects === undefined) return;
+    if (projects === undefined || !shouldApplyContextProject(route)) return;
     const token = contextSelectionToken(
       selectionContextThreadId,
       selectionContextProjectId,
@@ -3801,13 +4611,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     handledContextSelectionRef.current = token;
     if (contextTargetProjectId === null) return;
 
-    const alreadyInContext =
-      (route.kind === 'project' || route.kind === 'item') &&
-      route.projectId === contextTargetProjectId;
-    const alreadyManagingContext =
-      route.kind === 'manage' && route.projectId === contextTargetProjectId;
     storeLastProjectId(contextTargetProjectId);
-    if (alreadyInContext || alreadyManagingContext) return;
 
     const nextRoute: TrackerRoute =
       route.kind === 'manage'
@@ -4029,6 +4833,307 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
         <div className="min-h-0 flex-1 overflow-auto">{outlet}</div>
       </main>
     </div>
+  );
+}
+
+function TaskboardRightPanel({
+  projectId
+}: {
+  projectId: string | null | undefined;
+}) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const navigate = useBbNavigate();
+  const [itemRoute, setItemRoute] = useState<Extract<
+    TrackerRoute,
+    { kind: 'item' }
+  > | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [refreshGeneration, setRefreshGeneration] = useState(0);
+  const [pinned, setPinned] = useState(loadRightPanelPinned);
+  const preferencesRef = useRef(new Map<string, TrackerBrowsePreferences>());
+
+  useEffect(() => {
+    setItemRoute(null);
+    setRefreshError(null);
+  }, [projectId]);
+  useEffect(() => {
+    const syncPinned = () => setPinned(loadRightPanelPinned());
+    const syncStoredPin = (event: StorageEvent) => {
+      if (event.key === RIGHT_PANEL_PINNED_STORAGE_KEY) syncPinned();
+    };
+    window.addEventListener(RIGHT_PANEL_PIN_EVENT, syncPinned);
+    window.addEventListener('storage', syncStoredPin);
+    return () => {
+      window.removeEventListener(RIGHT_PANEL_PIN_EVENT, syncPinned);
+      window.removeEventListener('storage', syncStoredPin);
+    };
+  }, []);
+
+  const rememberPreferences = useCallback(
+    (scope: string, preferences: TrackerBrowsePreferences) => {
+      preferencesRef.current.set(scope, preferences);
+    },
+    []
+  );
+
+  const refresh = async () => {
+    if (!projectId || refreshing) return;
+    setRefreshing(true);
+    setRefreshError(null);
+    try {
+      await rpc.call('refresh', { projectId });
+      setRefreshGeneration(generation => generation + 1);
+    } catch (nextError) {
+      setRefreshError(describeError(nextError));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const activeItemRoute =
+    projectId && itemRoute?.projectId === projectId ? itemRoute : null;
+  const fullRoute: TrackerRoute =
+    activeItemRoute ??
+    (projectId
+      ? { kind: 'project', projectId }
+      : { kind: 'root' });
+
+  return (
+    <TooltipProvider delayDuration={250}>
+      <div
+        data-taskboard-right-panel
+        className="tb-linear flex h-full min-h-0 flex-col text-foreground"
+      >
+        <header className="tb-topbar flex h-11 shrink-0 items-center gap-2 border-b px-2.5">
+          {activeItemRoute ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label="Back to Taskboard issues"
+              onClick={() => setItemRoute(null)}
+            >
+              <Icon name="ChevronLeft" className="size-4" />
+            </Button>
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold">
+              {activeItemRoute ? activeItemRoute.locator : 'Taskboard'}
+            </p>
+            <p className="truncate text-2xs text-muted-foreground">
+              {projectId === undefined
+                ? 'Loading thread project…'
+                : projectId
+                ? pinned
+                  ? 'Pinned across chats'
+                  : 'Open beside this chat'
+                : 'Choose a BB project'}
+            </p>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={
+                  pinned
+                    ? 'Unpin Taskboard from the right panel'
+                    : 'Keep Taskboard pinned across chats'
+                }
+                aria-pressed={pinned}
+                onClick={() => storeRightPanelPinned(!pinned)}
+              >
+                <Icon
+                  name={pinned ? 'Pin' : 'PinOff'}
+                  className="size-3.5"
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {pinned ? 'Stop reopening across chats' : 'Keep open across chats'}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label="Refresh Taskboard"
+                disabled={!projectId || refreshing}
+                onClick={() => void refresh()}
+              >
+                <Icon
+                  name="RotateCcw"
+                  className={cn('size-3.5', refreshing && 'animate-spin')}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh Taskboard</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label="Open full Taskboard"
+                onClick={() =>
+                  navigate.toPluginPanel(PANEL_PATH, {
+                    subPath: routeToSubPath(fullRoute)
+                  })
+                }
+              >
+                <Icon name="Maximize2" className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Open full Taskboard</TooltipContent>
+          </Tooltip>
+        </header>
+        {refreshError ? (
+          <p
+            role="alert"
+            className="shrink-0 border-b border-border-hairline px-3 py-1.5 text-xs text-destructive"
+          >
+            {refreshError}
+          </p>
+        ) : null}
+        <div className="min-h-0 flex-1 overflow-hidden">
+          {projectId === undefined ? (
+            <LoadingRows />
+          ) : projectId === null ? (
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+              <Icon name="Folder" className="size-5 text-muted-foreground" />
+              <p className="text-sm font-medium">Choose a project</p>
+              <p className="max-w-xs text-xs text-muted-foreground">
+                Select a BB project in the composer to load its Taskboard here.
+              </p>
+            </div>
+          ) : activeItemRoute ? (
+            <TrackerDetail
+              route={activeItemRoute}
+              refreshGeneration={refreshGeneration}
+            />
+          ) : (
+            <TrackerList
+              key={projectId}
+              projectId={projectId}
+              projects={undefined}
+              refreshGeneration={refreshGeneration}
+              preferenceScope={`right-panel:${projectId}`}
+              initialPreferences={preferencesRef.current.get(
+                `right-panel:${projectId}`
+              )}
+              onPreferencesChange={rememberPreferences}
+              onOpen={item =>
+                setItemRoute({
+                  kind: 'item',
+                  projectId: item.bbProjectId,
+                  source: item.source,
+                  locator: item.locator
+                })
+              }
+            />
+          )}
+        </div>
+      </div>
+    </TooltipProvider>
+  );
+}
+
+function TaskboardThreadPanel({ threadId }: PluginThreadPanelProps) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const { projectId: contextProjectId, threadId: contextThreadId } =
+    useBbContext();
+  const fallbackProjectId =
+    contextThreadId === threadId ? contextProjectId : null;
+  const [projectId, setProjectId] = useState<string | null | undefined>();
+
+  useEffect(() => {
+    let cancelled = false;
+    setProjectId(undefined);
+    void rpc
+      .call('threadProject', { threadId })
+      .then(result => {
+        if (!cancelled) setProjectId(result.projectId);
+      })
+      .catch(nextError => {
+        if (cancelled) return;
+        setProjectId(fallbackProjectId);
+        toast.error('Could not resolve this thread’s Taskboard project.', {
+          description: describeError(nextError)
+        });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fallbackProjectId, rpc, threadId]);
+
+  return <TaskboardRightPanel projectId={projectId} />;
+}
+
+function TaskboardNewThreadPanel({ projectId }: PluginNewThreadPanelProps) {
+  return <TaskboardRightPanel projectId={projectId} />;
+}
+
+function TaskboardThreadHeaderAction({
+  threadId
+}: PluginThreadHeaderActionProps) {
+  const { openThreadPanel } = useBbNavigate();
+  const autoOpenedThreadRef = useRef<string | null>(null);
+  const openTaskboard = useCallback(
+    (showError: boolean) => {
+      const opened = openThreadPanel({
+        actionId: THREAD_PANEL_ACTION_ID,
+        title: 'Taskboard'
+      });
+      if (!opened && showError) {
+        toast.error('Taskboard cannot open beside this thread.');
+      }
+      return opened;
+    },
+    [openThreadPanel]
+  );
+
+  useEffect(() => {
+    if (
+      !loadRightPanelPinned() ||
+      autoOpenedThreadRef.current === threadId
+    ) {
+      return;
+    }
+    autoOpenedThreadRef.current = threadId;
+    const timeout = window.setTimeout(() => openTaskboard(false), 0);
+    return () => window.clearTimeout(timeout);
+  }, [openTaskboard, threadId]);
+
+  return (
+    <TooltipProvider delayDuration={250}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label="Pin Taskboard on the right"
+            onClick={() => {
+              storeRightPanelPinned(true);
+              openTaskboard(true);
+            }}
+          >
+            <Icon name="PanelRight" className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Pin Taskboard on the right</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -4305,6 +5410,32 @@ function TaskboardSettingsInfo() {
 }
 
 export default definePluginApp(app => {
+  app.composer.customize({
+    id: 'create-taskboard-issue',
+    scopes: ['thread', 'new-thread'],
+    actions: [
+      { id: 'create-issue', component: ComposerCreateIssueAction }
+    ]
+  });
+  app.slots.threadPanelAction({
+    id: THREAD_PANEL_ACTION_ID,
+    title: 'Taskboard',
+    icon: 'Target',
+    component: TaskboardThreadPanel,
+    layout: 'flush'
+  });
+  app.slots.experimental_newThreadPanelAction({
+    id: 'taskboard-new-thread-panel',
+    title: 'Taskboard',
+    icon: 'Target',
+    component: TaskboardNewThreadPanel,
+    layout: 'flush'
+  });
+  app.slots.experimental_threadHeaderAction({
+    id: 'open-taskboard-panel',
+    title: 'Taskboard',
+    component: TaskboardThreadHeaderAction
+  });
   app.slots.navPanel({
     id: 'taskboard',
     title: 'Taskboard',

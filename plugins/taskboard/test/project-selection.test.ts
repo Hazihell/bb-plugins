@@ -4,7 +4,8 @@ import {
   availableContextProjectId,
   contextSelectionToken,
   previousProjectRouteContext,
-  projectRouteContext
+  projectRouteContext,
+  shouldApplyContextProject
 } from '../project-selection.ts';
 
 const projects = [
@@ -73,5 +74,26 @@ test('uses only the immediately previous navigation entry as source context', ()
   assert.deepEqual(
     previousProjectRouteContext(entries, 1, 'https://bb.test'),
     { projectId: 'proj_alpha', threadId: 'thread_one' }
+  );
+});
+
+test('never replaces an explicit Taskboard project selection with route context', () => {
+  assert.equal(shouldApplyContextProject({ kind: 'root' }), true);
+  assert.equal(
+    shouldApplyContextProject({ kind: 'manage', projectId: null }),
+    true
+  );
+  assert.equal(shouldApplyContextProject({ kind: 'all' }), false);
+  assert.equal(
+    shouldApplyContextProject({ kind: 'project', projectId: 'proj_beta' }),
+    false
+  );
+  assert.equal(
+    shouldApplyContextProject({ kind: 'manage', projectId: 'proj_beta' }),
+    false
+  );
+  assert.equal(
+    shouldApplyContextProject({ kind: 'item', projectId: 'proj_beta' }),
+    false
   );
 });

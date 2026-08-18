@@ -36,6 +36,14 @@ task to an agent without rebuilding context by hand.
   remain available without repetitive provider chips on every task.
 - **Live task details** — cached summaries keep browsing fast; opening a task
   fetches its current description, labels, assignee, and comments.
+- **Pinned beside every chat** — open Taskboard from the thread-header button,
+  then keep it pinned in BB's right panel while moving between threads.
+- **Status changes everywhere** — use the status dot on a List row or the
+  status pill inside a task to move it through the provider's real workflow.
+- **Create without context switching** — turn a composer prompt into a
+  provider-aware issue beside BB's native prompt actions in New thread or an
+  existing thread. Created issues are attached to the draft as Taskboard
+  mentions so the thread continues with live issue context.
 - **Agent handoff** — prefill a BB prompt from any task or attach one with the
   Taskboard mention result.
 - **Human and agent parity** — everything important is also available through
@@ -99,6 +107,34 @@ Backlog, Todo, In Progress, In Review, QA, then the remaining workflow stages
 by default; provider-specific stages remain between the closest matching
 stages. Change that ordering per project in **Manage → Board preferences**.
 Rejected writes roll back the optimistic move.
+
+From a thread, click the Taskboard panel button in the upper-right header. The
+panel opens beside the conversation; leave its pin enabled to reopen it
+automatically when you switch chats. Use the pin control in the panel header to
+stop reopening it. The right panel follows the BB project selected for each
+thread, while **Open full Taskboard** keeps the larger workspace available when
+you need filters or board management.
+
+In List view, click the colored status dot on a task row to choose another
+provider status. The same control appears as a labeled status pill at the top
+of task details. Changes update optimistically and roll back if GitHub, Linear,
+or Jira rejects the transition.
+
+In **New thread** or an existing thread, write a prompt and click the Taskboard
+ticket icon beside the prompt and voice actions. Taskboard automatically uses
+the tracker selected for that BB project. GitHub offers its mapped
+repositories, Linear uses the configured team, and Jira infers project keys
+from simple `project = KEY` or `project in (...)` JQL scopes (with a project-key
+field when the scope cannot be inferred).
+
+The icon opens a review modal immediately while a hidden, read-only helper uses
+the BB project's repository context to turn the rough prompt into a natural
+title and a standalone description with requested changes and acceptance
+criteria. Nothing is sent to GitHub, Linear, or Jira until you review the draft
+and click **Create issue**. If the helper cannot produce a draft, the original
+prompt remains editable as a visible fallback. You can also choose **Use
+original prompt** immediately instead of waiting, then retry the
+repository-aware draft from the same modal.
 
 ![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 

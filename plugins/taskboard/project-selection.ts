@@ -10,6 +10,13 @@ export interface ProjectRouteContext {
   threadId: string | null;
 }
 
+export type ContextSelectableRoute =
+  | { kind: 'root' }
+  | { kind: 'all' }
+  | { kind: 'project'; projectId: string }
+  | { kind: 'manage'; projectId: string | null }
+  | { kind: 'item'; projectId: string };
+
 function decodedSegment(value: string | undefined): string | null {
   if (!value) return null;
   try {
@@ -70,4 +77,10 @@ export function contextSelectionToken(
     threadId ?? 'no-thread',
     contextProjectId ?? 'no-project'
   ].join(':');
+}
+
+export function shouldApplyContextProject(
+  route: ContextSelectableRoute
+): boolean {
+  return route.kind === 'root' || (route.kind === 'manage' && !route.projectId);
 }

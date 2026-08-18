@@ -1,6 +1,7 @@
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import { z } from 'zod';
 import type {
+  ExternalWorkItemCreateInput,
   ExternalWorkItemDetail,
   ExternalWorkStatusOption,
   WorkSourceAdapter
@@ -66,6 +67,13 @@ const refreshOutputSchema = z
 
 const okOutputSchema = z.object({ ok: z.literal(true) }).strict();
 
+const createIssueOutputSchema = z
+  .object({
+    number: z.number().int().positive().nullable(),
+    url: z.string().min(1)
+  })
+  .strict();
+
 const activeRefreshes = new WeakMap<BbPluginApi, Promise<void>>();
 
 function refreshGithubCache(bb: BbPluginApi): Promise<void> {
@@ -86,7 +94,7 @@ function refreshGithubCache(bb: BbPluginApi): Promise<void> {
   return promise;
 }
 
-function githubStatus(bb: BbPluginApi) {
+export function loadGithubStatus(bb: BbPluginApi) {
   return bb.sdk.plugins.callRpc({
     pluginId: 'github',
     method: 'status',
@@ -147,7 +155,7 @@ export function createGithubAdapter(
 ): WorkSourceAdapter {
   async function scopedIssue(locator: string): Promise<ExternalWorkItemDetail> {
     const { repo, number } = parseLocator(locator);
-    const status = await githubStatus(bb);
+    const status = await loadGithubStatus(bb);
     if (!status.ghOk) {
       throw new Error(status.ghError ?? 'GitHub is not authenticated');
     }
@@ -197,7 +205,7 @@ export function createGithubAdapter(
     async list(options) {
       if (!enabled) throw new Error('GitHub is disabled');
       if (options?.refresh) await refreshGithubCache(bb);
-      const status = await githubStatus(bb);
+      const status = await loadGithubStatus(bb);
       if (!status.ghOk) {
         throw new Error(status.ghError ?? 'GitHub is not authenticated');
       }
@@ -231,6 +239,36 @@ export function createGithubAdapter(
     async statusOptions(locator) {
       if (!enabled) throw new Error('GitHub is disabled');
       return statusOptions(locator);
+    },
+    async create(input: ExternalWorkItemCreateInput) {
+      if (!enabled) throw new Error('GitHub is disabled');
+      const status = await loadGithubStatus(bb);
+      if (!status.ghOk) {
+        throw new Error(status.ghError ?? 'GitHub is not authenticated');
+      }
+      const repos = githubReposForProject(status, projectId);
+      if (!repos.includes(input.destinationId)) {
+        throw new Error(
+          `GitHub repository ${input.destinationId} is not mapped to this BB project`
+        );
+      }
+      const created = await bb.sdk.plugins.callRpc({
+        pluginId: 'github',
+        method: 'createIssue',
+        input: {
+          repo: input.destinationId,
+          title: input.title,
+          body: input.description
+        },
+        outputSchema: createIssueOutputSchema
+      });
+      const number =
+        created.number ??
+        Number(/\/issues\/(?<number>[1-9]\d*)\/?$/u.exec(created.url)?.groups?.number);
+      if (!Number.isSafeInteger(number) || number < 1) {
+        throw new Error('GitHub created the issue but did not return its number');
+      }
+      return scopedIssue(`${input.destinationId}#${number}`);
     },
     async updateStatus(locator, statusId) {
       if (!enabled) throw new Error('GitHub is disabled');

@@ -2,11 +2,13 @@ import { Buffer } from 'node:buffer';
 import { z } from 'zod';
 import type { WorkStateCategory } from '../contract.js';
 import type {
+  ExternalWorkItemCreateInput,
   ExternalWorkItemDetail,
   ExternalWorkStatusOption,
   WorkSourceAdapter
 } from './types.js';
 import { withoutComments } from './types.js';
+import { jiraProjectKeysFromJql } from './jira-scope.js';
 
 const jiraIssueSchema = z
   .object({
@@ -90,6 +92,25 @@ const jiraTransitionsSchema = z
     )
   })
   .passthrough();
+
+const jiraCreatedIssueSchema = z
+  .object({
+    id: z.string().regex(/^[1-9]\d*$/),
+    key: z.string().min(1),
+    self: z.string().optional()
+  })
+  .passthrough();
+
+function jiraDescription(value: string) {
+  return {
+    type: 'doc',
+    version: 1,
+    content: value.split(/\r?\n/u).map(line => ({
+      type: 'paragraph',
+      content: line ? [{ type: 'text', text: line }] : []
+    }))
+  };
+}
 
 function adfText(value: unknown): string {
   if (typeof value === 'string') return value;
@@ -355,6 +376,44 @@ export function createJiraAdapter(options: {
       return result.options.map(
         ({ transitionId: _transitionId, ...option }) => option
       );
+    },
+    async create(input: ExternalWorkItemCreateInput) {
+      if (!configured) throw new Error('Jira is not configured');
+      const projectKey = input.destinationId.trim().toUpperCase();
+      if (!/^[A-Z][A-Z0-9_-]*$/u.test(projectKey)) {
+        throw new Error('Enter a valid Jira project key');
+      }
+      const configuredProjectKeys = jiraProjectKeysFromJql(options.jql);
+      if (
+        configuredProjectKeys.length > 0 &&
+        !configuredProjectKeys.includes(projectKey)
+      ) {
+        throw new Error(
+          `Jira project ${projectKey} is outside the configured JQL scope`
+        );
+      }
+      const payload = await jiraRequest(auth, '/rest/api/3/issue', {
+        method: 'POST',
+        body: JSON.stringify({
+          fields: {
+            project: { key: projectKey },
+            summary: input.title,
+            issuetype: { name: input.issueType ?? 'Task' },
+            ...(input.description
+              ? { description: jiraDescription(input.description) }
+              : {})
+          }
+        })
+      });
+      const created = jiraCreatedIssueSchema.parse(payload);
+      const issue = await loadIssue(created.key, {
+        comments: false,
+        verifyScope: false
+      });
+      if (issue.id !== created.id || issue.fields.project.key !== projectKey) {
+        throw new Error('Jira returned an invalid new issue');
+      }
+      return toItem(baseUrl, issue);
     },
     async updateStatus(locator, statusId) {
       if (!configured) throw new Error('Jira is not configured');
