@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  DEFAULT_WORKFLOW_STATUS_ORDER,
   NO_LABELS_FILTER,
   NO_PRIORITY_FILTER,
   NO_PROJECT_FILTER,
@@ -47,7 +48,7 @@ function item(
   };
 }
 
-test('orders exact workflow statuses before nearby provider-specific states', () => {
+test('uses the backlog-first default before provider-specific states', () => {
   const items = [
     item('DONE-1', 'Done', 'done'),
     item('TRIAGE-1', 'Triage', 'todo'),
@@ -62,29 +63,44 @@ test('orders exact workflow statuses before nearby provider-specific states', ()
   assert.deepEqual(
     sortWorkItemsByWorkflow(items).map(workItem => workItem.status),
     [
-      'In Review',
-      'In Progress',
-      'Blocked',
-      'QA',
-      'Todo',
-      'Triage',
       'Backlog',
+      'Todo',
+      'In Progress',
+      'In Review',
+      'QA',
+      'Blocked',
+      'Triage',
       'Done'
     ]
   );
   assert.deepEqual(
     workflowStatusGroups(items).map(group => group.name),
     [
-      'In Review',
-      'In Progress',
-      'Blocked',
-      'QA',
-      'Todo',
-      'Triage',
       'Backlog',
+      'Todo',
+      'In Progress',
+      'In Review',
+      'QA',
+      'Blocked',
+      'Triage',
       'Done'
     ]
   );
+});
+
+test('defines the complete backlog-first default status order', () => {
+  assert.deepEqual(DEFAULT_WORKFLOW_STATUS_ORDER, [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'In Review',
+    'QA',
+    'Ready for Release',
+    'Blocked',
+    'Duplicate',
+    'Done',
+    'Canceled'
+  ]);
 });
 
 test('builds case-insensitive assignee choices including Unassigned', () => {
@@ -160,13 +176,13 @@ test('keeps the complete provider workflow ordered before and after a move', () 
     current: name === 'In Review'
   }));
   const expected = [
-    'In Review',
+    'Backlog',
+    'Todo',
     'In Progress',
+    'In Review',
     'QA',
     'Ready for Release',
-    'Todo',
     'Duplicate',
-    'Backlog',
     'Done',
     'Canceled'
   ];
@@ -253,9 +269,9 @@ test('builds Linear-style field options including empty values', () => {
   const items = [urgent, empty, high];
 
   assert.deepEqual(statusFilterOptions(items).map(option => option.label), [
+    'Todo',
     'In Review',
-    'Blocked',
-    'Todo'
+    'Blocked'
   ]);
   assert.deepEqual(priorityFilterOptions(items), [
     { value: 'Urgent', label: 'Urgent' },

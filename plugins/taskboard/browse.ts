@@ -10,12 +10,16 @@ export const NO_PROJECT_FILTER = '__taskboard_no_project__';
 export const NO_LABELS_FILTER = '__taskboard_no_labels__';
 
 export const DEFAULT_WORKFLOW_STATUS_ORDER: readonly string[] = [
-  'In Review',
-  'In Progress',
-  'Blocked',
-  'Todo',
   'Backlog',
-  'Done'
+  'Todo',
+  'In Progress',
+  'In Review',
+  'QA',
+  'Ready for Release',
+  'Blocked',
+  'Duplicate',
+  'Done',
+  'Canceled'
 ];
 
 export interface FilterOption {
