@@ -20,7 +20,10 @@ import {
   useRealtimeConnectionState,
   useRpc,
   type PluginNavPanelProps,
-  type PluginPendingInteractionProps
+  type PluginNewThreadPanelProps,
+  type PluginPendingInteractionProps,
+  type PluginThreadHeaderActionProps,
+  type PluginThreadPanelProps
 } from '@get-bb/plugin-sdk/app';
 import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +40,7 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Icon, type IconName } from '@/components/ui/icon';
@@ -109,7 +113,10 @@ import {
 import './app.css';
 
 const PANEL_PATH = 'tasks';
+const THREAD_PANEL_ACTION_ID = 'taskboard-panel';
 const ALL_SOURCES = 'all';
+const RIGHT_PANEL_PINNED_STORAGE_KEY = 'bb-taskboard:right-panel-pinned';
+const RIGHT_PANEL_PIN_EVENT = 'bb-taskboard:right-panel-pin-changed';
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'bb-taskboard:sidebar-collapsed';
 const SIDEBAR_WIDTH_STORAGE_KEY = 'bb-taskboard:sidebar-width';
 const LAST_PROJECT_STORAGE_KEY = 'bb-taskboard:last-project';
@@ -1073,6 +1080,28 @@ function useRefreshOnReconnect(refresh: () => void): void {
   }, [connectionState]);
 }
 
+function loadRightPanelPinned(): boolean {
+  try {
+    return (
+      window.localStorage.getItem(RIGHT_PANEL_PINNED_STORAGE_KEY) === 'true'
+    );
+  } catch {
+    return false;
+  }
+}
+
+function storeRightPanelPinned(pinned: boolean): void {
+  try {
+    window.localStorage.setItem(
+      RIGHT_PANEL_PINNED_STORAGE_KEY,
+      String(pinned)
+    );
+    window.dispatchEvent(new Event(RIGHT_PANEL_PIN_EVENT));
+  } catch {
+    // Persistence is best-effort in sandboxed browser contexts.
+  }
+}
+
 function loadSidebarCollapsed(): boolean {
   try {
     return (
@@ -1126,12 +1155,6 @@ function formatUpdatedAt(value: string): string {
     month: 'short',
     day: 'numeric'
   }).format(new Date(timestamp));
-}
-
-function statusTone(category: WorkStateCategory) {
-  if (category === 'done') return 'secondary' as const;
-  if (category === 'in_progress') return 'default' as const;
-  return 'outline' as const;
 }
 
 function StateDot({
@@ -1950,41 +1973,185 @@ function LoadingRows() {
   );
 }
 
+function WorkItemStatusMenu({
+  item,
+  variant,
+  onMove
+}: {
+  item: WorkItem;
+  variant: 'row' | 'detail';
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
+}) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const [options, setOptions] = useState<WorkStatusOption[] | undefined>();
+  const [loading, setLoading] = useState(false);
+  const [pendingStatusId, setPendingStatusId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const identity = `${item.bbProjectId}:${item.source}:${item.locator}`;
+
+  useEffect(() => {
+    setOptions(undefined);
+    setError(null);
+  }, [identity, item.status]);
+
+  const loadOptions = useCallback(async () => {
+    if (loading || options !== undefined) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await rpc.call('statusOptions', {
+        projectId: item.bbProjectId,
+        source: item.source,
+        locator: item.locator
+      });
+      setOptions(result.options);
+    } catch (nextError) {
+      setError(describeError(nextError));
+    } finally {
+      setLoading(false);
+    }
+  }, [item.bbProjectId, item.locator, item.source, loading, options, rpc]);
+
+  const changeStatus = async (option: WorkStatusOption) => {
+    const current =
+      option.current ||
+      (option.name === item.status &&
+        option.stateCategory === item.stateCategory);
+    if (current || pendingStatusId !== null) return;
+    setPendingStatusId(option.id);
+    try {
+      await onMove(item, option);
+      toast.success(`${item.key} moved to ${option.name}`);
+    } catch (nextError) {
+      toast.error(`Could not update ${item.key}`, {
+        description: describeError(nextError)
+      });
+    } finally {
+      setPendingStatusId(null);
+    }
+  };
+
+  const trigger =
+    variant === 'row' ? (
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="size-5 rounded-full p-0"
+        aria-label={`Change status for ${item.key}. Current status: ${item.status}`}
+        disabled={pendingStatusId !== null}
+      >
+        <StateDot category={item.stateCategory} status={item.status} />
+      </Button>
+    ) : (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="tb-status-pill h-7 gap-1.5 rounded-full px-2.5 text-xs"
+        aria-label={`Change status for ${item.key}. Current status: ${item.status}`}
+        data-state-category={item.stateCategory}
+        data-status-tone={workflowStatusTone(
+          item.status,
+          item.stateCategory
+        )}
+        disabled={pendingStatusId !== null}
+      >
+        <StateDot category={item.stateCategory} status={item.status} />
+        {pendingStatusId === null ? item.status : 'Updating…'}
+        <Icon name="ChevronDown" className="size-3 opacity-60" />
+      </Button>
+    );
+
+  return (
+    <DropdownMenu
+      onOpenChange={open => {
+        if (open) void loadOptions();
+      }}
+    >
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={variant === 'row' ? 'start' : 'end'}
+        className="min-w-48"
+      >
+        {loading && options === undefined ? (
+          <DropdownMenuItem disabled>
+            <Icon name="Loading" className="size-3.5 animate-spin" />
+            Loading statuses…
+          </DropdownMenuItem>
+        ) : error ? (
+          <DropdownMenuItem disabled className="max-w-64 text-destructive">
+            {error}
+          </DropdownMenuItem>
+        ) : options?.length ? (
+          options.map(option => {
+            const current =
+              option.current ||
+              (option.name === item.status &&
+                option.stateCategory === item.stateCategory);
+            return (
+              <DropdownMenuItem
+                key={option.id}
+                disabled={current || pendingStatusId !== null}
+                onSelect={() => void changeStatus(option)}
+              >
+                <StateDot
+                  category={option.stateCategory}
+                  status={option.name}
+                />
+                <span className="min-w-0 flex-1 truncate">{option.name}</span>
+                {current ? <Icon name="Check" className="size-3.5" /> : null}
+              </DropdownMenuItem>
+            );
+          })
+        ) : (
+          <DropdownMenuItem disabled>No status changes available</DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function WorkItemRow({
   item,
   project,
   showProject,
+  onMove,
   onOpen
 }: {
   item: WorkItem;
   project: TrackerProject | undefined;
   showProject: boolean;
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
   onOpen: () => void;
 }) {
   const priority = visiblePriority(item.priority);
   const assignee = visibleAssignee(item.assignee);
   return (
-    <button
-      type="button"
-      aria-label={`Open ${item.key}: ${item.title}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}`}
+    <div
       data-state-category={item.stateCategory}
       data-status-tone={workflowStatusTone(item.status, item.stateCategory)}
-      onClick={onOpen}
-      className="tb-item-row group grid min-h-9 w-full items-center gap-x-2 border-b border-border-hairline px-2.5 py-1 text-left focus-visible:relative focus-visible:z-10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+      className="tb-item-row group relative grid min-h-9 w-full items-center gap-x-2 border-b border-border-hairline px-2.5 py-1 text-left"
     >
-      <span className="tb-priority-slot flex size-4 items-center justify-center">
+      <button
+        type="button"
+        aria-label={`Open ${item.key}: ${item.title}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}`}
+        onClick={onOpen}
+        className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
+      />
+      <span className="tb-priority-slot pointer-events-none relative z-[1] flex size-4 items-center justify-center">
         {priority ? <PriorityMark priority={priority} /> : null}
       </span>
-      <span className="tb-key min-w-0 truncate text-xs font-medium tabular-nums">
+      <span className="tb-key pointer-events-none relative z-[1] min-w-0 truncate text-xs font-medium tabular-nums">
         {item.key}
       </span>
-      <span className="flex" title={item.status}>
-        <StateDot category={item.stateCategory} status={item.status} />
+      <span className="relative z-10 flex items-center justify-center">
+        <WorkItemStatusMenu item={item} variant="row" onMove={onMove} />
       </span>
-      <span className="min-w-0 truncate text-sm font-medium text-foreground">
+      <span className="pointer-events-none relative z-[1] min-w-0 truncate text-sm font-medium text-foreground">
         {item.title}
       </span>
-      <span className="tb-row-trailing tb-meta flex min-w-0 items-center gap-2 overflow-hidden text-xs">
+      <span className="tb-row-trailing tb-meta pointer-events-none relative z-[1] flex min-w-0 items-center gap-2 overflow-hidden text-xs">
         {showProject && project ? (
           <span className="max-w-28 truncate" title={project.name}>
             {project.name}
@@ -1995,7 +2162,7 @@ function WorkItemRow({
           {formatUpdatedAt(item.updatedAt)}
         </time>
       </span>
-    </button>
+    </div>
   );
 }
 
@@ -2006,6 +2173,7 @@ function ListStateGroups({
   showProject,
   idPrefix,
   nested = false,
+  onMove,
   onOpen
 }: {
   items: readonly WorkItem[];
@@ -2014,6 +2182,7 @@ function ListStateGroups({
   showProject: boolean;
   idPrefix: string;
   nested?: boolean;
+  onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
   onOpen: (item: WorkItem) => void;
 }) {
   return workflowStatusGroups(items, statusOrder).map(group => (
@@ -2043,6 +2212,7 @@ function ListStateGroups({
           item={item}
           project={projectsById.get(item.bbProjectId)}
           showProject={showProject}
+          onMove={onMove}
           onOpen={() => onOpen(item)}
         />
       ))}
@@ -3157,6 +3327,7 @@ function TrackerList({
                   showProject={false}
                   idPrefix={project.id}
                   nested
+                  onMove={moveItemStatus}
                   onOpen={onOpen}
                 />
               </section>
@@ -3168,6 +3339,7 @@ function TrackerList({
               projectsById={projectsById}
               showProject={false}
               idPrefix={projectId ?? 'selected-project'}
+              onMove={moveItemStatus}
               onOpen={onOpen}
             />
           )}
@@ -3251,6 +3423,35 @@ function TrackerDetail({
   });
   useRefreshOnReconnect(() => void load());
 
+  const moveItemStatus = useCallback(
+    async (_selectedItem: WorkItem, option: WorkStatusOption) => {
+      if (!item) throw new Error('The work item is not loaded.');
+      const previous = item;
+      setItem({
+        ...item,
+        status: option.name,
+        stateCategory: option.stateCategory
+      });
+      try {
+        const result = await rpc.call('updateItemStatus', {
+          projectId: route.projectId,
+          source: route.source,
+          locator: route.locator,
+          statusId: option.id
+        });
+        setItem(current =>
+          current
+            ? { ...current, ...result.item, comments: current.comments }
+            : current
+        );
+      } catch (nextError) {
+        setItem(previous);
+        throw nextError;
+      }
+    },
+    [item, route.locator, route.projectId, route.source, rpc]
+  );
+
   if (item === undefined) {
     return (
       <div className="space-y-4 p-4 md:p-5">
@@ -3298,17 +3499,11 @@ function TrackerDetail({
         <article className="mx-auto w-full min-w-0 max-w-[55rem] flex-1 px-7 pb-16 pt-8 @3xl:px-13 @3xl:pt-11">
           <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <span className="font-medium tabular-nums">{item.key}</span>
-            <Badge
-              variant={statusTone(item.stateCategory)}
-              data-state-category={item.stateCategory}
-              data-status-tone={workflowStatusTone(
-                item.status,
-                item.stateCategory
-              )}
-              className="tb-status-pill"
-            >
-              {item.status}
-            </Badge>
+            <WorkItemStatusMenu
+              item={item}
+              variant="detail"
+              onMove={moveItemStatus}
+            />
             <SourceMark source={item.source} />
           </div>
           <div className="flex flex-col gap-4 @lg:flex-row @lg:items-start">
@@ -4646,6 +4841,271 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
   );
 }
 
+function TaskboardRightPanel({ projectId }: { projectId: string | null }) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const navigate = useBbNavigate();
+  const [itemRoute, setItemRoute] = useState<Extract<
+    TrackerRoute,
+    { kind: 'item' }
+  > | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
+  const [refreshGeneration, setRefreshGeneration] = useState(0);
+  const [pinned, setPinned] = useState(loadRightPanelPinned);
+  const preferencesRef = useRef(new Map<string, TrackerBrowsePreferences>());
+
+  useEffect(() => {
+    setItemRoute(null);
+    setRefreshError(null);
+  }, [projectId]);
+  useEffect(() => {
+    const syncPinned = () => setPinned(loadRightPanelPinned());
+    const syncStoredPin = (event: StorageEvent) => {
+      if (event.key === RIGHT_PANEL_PINNED_STORAGE_KEY) syncPinned();
+    };
+    window.addEventListener(RIGHT_PANEL_PIN_EVENT, syncPinned);
+    window.addEventListener('storage', syncStoredPin);
+    return () => {
+      window.removeEventListener(RIGHT_PANEL_PIN_EVENT, syncPinned);
+      window.removeEventListener('storage', syncStoredPin);
+    };
+  }, []);
+
+  const rememberPreferences = useCallback(
+    (scope: string, preferences: TrackerBrowsePreferences) => {
+      preferencesRef.current.set(scope, preferences);
+    },
+    []
+  );
+
+  const refresh = async () => {
+    if (!projectId || refreshing) return;
+    setRefreshing(true);
+    setRefreshError(null);
+    try {
+      await rpc.call('refresh', { projectId });
+      setRefreshGeneration(generation => generation + 1);
+    } catch (nextError) {
+      setRefreshError(describeError(nextError));
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const fullRoute: TrackerRoute =
+    itemRoute ??
+    (projectId
+      ? { kind: 'project', projectId }
+      : { kind: 'root' });
+
+  return (
+    <TooltipProvider delayDuration={250}>
+      <div
+        data-taskboard-right-panel
+        className="tb-linear flex h-full min-h-0 flex-col text-foreground"
+      >
+        <header className="tb-topbar flex h-11 shrink-0 items-center gap-2 border-b px-2.5">
+          {itemRoute ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label="Back to Taskboard issues"
+              onClick={() => setItemRoute(null)}
+            >
+              <Icon name="ChevronLeft" className="size-4" />
+            </Button>
+          ) : null}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-xs font-semibold">
+              {itemRoute ? itemRoute.locator : 'Taskboard'}
+            </p>
+            <p className="truncate text-2xs text-muted-foreground">
+              {projectId
+                ? pinned
+                  ? 'Pinned across chats'
+                  : 'Open beside this chat'
+                : 'Choose a BB project'}
+            </p>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={
+                  pinned
+                    ? 'Unpin Taskboard from the right panel'
+                    : 'Keep Taskboard pinned across chats'
+                }
+                aria-pressed={pinned}
+                onClick={() => storeRightPanelPinned(!pinned)}
+              >
+                <Icon
+                  name={pinned ? 'Pin' : 'PinOff'}
+                  className="size-3.5"
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {pinned ? 'Stop reopening across chats' : 'Keep open across chats'}
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label="Refresh Taskboard"
+                disabled={!projectId || refreshing}
+                onClick={() => void refresh()}
+              >
+                <Icon
+                  name="RotateCcw"
+                  className={cn('size-3.5', refreshing && 'animate-spin')}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Refresh Taskboard</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label="Open full Taskboard"
+                onClick={() =>
+                  navigate.toPluginPanel(PANEL_PATH, {
+                    subPath: routeToSubPath(fullRoute)
+                  })
+                }
+              >
+                <Icon name="Maximize2" className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Open full Taskboard</TooltipContent>
+          </Tooltip>
+        </header>
+        {refreshError ? (
+          <p
+            role="alert"
+            className="shrink-0 border-b border-border-hairline px-3 py-1.5 text-xs text-destructive"
+          >
+            {refreshError}
+          </p>
+        ) : null}
+        <div className="min-h-0 flex-1 overflow-hidden">
+          {!projectId ? (
+            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+              <Icon name="Folder" className="size-5 text-muted-foreground" />
+              <p className="text-sm font-medium">Choose a project</p>
+              <p className="max-w-xs text-xs text-muted-foreground">
+                Select a BB project in the composer to load its Taskboard here.
+              </p>
+            </div>
+          ) : itemRoute ? (
+            <TrackerDetail
+              route={itemRoute}
+              refreshGeneration={refreshGeneration}
+            />
+          ) : (
+            <TrackerList
+              key={projectId}
+              projectId={projectId}
+              projects={undefined}
+              refreshGeneration={refreshGeneration}
+              preferenceScope={`right-panel:${projectId}`}
+              initialPreferences={preferencesRef.current.get(
+                `right-panel:${projectId}`
+              )}
+              onPreferencesChange={rememberPreferences}
+              onOpen={item =>
+                setItemRoute({
+                  kind: 'item',
+                  projectId: item.bbProjectId,
+                  source: item.source,
+                  locator: item.locator
+                })
+              }
+            />
+          )}
+        </div>
+      </div>
+    </TooltipProvider>
+  );
+}
+
+function TaskboardThreadPanel(_props: PluginThreadPanelProps) {
+  const { projectId } = useBbContext();
+  return <TaskboardRightPanel projectId={projectId} />;
+}
+
+function TaskboardNewThreadPanel({ projectId }: PluginNewThreadPanelProps) {
+  return <TaskboardRightPanel projectId={projectId} />;
+}
+
+function TaskboardThreadHeaderAction({
+  threadId
+}: PluginThreadHeaderActionProps) {
+  const { openThreadPanel } = useBbNavigate();
+  const autoOpenedThreadRef = useRef<string | null>(null);
+  const openTaskboard = useCallback(
+    (showError: boolean) => {
+      const opened = openThreadPanel({
+        actionId: THREAD_PANEL_ACTION_ID,
+        title: 'Taskboard'
+      });
+      if (!opened && showError) {
+        toast.error('Taskboard cannot open beside this thread.');
+      }
+      return opened;
+    },
+    [openThreadPanel]
+  );
+
+  useEffect(() => {
+    if (
+      !loadRightPanelPinned() ||
+      autoOpenedThreadRef.current === threadId
+    ) {
+      return;
+    }
+    autoOpenedThreadRef.current = threadId;
+    const timeout = window.setTimeout(() => openTaskboard(false), 0);
+    return () => window.clearTimeout(timeout);
+  }, [openTaskboard, threadId]);
+
+  return (
+    <TooltipProvider delayDuration={250}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label="Pin Taskboard on the right"
+            onClick={() => {
+              storeRightPanelPinned(true);
+              openTaskboard(true);
+            }}
+          >
+            <Icon name="PanelRight" className="size-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Pin Taskboard on the right</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
 function ProjectCredentialsInteractionForm({
   interaction,
   submit,
@@ -4925,6 +5385,25 @@ export default definePluginApp(app => {
     actions: [
       { id: 'create-issue', component: ComposerCreateIssueAction }
     ]
+  });
+  app.slots.threadPanelAction({
+    id: THREAD_PANEL_ACTION_ID,
+    title: 'Taskboard',
+    icon: 'Target',
+    component: TaskboardThreadPanel,
+    layout: 'flush'
+  });
+  app.slots.experimental_newThreadPanelAction({
+    id: 'taskboard-new-thread-panel',
+    title: 'Taskboard',
+    icon: 'Target',
+    component: TaskboardNewThreadPanel,
+    layout: 'flush'
+  });
+  app.slots.experimental_threadHeaderAction({
+    id: 'open-taskboard-panel',
+    title: 'Taskboard',
+    component: TaskboardThreadHeaderAction
   });
   app.slots.navPanel({
     id: 'taskboard',

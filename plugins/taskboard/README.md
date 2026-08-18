@@ -36,6 +36,10 @@ task to an agent without rebuilding context by hand.
   remain available without repetitive provider chips on every task.
 - **Live task details** — cached summaries keep browsing fast; opening a task
   fetches its current description, labels, assignee, and comments.
+- **Pinned beside every chat** — open Taskboard from the thread-header button,
+  then keep it pinned in BB's right panel while moving between threads.
+- **Status changes everywhere** — use the status dot on a List row or the
+  status pill inside a task to move it through the provider's real workflow.
 - **Create without context switching** — turn a composer prompt into a
   provider-aware issue beside BB's native prompt actions in New thread or an
   existing thread. Created issues are attached to the draft as Taskboard
@@ -103,6 +107,18 @@ Backlog, Todo, In Progress, In Review, QA, then the remaining workflow stages
 by default; provider-specific stages remain between the closest matching
 stages. Change that ordering per project in **Manage → Board preferences**.
 Rejected writes roll back the optimistic move.
+
+From a thread, click the Taskboard panel button in the upper-right header. The
+panel opens beside the conversation; leave its pin enabled to reopen it
+automatically when you switch chats. Use the pin control in the panel header to
+stop reopening it. The right panel follows the BB project selected for each
+thread, while **Open full Taskboard** keeps the larger workspace available when
+you need filters or board management.
+
+In List view, click the colored status dot on a task row to choose another
+provider status. The same control appears as a labeled status pill at the top
+of task details. Changes update optimistically and roll back if GitHub, Linear,
+or Jira rejects the transition.
 
 In **New thread** or an existing thread, write a prompt and click the Taskboard
 ticket icon beside the prompt and voice actions. Taskboard automatically uses
