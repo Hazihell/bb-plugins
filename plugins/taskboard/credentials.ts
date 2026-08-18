@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { deleteSecretFile, writeSecretFile } from './lib/secret-file.js';
-import type { BbPluginApi } from '@bb/plugin-sdk';
+import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import type { SecretMutation } from './contract.js';
 
 export type CredentialSource = 'linear' | 'jira';

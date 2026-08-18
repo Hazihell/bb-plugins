@@ -37,5 +37,5 @@ jobs:
       - name: Check, test, and build
         run: npm run check
 
-      - name: Verify generated SDK declarations stay current
-        run: git diff --exit-code -- 'plugins/*/types'
+      - name: Ensure checks leave tracked files clean
+        run: git diff --exit-code

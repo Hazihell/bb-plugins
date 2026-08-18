@@ -1,6 +1,10 @@
-import { defineRpcContract, type BbPluginApi } from "@bb/plugin-sdk";
+import { defineRpcContract, type BbPluginApi } from "@get-bb/plugin-sdk";
 import { z } from "zod";
 import { loadUsageSnapshot } from "./lib/load-usage.ts";
+import {
+  enabledSidebarProviderIds,
+  SIDEBAR_PROVIDER_IDS,
+} from "./lib/preferences.ts";
 import { PROVIDER_IDS } from "./lib/usage.ts";
 
 const costSchema = z
@@ -39,6 +43,14 @@ const providerSchema = z
   .strict();
 
 export const usageRpcContract = defineRpcContract({
+  getPreferences: {
+    input: z.null(),
+    output: z
+      .object({
+        enabledProviderIds: z.array(z.enum(SIDEBAR_PROVIDER_IDS)),
+      })
+      .strict(),
+  },
   getUsage: {
     input: z
       .object({ threadId: z.string().trim().min(1).nullable() })
@@ -59,7 +71,27 @@ export const usageRpcContract = defineRpcContract({
 });
 
 export default function plugin(bb: BbPluginApi) {
+  const settings = bb.settings.define({
+    enableClaudeCode: {
+      type: "boolean",
+      label: "Enable Claude Code",
+      description: "Show Claude Code usage in the sidebar footer.",
+      default: true,
+    },
+    enableCodex: {
+      type: "boolean",
+      label: "Enable Codex",
+      description: "Show Codex usage in the sidebar footer.",
+      default: true,
+    },
+  });
+
   bb.rpc.register(usageRpcContract, {
+    async getPreferences() {
+      return {
+        enabledProviderIds: enabledSidebarProviderIds(await settings.get()),
+      };
+    },
     getUsage({ threadId }) {
       return loadUsageSnapshot(bb.sdk, threadId);
     },

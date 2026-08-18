@@ -6,6 +6,10 @@ import {
   type UsageSnapshot,
   type UsageWindow,
 } from "./usage.ts";
+import {
+  SIDEBAR_PROVIDER_IDS,
+  type SidebarProviderId,
+} from "./preferences.ts";
 import { providerMark } from "./provider-marks.ts";
 import {
   mergeLastKnownWindows,
@@ -16,16 +20,19 @@ import {
 
 const ROOT_ATTRIBUTE = "data-usage-tracker-sidebar";
 const CACHE_KEY = "bb:usage-tracker:sidebar:last-known";
+const PREFERENCES_CACHE_KEY = "bb:usage-tracker:sidebar:enabled-providers";
 const AUTO_REFRESH_MS = 5 * 60_000;
+const PREFERENCES_REFRESH_MS = 5_000;
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
-const SIDEBAR_PROVIDER_IDS = ["claudeCode", "codex"] as const;
 
-type SidebarProviderId = (typeof SIDEBAR_PROVIDER_IDS)[number];
-
-interface RpcEnvelope {
+interface RpcEnvelope<T> {
   ok: boolean;
-  result?: UsageSnapshot;
+  result?: T;
   error?: { message?: string };
+}
+
+interface PreferencesResult {
+  enabledProviderIds: SidebarProviderId[];
 }
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -117,6 +124,38 @@ function cacheSnapshot(snapshot: UsageSnapshot): void {
     localStorage.setItem(CACHE_KEY, JSON.stringify(snapshot));
   } catch {
     // Storage is an optimization. The live strip still works without it.
+  }
+}
+
+function isSidebarProviderId(value: unknown): value is SidebarProviderId {
+  return SIDEBAR_PROVIDER_IDS.some((providerId) => providerId === value);
+}
+
+function readCachedProviderIds(): SidebarProviderId[] {
+  try {
+    const value: unknown = JSON.parse(
+      localStorage.getItem(PREFERENCES_CACHE_KEY) ?? "null",
+    );
+    if (
+      !Array.isArray(value) ||
+      value.some((providerId) => !isSidebarProviderId(providerId)) ||
+      new Set(value).size !== value.length
+    ) {
+      return [...SIDEBAR_PROVIDER_IDS];
+    }
+    return SIDEBAR_PROVIDER_IDS.filter((providerId) =>
+      value.includes(providerId),
+    );
+  } catch {
+    return [...SIDEBAR_PROVIDER_IDS];
+  }
+}
+
+function cacheProviderIds(providerIds: readonly SidebarProviderId[]): void {
+  try {
+    localStorage.setItem(PREFERENCES_CACHE_KEY, JSON.stringify(providerIds));
+  } catch {
+    // Storage is an optimization. Preferences are still refreshed live.
   }
 }
 
@@ -237,11 +276,14 @@ function visibleSidebarFooterMenu(): HTMLElement | null {
 export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
   let root: HTMLLIElement | null = null;
   let snapshot = readCachedSnapshot();
+  let enabledProviderIds = readCachedProviderIds();
   let selectedProviderId: SidebarProviderId | null = null;
   let isLoading = false;
+  let isLoadingPreferences = false;
   let lastError: string | null = null;
   let lastLoadedAt = 0;
   let requestController: AbortController | null = null;
+  let preferencesRequestController: AbortController | null = null;
   let ensureFrame: number | null = null;
   let disposed = false;
 
@@ -251,6 +293,12 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
 
   const render = (): void => {
     if (root === null) return;
+    root.dataset.providerCount = String(enabledProviderIds.length);
+    root.hidden = enabledProviderIds.length === 0;
+    if (enabledProviderIds.length === 0) {
+      root.replaceChildren();
+      return;
+    }
     const content: Node[] = [];
 
     if (selectedProviderId !== null) {
@@ -263,10 +311,11 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     }
 
     const strip = element("div", "usage-tracker-sidebar__strip");
+    strip.dataset.providerCount = String(enabledProviderIds.length);
     strip.setAttribute("role", "group");
     strip.setAttribute("aria-label", "Agent usage limits");
 
-    for (const providerId of SIDEBAR_PROVIDER_IDS) {
+    for (const providerId of enabledProviderIds) {
       const provider = providerFor(providerId);
       const pair = sidebarUsageWindows(provider);
       const button = element("button", "usage-tracker-sidebar__provider");
@@ -359,7 +408,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
           signal: requestController.signal,
         },
       );
-      const payload = (await response.json()) as RpcEnvelope;
+      const payload = (await response.json()) as RpcEnvelope<UsageSnapshot>;
       if (!response.ok || !payload.ok || payload.result === undefined) {
         throw new Error(payload.error?.message ?? "Usage is unavailable.");
       }
@@ -378,13 +427,72 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     }
   };
 
+  const syncPreferences = async (): Promise<void> => {
+    if (isLoadingPreferences || disposed) return;
+    isLoadingPreferences = true;
+    preferencesRequestController = new AbortController();
+    const abortRequest = () => preferencesRequestController?.abort();
+    signal.addEventListener("abort", abortRequest, { once: true });
+
+    try {
+      const response = await fetch(
+        "/api/v1/plugins/usage-tracker/rpc/getPreferences",
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: "null",
+          credentials: "same-origin",
+          signal: preferencesRequestController.signal,
+        },
+      );
+      const payload = (await response.json()) as RpcEnvelope<PreferencesResult>;
+      if (!response.ok || !payload.ok || payload.result === undefined) return;
+
+      const nextProviderIds = SIDEBAR_PROVIDER_IDS.filter((providerId) =>
+        payload.result?.enabledProviderIds.includes(providerId),
+      );
+      const newlyEnabled = nextProviderIds.some(
+        (providerId) => !enabledProviderIds.includes(providerId),
+      );
+      const changed =
+        nextProviderIds.length !== enabledProviderIds.length ||
+        nextProviderIds.some(
+          (providerId, index) => providerId !== enabledProviderIds[index],
+        );
+      if (!changed) return;
+
+      enabledProviderIds = nextProviderIds;
+      if (
+        selectedProviderId !== null &&
+        !enabledProviderIds.includes(selectedProviderId)
+      ) {
+        selectedProviderId = null;
+      }
+      cacheProviderIds(enabledProviderIds);
+      render();
+      if (newlyEnabled) void load();
+    } catch {
+      // Keep the last-known preference while the local server reconnects.
+    } finally {
+      signal.removeEventListener("abort", abortRequest);
+      preferencesRequestController = null;
+      isLoadingPreferences = false;
+    }
+  };
+
   const observer = new MutationObserver(scheduleEnsureMounted);
   observer.observe(document.documentElement, { childList: true, subtree: true });
   ensureMounted();
   void load();
+  void syncPreferences();
 
   const refreshInterval = window.setInterval(() => void load(), AUTO_REFRESH_MS);
+  const preferencesRefreshInterval = window.setInterval(
+    () => void syncPreferences(),
+    PREFERENCES_REFRESH_MS,
+  );
   const refreshIfStale = (): void => {
+    void syncPreferences();
     if (Date.now() - lastLoadedAt > 60_000) void load();
   };
   window.addEventListener("focus", refreshIfStale, { signal });
@@ -427,7 +535,9 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     observer.disconnect();
     if (ensureFrame !== null) cancelAnimationFrame(ensureFrame);
     window.clearInterval(refreshInterval);
+    window.clearInterval(preferencesRefreshInterval);
     requestController?.abort();
+    preferencesRequestController?.abort();
     root?.remove();
     root = null;
   };

@@ -21,6 +21,7 @@ import {
   sidebarUsageSummary,
   sidebarUsageWindows,
 } from "../lib/sidebar-usage.ts";
+import { enabledSidebarProviderIds } from "../lib/preferences.ts";
 
 function healthyResponse(): RawUsageResponse {
   return {
@@ -72,6 +73,25 @@ function makeSdk(overrides: Partial<UsageSdk> = {}): UsageSdk {
     ...overrides,
   };
 }
+
+test("enables sidebar providers independently in display order", () => {
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: true }),
+    ["claudeCode", "codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: false }),
+    ["claudeCode"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: true }),
+    ["codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: false }),
+    [],
+  );
+});
 
 test("normalizes providers in stable order with every usage window", () => {
   const snapshot = normalizeUsage(

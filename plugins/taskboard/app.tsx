@@ -18,7 +18,7 @@ import {
   useRpc,
   type PluginNavPanelProps,
   type PluginPendingInteractionProps
-} from '@bb/plugin-sdk/app';
+} from '@get-bb/plugin-sdk/app';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {

@@ -10,7 +10,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/bb-plugin-usage-tracker"><img src="https://img.shields.io/npm/v/bb-plugin-usage-tracker?style=flat-square" alt="npm version" /></a>
-  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.36-7c3aed?style=flat-square" alt="BB 0.36 or newer" />
+  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
 
@@ -23,6 +23,8 @@ usage reading, without adding a navigation item or a separate plugin page.
 ## Features
 
 - Shows Codex and Claude Code subscription usage in BB's sidebar footer.
+- Lets you show or hide Codex and Claude Code independently; the strip
+  compacts for one provider and disappears when both are disabled.
 - Expands either provider to show its five-hour and weekly percentages.
 - Includes reset timing and provider session status in the expanded view.
 - Refreshes automatically every five minutes and whenever a stale BB window
@@ -35,13 +37,16 @@ usage reading, without adding a navigation item or a separate plugin page.
 
 ## Install
 
-Usage Tracker requires BB 0.36 or newer. Install the public npm package:
+Usage Tracker requires BB 0.38 or newer. Install the public npm package:
 
 ```sh
 bb plugin install npm:bb-plugin-usage-tracker
 ```
 
 The strip appears in the bottom of the sidebar as soon as the plugin loads.
+Both providers are enabled by default. Change them independently under
+**Settings → Plugins → Usage Tracker**.
+
 The provider CLIs must be installed and signed in for BB to report their usage:
 
 ```sh
