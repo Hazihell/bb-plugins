@@ -72,17 +72,26 @@ import {
 } from './credential-contract.js';
 import {
   assigneeFilterOptions,
-  compareWorkflowStatuses,
   filterWorkItemsByAttributes,
   labelFilterOptions,
   priorityFilterOptions,
   projectFilterOptions,
   sortWorkItemsByWorkflow,
   statusFilterOptions,
+  workflowStatusLaneKey,
+  workflowStatusLanes,
   workflowStatusTone,
   workflowStatusGroups,
   type FilterOption
 } from './browse.js';
+import {
+  availableContextProjectId,
+  contextSelectionToken,
+  previousProjectRouteContext,
+  projectRouteContext,
+  type NavigationEntryLike,
+  type ProjectRouteContext
+} from './project-selection.js';
 import './app.css';
 
 const PANEL_PATH = 'tasks';
@@ -189,6 +198,30 @@ function storeLastProjectId(projectId: string): void {
   } catch {
     // Persistence is best-effort in sandboxed browser contexts.
   }
+}
+
+function loadSourceProjectContext(): ProjectRouteContext | null {
+  const browserNavigation = (
+    window as Window & {
+      navigation?: {
+        currentEntry?: { index: number } | null;
+        entries(): NavigationEntryLike[];
+      };
+    }
+  ).navigation;
+  const currentIndex = browserNavigation?.currentEntry?.index;
+  if (browserNavigation !== undefined && currentIndex !== undefined) {
+    try {
+      return previousProjectRouteContext(
+        browserNavigation.entries(),
+        currentIndex,
+        window.location.origin
+      );
+    } catch {
+      // Fall back to the document referrer when navigation history is unavailable.
+    }
+  }
+  return projectRouteContext(document.referrer, window.location.origin);
 }
 
 function ManageHeaderAction({ subPath }: PluginNavPanelProps) {
@@ -1403,46 +1436,28 @@ function ListStateGroups({
   ));
 }
 
-interface KanbanLane {
-  key: string;
-  name: string;
-  category: WorkStateCategory;
-}
-
-function kanbanLaneKey(name: string, category: WorkStateCategory): string {
-  return `${category}:${name.trim().toLocaleLowerCase()}`;
-}
-
-function kanbanLanes(
-  items: readonly WorkItem[],
-  discovered: readonly WorkStatusOption[],
-  statusOrder: readonly string[]
-): KanbanLane[] {
-  const lanes = new Map<string, KanbanLane>();
-  for (const group of workflowStatusGroups(items, statusOrder)) {
-    const key = kanbanLaneKey(group.name, group.category);
-    lanes.set(key, {
-      key,
-      name: group.name,
-      category: group.category
-    });
-  }
-  for (const status of discovered) {
-    const key = kanbanLaneKey(status.name, status.stateCategory);
-    if (lanes.has(key)) continue;
-    lanes.set(key, {
-      key,
-      name: status.name,
-      category: status.stateCategory
-    });
-  }
-  return [...lanes.values()].sort((left, right) =>
-    compareWorkflowStatuses(left, right, statusOrder)
-  );
-}
-
 function kanbanItemId(item: WorkItem): string {
   return `${item.bbProjectId}:${item.source}:${item.locator}`;
+}
+
+function mergeDiscoveredStatuses(
+  current: WorkStatusOption[],
+  incoming: readonly WorkStatusOption[]
+): WorkStatusOption[] {
+  const merged = new Map(
+    current.map(status => [
+      workflowStatusLaneKey(status.name, status.stateCategory),
+      status
+    ])
+  );
+  let changed = false;
+  for (const status of incoming) {
+    const key = workflowStatusLaneKey(status.name, status.stateCategory);
+    if (merged.has(key)) continue;
+    merged.set(key, status);
+    changed = true;
+  }
+  return changed ? [...merged.values()] : current;
 }
 
 type PriorityTone = 'low' | 'medium' | 'high' | 'urgent' | 'neutral';
@@ -1565,6 +1580,7 @@ function KanbanCard({
   item,
   pickedUp,
   pending,
+  moveDisabled,
   onOpen,
   onPrepare,
   onDragStart,
@@ -1574,6 +1590,7 @@ function KanbanCard({
   item: WorkItem;
   pickedUp: boolean;
   pending: boolean;
+  moveDisabled: boolean;
   onOpen: () => void;
   onPrepare: () => void;
   onDragStart: (event: ReactDragEvent<HTMLButtonElement>) => void;
@@ -1590,14 +1607,15 @@ function KanbanCard({
   return (
     <button
       type="button"
-      draggable={!pending}
+      draggable={!pending && !moveDisabled}
       aria-grabbed={pickedUp}
       aria-busy={pending}
-      aria-label={`${item.key}: ${item.title}. Status ${item.status}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''} Press Space to move, or Enter to open.`}
+      aria-label={`${item.key}: ${item.title}. Status ${item.status}.${priority ? ` Priority ${priority}.` : ''}${assignee ? ` Assigned to ${assignee}.` : ''}${moveDisabled ? ' Workflow statuses are loading. Press Enter to open.' : ' Press Space to move, or Enter to open.'}`}
       data-state-category={item.stateCategory}
       data-status-tone={workflowStatusTone(item.status, item.stateCategory)}
       data-picked-up={pickedUp ? 'true' : 'false'}
       data-pending={pending ? 'true' : 'false'}
+      data-move-disabled={moveDisabled ? 'true' : 'false'}
       onPointerDown={onPrepare}
       onFocus={onPrepare}
       onDragStart={onDragStart}
@@ -1653,11 +1671,13 @@ function KanbanCard({
 
 function KanbanBoard({
   items,
+  workflowItems,
   statusOrder,
   onOpen,
   onMove
 }: {
   items: readonly WorkItem[];
+  workflowItems: readonly WorkItem[];
   statusOrder: readonly string[];
   onOpen: (item: WorkItem) => void;
   onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
@@ -1677,12 +1697,25 @@ function KanbanBoard({
   } | null>(null);
   const [checking, setChecking] = useState<string | null>(null);
   const [pending, setPending] = useState<string | null>(null);
+  const [workflowReady, setWorkflowReady] = useState(
+    workflowItems.length === 0
+  );
   const [announcement, setAnnouncement] = useState('');
   const [visibleMessage, setVisibleMessage] = useState<string | null>(null);
   const lanes = useMemo(
-    () => kanbanLanes(items, discovered, statusOrder),
+    () => workflowStatusLanes(items, discovered, statusOrder),
     [discovered, items, statusOrder]
   );
+  const preloadItems = useMemo(() => {
+    const representatives = new Map<string, WorkItem>();
+    for (const item of workflowItems) {
+      const scope = `${item.bbProjectId}:${item.source}`;
+      if (!representatives.has(scope)) {
+        representatives.set(scope, item);
+      }
+    }
+    return [...representatives.values()];
+  }, [workflowItems]);
 
   const loadOptions = useCallback(
     (item: WorkItem) => {
@@ -1706,6 +1739,27 @@ function KanbanBoard({
     [rpc]
   );
 
+  useEffect(() => {
+    if (preloadItems.length === 0) {
+      setWorkflowReady(true);
+      return;
+    }
+    let cancelled = false;
+    setWorkflowReady(false);
+    void Promise.all(
+      preloadItems.map(item => loadOptions(item).catch(() => []))
+    ).then(statusSets => {
+      if (cancelled) return;
+      setDiscovered(current =>
+        mergeDiscoveredStatuses(current, statusSets.flat())
+      );
+      setWorkflowReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadOptions, preloadItems]);
+
   const beginPickup = useCallback(
     async (item: WorkItem, mode: 'pointer' | 'keyboard') => {
       const itemId = kanbanItemId(item);
@@ -1716,14 +1770,7 @@ function KanbanBoard({
       try {
         const options = await loadOptions(item);
         const targets = options.filter(option => !option.current);
-        setDiscovered(current =>
-          kanbanLanes([], [...current, ...options], statusOrder).map(lane => ({
-            id: lane.key,
-            name: lane.name,
-            stateCategory: lane.category,
-            current: false
-          }))
-        );
+        setDiscovered(current => mergeDiscoveredStatuses(current, options));
         if (targets.length === 0) {
           const message = `${item.key} has no available status moves.`;
           setPickup(null);
@@ -1731,7 +1778,7 @@ function KanbanBoard({
           setAnnouncement(message);
           return;
         }
-        const targetLane = kanbanLaneKey(
+        const targetLane = workflowStatusLaneKey(
           targets[0]!.name,
           targets[0]!.stateCategory
         );
@@ -1756,7 +1803,7 @@ function KanbanBoard({
         setChecking(current => (current === itemId ? null : current));
       }
     },
-    [loadOptions, statusOrder]
+    [loadOptions]
   );
 
   const optionForLane = useCallback(
@@ -1764,7 +1811,7 @@ function KanbanBoard({
       pickup?.options.find(
         option =>
           !option.current &&
-          kanbanLaneKey(option.name, option.stateCategory) === laneKey
+          workflowStatusLaneKey(option.name, option.stateCategory) === laneKey
       ),
     [pickup]
   );
@@ -1780,7 +1827,8 @@ function KanbanBoard({
       let option = knownOptions.find(
         candidate =>
           !candidate.current &&
-          kanbanLaneKey(candidate.name, candidate.stateCategory) === laneKey
+          workflowStatusLaneKey(candidate.name, candidate.stateCategory) ===
+          laneKey
       );
       if (!option) {
         try {
@@ -1788,7 +1836,10 @@ function KanbanBoard({
           option = options.find(
             candidate =>
               !candidate.current &&
-              kanbanLaneKey(candidate.name, candidate.stateCategory) === laneKey
+              workflowStatusLaneKey(
+                candidate.name,
+                candidate.stateCategory
+              ) === laneKey
           );
         } catch (error) {
           const message = describeError(error);
@@ -1850,6 +1901,14 @@ function KanbanBoard({
           {visibleMessage}
         </div>
       ) : null}
+      {!workflowReady ? (
+        <div
+          role="status"
+          className="tb-kanban-feedback sticky left-0 top-0 z-30 mb-2 w-fit rounded-md border px-2.5 py-1.5 text-xs text-muted-foreground"
+        >
+          Loading workflow statuses…
+        </div>
+      ) : null}
       {lanes.length === 0 ? (
         <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
           No external statuses in the current results
@@ -1863,7 +1922,8 @@ function KanbanBoard({
           {lanes.map(lane => {
             const columnItems = items.filter(
               item =>
-                kanbanLaneKey(item.status, item.stateCategory) === lane.key
+                workflowStatusLaneKey(item.status, item.stateCategory) ===
+                lane.key
             );
             const option = optionForLane(lane.key);
             const dropState = pickup
@@ -1940,11 +2000,12 @@ function KanbanBoard({
                               : false
                           }
                           pending={pending === itemId}
+                          moveDisabled={!workflowReady}
                           onPrepare={() => {
                             void loadOptions(item).catch(() => undefined);
                           }}
                           onDragStart={event => {
-                            if (pending || checking) {
+                            if (pending || checking || !workflowReady) {
                               event.preventDefault();
                               return;
                             }
@@ -1966,6 +2027,13 @@ function KanbanBoard({
                             }, 0);
                           }}
                           onKeyDown={event => {
+                            if (!workflowReady && event.key === ' ') {
+                              event.preventDefault();
+                              setAnnouncement(
+                                'Workflow statuses are still loading'
+                              );
+                              return;
+                            }
                             const isThisPickup =
                               pickup && kanbanItemId(pickup.item) === itemId;
                             if (!isThisPickup && event.key === ' ') {
@@ -1987,7 +2055,7 @@ function KanbanBoard({
                               event.preventDefault();
                               const currentIndex = keyboardTargets.findIndex(
                                 target =>
-                                  kanbanLaneKey(
+                                  workflowStatusLaneKey(
                                     target.name,
                                     target.stateCategory
                                   ) === pickup.targetLane
@@ -2002,7 +2070,7 @@ function KanbanBoard({
                                     keyboardTargets.length
                                 ];
                               if (!next) return;
-                              const targetLane = kanbanLaneKey(
+                              const targetLane = workflowStatusLaneKey(
                                 next.name,
                                 next.stateCategory
                               );
@@ -2075,6 +2143,9 @@ function TrackerList({
   const [boardSettings, setBoardSettings] = useState<ProjectBoardSettings>(() =>
     defaultProjectBoardSettings(projectId ?? 'proj_across_projects')
   );
+  const [boardSettingsReady, setBoardSettingsReady] = useState(
+    projectId === null
+  );
   const [source, setSource] = useState<SourceFilter>(
     projectId === null
       ? (initialPreferences?.source ?? ALL_SOURCES)
@@ -2112,9 +2183,11 @@ function TrackerList({
   useEffect(() => {
     if (projectId === null) {
       setBoardSettings(defaultProjectBoardSettings('proj_across_projects'));
+      setBoardSettingsReady(true);
       return;
     }
     let cancelled = false;
+    setBoardSettingsReady(false);
     void rpc
       .call('getProjectBoardSettings', { projectId })
       .then(result => {
@@ -2125,6 +2198,9 @@ function TrackerList({
       .catch(() => {
         if (cancelled) return;
         setBoardSettings(defaultProjectBoardSettings(projectId));
+      })
+      .finally(() => {
+        if (!cancelled) setBoardSettingsReady(true);
       });
     return () => {
       cancelled = true;
@@ -2407,7 +2483,7 @@ function TrackerList({
                 : `${visibleItems.length} ${visibleItems.length === 1 ? 'work item' : 'work items'} shown`}
         </p>
         <div className="min-h-0 flex-1 overflow-y-auto @container">
-          {items === undefined ? (
+          {items === undefined || !boardSettingsReady ? (
             <LoadingRows />
           ) : error ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
@@ -2431,6 +2507,7 @@ function TrackerList({
             <KanbanBoard
               key={projectId}
               items={visibleItems}
+              workflowItems={items}
               statusOrder={boardSettings.statusOrder}
               onOpen={onOpen}
               onMove={moveItemStatus}
@@ -3616,7 +3693,16 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
   const route = parseTrackerRoute(subPath);
   const rpc = useRpc<TaskboardRpcContract>();
   const navigate = useBbNavigate();
-  const { projectId: contextProjectId } = useBbContext();
+  const {
+    projectId: contextProjectId,
+    threadId: contextThreadId
+  } = useBbContext();
+  const [sourceProjectContext] = useState(loadSourceProjectContext);
+  const selectionContextProjectId = contextThreadId
+    ? contextProjectId
+    : (sourceProjectContext?.projectId ?? contextProjectId);
+  const selectionContextThreadId =
+    contextThreadId ?? sourceProjectContext?.threadId ?? null;
   const rootRef = useRef<HTMLDivElement>(null);
   const [projects, setProjects] = useState<TrackerProject[] | undefined>();
   const [projectsError, setProjectsError] = useState<string | null>(null);
@@ -3628,6 +3714,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshGeneration, setRefreshGeneration] = useState(0);
   const projectsRequestRevisionRef = useRef(0);
+  const handledContextSelectionRef = useRef<string | null>(null);
   const browsePreferencesRef = useRef(
     new Map<string, TrackerBrowsePreferences>()
   );
@@ -3635,14 +3722,13 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     TrackerRoute,
     { kind: 'all' | 'project' }
   > | null>(null);
+  const contextTargetProjectId = useMemo(
+    () => availableContextProjectId(projects, selectionContextProjectId),
+    [projects, selectionContextProjectId]
+  );
   const preferredProjectId = useMemo(() => {
     if (!projects || projects.length === 0) return null;
-    if (
-      contextProjectId &&
-      projects.some(project => project.id === contextProjectId)
-    ) {
-      return contextProjectId;
-    }
+    if (contextTargetProjectId) return contextTargetProjectId;
     const lastProjectId = loadLastProjectId();
     if (
       lastProjectId &&
@@ -3651,7 +3737,7 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
       return lastProjectId;
     }
     return projects[0]?.id ?? null;
-  }, [contextProjectId, projects]);
+  }, [contextTargetProjectId, projects]);
 
   const loadProjects = useCallback(async () => {
     const requestRevision = ++projectsRequestRevisionRef.current;
@@ -3705,7 +3791,48 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
     }
   }, [subPath]);
   useEffect(() => {
-    if (route.kind !== 'root' || preferredProjectId === null) return;
+    if (projects === undefined) return;
+    const token = contextSelectionToken(
+      selectionContextThreadId,
+      selectionContextProjectId,
+      contextTargetProjectId
+    );
+    if (handledContextSelectionRef.current === token) return;
+    handledContextSelectionRef.current = token;
+    if (contextTargetProjectId === null) return;
+
+    const alreadyInContext =
+      (route.kind === 'project' || route.kind === 'item') &&
+      route.projectId === contextTargetProjectId;
+    const alreadyManagingContext =
+      route.kind === 'manage' && route.projectId === contextTargetProjectId;
+    storeLastProjectId(contextTargetProjectId);
+    if (alreadyInContext || alreadyManagingContext) return;
+
+    const nextRoute: TrackerRoute =
+      route.kind === 'manage'
+        ? { kind: 'manage', projectId: contextTargetProjectId }
+        : { kind: 'project', projectId: contextTargetProjectId };
+    navigate.toPluginPanel(PANEL_PATH, {
+      subPath: routeToSubPath(nextRoute),
+      replace: true
+    });
+  }, [
+    contextTargetProjectId,
+    navigate,
+    projects,
+    selectionContextProjectId,
+    selectionContextThreadId,
+    subPath
+  ]);
+  useEffect(() => {
+    if (
+      route.kind !== 'root' ||
+      contextTargetProjectId !== null ||
+      preferredProjectId === null
+    ) {
+      return;
+    }
     storeLastProjectId(preferredProjectId);
     navigate.toPluginPanel(PANEL_PATH, {
       subPath: routeToSubPath({
@@ -3714,11 +3841,17 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
       }),
       replace: true
     });
-  }, [navigate, preferredProjectId, route.kind]);
+  }, [
+    contextTargetProjectId,
+    navigate,
+    preferredProjectId,
+    route.kind
+  ]);
   useEffect(() => {
     if (
       route.kind !== 'manage' ||
       route.projectId !== null ||
+      contextTargetProjectId !== null ||
       preferredProjectId === null
     ) {
       return;
@@ -3730,7 +3863,13 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
       }),
       replace: true
     });
-  }, [navigate, preferredProjectId, route.kind, subPath]);
+  }, [
+    contextTargetProjectId,
+    navigate,
+    preferredProjectId,
+    route.kind,
+    subPath
+  ]);
 
   const effectiveSidebarCollapsed = narrow
     ? (narrowOverride ?? true)

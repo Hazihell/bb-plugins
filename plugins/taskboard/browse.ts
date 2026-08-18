@@ -1,4 +1,8 @@
-import type { WorkItem, WorkStateCategory } from './contract.js';
+import type {
+  WorkItem,
+  WorkStateCategory,
+  WorkStatusOption
+} from './contract.js';
 
 export const UNASSIGNED_ASSIGNEE_FILTER = '__taskboard_unassigned__';
 export const NO_PRIORITY_FILTER = '__taskboard_no_priority__';
@@ -37,6 +41,10 @@ export interface WorkflowStatus {
 export interface WorkflowStatusGroup extends WorkflowStatus {
   key: string;
   items: WorkItem[];
+}
+
+export interface WorkflowStatusLane extends WorkflowStatus {
+  key: string;
 }
 
 const FALLBACK_WORKFLOW_RANK: Readonly<Record<WorkStateCategory, number>> = {
@@ -193,6 +201,41 @@ export function workflowStatusGroups(
     }
   }
   return [...groups.values()].sort((left, right) =>
+    compareWorkflowStatuses(left, right, statusOrder)
+  );
+}
+
+export function workflowStatusLaneKey(
+  name: string,
+  category: WorkStateCategory
+): string {
+  return `${category}:${normalizedStatus(name)}`;
+}
+
+export function workflowStatusLanes(
+  items: readonly WorkItem[],
+  discovered: readonly WorkStatusOption[],
+  statusOrder: readonly string[] = DEFAULT_WORKFLOW_STATUS_ORDER
+): WorkflowStatusLane[] {
+  const lanes = new Map<string, WorkflowStatusLane>();
+  for (const group of workflowStatusGroups(items, statusOrder)) {
+    const key = workflowStatusLaneKey(group.name, group.category);
+    lanes.set(key, {
+      key,
+      name: group.name,
+      category: group.category
+    });
+  }
+  for (const status of discovered) {
+    const key = workflowStatusLaneKey(status.name, status.stateCategory);
+    if (lanes.has(key)) continue;
+    lanes.set(key, {
+      key,
+      name: status.name,
+      category: status.stateCategory
+    });
+  }
+  return [...lanes.values()].sort((left, right) =>
     compareWorkflowStatuses(left, right, statusOrder)
   );
 }

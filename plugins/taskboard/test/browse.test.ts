@@ -14,11 +14,13 @@ import {
   sortWorkItemsByWorkflow,
   statusFilterOptions,
   workflowStatusTone,
-  workflowStatusGroups
+  workflowStatusGroups,
+  workflowStatusLanes
 } from '../browse.ts';
 import type {
   WorkItem,
-  WorkStateCategory
+  WorkStateCategory,
+  WorkStatusOption
 } from '../contract.ts';
 
 function item(
@@ -131,6 +133,77 @@ test('uses a configurable exact workflow order', () => {
       workItem => workItem.status
     ),
     ['Blocked', 'Todo', 'In Review']
+  );
+});
+
+test('keeps the complete provider workflow ordered before and after a move', () => {
+  const items = [
+    item('REVIEW', 'In Review', 'in_progress'),
+    item('BACKLOG', 'Backlog', 'backlog')
+  ];
+  const statuses: WorkStatusOption[] = (
+    [
+      ['Ready for Release', 'in_progress'],
+      ['QA', 'in_progress'],
+      ['In Progress', 'in_progress'],
+      ['Canceled', 'canceled'],
+      ['Done', 'done'],
+      ['Backlog', 'backlog'],
+      ['Todo', 'todo'],
+      ['In Review', 'in_progress'],
+      ['Duplicate', 'todo']
+    ] satisfies Array<[string, WorkStateCategory]>
+  ).map(([name, stateCategory], index) => ({
+    id: `status-${index}`,
+    name,
+    stateCategory,
+    current: name === 'In Review'
+  }));
+  const expected = [
+    'In Review',
+    'In Progress',
+    'QA',
+    'Ready for Release',
+    'Todo',
+    'Duplicate',
+    'Backlog',
+    'Done',
+    'Canceled'
+  ];
+
+  assert.deepEqual(
+    workflowStatusLanes(items, statuses).map(lane => lane.name),
+    expected
+  );
+  assert.deepEqual(
+    workflowStatusLanes(
+      items.map(workItem =>
+        workItem.key === 'REVIEW'
+          ? {
+              ...workItem,
+              status: 'In Progress',
+              stateCategory: 'in_progress'
+            }
+          : workItem
+      ),
+      statuses
+    ).map(lane => lane.name),
+    expected
+  );
+  const customOrder = [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'In Review',
+    'QA',
+    'Ready for Release',
+    'Done',
+    'Canceled',
+    'Duplicate'
+  ];
+  assert.deepEqual(
+    workflowStatusLanes(items, statuses, customOrder).map(lane => lane.name),
+    customOrder
   );
 });
 
