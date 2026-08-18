@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  DEFAULT_WORKFLOW_STATUS_ORDER,
   NO_LABELS_FILTER,
   NO_PRIORITY_FILTER,
   NO_PROJECT_FILTER,
@@ -14,11 +15,13 @@ import {
   sortWorkItemsByWorkflow,
   statusFilterOptions,
   workflowStatusTone,
-  workflowStatusGroups
+  workflowStatusGroups,
+  workflowStatusLanes
 } from '../browse.ts';
 import type {
   WorkItem,
-  WorkStateCategory
+  WorkStateCategory,
+  WorkStatusOption
 } from '../contract.ts';
 
 function item(
@@ -45,7 +48,7 @@ function item(
   };
 }
 
-test('orders exact workflow statuses before nearby provider-specific states', () => {
+test('uses the backlog-first default before provider-specific states', () => {
   const items = [
     item('DONE-1', 'Done', 'done'),
     item('TRIAGE-1', 'Triage', 'todo'),
@@ -60,29 +63,44 @@ test('orders exact workflow statuses before nearby provider-specific states', ()
   assert.deepEqual(
     sortWorkItemsByWorkflow(items).map(workItem => workItem.status),
     [
-      'In Review',
-      'In Progress',
-      'Blocked',
-      'QA',
-      'Todo',
-      'Triage',
       'Backlog',
+      'Todo',
+      'In Progress',
+      'In Review',
+      'QA',
+      'Blocked',
+      'Triage',
       'Done'
     ]
   );
   assert.deepEqual(
     workflowStatusGroups(items).map(group => group.name),
     [
-      'In Review',
-      'In Progress',
-      'Blocked',
-      'QA',
-      'Todo',
-      'Triage',
       'Backlog',
+      'Todo',
+      'In Progress',
+      'In Review',
+      'QA',
+      'Blocked',
+      'Triage',
       'Done'
     ]
   );
+});
+
+test('defines the complete backlog-first default status order', () => {
+  assert.deepEqual(DEFAULT_WORKFLOW_STATUS_ORDER, [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'In Review',
+    'QA',
+    'Ready for Release',
+    'Blocked',
+    'Duplicate',
+    'Done',
+    'Canceled'
+  ]);
 });
 
 test('builds case-insensitive assignee choices including Unassigned', () => {
@@ -134,6 +152,77 @@ test('uses a configurable exact workflow order', () => {
   );
 });
 
+test('keeps the complete provider workflow ordered before and after a move', () => {
+  const items = [
+    item('REVIEW', 'In Review', 'in_progress'),
+    item('BACKLOG', 'Backlog', 'backlog')
+  ];
+  const statuses: WorkStatusOption[] = (
+    [
+      ['Ready for Release', 'in_progress'],
+      ['QA', 'in_progress'],
+      ['In Progress', 'in_progress'],
+      ['Canceled', 'canceled'],
+      ['Done', 'done'],
+      ['Backlog', 'backlog'],
+      ['Todo', 'todo'],
+      ['In Review', 'in_progress'],
+      ['Duplicate', 'todo']
+    ] satisfies Array<[string, WorkStateCategory]>
+  ).map(([name, stateCategory], index) => ({
+    id: `status-${index}`,
+    name,
+    stateCategory,
+    current: name === 'In Review'
+  }));
+  const expected = [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'In Review',
+    'QA',
+    'Ready for Release',
+    'Duplicate',
+    'Done',
+    'Canceled'
+  ];
+
+  assert.deepEqual(
+    workflowStatusLanes(items, statuses).map(lane => lane.name),
+    expected
+  );
+  assert.deepEqual(
+    workflowStatusLanes(
+      items.map(workItem =>
+        workItem.key === 'REVIEW'
+          ? {
+              ...workItem,
+              status: 'In Progress',
+              stateCategory: 'in_progress'
+            }
+          : workItem
+      ),
+      statuses
+    ).map(lane => lane.name),
+    expected
+  );
+  const customOrder = [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'In Review',
+    'QA',
+    'Ready for Release',
+    'Done',
+    'Canceled',
+    'Duplicate'
+  ];
+  assert.deepEqual(
+    workflowStatusLanes(items, statuses, customOrder).map(lane => lane.name),
+    customOrder
+  );
+});
+
 test('assigns distinct stable tones to the active workflow statuses', () => {
   const statuses: readonly [string, WorkStateCategory][] = [
     ['In Review', 'in_progress'],
@@ -180,9 +269,9 @@ test('builds Linear-style field options including empty values', () => {
   const items = [urgent, empty, high];
 
   assert.deepEqual(statusFilterOptions(items).map(option => option.label), [
+    'Todo',
     'In Review',
-    'Blocked',
-    'Todo'
+    'Blocked'
   ]);
   assert.deepEqual(priorityFilterOptions(items), [
     { value: 'Urgent', label: 'Urgent' },

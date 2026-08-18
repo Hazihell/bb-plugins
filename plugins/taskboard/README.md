@@ -95,10 +95,10 @@ token, and JQL. Only HTTPS `*.atlassian.net` origins are accepted.
 The panel opens on BB's current project. Use **Across projects** only when you
 want an explicit grouped overview. List and Kanban preserve each provider's
 actual workflow names. The primary delivery stages appear in the focused order
-In Review, In Progress, Blocked, Todo, Backlog, then Done by default;
-provider-specific stages remain between the closest matching stages. Change
-that ordering per project in **Manage → Board preferences**. Rejected writes
-roll back the optimistic move.
+Backlog, Todo, In Progress, In Review, QA, then the remaining workflow stages
+by default; provider-specific stages remain between the closest matching
+stages. Change that ordering per project in **Manage → Board preferences**.
+Rejected writes roll back the optimistic move.
 
 ![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 
