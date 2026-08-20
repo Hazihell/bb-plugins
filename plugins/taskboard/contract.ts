@@ -8,6 +8,16 @@ import {
   secretMutationSchema
 } from './credential-contract.js';
 import { projectBoardSettingsSchema } from './board-settings.js';
+import {
+  workSourceSchema,
+  workStateCategorySchema,
+  type WorkSource
+} from './work-schemas.js';
+export {
+  workSourceSchema,
+  workStateCategorySchema
+} from './work-schemas.js';
+export type { WorkSource, WorkStateCategory } from './work-schemas.js';
 export {
   DEFAULT_WORK_ITEM_FILTER_FIELDS,
   DEFAULT_WORKFLOW_STATUS_ORDER,
@@ -33,9 +43,6 @@ export type {
   ProjectCredentialsInteractionResponse,
   SecretMutation
 } from './credential-contract.js';
-
-export const workSourceSchema = z.enum(['linear', 'github', 'jira']);
-export type WorkSource = z.infer<typeof workSourceSchema>;
 
 export const trackerProjectSchema = z
   .object({
@@ -82,15 +89,6 @@ export const projectConfigMutationSchema = projectSourceConfigSchema
     }
   });
 export type ProjectConfigMutation = z.infer<typeof projectConfigMutationSchema>;
-
-export const workStateCategorySchema = z.enum([
-  'backlog',
-  'todo',
-  'in_progress',
-  'done',
-  'canceled'
-]);
-export type WorkStateCategory = z.infer<typeof workStateCategorySchema>;
 
 export const workStatusOptionSchema = z
   .object({
