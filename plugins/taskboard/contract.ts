@@ -32,6 +32,20 @@ export type {
   WorkItemFilterField
 } from './board-settings.js';
 export {
+  ACROSS_PROJECTS_SCOPE_ID,
+  ALL_SOURCES_FILTER,
+  boardFilterStateFingerprint,
+  boardFilterStateSchema,
+  defaultBoardFilterState,
+  filterStateScopeId,
+  normalizeBoardFilterState,
+  sourceFilterSchema
+} from './filter-state.js';
+export type {
+  BoardFilterState,
+  SourceFilterValue
+} from './filter-state.js';
+export {
   bbProjectIdSchema,
   jiraBaseUrlSchema,
   projectCredentialsInteractionPayloadSchema,
