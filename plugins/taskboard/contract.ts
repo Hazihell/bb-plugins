@@ -8,6 +8,7 @@ import {
   secretMutationSchema
 } from './credential-contract.js';
 import { projectBoardSettingsSchema } from './board-settings.js';
+import { boardFilterStateSchema } from './filter-state.js';
 import {
   workSourceSchema,
   workStateCategorySchema,
@@ -365,6 +366,19 @@ export const taskboardRpcContract = defineRpcContract({
   saveProjectBoardSettings: {
     input: projectBoardSettingsSchema,
     output: z.object({ settings: projectBoardSettingsSchema }).strict()
+  },
+  getBoardFilterState: {
+    input: z.object({ projectId: bbProjectIdSchema }).strict(),
+    output: z.object({ state: boardFilterStateSchema.nullable() }).strict()
+  },
+  saveBoardFilterState: {
+    input: z
+      .object({
+        projectId: bbProjectIdSchema,
+        state: boardFilterStateSchema
+      })
+      .strict(),
+    output: z.object({ state: boardFilterStateSchema }).strict()
   }
 });
 
