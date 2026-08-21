@@ -1,9 +1,12 @@
 import type { BbPluginApi, PluginRpcHandlers } from '@get-bb/plugin-sdk';
 import {
   ACROSS_PROJECTS_SCOPE_ID,
+  ALL_SOURCES_FILTER,
   bbProjectIdSchema,
+  boardFilterStateSchema,
   formatWorkItemContext,
   issueDraftRecordSchema,
+  normalizePresetName,
   projectConfigMutationSchema,
   projectCredentialsInteractionResponseSchema,
   projectSourceConfigSchema,
@@ -13,6 +16,7 @@ import {
   taskboardRpcContract,
   type CreateIssueContext,
   type CreateIssueInput,
+  type FilterPreset,
   type IssueDraftRecord,
   type ProjectConfigMutation,
   type ProjectConfigView,
@@ -26,6 +30,7 @@ import {
   type WorkStatusOption,
   type WorkSourceStatus
 } from './contract.js';
+import { filterWorkItemsByAttributes } from './browse.js';
 import {
   buildIssueDraftPrompt,
   parseIssueDraftOutput,
@@ -155,13 +160,25 @@ interface ParsedCliArguments {
   jiraEmail: string | undefined;
   jiraJql: string | undefined;
   statusId: string | undefined;
+  preset: string | undefined;
+  fromState: string | undefined;
   json: boolean;
   cached: boolean;
 }
 
 const CLI_OPTIONS_BY_COMMAND = new Map<string, ReadonlySet<string>>([
   ['status', new Set(['--project', '--json'])],
-  ['list', new Set(['--project', '--source', '--query', '--cached', '--json'])],
+  [
+    'list',
+    new Set([
+      '--project',
+      '--source',
+      '--query',
+      '--preset',
+      '--cached',
+      '--json'
+    ])
+  ],
   ['show', new Set(['--project', '--json'])],
   ['refresh', new Set(['--project', '--json'])],
   ['transitions', new Set(['--project', '--json'])],
@@ -178,7 +195,8 @@ const CLI_OPTIONS_BY_COMMAND = new Map<string, ReadonlySet<string>>([
       '--json'
     ])
   ],
-  ['credentials', new Set(['--project', '--json'])]
+  ['credentials', new Set(['--project', '--json'])],
+  ['presets', new Set(['--project', '--from-state', '--json'])]
 ]);
 
 function parseCliArguments(
@@ -198,6 +216,8 @@ function parseCliArguments(
   let jiraEmail: string | undefined;
   let jiraJql: string | undefined;
   let statusId: string | undefined;
+  let preset: string | undefined;
+  let fromState: string | undefined;
   let json = false;
   let cached = false;
 
@@ -251,6 +271,12 @@ function parseCliArguments(
     } else if (argument === '--status') {
       statusId = valueAfter(argument, index);
       index += 1;
+    } else if (argument === '--preset') {
+      preset = valueAfter(argument, index);
+      index += 1;
+    } else if (argument === '--from-state') {
+      fromState = valueAfter(argument, index);
+      index += 1;
     } else if (argument === '--json') {
       json = true;
     } else if (argument === '--cached') {
@@ -268,6 +294,8 @@ function parseCliArguments(
     jiraEmail,
     jiraJql,
     statusId,
+    preset,
+    fromState,
     json,
     cached
   };
@@ -598,6 +626,24 @@ export default async function plugin(bb: BbPluginApi) {
     if (scopeId === ACROSS_PROJECTS_SCOPE_ID) return;
     await assertProjectExists(scopeId);
   }
+
+  const resolvePresetByName = (
+    projectId: string,
+    name: string
+  ): FilterPreset => {
+    const presets = store.listFilterPresets(projectId);
+    const normalized = normalizePresetName(name);
+    const match = presets.find(
+      candidate => normalizePresetName(candidate.name) === normalized
+    );
+    if (match) return match;
+    const available = presets.map(candidate => candidate.name).join(', ');
+    throw new Error(
+      available
+        ? `Unknown filter preset "${name}". Available: ${available}`
+        : `Unknown filter preset "${name}". This project has no presets.`
+    );
+  };
 
   async function fallbackGithubRepos(projectId: string): Promise<string[]> {
     const project = (await liveProjects()).find(
@@ -1863,7 +1909,9 @@ export default async function plugin(bb: BbPluginApi) {
         name: 'list',
         summary: 'List cached project work, refreshing first by default',
         usage:
-          'bb taskboard list [--project <proj_id>] [--source linear|github|jira] [--query <text>] [--cached] [--json]'
+          'bb taskboard list [--project <proj_id>] ' +
+          '[--source linear|github|jira] [--query <text>] ' +
+          '[--preset <name>] [--cached] [--json]'
       },
       {
         name: 'show',
@@ -1899,6 +1947,18 @@ export default async function plugin(bb: BbPluginApi) {
         name: 'credentials',
         summary: 'Open a secure form for project connector credentials',
         usage: 'bb taskboard credentials [--project <proj_id>] [--json]'
+      },
+      {
+        name: 'presets',
+        summary: 'List, save, rename, or delete project filter presets',
+        usage:
+          'bb taskboard presets list [--project <proj_id>] [--json]\n' +
+          'bb taskboard presets save <name> --from-state <json> ' +
+          '[--project <proj_id>] [--json]\n' +
+          'bb taskboard presets rename <name> <new-name> ' +
+          '[--project <proj_id>] [--json]\n' +
+          'bb taskboard presets delete <name> ' +
+          '[--project <proj_id>] [--json]'
       }
     ],
     async run(argv, ctx) {
@@ -1994,7 +2054,9 @@ export default async function plugin(bb: BbPluginApi) {
         if (command === 'list') {
           if (args.positionals.length > 0) {
             throw new Error(
-              'Usage: bb taskboard list [--project <proj_id>] [--source linear|github|jira] [--query <text>] [--cached] [--json]'
+              'Usage: bb taskboard list [--project <proj_id>] ' +
+                '[--source linear|github|jira] [--query <text>] ' +
+                '[--preset <name>] [--cached] [--json]'
             );
           }
           const sourceValue = args.source;
@@ -2004,8 +2066,18 @@ export default async function plugin(bb: BbPluginApi) {
           if (parsedSource && !parsedSource.success) {
             throw new Error('Source must be linear, github, or jira');
           }
-          const source = parsedSource?.data;
           const project = await requireProject();
+          // Explicit --source/--query flags beat a --preset's saved values;
+          // a preset source of "all" means the preset applies no filter.
+          const preset = args.preset
+            ? resolvePresetByName(project.id, args.preset)
+            : undefined;
+          const presetSource =
+            preset && preset.state.source !== ALL_SOURCES_FILTER
+              ? preset.state.source
+              : undefined;
+          const source = parsedSource?.data ?? presetSource;
+          const query = args.query ?? preset?.state.query;
           if (source) {
             await assertSelectedSourceAfterMutations(project.id, source);
           }
@@ -2013,14 +2085,26 @@ export default async function plugin(bb: BbPluginApi) {
           const items = store.list({
             projectId: project.id,
             ...(source ? { source } : {}),
-            ...(args.query ? { query: args.query } : {}),
+            ...(query ? { query } : {}),
+            ...(preset
+              ? { stateCategories: preset.state.stateCategories }
+              : {}),
             limit: 200
           });
+          const narrowedItems = preset
+            ? filterWorkItemsByAttributes(items, {
+                statuses: preset.state.statuses,
+                assignees: preset.state.assignees,
+                priorities: preset.state.priorities,
+                projects: preset.state.externalProjects,
+                labels: preset.state.labels
+              })
+            : items;
           return {
             exitCode: 0,
             stdout: args.json
-              ? JSON.stringify({ items }, null, 2)
-              : items
+              ? JSON.stringify({ items: narrowedItems }, null, 2)
+              : narrowedItems
                   .map(
                     item =>
                       `${item.bbProjectId}\t${sourceName(item.source)}\t${item.key}\t${item.status}\t${item.assignee ?? '-'}\t${item.title}`
@@ -2222,6 +2306,103 @@ export default async function plugin(bb: BbPluginApi) {
               ? JSON.stringify(credentialStatus(config), null, 2)
               : formatCredentialStatus(config)
           };
+        }
+        if (command === 'presets') {
+          const verb = args.positionals[0] ?? 'list';
+          const rest = args.positionals.slice(1);
+          const project = await requireProject();
+
+          if (verb === 'list') {
+            if (rest.length > 0) {
+              throw new Error(
+                'Usage: bb taskboard presets list ' +
+                  '[--project <proj_id>] [--json]'
+              );
+            }
+            const presets = store.listFilterPresets(project.id);
+            return {
+              exitCode: 0,
+              stdout: args.json
+                ? JSON.stringify({ presets }, null, 2)
+                : presets.length > 0
+                  ? presets.map(item => item.name).join('\n')
+                  : 'This project has no filter presets.'
+            };
+          }
+
+          if (verb === 'save') {
+            if (rest.length !== 1 || !args.fromState) {
+              throw new Error(
+                'Usage: bb taskboard presets save <name> ' +
+                  '--from-state <json> [--project <proj_id>] [--json]'
+              );
+            }
+            let fromStateJson: unknown;
+            try {
+              fromStateJson = JSON.parse(args.fromState);
+            } catch {
+              throw new Error('--from-state must be valid JSON');
+            }
+            const parsedState =
+              boardFilterStateSchema.safeParse(fromStateJson);
+            if (!parsedState.success) {
+              throw new Error('--from-state is not a valid filter state');
+            }
+            const preset = store.saveFilterPreset({
+              projectId: project.id,
+              name: rest[0]!,
+              state: parsedState.data
+            });
+            return {
+              exitCode: 0,
+              stdout: args.json
+                ? JSON.stringify({ preset }, null, 2)
+                : `Saved preset "${preset.name}"`
+            };
+          }
+
+          if (verb === 'rename') {
+            if (rest.length !== 2) {
+              throw new Error(
+                'Usage: bb taskboard presets rename <name> <new-name> ' +
+                  '[--project <proj_id>] [--json]'
+              );
+            }
+            const existing = resolvePresetByName(project.id, rest[0]!);
+            const preset = store.saveFilterPreset({
+              projectId: project.id,
+              id: existing.id,
+              name: rest[1]!,
+              state: existing.state
+            });
+            return {
+              exitCode: 0,
+              stdout: args.json
+                ? JSON.stringify({ preset }, null, 2)
+                : `Renamed preset "${existing.name}" to "${preset.name}"`
+            };
+          }
+
+          if (verb === 'delete') {
+            if (rest.length !== 1) {
+              throw new Error(
+                'Usage: bb taskboard presets delete <name> ' +
+                  '[--project <proj_id>] [--json]'
+              );
+            }
+            const existing = resolvePresetByName(project.id, rest[0]!);
+            const presets = store.deleteFilterPreset(project.id, existing.id);
+            return {
+              exitCode: 0,
+              stdout: args.json
+                ? JSON.stringify({ presets }, null, 2)
+                : `Deleted preset "${existing.name}"`
+            };
+          }
+
+          throw new Error(
+            'Usage: bb taskboard presets <list|save|rename|delete> ...'
+          );
         }
         throw new Error('Unknown bb taskboard command');
       } catch (error) {

@@ -154,10 +154,14 @@ bb taskboard status [--project <proj_id>] [--json]
 bb taskboard config [--project <proj_id>] [--source linear|github|jira] [provider fields] [--json]
 bb taskboard credentials [--project <proj_id>] [--json]
 bb taskboard refresh [linear|github|jira] [--project <proj_id>] [--json]
-bb taskboard list [--project <proj_id>] [--source linear|github|jira] [--query <text>] [--cached] [--json]
+bb taskboard list [--project <proj_id>] [--source linear|github|jira] [--query <text>] [--preset <name>] [--cached] [--json]
 bb taskboard show <linear|github|jira> <locator> [--project <proj_id>] [--json]
 bb taskboard transitions <linear|github|jira> <locator> [--project <proj_id>] [--json]
 bb taskboard move <linear|github|jira> <locator> --status <id> [--project <proj_id>] [--json]
+bb taskboard presets list [--project <proj_id>] [--json]
+bb taskboard presets save <name> --from-state <json> [--project <proj_id>] [--json]
+bb taskboard presets rename <name> <new-name> [--project <proj_id>] [--json]
+bb taskboard presets delete <name> [--project <proj_id>] [--json]
 ```
 
 An explicit source must match the tracker selected for that project. Taskboard
