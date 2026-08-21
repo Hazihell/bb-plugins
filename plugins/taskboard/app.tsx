@@ -41,6 +41,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Icon, type IconName } from '@/components/ui/icon';
@@ -67,6 +68,8 @@ import {
   boardFilterStateFingerprint,
   filterStateScopeId,
   type BoardFilterState,
+  PRESET_NAME_MAX_LENGTH,
+  type FilterPreset,
   type ProjectConfigMutation,
   type ProjectConfigView,
   type ProjectCredentialsInteractionResponse,
@@ -1625,7 +1628,53 @@ function FilterChip({
   );
 }
 
+function FilterPresetChip({
+  presets,
+  onApply,
+  onSaveCurrent
+}: {
+  presets: readonly FilterPreset[];
+  onApply: (preset: FilterPreset) => void;
+  onSaveCurrent: () => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          data-active="false"
+          className="tb-filter-chip flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors hover:text-foreground max-md:pointer-coarse:h-10"
+        >
+          <Icon name="Star" className="size-3" />
+          Presets
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="min-w-44">
+        {presets.length === 0 ? (
+          <DropdownMenuItem disabled>No saved presets</DropdownMenuItem>
+        ) : (
+          presets.map(preset => (
+            <DropdownMenuItem
+              key={preset.id}
+              onSelect={() => onApply(preset)}
+            >
+              {preset.name}
+            </DropdownMenuItem>
+          ))
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={onSaveCurrent}>
+          Save current filters as...
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function TrackerFilterBar({
+  presets,
+  onApplyPreset,
+  onSaveCurrentPreset,
   source,
   enabledFilters,
   stateCategories,
@@ -1654,6 +1703,9 @@ function TrackerFilterBar({
   onViewChange,
   onClear
 }: {
+  presets: readonly FilterPreset[];
+  onApplyPreset: (preset: FilterPreset) => void;
+  onSaveCurrentPreset: () => void;
   source: SourceFilter;
   enabledFilters: readonly WorkItemFilterField[];
   stateCategories: readonly WorkStateCategory[];
@@ -1707,6 +1759,13 @@ function TrackerFilterBar({
       className="tb-filter-bar flex shrink-0 flex-wrap items-center gap-1.5 border-b px-2 py-1.5"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-px">
+        {presets.length > 0 || filtered ? (
+          <FilterPresetChip
+            presets={presets}
+            onApply={onApplyPreset}
+            onSaveCurrent={onSaveCurrentPreset}
+          />
+        ) : null}
         {showSourceFilter ? (
           <FilterChip
             icon="GitBranch"
@@ -2936,6 +2995,9 @@ function TrackerList({
   const [boardSettingsReady, setBoardSettingsReady] = useState(
     projectId === null
   );
+  const [presets, setPresets] = useState<readonly FilterPreset[]>([]);
+  const [presetNameDraft, setPresetNameDraft] = useState<string | null>(null);
+  const [savingPreset, setSavingPreset] = useState(false);
   const [source, setSource] = useState<SourceFilter>(
     projectId === null
       ? (initialPreferences?.source ?? ALL_SOURCES)
@@ -3040,6 +3102,21 @@ function TrackerList({
       cancelled = true;
     };
   }, [projectId, rpc, storageScopeId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void rpc
+      .call('listFilterPresets', { projectId: storageScopeId })
+      .then(result => {
+        if (!cancelled) setPresets(result.presets);
+      })
+      .catch(() => {
+        if (!cancelled) setPresets([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [rpc, storageScopeId]);
 
   const loadItems = useCallback(async () => {
     const requestRevision = ++requestRevisionRef.current;
@@ -3303,6 +3380,69 @@ function TrackerList({
     setQuery('');
     setCommittedQuery('');
   };
+  const applyPreset = useCallback(
+    (preset: FilterPreset) => {
+      const next = preset.state;
+      setSource(projectId === null ? next.source : ALL_SOURCES);
+      setStateCategories(next.stateCategories);
+      setStatuses(next.statuses);
+      setAssignees(next.assignees);
+      setPriorities(next.priorities);
+      setExternalProjects(next.externalProjects);
+      setLabels(next.labels);
+      setQuery(next.query);
+      setCommittedQuery(next.query);
+      setView(next.view);
+    },
+    [projectId]
+  );
+  const saveCurrentPreset = useCallback(
+    async (name: string) => {
+      // Guard against a double submit: without this the second call loses
+      // the duplicate-name check against the row the first one just wrote,
+      // and pops an error toast over an already-closed dialog.
+      if (savingPreset) return;
+      setSavingPreset(true);
+      try {
+        const result = await rpc.call('saveFilterPreset', {
+          projectId: storageScopeId,
+          name,
+          state: {
+            source,
+            stateCategories,
+            statuses,
+            assignees,
+            priorities,
+            externalProjects,
+            labels,
+            query,
+            view
+          }
+        });
+        setPresets(result.presets);
+        setPresetNameDraft(null);
+        toast.success(`Saved preset "${result.preset.name}"`);
+      } catch (error) {
+        toast.error(describeError(error));
+      } finally {
+        setSavingPreset(false);
+      }
+    },
+    [
+      assignees,
+      externalProjects,
+      labels,
+      priorities,
+      query,
+      rpc,
+      savingPreset,
+      source,
+      stateCategories,
+      statuses,
+      storageScopeId,
+      view
+    ]
+  );
   const moveItemStatus = useCallback(
     async (item: WorkItem, option: WorkStatusOption) => {
       const matches = (candidate: WorkItem) =>
@@ -3346,6 +3486,9 @@ function TrackerList({
     <div className="flex h-full min-h-0 flex-col">
       <div className="tb-frame mx-auto flex h-full min-h-0 w-full max-w-[100rem] flex-col overflow-hidden">
         <TrackerFilterBar
+          presets={presets}
+          onApplyPreset={applyPreset}
+          onSaveCurrentPreset={() => setPresetNameDraft('')}
           source={projectId === null ? source : ALL_SOURCES}
           enabledFilters={boardSettings.enabledFilters}
           stateCategories={stateCategories}
@@ -3471,7 +3614,55 @@ function TrackerList({
       </div>
     </div>
   );
-  return <TooltipProvider delayDuration={180}>{content}</TooltipProvider>;
+  return (
+    <TooltipProvider delayDuration={180}>
+      {content}
+      <Dialog
+        open={presetNameDraft !== null}
+        onOpenChange={open => {
+          if (!open) setPresetNameDraft(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save filter preset</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={event => {
+              event.preventDefault();
+              const name = (presetNameDraft ?? '').trim();
+              if (name) void saveCurrentPreset(name);
+            }}
+            className="flex flex-col gap-3"
+          >
+            <Input
+              autoFocus
+              value={presetNameDraft ?? ''}
+              onChange={event => setPresetNameDraft(event.target.value)}
+              placeholder="My work"
+              maxLength={PRESET_NAME_MAX_LENGTH}
+              aria-label="Preset name"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setPresetNameDraft(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={savingPreset || !(presetNameDraft ?? '').trim()}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
+  );
 }
 
 function DetailMetadata({
