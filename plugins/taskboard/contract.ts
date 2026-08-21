@@ -10,6 +10,10 @@ import {
 import { projectBoardSettingsSchema } from './board-settings.js';
 import { boardFilterStateSchema } from './filter-state.js';
 import {
+  filterPresetNameSchema,
+  filterPresetSchema
+} from './filter-presets.js';
+import {
   workSourceSchema,
   workStateCategorySchema,
   type WorkSource
@@ -387,6 +391,41 @@ export const taskboardRpcContract = defineRpcContract({
       })
       .strict(),
     output: z.object({ state: boardFilterStateSchema }).strict()
+  },
+  listFilterPresets: {
+    input: z.object({ projectId: bbProjectIdSchema }).strict(),
+    output: z.object({ presets: z.array(filterPresetSchema) }).strict()
+  },
+  saveFilterPreset: {
+    input: z
+      .object({
+        projectId: bbProjectIdSchema,
+        id: z.string().min(1).optional(),
+        name: filterPresetNameSchema,
+        state: boardFilterStateSchema
+      })
+      .strict(),
+    output: z
+      .object({
+        preset: filterPresetSchema,
+        presets: z.array(filterPresetSchema)
+      })
+      .strict()
+  },
+  deleteFilterPreset: {
+    input: z
+      .object({ projectId: bbProjectIdSchema, id: z.string().min(1) })
+      .strict(),
+    output: z.object({ presets: z.array(filterPresetSchema) }).strict()
+  },
+  reorderFilterPresets: {
+    input: z
+      .object({
+        projectId: bbProjectIdSchema,
+        ids: z.array(z.string().min(1))
+      })
+      .strict(),
+    output: z.object({ presets: z.array(filterPresetSchema) }).strict()
   }
 });
 

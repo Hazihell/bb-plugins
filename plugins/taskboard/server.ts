@@ -1744,6 +1744,32 @@ export default async function plugin(bb: BbPluginApi) {
       return {
         state: store.saveBoardFilterState(input.projectId, input.state)
       };
+    },
+    async listFilterPresets(input) {
+      await assertFilterScopeExists(input.projectId);
+      return { presets: store.listFilterPresets(input.projectId) };
+    },
+    async saveFilterPreset(input) {
+      await assertFilterScopeExists(input.projectId);
+      const preset = store.saveFilterPreset({
+        projectId: input.projectId,
+        ...(input.id ? { id: input.id } : {}),
+        name: input.name,
+        state: input.state
+      });
+      return { preset, presets: store.listFilterPresets(input.projectId) };
+    },
+    async deleteFilterPreset(input) {
+      await assertFilterScopeExists(input.projectId);
+      return {
+        presets: store.deleteFilterPreset(input.projectId, input.id)
+      };
+    },
+    async reorderFilterPresets(input) {
+      await assertFilterScopeExists(input.projectId);
+      return {
+        presets: store.reorderFilterPresets(input.projectId, input.ids)
+      };
     }
   };
   bb.rpc.register(taskboardRpcContract, handlers);

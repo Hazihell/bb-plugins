@@ -889,6 +889,10 @@ export function createWorkItemStore(bb: BbPluginApi) {
       );
       return readSavedPreset(id);
     },
+    // Deleting an unknown id is a deliberate no-op, unlike saveFilterPreset
+    // and reorderFilterPresets which throw. Delete is idempotent, and the
+    // callers resync from the returned list rather than trusting a local
+    // delta, so a stale id produces no visible inconsistency.
     deleteFilterPreset(projectId: string, id: string): FilterPreset[] {
       bbProjectIdSchema.parse(projectId);
       return db.transaction(() => {
