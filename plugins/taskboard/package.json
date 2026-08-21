@@ -64,6 +64,7 @@
     "create-issue.ts",
     "credential-contract.ts",
     "credentials.ts",
+    "filter-presets.ts",
     "filter-state.ts",
     "issue-draft.ts",
     "project-selection.ts",
