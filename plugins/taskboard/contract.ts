@@ -47,6 +47,14 @@ export type {
   SourceFilterValue
 } from './filter-state.js';
 export {
+  PRESET_NAME_MAX_LENGTH,
+  filterPresetNameSchema,
+  filterPresetSchema,
+  normalizePresetName,
+  resolvePresetOrder
+} from './filter-presets.js';
+export type { FilterPreset } from './filter-presets.js';
+export {
   bbProjectIdSchema,
   jiraBaseUrlSchema,
   projectCredentialsInteractionPayloadSchema,

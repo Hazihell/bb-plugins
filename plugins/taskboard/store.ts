@@ -1,13 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import {
   bbProjectIdSchema,
   boardFilterStateSchema,
   defaultProjectBoardSettings,
+  filterPresetNameSchema,
+  filterPresetSchema,
   normalizeBoardFilterState,
+  normalizePresetName,
   projectBoardSettingsSchema,
   projectSourceConfigSchema,
+  resolvePresetOrder,
   workItemSchema,
   type BoardFilterState,
+  type FilterPreset,
   type ProjectBoardSettings,
   type ProjectSourceConfig,
   type WorkItem,
@@ -62,6 +68,14 @@ interface ProjectBoardSettingsRow {
 interface ProjectFilterStateRow {
   bb_project_id: string;
   filters_json: string;
+}
+
+interface FilterPresetRow {
+  id: string;
+  bb_project_id: string;
+  name: string;
+  filters_json: string;
+  position: number;
 }
 
 export interface StoredSyncState {
@@ -125,6 +139,19 @@ function boardSettingsFromRow(
     enabledFilters: JSON.parse(row.enabled_filters_json),
     statusOrder: JSON.parse(row.status_order_json)
   });
+}
+
+function filterPresetFromRow(row: FilterPresetRow): FilterPreset | null {
+  const state = parseJsonSafely(row.filters_json);
+  if (state === undefined) return null;
+  const parsed = filterPresetSchema.safeParse({
+    id: row.id,
+    projectId: row.bb_project_id,
+    name: row.name,
+    state,
+    position: row.position
+  });
+  return parsed.success ? parsed.data : null;
 }
 
 function escapeLike(value: string): string {
@@ -347,6 +374,22 @@ export function createWorkItemStore(bb: BbPluginApi) {
         filters_json TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
+    `,
+    `
+      CREATE TABLE project_filter_presets (
+        id TEXT PRIMARY KEY,
+        bb_project_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        name_normalized TEXT NOT NULL,
+        filters_json TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE (bb_project_id, name_normalized)
+      );
+
+      CREATE INDEX idx_filter_presets_project
+        ON project_filter_presets(bb_project_id, position);
     `
   ]);
 
@@ -461,6 +504,19 @@ export function createWorkItemStore(bb: BbPluginApi) {
     SELECT bb_project_id, filters_json
     FROM project_filter_state
     WHERE bb_project_id = ?
+  `);
+
+  const readFilterPresets = db.prepare<[string], FilterPresetRow>(`
+    SELECT id, bb_project_id, name, filters_json, position
+    FROM project_filter_presets
+    WHERE bb_project_id = ?
+    ORDER BY position ASC
+  `);
+
+  const readFilterPreset = db.prepare<[string, string], FilterPresetRow>(`
+    SELECT id, bb_project_id, name, filters_json, position
+    FROM project_filter_presets
+    WHERE bb_project_id = ? AND id = ?
   `);
 
   const clearSourceTransaction = db.transaction(
@@ -745,6 +801,163 @@ export function createWorkItemStore(bb: BbPluginApi) {
       `
       ).run(projectId, JSON.stringify(state), new Date().toISOString());
       return state;
+    },
+    listFilterPresets(projectId: string): FilterPreset[] {
+      bbProjectIdSchema.parse(projectId);
+      return readFilterPresets
+        .all(projectId)
+        .map(filterPresetFromRow)
+        .filter((preset): preset is FilterPreset => preset !== null);
+    },
+    saveFilterPreset(input: {
+      projectId: string;
+      id?: string;
+      name: string;
+      state: BoardFilterState;
+    }): FilterPreset {
+      bbProjectIdSchema.parse(input.projectId);
+      const name = filterPresetNameSchema.parse(input.name);
+      const normalized = normalizePresetName(name);
+      const state = normalizeBoardFilterState(
+        boardFilterStateSchema.parse(input.state)
+      );
+      const now = new Date().toISOString();
+      function readSavedPreset(id: string): FilterPreset {
+        const saved = filterPresetFromRow(
+          readFilterPreset.get(input.projectId, id)!
+        );
+        if (!saved) {
+          throw new Error('Saved filter preset could not be read back');
+        }
+        return saved;
+      }
+      const conflict = db
+        .prepare<[string, string], { id: string; name: string }>(
+          `
+          SELECT id, name
+          FROM project_filter_presets
+          WHERE bb_project_id = ? AND name_normalized = ?
+        `
+        )
+        .get(input.projectId, normalized);
+      if (conflict && conflict.id !== input.id) {
+        throw new Error(
+          `A filter preset named "${conflict.name}" already exists`
+        );
+      }
+
+      if (input.id) {
+        const existing = readFilterPreset.get(input.projectId, input.id);
+        if (!existing) throw new Error(`Unknown filter preset: ${input.id}`);
+        db.prepare<[string, string, string, string, string, string]>(
+          `
+          UPDATE project_filter_presets
+          SET name = ?, name_normalized = ?, filters_json = ?, updated_at = ?
+          WHERE bb_project_id = ? AND id = ?
+        `
+        ).run(
+          name,
+          normalized,
+          JSON.stringify(state),
+          now,
+          input.projectId,
+          input.id
+        );
+        return readSavedPreset(input.id);
+      }
+
+      const id = `fp_${randomUUID().replaceAll('-', '')}`;
+      const position = readFilterPresets.all(input.projectId).length;
+      db.prepare<
+        [string, string, string, string, string, number, string, string]
+      >(
+        `
+        INSERT INTO project_filter_presets (
+          id, bb_project_id, name, name_normalized, filters_json, position,
+          created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `
+      ).run(
+        id,
+        input.projectId,
+        name,
+        normalized,
+        JSON.stringify(state),
+        position,
+        now,
+        now
+      );
+      return readSavedPreset(id);
+    },
+    deleteFilterPreset(projectId: string, id: string): FilterPreset[] {
+      bbProjectIdSchema.parse(projectId);
+      return db.transaction(() => {
+        db.prepare<[string, string]>(
+          `DELETE FROM project_filter_presets
+           WHERE bb_project_id = ? AND id = ?`
+        ).run(projectId, id);
+        // Renumber every remaining row, including any that fail to parse:
+        // an unreadable row is invisible to clients but still occupies a
+        // position, so leaving it out here would let it collide with a
+        // visible row forever instead of just until the next delete.
+        const remaining = readFilterPresets.all(projectId);
+        const now = new Date().toISOString();
+        const updatePosition = db.prepare<[number, string, string, string]>(
+          `
+          UPDATE project_filter_presets
+          SET position = ?, updated_at = ?
+          WHERE bb_project_id = ? AND id = ?
+        `
+        );
+        remaining.forEach((row, index) => {
+          if (row.position === index) return;
+          updatePosition.run(index, now, projectId, row.id);
+        });
+        return readFilterPresets
+          .all(projectId)
+          .map(filterPresetFromRow)
+          .filter((preset): preset is FilterPreset => preset !== null);
+      })();
+    },
+    reorderFilterPresets(
+      projectId: string,
+      ids: readonly string[]
+    ): FilterPreset[] {
+      bbProjectIdSchema.parse(projectId);
+      return db.transaction(() => {
+        const rows = readFilterPresets.all(projectId);
+        // A client can only ever request an order for presets it was
+        // shown, and listFilterPresets hides rows that fail to parse. So
+        // validate against, and renumber, only the parseable subset —
+        // otherwise one corrupt row permanently blocks every reorder for
+        // this project, since resolvePresetOrder demands an exact
+        // permutation of every stored id. An unreadable row keeps its old
+        // position and may end up sharing it with a visible row; that is
+        // harmless because the corrupt row is never displayed, and the
+        // next delete renumbers every row (visible or not) contiguously
+        // from 0 anyway.
+        const currentIds = rows
+          .filter(row => filterPresetFromRow(row) !== null)
+          .map(row => row.id);
+        const ordered = resolvePresetOrder(currentIds, ids);
+        const positionById = new Map(rows.map(row => [row.id, row.position]));
+        const now = new Date().toISOString();
+        const updatePosition = db.prepare<[number, string, string, string]>(
+          `
+          UPDATE project_filter_presets
+          SET position = ?, updated_at = ?
+          WHERE bb_project_id = ? AND id = ?
+        `
+        );
+        ordered.forEach((id, index) => {
+          if (positionById.get(id) === index) return;
+          updatePosition.run(index, now, projectId, id);
+        });
+        return readFilterPresets
+          .all(projectId)
+          .map(filterPresetFromRow)
+          .filter((preset): preset is FilterPreset => preset !== null);
+      })();
     },
     configuredProjectIds(): string[] {
       return db
