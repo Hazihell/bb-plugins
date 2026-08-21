@@ -2968,6 +2968,12 @@ function TrackerList({
   );
   const [error, setError] = useState<string | null>(null);
   const requestRevisionRef = useRef(0);
+  // initialPreferences seeds useState at mount. It must NOT drive the load
+  // effect: the parent re-reads it from a mutable Map on every render, so its
+  // identity flips as soon as this component records its own preferences,
+  // which re-ran the load, cancelled the in-flight fetch, and then skipped
+  // applying the saved state. Capture it once instead.
+  const initialPreferencesRef = useRef(initialPreferences);
   const savedFingerprintRef = useRef<string | null>(null);
   const filterStateLoadedRef = useRef(false);
   const saveRevisionRef = useRef(0);
@@ -3004,7 +3010,7 @@ function TrackerList({
         // including that nothing is saved"), so it is safe to set once,
         // up front, rather than at each return below.
         filterStateLoadedRef.current = true;
-        if (initialPreferences) return;
+        if (initialPreferencesRef.current) return;
         const saved = stateResult.state;
         if (!saved) {
           setView(settingsResult.settings.defaultView);
@@ -3033,7 +3039,7 @@ function TrackerList({
     return () => {
       cancelled = true;
     };
-  }, [initialPreferences, projectId, rpc, storageScopeId]);
+  }, [projectId, rpc, storageScopeId]);
 
   const loadItems = useCallback(async () => {
     const requestRevision = ++requestRevisionRef.current;
@@ -3078,6 +3084,11 @@ function TrackerList({
     return () => window.clearTimeout(timeout);
   }, [query]);
   useEffect(() => {
+    // Do not cache a snapshot before the load has resolved. The parent uses
+    // this map to seed a later mount, and an empty pre-load placeholder would
+    // make that mount look like it had real in-session state, suppressing the
+    // saved filters entirely.
+    if (!filterStateLoadedRef.current) return;
     onPreferencesChange(preferenceScope, {
       source,
       stateCategories,
