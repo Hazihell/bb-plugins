@@ -4661,6 +4661,161 @@ function ProjectBoardSettingsForm({
   );
 }
 
+function FilterPresetsForm({ projectId }: { projectId: string | null }) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const [managedPresets, setManagedPresets] = useState<
+    readonly FilterPreset[]
+  >([]);
+  // Serializes rename/delete/reorder: each returns the full authoritative
+  // list, so a slower response landing after a faster one would clobber it.
+  const [mutating, setMutating] = useState(false);
+
+  useEffect(() => {
+    if (!projectId) {
+      setManagedPresets([]);
+      return;
+    }
+    let cancelled = false;
+    void rpc
+      .call('listFilterPresets', { projectId })
+      .then(result => {
+        if (!cancelled) setManagedPresets(result.presets);
+      })
+      .catch(() => {
+        if (!cancelled) setManagedPresets([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, rpc]);
+
+  const renamePreset = async (preset: FilterPreset, name: string) => {
+    if (!projectId || mutating) return;
+    setMutating(true);
+    try {
+      const result = await rpc.call('saveFilterPreset', {
+        projectId,
+        id: preset.id,
+        name,
+        state: preset.state
+      });
+      setManagedPresets(result.presets);
+    } catch (error) {
+      toast.error(describeError(error));
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const removePreset = async (preset: FilterPreset) => {
+    if (!projectId || mutating) return;
+    if (!window.confirm(`Delete the preset "${preset.name}"?`)) return;
+    setMutating(true);
+    try {
+      const result = await rpc.call('deleteFilterPreset', {
+        projectId,
+        id: preset.id
+      });
+      setManagedPresets(result.presets);
+    } catch (error) {
+      toast.error(describeError(error));
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  const movePreset = async (preset: FilterPreset, delta: number) => {
+    if (!projectId || mutating) return;
+    const ids = managedPresets.map(candidate => candidate.id);
+    const from = ids.indexOf(preset.id);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= ids.length) return;
+    const reordered = [...ids];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved!);
+    setMutating(true);
+    try {
+      const result = await rpc.call('reorderFilterPresets', {
+        projectId,
+        ids: reordered
+      });
+      setManagedPresets(result.presets);
+    } catch (error) {
+      toast.error(describeError(error));
+    } finally {
+      setMutating(false);
+    }
+  };
+
+  return (
+    <div className="tb-settings-card space-y-3 rounded-lg border p-4 @lg:p-5">
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold">Filter presets</h3>
+        <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          Rename, reorder, or delete this project&apos;s saved filter
+          presets.
+        </p>
+      </div>
+      {managedPresets.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          Save a preset from the Presets menu in the filter bar.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-1">
+          {managedPresets.map((preset, index) => (
+            <li key={preset.id} className="flex items-center gap-2">
+              <Input
+                defaultValue={preset.name}
+                maxLength={60}
+                disabled={mutating}
+                aria-label={`Preset name for ${preset.name}`}
+                className="h-7 flex-1 text-xs"
+                onBlur={event => {
+                  if (mutating) return;
+                  const name = event.target.value.trim();
+                  if (name && name !== preset.name) {
+                    void renamePreset(preset, name);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={mutating || index === 0}
+                aria-label={`Move ${preset.name} up`}
+                onClick={() => void movePreset(preset, -1)}
+              >
+                <Icon name="ChevronUp" className="size-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={mutating || index === managedPresets.length - 1}
+                aria-label={`Move ${preset.name} down`}
+                onClick={() => void movePreset(preset, 1)}
+              >
+                <Icon name="ChevronDown" className="size-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={mutating}
+                aria-label={`Delete ${preset.name}`}
+                onClick={() => void removePreset(preset)}
+              >
+                <Icon name="Trash2" className="size-3" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function ManageView({
   projectId,
   projects,
@@ -4790,6 +4945,10 @@ function ManageView({
                 setBoardSettings(result.settings);
                 return result.settings;
               }}
+            />
+            <FilterPresetsForm
+              key={`presets:${boardSettings.projectId}`}
+              projectId={boardSettings.projectId}
             />
           </>
         ) : (
