@@ -38,6 +38,11 @@ task to an agent without rebuilding context by hand.
   search text, and List or Kanban choice. They come back on reload and follow
   you between the board and a thread's Taskboard panel, because they are saved
   per project rather than per surface. "Clear filters" resets them.
+- **Filter presets** — save the current filters under a name and reapply them
+  from the Presets menu in one click. Rename, reorder, and delete them in
+  **Manage → Board preferences**. Presets are per project, and none is ever
+  applied automatically: sticky filters already decide what the board opens
+  with, so a "default preset" would only compete with them.
 - **Live task details** — cached summaries keep browsing fast; opening a task
   fetches its current description, labels, assignee, and comments.
 - **Pinned beside every chat** — open Taskboard from the thread-header button,
