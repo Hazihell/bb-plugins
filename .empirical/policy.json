@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 2,
+  "context": [],
+  "phases": {},
+  "verification": {
+    "evidence": {
+      "required": true,
+      "browserForUi": true,
+      "screenshotForUi": true,
+      "codeReview": true
+    },
+    "commands": []
+  },
+  "delivery": null,
+  "preferredAgent": null
+}
