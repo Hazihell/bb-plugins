@@ -5,6 +5,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type DragEvent as ReactDragEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode
@@ -41,6 +42,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Icon, type IconName } from '@/components/ui/icon';
@@ -64,8 +67,11 @@ import {
 import type {
   ProjectConfigMutation,
   ProjectConfigView,
+  AssigneeConfirmation,
   ProjectCredentialsInteractionResponse,
   CreateIssueContext,
+  CreateIssueMetadata,
+  CreateIssueOption,
   IssueDraftRecord,
   SecretMutation,
   TrackerProject,
@@ -75,6 +81,10 @@ import type {
   WorkStateCategory,
   WorkStatusOption,
   TaskboardRpcContract
+} from './contract.js';
+import {
+  CREATE_OUTCOME_UNCERTAIN_MARKER,
+  formatWorkItemHandoffPrompt
 } from './contract.js';
 import {
   defaultProjectBoardSettings,
@@ -89,19 +99,36 @@ import {
   projectCredentialsInteractionResponseSchema
 } from './credential-contract.js';
 import {
+  assigneeAvatarIdentity,
   assigneeFilterOptions,
+  canonicalizeSelectedFilterOptions,
   filterWorkItemsByAttributes,
+  isFilterOptionSelected,
   labelFilterOptions,
   priorityFilterOptions,
   projectFilterOptions,
   sortWorkItemsByWorkflow,
   statusFilterOptions,
+  toggleFilterOptionSelection,
   workflowStatusLaneKey,
   workflowStatusLanes,
   workflowStatusTone,
   workflowStatusGroups,
   type FilterOption
 } from './browse.js';
+import {
+  ACROSS_PROJECTS_SCOPE,
+  MAX_BROWSE_QUERY_LENGTH,
+  browsePreferenceStore,
+  createAssigneeScope,
+  isGroupCollapsed,
+  projectBrowseScope,
+  rememberCreateAssigneeAfterSuccess,
+  restoreRememberedCreateAssignee,
+  toggleGroupCollapsedOverride,
+  type BrowsePreferences,
+  type BrowsePreferenceScope
+} from './browse-preferences.js';
 import {
   availableContextProjectId,
   contextSelectionToken,
@@ -125,6 +152,8 @@ const SIDEBAR_AUTO_COLLAPSE_WIDTH = 720;
 const SIDEBAR_DEFAULT_WIDTH = 208;
 const SIDEBAR_MIN_WIDTH = 180;
 const SIDEBAR_MAX_WIDTH = 340;
+const CREATE_METADATA_NETWORK_ERROR =
+  'Taskboard could not load issue creation options. Check the connection and try again.';
 
 const STATE_CATEGORY_ORDER: readonly WorkStateCategory[] = [
   'in_progress',
@@ -142,57 +171,66 @@ const STATE_CATEGORY_LABELS: Readonly<Record<WorkStateCategory, string>> = {
   canceled: 'Canceled'
 };
 
-const BOARD_FILTER_OPTIONS: readonly {
-  field: WorkItemFilterField;
+type FilterPresentationKey = 'source' | WorkItemFilterField;
+interface FilterPresentation {
   label: string;
+  icon: IconName;
   description: string;
-}[] = [
-  {
-    field: 'state',
+}
+
+const FILTER_PRESENTATION = {
+  source: {
+    label: 'Source',
+    icon: 'GitBranch',
+    description: 'The external tracker selected for the work.'
+  },
+  state: {
     label: 'State group',
+    icon: 'Circle',
     description: 'Broad Backlog, Todo, In progress, Done, and Canceled groups.'
   },
-  {
-    field: 'status',
+  status: {
     label: 'Status',
+    icon: 'Workflow',
     description: 'Exact provider workflow states such as In Review or Blocked.'
   },
-  {
-    field: 'assignee',
+  assignee: {
     label: 'Assignee',
+    icon: 'UserRound',
     description: 'People assigned to the work, including Unassigned.'
   },
-  {
-    field: 'priority',
+  priority: {
     label: 'Priority',
+    icon: 'AlertCircle',
     description: 'Urgent, High, Medium, Low, and unprioritized work.'
   },
-  {
-    field: 'project',
+  project: {
     label: 'Project',
+    icon: 'Folder',
     description: 'The provider project, repository, or Jira project.'
   },
-  {
-    field: 'labels',
+  labels: {
     label: 'Labels',
+    icon: 'Layers',
     description: 'Provider labels, including work with no labels.'
   }
-];
+} as const satisfies Record<FilterPresentationKey, FilterPresentation>;
+
+const BOARD_FILTER_FIELDS = [
+  'state',
+  'status',
+  'assignee',
+  'priority',
+  'project',
+  'labels'
+] as const satisfies readonly WorkItemFilterField[];
+
+const BOARD_FILTER_OPTIONS = BOARD_FILTER_FIELDS.map(field => ({
+  field,
+  ...FILTER_PRESENTATION[field]
+}));
 
 type SourceFilter = typeof ALL_SOURCES | WorkSource;
-
-interface TrackerBrowsePreferences {
-  source: SourceFilter;
-  stateCategories: WorkStateCategory[];
-  statuses: string[];
-  assignees: string[];
-  priorities: string[];
-  externalProjects: string[];
-  labels: string[];
-  query: string;
-  committedQuery: string;
-  view: TrackerView;
-}
 
 type TrackerRoute =
   | { kind: 'root' }
@@ -257,23 +295,29 @@ function ManageHeaderAction({ subPath }: PluginNavPanelProps) {
         ? route.projectId
         : null;
   const projectId = routeProjectId ?? contextProjectId ?? loadLastProjectId();
+  const showCreate = route.kind === 'root' || route.kind === 'project';
 
   return (
-    <Button
-      type="button"
-      size="sm"
-      variant="outline"
-      onClick={() =>
-        navigate.toPluginPanel(PANEL_PATH, {
-          subPath: projectId
-            ? routeToSubPath({ kind: 'manage', projectId })
-            : 'manage'
-        })
-      }
-    >
-      <Icon name="Settings" className="size-4" />
-      Manage
-    </Button>
+    <div className="flex items-center gap-1.5">
+      {showCreate ? (
+        <DirectCreateIssueAction projectId={projectId} variant="labeled" />
+      ) : null}
+      <Button
+        type="button"
+        size="sm"
+        variant="outline"
+        onClick={() =>
+          navigate.toPluginPanel(PANEL_PATH, {
+            subPath: projectId
+              ? routeToSubPath({ kind: 'manage', projectId })
+              : 'manage'
+          })
+        }
+      >
+        <Icon name="Settings" className="size-4" />
+        Manage
+      </Button>
+    </div>
   );
 }
 
@@ -396,6 +440,8 @@ function SourceMark({
 
 interface CreatedIssueResult {
   item: WorkItem;
+  warnings: string[];
+  assigneeConfirmation: AssigneeConfirmation;
   mention: {
     provider: 'external-work-item';
     id: string;
@@ -412,38 +458,185 @@ function titleFromPrompt(prompt: string): string {
   return firstLine.replace(/^#{1,6}\s+/u, '').slice(0, 120);
 }
 
-function CreateIssueDialog({
-  projectId,
-  open,
-  onOpenChange,
-  draftRequestId,
-  initialPrompt = '',
-  onRegenerate,
-  onCreated
+function createOptionLabel(
+  options: readonly CreateIssueOption[],
+  value: string | null,
+  fallback: string
+): string {
+  if (!value) return fallback;
+  return options.find(option => option.id === value)?.label ?? fallback;
+}
+
+function IssuePropertySelect({
+  icon,
+  label,
+  value,
+  options,
+  onChange,
+  disabled = false
 }: {
+  icon: IconName;
+  label: string;
+  value: string | null;
+  options: readonly CreateIssueOption[];
+  onChange: (value: string | null) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 rounded-lg bg-background px-2.5 text-xs font-medium shadow-none"
+          disabled={disabled}
+          aria-label={`${label}: ${createOptionLabel(options, value, `No ${label.toLowerCase()}`)}`}
+        >
+          <Icon name={icon} className="size-3.5 text-muted-foreground" />
+          <span className={cn(!value && 'text-muted-foreground')}>
+            {createOptionLabel(options, value, label)}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="max-h-72 min-w-56 overflow-y-auto"
+        mobileTitle={label}
+      >
+        <DropdownMenuItem onSelect={() => onChange(null)}>
+          <span className="text-muted-foreground">
+            No {label.toLowerCase()}
+          </span>
+          {value === null ? (
+            <Icon name="Check" className="ml-auto size-3.5" />
+          ) : null}
+        </DropdownMenuItem>
+        {options.map(option => (
+          <DropdownMenuItem
+            key={option.id}
+            onSelect={() => onChange(option.id)}
+          >
+            <span className="min-w-0 flex-1 truncate">{option.label}</span>
+            {value === option.id ? (
+              <Icon name="Check" className="ml-auto size-3.5" />
+            ) : null}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+function IssueLabelsSelect({
+  options,
+  values,
+  onChange,
+  disabled = false
+}: {
+  options: readonly CreateIssueOption[];
+  values: readonly string[];
+  onChange: (values: string[]) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 rounded-lg bg-background px-2.5 text-xs font-medium shadow-none"
+          disabled={disabled}
+          aria-label={`${values.length} labels selected`}
+        >
+          <Icon name="Layers" className="size-3.5 text-muted-foreground" />
+          <span className={cn(values.length === 0 && 'text-muted-foreground')}>
+            {values.length === 0
+              ? 'Labels'
+              : `${values.length} label${values.length === 1 ? '' : 's'}`}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="max-h-72 min-w-56 overflow-y-auto"
+        mobileTitle="Labels"
+      >
+        {options.map(option => (
+          <DropdownMenuCheckboxItem
+            key={option.id}
+            checked={values.includes(option.id)}
+            onSelect={event => event.preventDefault()}
+            onCheckedChange={checked => {
+              onChange(
+                checked
+                  ? [...new Set([...values, option.id])]
+                  : values.filter(value => value !== option.id)
+              );
+            }}
+          >
+            {option.label}
+          </DropdownMenuCheckboxItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+type CreateIssueDialogProps = {
   projectId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  draftRequestId: string;
-  initialPrompt?: string;
-  onRegenerate: () => void;
   onCreated?: (result: CreatedIssueResult) => void;
-}) {
+} & (
+  | { mode: 'direct' }
+  | {
+      mode: 'composer-assisted';
+      draftRequestId: string;
+      initialPrompt: string;
+      onRegenerate: () => void;
+    }
+);
+
+function CreateIssueDialog(props: CreateIssueDialogProps) {
+  const { projectId, open, onOpenChange, onCreated } = props;
+  const assisted = props.mode === 'composer-assisted';
+  const draftRequestId = assisted ? props.draftRequestId : null;
+  const initialPrompt = assisted ? props.initialPrompt : '';
   const rpc = useRpc<TaskboardRpcContract>();
   const navigate = useBbNavigate();
   const formId = useId();
+  const metadataErrorId = `${formId}-metadata-error`;
   const [context, setContext] = useState<CreateIssueContext>();
   const [contextError, setContextError] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [destinationId, setDestinationId] = useState('');
   const [issueType, setIssueType] = useState('');
+  const [metadata, setMetadata] = useState<CreateIssueMetadata>();
+  const [metadataLoading, setMetadataLoading] = useState(false);
+  const [metadataError, setMetadataError] = useState<string | null>(null);
+  const [loadedMetadataScope, setLoadedMetadataScope] = useState<string | null>(
+    null
+  );
+  const [loadedConnectorRevision, setLoadedConnectorRevision] = useState<
+    number | null
+  >(null);
+  const [metadataRevision, setMetadataRevision] = useState(0);
+  const [statusId, setStatusId] = useState<string | null>(null);
+  const [assigneeId, setAssigneeId] = useState<string | null>(null);
+  const [priorityId, setPriorityId] = useState<string | null>(null);
+  const [labelIds, setLabelIds] = useState<string[]>([]);
+  const [dueDate, setDueDate] = useState('');
+  const [milestoneId, setMilestoneId] = useState<string | null>(null);
   const [draftStatus, setDraftStatus] = useState<
     IssueDraftRecord['status'] | 'idle' | 'manual'
   >('idle');
   const [draftError, setDraftError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [createOutcomeUncertain, setCreateOutcomeUncertain] = useState(false);
   const draftRevisionRef = useRef(0);
 
   useEffect(() => {
@@ -454,10 +647,22 @@ function CreateIssueDialog({
     setDescription('');
     setDestinationId('');
     setIssueType('');
-    setDraftStatus('idle');
+    setMetadata(undefined);
+    setMetadataLoading(false);
+    setMetadataError(null);
+    setLoadedMetadataScope(null);
+    setLoadedConnectorRevision(null);
+    setStatusId(null);
+    setAssigneeId(null);
+    setPriorityId(null);
+    setLabelIds([]);
+    setDueDate('');
+    setMilestoneId(null);
+    setDraftStatus(assisted ? 'idle' : 'manual');
     setDraftError(null);
     setCreating(false);
     setCreateError(null);
+    setCreateOutcomeUncertain(false);
     if (!projectId) {
       setContextError('Choose a BB project before creating an issue.');
       return;
@@ -477,10 +682,106 @@ function CreateIssueDialog({
     return () => {
       active = false;
     };
-  }, [draftRequestId, initialPrompt, open, projectId, rpc]);
+  }, [assisted, draftRequestId, initialPrompt, open, projectId, rpc]);
 
   useEffect(() => {
-    if (!open || !projectId || context?.available !== true) return;
+    setMetadata(undefined);
+    setMetadataLoading(false);
+    setMetadataError(null);
+    setLoadedMetadataScope(null);
+    setLoadedConnectorRevision(null);
+    setStatusId(null);
+    setAssigneeId(null);
+    setPriorityId(null);
+    setLabelIds([]);
+    setDueDate('');
+    setMilestoneId(null);
+    if (
+      !open ||
+      !projectId ||
+      context?.available !== true ||
+      destinationId.trim() === ''
+    ) {
+      return;
+    }
+    const requestedIssueType =
+      context.source === 'jira' ? issueType.trim() || null : null;
+    let active = true;
+    setMetadataLoading(true);
+    const timeout = window.setTimeout(() => {
+      void rpc
+        .call('getCreateIssueMetadata', {
+          projectId,
+          expectedSource: context.source,
+          destinationId,
+          issueType: requestedIssueType
+        })
+        .then(result => {
+          if (!active) return;
+          if (!result.ok) {
+            setMetadataError(result.error.safeMessage);
+            return;
+          }
+          const selectedIssueType =
+            requestedIssueType &&
+            result.metadata.issueTypeOptions.some(
+              option => option.id === requestedIssueType
+            )
+              ? requestedIssueType
+              : result.metadata.defaultIssueTypeId;
+          const resolvedScope = createAssigneeScope(
+            projectId,
+            context.source,
+            destinationId,
+            context.source === 'jira' ? selectedIssueType : null
+          );
+          setMetadata(result.metadata);
+          setLoadedMetadataScope(JSON.stringify(resolvedScope));
+          setLoadedConnectorRevision(result.connectorRevision);
+          setStatusId(result.metadata.defaultStatusId);
+          if (selectedIssueType) {
+            setIssueType(selectedIssueType);
+          }
+          setAssigneeId(
+            restoreRememberedCreateAssignee(
+              resolvedScope,
+              result.metadata.assigneeOptions
+            )
+          );
+        })
+        .catch(() => {
+          if (active) {
+            setMetadataError(CREATE_METADATA_NETWORK_ERROR);
+          }
+        })
+        .finally(() => {
+          if (active) setMetadataLoading(false);
+        });
+    }, 220);
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+    };
+  }, [
+    context,
+    destinationId,
+    issueType,
+    metadataRevision,
+    open,
+    projectId,
+    rpc
+  ]);
+
+  useEffect(() => {
+    if (
+      !assisted ||
+      !draftRequestId ||
+      !open ||
+      !projectId ||
+      context?.available !== true
+    ) {
+      return;
+    }
     const revision = ++draftRevisionRef.current;
     let active = true;
     const isActive = () =>
@@ -529,9 +830,18 @@ function CreateIssueDialog({
     return () => {
       active = false;
     };
-  }, [context?.available, draftRequestId, initialPrompt, open, projectId, rpc]);
+  }, [
+    assisted,
+    context?.available,
+    draftRequestId,
+    initialPrompt,
+    open,
+    projectId,
+    rpc
+  ]);
 
   const discardDraft = () => {
+    if (!draftRequestId) return;
     void rpc
       .call('cancelIssueDraft', { requestId: draftRequestId })
       .catch(() => undefined);
@@ -544,6 +854,7 @@ function CreateIssueDialog({
   };
 
   const useOriginalPrompt = () => {
+    if (!assisted) return;
     draftRevisionRef.current += 1;
     discardDraft();
     setTitle(titleFromPrompt(initialPrompt));
@@ -552,26 +863,74 @@ function CreateIssueDialog({
     setDraftError(null);
   };
 
+  const currentMetadataScope =
+    projectId && context?.available === true && destinationId.trim() !== ''
+      ? JSON.stringify(
+          createAssigneeScope(
+            projectId,
+            context.source,
+            destinationId,
+            context.source === 'jira' ? issueType.trim() || null : null
+          )
+        )
+      : null;
+
   const create = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!projectId || !context?.available || creating) return;
+    if (
+      !projectId ||
+      !context?.available ||
+      creating ||
+      createOutcomeUncertain ||
+      metadataLoading ||
+      loadedConnectorRevision === null ||
+      currentMetadataScope === null ||
+      loadedMetadataScope !== currentMetadataScope
+    ) {
+      return;
+    }
     setCreating(true);
     setCreateError(null);
     try {
-      const result = await rpc.call('createIssue', {
+      const submittedScope = createAssigneeScope(
         projectId,
-        expectedSource: context.source,
-        title,
-        description,
+        context.source,
         destinationId,
-        issueType: context.source === 'jira' ? issueType : null
-      });
+        context.source === 'jira' ? issueType.trim() || null : null
+      );
+      const result = await rememberCreateAssigneeAfterSuccess(
+        rpc.call('createIssue', {
+          projectId,
+          expectedSource: context.source,
+          connectorRevision: loadedConnectorRevision,
+          title,
+          description,
+          destinationId,
+          issueType: context.source === 'jira' ? issueType : null,
+          statusId,
+          assigneeId,
+          priorityId,
+          labelIds,
+          dueDate: dueDate || null,
+          milestoneId
+        }),
+        submittedScope,
+        assigneeId
+      );
       onCreated?.(result);
       toast.success(`${result.item.key} created in ${sourceName(result.item.source)}`);
+      if (result.warnings.length > 0) {
+        toast.warning(result.warnings.join(' '));
+      }
       discardDraft();
       onOpenChange(false);
     } catch (error) {
-      setCreateError(describeError(error));
+      const message = describeError(error);
+      const uncertain = message.includes(CREATE_OUTCOME_UNCERTAIN_MARKER);
+      setCreateOutcomeUncertain(uncertain);
+      setCreateError(
+        message.replace(CREATE_OUTCOME_UNCERTAIN_MARKER, '').trim()
+      );
     } finally {
       setCreating(false);
     }
@@ -579,7 +938,12 @@ function CreateIssueDialog({
 
   const canSubmit =
     context?.available === true &&
-    !['idle', 'running'].includes(draftStatus) &&
+    !createOutcomeUncertain &&
+    !metadataLoading &&
+    loadedConnectorRevision !== null &&
+    currentMetadataScope !== null &&
+    loadedMetadataScope === currentMetadataScope &&
+    (!assisted || !['idle', 'running'].includes(draftStatus)) &&
     title.trim() !== '' &&
     destinationId.trim() !== '' &&
     (context.source !== 'jira' || issueType.trim() !== '');
@@ -594,13 +958,13 @@ function CreateIssueDialog({
         }
       }}
     >
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <div className="flex items-center gap-2 pr-7">
             {context ? <SourceGlyph source={context.source} /> : null}
             <DialogTitle>
               {context
-                ? `Create ${sourceName(context.source)} issue`
+                ? `${context.projectName} · ${sourceName(context.source)} · New issue`
                 : 'Prepare issue'}
             </DialogTitle>
           </div>
@@ -609,6 +973,8 @@ function CreateIssueDialog({
               ? 'Loading the tracker configured for this BB project…'
               : !context.available
                 ? `Finish setting up ${sourceName(context.source)} for this project.`
+                : !assisted
+                  ? `Create an issue directly in the tracker configured for ${context.projectName}.`
                 : draftStatus === 'complete'
                   ? `Drafted from your prompt and the ${context.projectName} repository.`
                   : draftStatus === 'manual'
@@ -712,25 +1078,8 @@ function CreateIssueDialog({
               ) : null}
             </div>
 
-            {context.source === 'jira' ? (
-              <div className="grid gap-1.5">
-                <label htmlFor={`${formId}-type`} className="text-xs font-semibold">
-                  Issue type
-                </label>
-                <Input
-                  id={`${formId}-type`}
-                  value={issueType}
-                  placeholder="Task"
-                  disabled={creating}
-                  onChange={event => {
-                    setIssueType(event.target.value);
-                    setCreateError(null);
-                  }}
-                />
-              </div>
-            ) : null}
-
-            {draftStatus === 'idle' || draftStatus === 'running' ? (
+            {assisted &&
+            (draftStatus === 'idle' || draftStatus === 'running') ? (
               <div
                 className="grid gap-3 rounded-lg border border-border bg-surface-recessed-solid p-3"
                 role="status"
@@ -767,70 +1116,76 @@ function CreateIssueDialog({
               </div>
             ) : (
               <>
-                <div
-                  className={cn(
-                    'flex items-start gap-2.5 rounded-lg border p-3',
-                    draftStatus === 'failed'
-                      ? 'border-destructive/30 bg-destructive/5'
-                      : 'border-border bg-surface-recessed-solid'
-                  )}
-                >
-                  <Icon
-                    name={
-                      draftStatus === 'failed'
-                        ? 'AlertCircle'
-                        : draftStatus === 'manual'
-                          ? 'ListTodo'
-                          : 'AiContentGenerator01'
-                    }
+                {assisted ? (
+                  <div
                     className={cn(
-                      'mt-0.5 size-4 shrink-0',
+                      'flex items-start gap-2.5 rounded-lg border p-3',
                       draftStatus === 'failed'
-                        ? 'text-destructive'
-                        : 'text-muted-foreground'
+                        ? 'border-destructive/30 bg-destructive/5'
+                        : 'border-border bg-surface-recessed-solid'
                     )}
-                    aria-hidden="true"
-                  />
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium">
-                      {draftStatus === 'failed'
-                        ? 'Repository-aware draft unavailable'
-                        : draftStatus === 'manual'
-                          ? 'Using the original prompt'
-                        : 'Drafted with repository context'}
-                    </p>
-                    <p
+                  >
+                    <Icon
+                      name={
+                        draftStatus === 'failed'
+                          ? 'AlertCircle'
+                          : draftStatus === 'manual'
+                            ? 'ListTodo'
+                            : 'AiContentGenerator01'
+                      }
                       className={cn(
-                        'text-xs',
+                        'mt-0.5 size-4 shrink-0',
                         draftStatus === 'failed'
                           ? 'text-destructive'
                           : 'text-muted-foreground'
                       )}
-                    >
-                      {draftStatus === 'failed'
-                        ? `${draftError ?? 'The drafting model failed.'} Review the original prompt below before creating.`
-                        : draftStatus === 'manual'
-                          ? 'Review and edit the prompt below before creating the issue.'
-                        : 'Review and edit the generated ticket before it is created.'}
-                    </p>
-                    {draftStatus === 'failed' || draftStatus === 'manual' ? (
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="ghost"
-                        className="mt-1 -ml-2"
-                        disabled={creating}
-                        onClick={onRegenerate}
+                      aria-hidden="true"
+                    />
+                    <div className="space-y-0.5">
+                      <p className="text-sm font-medium">
+                        {draftStatus === 'failed'
+                          ? 'Repository-aware draft unavailable'
+                          : draftStatus === 'manual'
+                            ? 'Using the original prompt'
+                            : 'Drafted with repository context'}
+                      </p>
+                      <p
+                        className={cn(
+                          'text-xs',
+                          draftStatus === 'failed'
+                            ? 'text-destructive'
+                            : 'text-muted-foreground'
+                        )}
                       >
-                        <Icon
-                          name="ArrowReloadHorizontal"
-                          className="size-3.5"
-                        />
-                        Try repository draft again
-                      </Button>
-                    ) : null}
+                        {draftStatus === 'failed'
+                          ? `${draftError ?? 'The drafting model failed.'} Review the original prompt below before creating.`
+                          : draftStatus === 'manual'
+                            ? 'Review and edit the prompt below before creating the issue.'
+                            : 'Review and edit the generated ticket before it is created.'}
+                      </p>
+                      {draftStatus === 'failed' || draftStatus === 'manual' ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="ghost"
+                          className="mt-1 -ml-2"
+                          disabled={creating}
+                          onClick={() => {
+                            if (props.mode === 'composer-assisted') {
+                              props.onRegenerate();
+                            }
+                          }}
+                        >
+                          <Icon
+                            name="ArrowReloadHorizontal"
+                            className="size-3.5"
+                          />
+                          Try repository draft again
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
-                </div>
+                ) : null}
 
                 <div className="grid gap-1.5">
                   <label
@@ -876,6 +1231,123 @@ function CreateIssueDialog({
                     Markdown is supported by GitHub and Linear. Jira receives formatted text.
                   </p>
                 </div>
+
+                <div className="flex flex-wrap items-center gap-1.5 border-t border-border-hairline pt-3">
+                  {metadataLoading ? (
+                    <>
+                      <Skeleton className="h-8 w-20 rounded-lg" />
+                      <Skeleton className="h-8 w-24 rounded-lg" />
+                      <Skeleton className="h-8 w-20 rounded-lg" />
+                    </>
+                  ) : metadata ? (
+                    <>
+                      {metadata.statusOptions.length > 0 ? (
+                        <IssuePropertySelect
+                          icon="Circle"
+                          label="Status"
+                          value={statusId}
+                          options={metadata.statusOptions}
+                          onChange={setStatusId}
+                          disabled={creating}
+                        />
+                      ) : null}
+                      {metadata.assigneeOptions.length > 0 ? (
+                        <IssuePropertySelect
+                          icon="UserRound"
+                          label="Assignee"
+                          value={assigneeId}
+                          options={metadata.assigneeOptions}
+                          onChange={setAssigneeId}
+                          disabled={creating}
+                        />
+                      ) : null}
+                      {metadata.priorityOptions.length > 0 ? (
+                        <IssuePropertySelect
+                          icon="ChartColumn"
+                          label="Priority"
+                          value={priorityId}
+                          options={metadata.priorityOptions}
+                          onChange={setPriorityId}
+                          disabled={creating}
+                        />
+                      ) : null}
+                      {metadata.labelOptions.length > 0 ? (
+                        <IssueLabelsSelect
+                          options={metadata.labelOptions}
+                          values={labelIds}
+                          onChange={setLabelIds}
+                          disabled={creating}
+                        />
+                      ) : null}
+                      {metadata.supportsDueDate ? (
+                        <label className="flex h-8 items-center gap-1.5 rounded-lg border border-border bg-background px-2.5 text-xs font-medium focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-1">
+                          <Icon
+                            name="Calendar"
+                            className="size-3.5 text-muted-foreground"
+                          />
+                          <span className="sr-only">Due date</span>
+                          <input
+                            type="date"
+                            value={dueDate}
+                            disabled={creating}
+                            aria-label="Due date"
+                            className="w-[7.3rem] border-0 bg-transparent p-0 text-xs outline-none disabled:opacity-60"
+                            onChange={event => setDueDate(event.target.value)}
+                          />
+                        </label>
+                      ) : null}
+                      {metadata.milestoneOptions.length > 0 ? (
+                        <IssuePropertySelect
+                          icon="Target"
+                          label="Milestone"
+                          value={milestoneId}
+                          options={metadata.milestoneOptions}
+                          onChange={setMilestoneId}
+                          disabled={creating}
+                        />
+                      ) : null}
+                      {metadata.issueTypeOptions.length > 0 ? (
+                        <IssuePropertySelect
+                          icon="Ticket"
+                          label="Issue type"
+                          value={issueType || null}
+                          options={metadata.issueTypeOptions}
+                          onChange={value => setIssueType(value ?? '')}
+                          disabled={creating}
+                        />
+                      ) : null}
+                    </>
+                  ) : null}
+                  {metadataError ? (
+                    <div
+                      id={metadataErrorId}
+                      role="alert"
+                      className="flex min-w-0 items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-destructive"
+                    >
+                      <Icon
+                        name="AlertCircle"
+                        className="mt-0.5 size-3.5 shrink-0"
+                        aria-hidden="true"
+                      />
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <p className="text-xs font-medium">
+                          Couldn&apos;t load creation options
+                        </p>
+                        <p className="break-words text-xs">{metadataError}</p>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 shrink-0 px-2 text-xs"
+                        disabled={metadataLoading}
+                        onClick={() => setMetadataRevision(value => value + 1)}
+                      >
+                        {metadataLoading ? 'Retrying…' : 'Retry'}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
               </>
             )}
 
@@ -895,7 +1367,12 @@ function CreateIssueDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" size="sm" disabled={!canSubmit || creating}>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!canSubmit || creating}
+                aria-describedby={metadataError ? metadataErrorId : undefined}
+              >
                 {creating ? 'Creating…' : `Create ${sourceName(context.source)} issue`}
               </Button>
             </DialogFooter>
@@ -903,6 +1380,64 @@ function CreateIssueDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function DirectCreateIssueAction({
+  projectId,
+  variant
+}: {
+  projectId: string | null;
+  variant: 'labeled' | 'icon';
+}) {
+  const [launchProjectId, setLaunchProjectId] = useState<string | null>(null);
+  const open = launchProjectId !== null;
+  const label = projectId
+    ? 'Create a new Taskboard issue'
+    : 'Choose a BB project before creating an issue';
+  const button = (
+    <Button
+      type="button"
+      variant={variant === 'labeled' ? 'outline' : 'ghost'}
+      size={variant === 'labeled' ? 'sm' : 'icon'}
+      className={cn(
+        variant === 'icon' &&
+          'size-9 shrink-0 focus-visible:ring-2 focus-visible:ring-ring'
+      )}
+      aria-label={label}
+      disabled={!projectId}
+      onClick={() => {
+        if (projectId) setLaunchProjectId(projectId);
+      }}
+    >
+      <Icon
+        name={variant === 'labeled' ? 'Ticket' : 'Plus'}
+        className="size-4"
+      />
+      {variant === 'labeled' ? 'New issue' : null}
+    </Button>
+  );
+  return (
+    <>
+      {variant === 'icon' ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent>{label}</TooltipContent>
+        </Tooltip>
+      ) : (
+        button
+      )}
+      {launchProjectId ? (
+        <CreateIssueDialog
+          mode="direct"
+          projectId={launchProjectId}
+          open={open}
+          onOpenChange={nextOpen => {
+            if (!nextOpen) setLaunchProjectId(null);
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -968,6 +1503,7 @@ function ComposerCreateIssueAction() {
         </Tooltip>
         {draftSession ? (
           <CreateIssueDialog
+            mode="composer-assisted"
             projectId={projectId}
             open={open}
             onOpenChange={setOpen}
@@ -1158,20 +1694,49 @@ function formatUpdatedAt(value: string): string {
   }).format(new Date(timestamp));
 }
 
-function StateDot({
+function WorkStateGlyph({
   category,
-  status
+  className = 'size-4'
 }: {
   category: WorkStateCategory;
-  status?: string;
+  className?: string;
 }) {
+  const common = {
+    fill: 'none',
+    stroke: 'currentColor',
+    strokeLinecap: 'round' as const,
+    strokeLinejoin: 'round' as const,
+    strokeWidth: 1.5
+  };
   return (
-    <span
-      aria-hidden
+    <svg
+      aria-hidden="true"
       data-state-category={category}
-      data-status-tone={status ? workflowStatusTone(status, category) : undefined}
-      className="tb-state-dot size-3 shrink-0 rounded-full border-2"
-    />
+      data-taskboard-state-glyph={category}
+      className={cn('tb-state-glyph shrink-0', className)}
+      viewBox="0 0 16 16"
+    >
+      {category === 'backlog' ? (
+        <circle {...common} cx="8" cy="8" r="5.25" strokeDasharray="1.6 2.1" />
+      ) : category === 'todo' ? (
+        <circle {...common} cx="8" cy="8" r="5.25" />
+      ) : category === 'in_progress' ? (
+        <>
+          <circle {...common} cx="8" cy="8" r="5.25" opacity="0.35" />
+          <path {...common} d="M8 2.75a5.25 5.25 0 0 1 0 10.5" strokeWidth="2" />
+        </>
+      ) : category === 'done' ? (
+        <>
+          <circle {...common} cx="8" cy="8" r="5.25" />
+          <path {...common} d="m5.35 8.05 1.7 1.75 3.65-3.7" />
+        </>
+      ) : (
+        <>
+          <circle {...common} cx="8" cy="8" r="5.25" />
+          <path {...common} d="m5.1 10.9 5.8-5.8" />
+        </>
+      )}
+    </svg>
   );
 }
 
@@ -1581,6 +2146,16 @@ function toggled<T>(values: readonly T[], value: T, checked: boolean): T[] {
   return values.filter(candidate => candidate !== value);
 }
 
+function sameStringValues(
+  left: readonly string[],
+  right: readonly string[]
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
 function FilterChip({
   icon,
   label,
@@ -1604,7 +2179,7 @@ function FilterChip({
             active ? 'text-foreground' : 'hover:text-foreground'
           )}
         >
-          <Icon name={icon} className="size-3" />
+          <Icon name={icon} className="size-3 shrink-0" aria-hidden="true" />
           {label}
           {active ? (
             <span className="max-w-40 truncate font-medium @max-md:max-w-24">
@@ -1617,6 +2192,104 @@ function FilterChip({
         {children}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function FilterSectionLabel({ filter }: { filter: FilterPresentationKey }) {
+  const presentation = FILTER_PRESENTATION[filter];
+  return (
+    <DropdownMenuLabel className="flex items-center gap-1.5">
+      <Icon
+        name={presentation.icon}
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <span>{presentation.label}</span>
+    </DropdownMenuLabel>
+  );
+}
+
+function TrackerSearchInput({
+  query,
+  onQueryChange,
+  className
+}: {
+  query: string;
+  onQueryChange: (query: string) => void;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn(
+        'tb-search-shell relative min-w-40 flex-1 rounded-md',
+        className
+      )}
+    >
+      <Icon
+        name="Search"
+        className="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground"
+      />
+      <Input
+        name="work-item-search"
+        value={query}
+        maxLength={MAX_BROWSE_QUERY_LENGTH}
+        onChange={event => onQueryChange(event.target.value)}
+        aria-label="Search work items"
+        placeholder="Search key or title"
+        className="tb-search-input h-7 w-full pl-7 text-xs max-md:pointer-coarse:h-10"
+      />
+    </div>
+  );
+}
+
+function TrackerViewToggle({
+  view,
+  onViewChange,
+  constrained = false,
+  className
+}: {
+  view: TrackerView;
+  onViewChange: (view: TrackerView) => void;
+  constrained?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      role="group"
+      aria-label="Work view"
+      className={cn(
+        'tb-view-toggle flex rounded-md p-0.5',
+        constrained ? 'min-w-0 flex-1' : 'shrink-0',
+        className
+      )}
+    >
+      {(['list', 'kanban'] as const).map(option => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={view === option}
+          data-active={view === option ? 'true' : 'false'}
+          onClick={() => onViewChange(option)}
+          className={cn(
+            'tb-view-toggle-option flex h-6 items-center gap-1.5 rounded px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:pointer-coarse:h-9',
+            constrained && 'min-w-0 flex-1 justify-center gap-0 overflow-hidden px-2',
+            view === option
+              ? 'text-foreground shadow-2xs'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          {!constrained ? (
+            <Icon
+              name={option === 'list' ? 'ListView' : 'Columns2'}
+              className="size-3.5"
+            />
+          ) : null}
+          <span className={cn(constrained && 'truncate')}>
+            {option === 'list' ? 'List' : 'Kanban'}
+          </span>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -1636,6 +2309,7 @@ function TrackerFilterBar({
   labelOptions,
   query,
   view,
+  surfaceMode,
   showSourceFilter,
   showViewToggle,
   onSourceChange,
@@ -1664,6 +2338,7 @@ function TrackerFilterBar({
   labelOptions: readonly FilterOption[];
   query: string;
   view: TrackerView;
+  surfaceMode: 'full' | 'constrained';
   showSourceFilter: boolean;
   showViewToggle: boolean;
   onSourceChange: (source: SourceFilter) => void;
@@ -1692,20 +2367,339 @@ function TrackerFilterBar({
     options: readonly FilterOption[]
   ) =>
     selected.map(
-      value => options.find(option => option.value === value)?.label ?? value
+      value =>
+        options.find(option =>
+          isFilterOptionSelected([value], option.value)
+        )?.label ?? value
     );
+  const [facetQuery, setFacetQuery] = useState('');
+  const facetSearchRef = useRef<HTMLInputElement>(null);
+  const normalizedFacetQuery = facetQuery.trim().toLocaleLowerCase();
+  const matchesFacet = (label: string) =>
+    normalizedFacetQuery === '' ||
+    label.toLocaleLowerCase().includes(normalizedFacetQuery);
+  const filteredOptions = (options: readonly FilterOption[]) =>
+    options.filter(option => matchesFacet(option.label));
+  const matchingFacetValueCount =
+    (showSourceFilter
+      ? ([ALL_SOURCES, 'linear', 'github', 'jira'] as const).filter(option =>
+          matchesFacet(
+            option === ALL_SOURCES ? 'All sources' : sourceName(option)
+          )
+        ).length
+      : 0) +
+    (enabledFilters.includes('state')
+      ? STATE_CATEGORY_ORDER.filter(category =>
+          matchesFacet(STATE_CATEGORY_LABELS[category])
+        ).length
+      : 0) +
+    (enabledFilters.includes('status') ? filteredOptions(statusOptions).length : 0) +
+    (enabledFilters.includes('assignee')
+      ? filteredOptions(assigneeOptions).length
+      : 0) +
+    (enabledFilters.includes('priority')
+      ? filteredOptions(priorityOptions).length
+      : 0) +
+    (enabledFilters.includes('project')
+      ? filteredOptions(projectOptions).length
+      : 0) +
+    (enabledFilters.includes('labels') ? filteredOptions(labelOptions).length : 0);
+  const hasMatchingFacetValues =
+    normalizedFacetQuery === '' || matchingFacetValueCount > 0;
+  const activeFacetCount = [
+    showSourceFilter && source !== ALL_SOURCES,
+    enabledFilters.includes('state') && stateCategories.length > 0,
+    enabledFilters.includes('status') && statuses.length > 0,
+    enabledFilters.includes('assignee') && assignees.length > 0,
+    enabledFilters.includes('priority') && priorities.length > 0,
+    enabledFilters.includes('project') && externalProjects.length > 0,
+    enabledFilters.includes('labels') && labels.length > 0
+  ].filter(Boolean).length;
+
+  if (surfaceMode === 'constrained') {
+    return (
+      <div
+        role="search"
+        aria-label="Filter work items"
+        data-taskboard-filter-mode="constrained"
+        className="tb-filter-bar grid shrink-0 gap-1.5 border-b px-2 py-1.5"
+      >
+        <TrackerSearchInput query={query} onQueryChange={onQueryChange} />
+        <div className="flex items-center justify-between gap-2">
+          {showViewToggle ? (
+            <TrackerViewToggle
+              view={view}
+              onViewChange={onViewChange}
+              constrained
+            />
+          ) : (
+            <span />
+          )}
+          <DropdownMenu
+            onOpenChange={open => {
+              if (!open) setFacetQuery('');
+            }}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="tb-filter-chip h-7 min-w-0 shrink-0 gap-1.5 px-2 text-xs max-md:pointer-coarse:h-10"
+                data-active={activeFacetCount > 0 ? 'true' : 'false'}
+                aria-label={`Filters, ${activeFacetCount} active filter ${activeFacetCount === 1 ? 'category' : 'categories'}`}
+              >
+                <Icon name="SlidersHorizontal" className="size-3.5" />
+                <span className="truncate">
+                  Filters{activeFacetCount > 0 ? ` · ${activeFacetCount}` : ''}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="flex max-h-[var(--radix-dropdown-menu-content-available-height)] w-72 flex-col overflow-hidden p-0"
+              onOpenAutoFocus={event => {
+                event.preventDefault();
+                window.requestAnimationFrame(() => facetSearchRef.current?.focus());
+              }}
+            >
+              <div className="z-10 shrink-0 space-y-2 border-b border-border bg-popover p-2">
+                <p className="text-xs font-medium">
+                  {activeFacetCount > 0
+                    ? `${activeFacetCount} active filter ${activeFacetCount === 1 ? 'category' : 'categories'}`
+                    : 'Filter this project'}
+                </p>
+                <Input
+                  ref={facetSearchRef}
+                  value={facetQuery}
+                  onChange={event => setFacetQuery(event.target.value)}
+                  onKeyDown={event => {
+                    if (
+                      event.key !== 'Escape' &&
+                      event.key !== 'ArrowDown' &&
+                      event.key !== 'ArrowUp'
+                    ) {
+                      event.stopPropagation();
+                    }
+                  }}
+                  aria-label="Search filter values"
+                  placeholder="Find assignees, labels, statuses…"
+                  className="h-8 text-xs"
+                />
+              </div>
+
+              <div
+                data-taskboard-filter-values
+                className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto py-1"
+              >
+                {!hasMatchingFacetValues ? (
+                  <p
+                    role="status"
+                    className="px-3 py-5 text-center text-xs text-muted-foreground"
+                  >
+                    No matching values
+                  </p>
+                ) : (
+                  <>
+                {showSourceFilter ? (
+                  <>
+                    <FilterSectionLabel filter="source" />
+                    {([ALL_SOURCES, 'linear', 'github', 'jira'] as const)
+                      .filter(option =>
+                        matchesFacet(
+                          option === ALL_SOURCES
+                            ? 'All sources'
+                            : sourceName(option)
+                        )
+                      )
+                      .map(option => (
+                        <DropdownMenuCheckboxItem
+                          key={option}
+                          checked={source === option}
+                          onSelect={keepOpen}
+                          onCheckedChange={checked => {
+                            if (checked === true) onSourceChange(option);
+                          }}
+                        >
+                          {option === ALL_SOURCES
+                            ? 'All sources'
+                            : sourceName(option)}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('state') ? (
+                  <>
+                    <FilterSectionLabel filter="state" />
+                    {STATE_CATEGORY_ORDER.filter(category =>
+                      matchesFacet(STATE_CATEGORY_LABELS[category])
+                    ).map(category => (
+                      <DropdownMenuCheckboxItem
+                        key={category}
+                        checked={stateCategories.includes(category)}
+                        onSelect={keepOpen}
+                        onCheckedChange={checked =>
+                          onStateCategoriesChange(
+                            toggled(stateCategories, category, checked === true)
+                          )
+                        }
+                      >
+                        <WorkStateGlyph category={category} />
+                        {STATE_CATEGORY_LABELS[category]}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('status') ? (
+                  <>
+                    <FilterSectionLabel filter="status" />
+                    {filteredOptions(statusOptions).map(option => (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={isFilterOptionSelected(statuses, option.value)}
+                        onSelect={keepOpen}
+                        onCheckedChange={() =>
+                          onStatusesChange(
+                            toggleFilterOptionSelection(statuses, option.value)
+                          )
+                        }
+                      >
+                        {option.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('assignee') ? (
+                  <>
+                    <FilterSectionLabel filter="assignee" />
+                    {filteredOptions(assigneeOptions).map(option => (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={isFilterOptionSelected(assignees, option.value)}
+                        onSelect={keepOpen}
+                        onCheckedChange={() =>
+                          onAssigneesChange(
+                            toggleFilterOptionSelection(assignees, option.value)
+                          )
+                        }
+                      >
+                        {option.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('priority') ? (
+                  <>
+                    <FilterSectionLabel filter="priority" />
+                    {filteredOptions(priorityOptions).map(option => (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={isFilterOptionSelected(priorities, option.value)}
+                        onSelect={keepOpen}
+                        onCheckedChange={() =>
+                          onPrioritiesChange(
+                            toggleFilterOptionSelection(priorities, option.value)
+                          )
+                        }
+                      >
+                        {option.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('project') ? (
+                  <>
+                    <FilterSectionLabel filter="project" />
+                    {filteredOptions(projectOptions).map(option => (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={isFilterOptionSelected(
+                          externalProjects,
+                          option.value
+                        )}
+                        onSelect={keepOpen}
+                        onCheckedChange={() =>
+                          onExternalProjectsChange(
+                            toggleFilterOptionSelection(
+                              externalProjects,
+                              option.value
+                            )
+                          )
+                        }
+                      >
+                        {option.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </>
+                ) : null}
+
+                {enabledFilters.includes('labels') ? (
+                  <>
+                    <FilterSectionLabel filter="labels" />
+                    {filteredOptions(labelOptions).map(option => (
+                      <DropdownMenuCheckboxItem
+                        key={option.value}
+                        checked={isFilterOptionSelected(labels, option.value)}
+                        onSelect={keepOpen}
+                        onCheckedChange={() =>
+                          onLabelsChange(
+                            toggleFilterOptionSelection(labels, option.value)
+                          )
+                        }
+                      >
+                        {option.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </>
+                ) : null}
+                  </>
+                )}
+              </div>
+
+              <DropdownMenuItem
+                disabled={!filtered}
+                onSelect={onClear}
+                className="shrink-0 border-t border-border bg-popover font-medium"
+              >
+                <Icon name="X" className="size-3.5" />
+                Clear filters
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       role="search"
       aria-label="Filter work items"
-      className="tb-filter-bar flex shrink-0 flex-wrap items-center gap-1.5 border-b px-2 py-1.5"
+      data-taskboard-filter-mode="full"
+      className="tb-filter-bar shrink-0 border-b"
     >
-      <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-px">
+      <div
+        className={cn(
+          'mx-auto flex w-full flex-wrap items-center gap-1.5 px-2 py-1.5',
+          (view === 'list' || !showViewToggle) && 'max-w-[56rem]'
+        )}
+      >
+        <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-px">
         {showSourceFilter ? (
           <FilterChip
-            icon="GitBranch"
-            label="Source"
+            icon={FILTER_PRESENTATION.source.icon}
+            label={FILTER_PRESENTATION.source.label}
             selectedNames={source === ALL_SOURCES ? [] : [sourceName(source)]}
           >
             {([ALL_SOURCES, 'linear', 'github', 'jira'] as const).map(
@@ -1726,8 +2720,8 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('state') ? (
           <FilterChip
-            icon="Circle"
-            label="State group"
+            icon={FILTER_PRESENTATION.state.icon}
+            label={FILTER_PRESENTATION.state.label}
             selectedNames={stateCategories.map(
               category => STATE_CATEGORY_LABELS[category]
             )}
@@ -1744,7 +2738,7 @@ function TrackerFilterBar({
                 }
               >
                 <span className="flex items-center gap-2">
-                  <StateDot category={category} />
+                  <WorkStateGlyph category={category} />
                   {STATE_CATEGORY_LABELS[category]}
                 </span>
               </DropdownMenuCheckboxItem>
@@ -1754,18 +2748,18 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('status') ? (
           <FilterChip
-            icon="Workflow"
-            label="Status"
+            icon={FILTER_PRESENTATION.status.icon}
+            label={FILTER_PRESENTATION.status.label}
             selectedNames={selectedNames(statuses, statusOptions)}
           >
             {statusOptions.map(option => (
               <DropdownMenuCheckboxItem
                 key={option.value}
-                checked={statuses.includes(option.value)}
+                checked={isFilterOptionSelected(statuses, option.value)}
                 onSelect={keepOpen}
-                onCheckedChange={checked =>
+                onCheckedChange={() =>
                   onStatusesChange(
-                    toggled(statuses, option.value, checked === true)
+                    toggleFilterOptionSelection(statuses, option.value)
                   )
                 }
               >
@@ -1777,18 +2771,18 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('assignee') ? (
           <FilterChip
-            icon="UserRound"
-            label="Assignee"
+            icon={FILTER_PRESENTATION.assignee.icon}
+            label={FILTER_PRESENTATION.assignee.label}
             selectedNames={selectedNames(assignees, assigneeOptions)}
           >
             {assigneeOptions.map(option => (
               <DropdownMenuCheckboxItem
                 key={option.value}
-                checked={assignees.includes(option.value)}
+                checked={isFilterOptionSelected(assignees, option.value)}
                 onSelect={keepOpen}
-                onCheckedChange={checked =>
+                onCheckedChange={() =>
                   onAssigneesChange(
-                    toggled(assignees, option.value, checked === true)
+                    toggleFilterOptionSelection(assignees, option.value)
                   )
                 }
               >
@@ -1800,18 +2794,18 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('priority') ? (
           <FilterChip
-            icon="AlertCircle"
-            label="Priority"
+            icon={FILTER_PRESENTATION.priority.icon}
+            label={FILTER_PRESENTATION.priority.label}
             selectedNames={selectedNames(priorities, priorityOptions)}
           >
             {priorityOptions.map(option => (
               <DropdownMenuCheckboxItem
                 key={option.value}
-                checked={priorities.includes(option.value)}
+                checked={isFilterOptionSelected(priorities, option.value)}
                 onSelect={keepOpen}
-                onCheckedChange={checked =>
+                onCheckedChange={() =>
                   onPrioritiesChange(
-                    toggled(priorities, option.value, checked === true)
+                    toggleFilterOptionSelection(priorities, option.value)
                   )
                 }
               >
@@ -1823,18 +2817,24 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('project') ? (
           <FilterChip
-            icon="Folder"
-            label="Project"
+            icon={FILTER_PRESENTATION.project.icon}
+            label={FILTER_PRESENTATION.project.label}
             selectedNames={selectedNames(externalProjects, projectOptions)}
           >
             {projectOptions.map(option => (
               <DropdownMenuCheckboxItem
                 key={option.value}
-                checked={externalProjects.includes(option.value)}
+                checked={isFilterOptionSelected(
+                  externalProjects,
+                  option.value
+                )}
                 onSelect={keepOpen}
-                onCheckedChange={checked =>
+                onCheckedChange={() =>
                   onExternalProjectsChange(
-                    toggled(externalProjects, option.value, checked === true)
+                    toggleFilterOptionSelection(
+                      externalProjects,
+                      option.value
+                    )
                   )
                 }
               >
@@ -1846,18 +2846,18 @@ function TrackerFilterBar({
 
         {enabledFilters.includes('labels') ? (
           <FilterChip
-            icon="Layers"
-            label="Labels"
+            icon={FILTER_PRESENTATION.labels.icon}
+            label={FILTER_PRESENTATION.labels.label}
             selectedNames={selectedNames(labels, labelOptions)}
           >
             {labelOptions.map(option => (
               <DropdownMenuCheckboxItem
                 key={option.value}
-                checked={labels.includes(option.value)}
+                checked={isFilterOptionSelected(labels, option.value)}
                 onSelect={keepOpen}
-                onCheckedChange={checked =>
+                onCheckedChange={() =>
                   onLabelsChange(
-                    toggled(labels, option.value, checked === true)
+                    toggleFilterOptionSelection(labels, option.value)
                   )
                 }
               >
@@ -1867,60 +2867,26 @@ function TrackerFilterBar({
           </FilterChip>
         ) : null}
 
-        <div className="tb-search-shell relative min-w-40 flex-1 rounded-md @md:max-w-72">
-          <Icon
-            name="Search"
-            className="pointer-events-none absolute left-2 top-1/2 size-3 -translate-y-1/2 text-muted-foreground"
+          <TrackerSearchInput
+            query={query}
+            onQueryChange={onQueryChange}
+            className="@md:max-w-72"
           />
-          <Input
-            name="work-item-search"
-            value={query}
-            onChange={event => onQueryChange(event.target.value)}
-            aria-label="Search work items"
-            placeholder="Search key or title"
-            className="tb-search-input h-7 w-full pl-7 text-xs max-md:pointer-coarse:h-10"
-          />
+          {filtered ? (
+            <button
+              type="button"
+              onClick={onClear}
+              className="flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-state-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:pointer-coarse:h-10"
+            >
+              <Icon name="X" className="size-3" />
+              Clear filters
+            </button>
+          ) : null}
         </div>
-        {filtered ? (
-          <button
-            type="button"
-            onClick={onClear}
-            className="flex h-7 shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-state-hover hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:pointer-coarse:h-10"
-          >
-            <Icon name="X" className="size-3" />
-            Clear filters
-          </button>
+        {showViewToggle ? (
+          <TrackerViewToggle view={view} onViewChange={onViewChange} />
         ) : null}
       </div>
-      {showViewToggle ? (
-        <div
-          role="group"
-          aria-label="Work view"
-          className="tb-view-toggle flex shrink-0 rounded-md p-0.5"
-        >
-          {(['list', 'kanban'] as const).map(option => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={view === option}
-              data-active={view === option ? 'true' : 'false'}
-              onClick={() => onViewChange(option)}
-              className={cn(
-                'tb-view-toggle-option flex h-6 items-center gap-1.5 rounded px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring max-md:pointer-coarse:h-9',
-                view === option
-                  ? 'text-foreground shadow-2xs'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon
-                name={option === 'list' ? 'ListView' : 'Columns2'}
-                className="size-3.5"
-              />
-              {option === 'list' ? 'List' : 'Kanban'}
-            </button>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -1970,6 +2936,23 @@ function LoadingRows() {
           <Skeleton className="h-3 w-3/5" />
         </div>
       ))}
+    </div>
+  );
+}
+
+function ListMeasure({
+  children,
+  className
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      data-taskboard-list-measure
+      className={cn('mx-auto w-full max-w-[56rem]', className)}
+    >
+      {children}
     </div>
   );
 }
@@ -2042,7 +3025,7 @@ function WorkItemStatusMenu({
         aria-label={`Change status for ${item.key}. Current status: ${item.status}`}
         disabled={pendingStatusId !== null}
       >
-        <StateDot category={item.stateCategory} status={item.status} />
+        <WorkStateGlyph category={item.stateCategory} />
       </Button>
     ) : (
       <Button
@@ -2058,7 +3041,7 @@ function WorkItemStatusMenu({
         )}
         disabled={pendingStatusId !== null}
       >
-        <StateDot category={item.stateCategory} status={item.status} />
+        <WorkStateGlyph category={item.stateCategory} />
         {pendingStatusId === null ? item.status : 'Updating…'}
         <Icon name="ChevronDown" className="size-3 opacity-60" />
       </Button>
@@ -2096,10 +3079,7 @@ function WorkItemStatusMenu({
                 disabled={current || pendingStatusId !== null}
                 onSelect={() => void changeStatus(option)}
               >
-                <StateDot
-                  category={option.stateCategory}
-                  status={option.name}
-                />
+                <WorkStateGlyph category={option.stateCategory} />
                 <span className="min-w-0 flex-1 truncate">{option.name}</span>
                 {current ? <Icon name="Check" className="size-3.5" /> : null}
               </DropdownMenuItem>
@@ -2140,19 +3120,17 @@ function WorkItemRow({
         onClick={onOpen}
         className="absolute inset-0 z-0 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring"
       />
-      <span className="tb-priority-slot pointer-events-none relative z-[1] flex size-4 items-center justify-center">
-        {priority ? <PriorityMark priority={priority} /> : null}
+      <span className="relative z-10 flex items-center justify-center">
+        <WorkItemStatusMenu item={item} variant="row" onMove={onMove} />
       </span>
       <span className="tb-key pointer-events-none relative z-[1] min-w-0 truncate text-xs font-medium tabular-nums">
         {item.key}
       </span>
-      <span className="relative z-10 flex items-center justify-center">
-        <WorkItemStatusMenu item={item} variant="row" onMove={onMove} />
-      </span>
-      <span className="pointer-events-none relative z-[1] min-w-0 truncate text-sm font-medium text-foreground">
+      <span className="pointer-events-none relative z-[1] min-w-0 truncate text-[13px] font-medium text-foreground">
         {item.title}
       </span>
       <span className="tb-row-trailing tb-meta pointer-events-none relative z-[1] flex min-w-0 items-center gap-2 overflow-hidden text-xs">
+        {priority ? <PriorityMark priority={priority} /> : null}
         {showProject && project ? (
           <span className="max-w-28 truncate" title={project.name}>
             {project.name}
@@ -2174,6 +3152,9 @@ function ListStateGroups({
   showProject,
   idPrefix,
   nested = false,
+  collapsedGroups,
+  searchActive,
+  onToggleGroup,
   onMove,
   onOpen
 }: {
@@ -2183,42 +3164,75 @@ function ListStateGroups({
   showProject: boolean;
   idPrefix: string;
   nested?: boolean;
+  collapsedGroups: Readonly<Record<string, boolean>>;
+  searchActive: boolean;
+  onToggleGroup: (
+    groupKey: string,
+    category: WorkStateCategory
+  ) => void;
   onMove: (item: WorkItem, option: WorkStatusOption) => Promise<void>;
   onOpen: (item: WorkItem) => void;
 }) {
-  return workflowStatusGroups(items, statusOrder).map(group => (
-    <section
-      key={group.key}
-      aria-labelledby={`${idPrefix}-state-${encodeURIComponent(group.key)}`}
-    >
-      <h3
-        id={`${idPrefix}-state-${encodeURIComponent(group.key)}`}
-        data-state-group-header={group.name}
-        data-state-category={group.category}
-        data-status-tone={workflowStatusTone(group.name, group.category)}
-        className={cn(
-          'tb-group-heading sticky z-10 flex h-7 items-center gap-2 border-b px-2.5 text-2xs font-semibold uppercase tracking-[0.12em] backdrop-blur-sm',
-          nested ? 'top-9' : 'top-0'
-        )}
-      >
-        <StateDot category={group.category} status={group.name} />
-        {group.name}
-        <span className="text-xs font-normal tabular-nums text-subtle-foreground">
-          {group.items.length}
-        </span>
-      </h3>
-      {group.items.map(item => (
-        <WorkItemRow
-          key={`${item.bbProjectId}:${item.source}:${item.locator}`}
-          item={item}
-          project={projectsById.get(item.bbProjectId)}
-          showProject={showProject}
-          onMove={onMove}
-          onOpen={() => onOpen(item)}
-        />
-      ))}
-    </section>
-  ));
+  return workflowStatusGroups(items, statusOrder).map(group => {
+    const headingId = `${idPrefix}-state-${encodeURIComponent(group.key)}`;
+    const contentId = `${headingId}-items`;
+    const preferenceKey = `${idPrefix}:${group.key}`;
+    const collapsed = isGroupCollapsed({
+      overrides: collapsedGroups,
+      groupKey: preferenceKey,
+      category: group.category,
+      searchActive
+    });
+    return (
+      <section key={group.key} aria-labelledby={headingId}>
+        <h3
+          id={headingId}
+          data-state-group-header={group.name}
+          data-state-category={group.category}
+          data-status-tone={workflowStatusTone(group.name, group.category)}
+          className={cn(
+            'tb-group-heading sticky z-10 h-8 border-b backdrop-blur-sm',
+            nested ? 'top-9' : 'top-0'
+          )}
+        >
+          <button
+            type="button"
+            aria-controls={contentId}
+            aria-expanded={!collapsed}
+            disabled={searchActive}
+            title={searchActive ? 'Search keeps matching groups open' : undefined}
+            className="flex h-full w-full items-center gap-2 px-2.5 text-left text-2xs font-semibold uppercase tracking-[0.12em] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:cursor-default"
+            onClick={() => onToggleGroup(preferenceKey, group.category)}
+          >
+            <Icon
+              name="ChevronDown"
+              className={cn(
+                'size-3 transition-transform',
+                collapsed && '-rotate-90'
+              )}
+            />
+            <WorkStateGlyph category={group.category} />
+            <span className="truncate">{group.name}</span>
+            <span className="tb-count-chip ml-auto rounded-full px-1.5 py-0.5 text-xs font-normal tabular-nums text-subtle-foreground">
+              {group.items.length}
+            </span>
+          </button>
+        </h3>
+        <div id={contentId} hidden={collapsed}>
+          {group.items.map(item => (
+            <WorkItemRow
+              key={`${item.bbProjectId}:${item.source}:${item.locator}`}
+              item={item}
+              project={projectsById.get(item.bbProjectId)}
+              showProject={showProject}
+              onMove={onMove}
+              onOpen={() => onOpen(item)}
+            />
+          ))}
+        </div>
+      </section>
+    );
+  });
 }
 
 function kanbanItemId(item: WorkItem): string {
@@ -2260,16 +3274,6 @@ function priorityTone(value: string): PriorityTone {
     return 'low';
   }
   return 'neutral';
-}
-
-function assigneeInitials(name: string): string {
-  return name
-    .trim()
-    .split(/\s+/u)
-    .slice(0, 2)
-    .map(part => Array.from(part)[0] ?? '')
-    .join('')
-    .toLocaleUpperCase();
 }
 
 function visiblePriority(priority: string | null): string | null {
@@ -2349,11 +3353,17 @@ function PriorityMark({ priority }: { priority: string }) {
 }
 
 function AssigneeMark({ assignee }: { assignee: string }) {
+  const identity = assigneeAvatarIdentity(assignee);
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span aria-hidden="true" className="tb-assignee-mark shrink-0 text-xs">
-          {assigneeInitials(assignee)}
+        <span
+          role="img"
+          aria-label={`Assigned to ${assignee}`}
+          data-assignee-tone={identity.tone}
+          className="tb-assignee-mark shrink-0"
+        >
+          <span aria-hidden="true">{identity.initials}</span>
         </span>
       </TooltipTrigger>
       <TooltipContent side="top">Assigned to {assignee}</TooltipContent>
@@ -2419,7 +3429,7 @@ function KanbanCard({
       </span>
       <span className="mt-1.5 flex items-start gap-1.5">
         <span className="mt-1 flex shrink-0">
-          <StateDot category={item.stateCategory} status={item.status} />
+          <WorkStateGlyph category={item.stateCategory} />
         </span>
         <span className="line-clamp-2 block text-sm font-medium leading-snug text-foreground">
           {item.title}
@@ -2702,7 +3712,7 @@ function KanbanBoard({
         <div
           dir="ltr"
           data-kanban-lanes="ordered"
-          className="ml-0 mr-auto flex min-h-full min-w-max max-w-[110rem] flex-row gap-2.5"
+          className="ml-0 mr-auto flex min-h-full min-w-max flex-row gap-2.5"
         >
           {lanes.map(lane => {
             const columnItems = items.filter(
@@ -2757,7 +3767,7 @@ function KanbanBoard({
                 className="tb-kanban-column flex w-[264px] min-w-[264px] flex-col rounded-lg border border-transparent"
               >
                 <div className="tb-kanban-column-header sticky top-0 z-10 flex h-8 items-center gap-2 px-1">
-                  <StateDot category={lane.category} status={lane.name} />
+                  <WorkStateGlyph category={lane.category} />
                   <h3
                     id={headingId}
                     className="min-w-0 truncate text-xs font-semibold"
@@ -2907,23 +3917,49 @@ function TrackerList({
   projectId,
   projects,
   refreshGeneration,
-  preferenceScope,
-  initialPreferences,
-  onPreferencesChange,
+  surfaceMode,
   onOpen
 }: {
   projectId: string | null;
   projects: readonly TrackerProject[] | undefined;
   refreshGeneration: number;
-  preferenceScope: string;
-  initialPreferences: TrackerBrowsePreferences | undefined;
-  onPreferencesChange: (
-    scope: string,
-    preferences: TrackerBrowsePreferences
-  ) => void;
+  surfaceMode: 'full' | 'constrained';
   onOpen: (item: WorkItem) => void;
 }) {
   const rpc = useRpc<TaskboardRpcContract>();
+  const preferenceScope: BrowsePreferenceScope =
+    projectId === null ? ACROSS_PROJECTS_SCOPE : projectBrowseScope(projectId);
+  const subscribePreferences = useCallback(
+    (listener: () => void) =>
+      browsePreferenceStore.subscribe(preferenceScope, listener),
+    [preferenceScope]
+  );
+  const readPreferences = useCallback(
+    () => browsePreferenceStore.get(preferenceScope),
+    [preferenceScope]
+  );
+  const preferences = useSyncExternalStore(
+    subscribePreferences,
+    readPreferences,
+    readPreferences
+  );
+  const updatePreferences = useCallback(
+    (update: (current: BrowsePreferences) => BrowsePreferences) =>
+      browsePreferenceStore.update(preferenceScope, update),
+    [preferenceScope]
+  );
+  const {
+    source,
+    stateCategories,
+    statuses,
+    assignees,
+    priorities,
+    externalProjects,
+    labels,
+    collapsedGroups,
+    query,
+    view
+  } = preferences;
   const [items, setItems] = useState<WorkItem[] | undefined>();
   const [boardSettings, setBoardSettings] = useState<ProjectBoardSettings>(() =>
     defaultProjectBoardSettings(projectId ?? 'proj_across_projects')
@@ -2931,36 +3967,7 @@ function TrackerList({
   const [boardSettingsReady, setBoardSettingsReady] = useState(
     projectId === null
   );
-  const [source, setSource] = useState<SourceFilter>(
-    projectId === null
-      ? (initialPreferences?.source ?? ALL_SOURCES)
-      : ALL_SOURCES
-  );
-  const [stateCategories, setStateCategories] = useState<WorkStateCategory[]>(
-    initialPreferences?.stateCategories ?? []
-  );
-  const [statuses, setStatuses] = useState<string[]>(
-    initialPreferences?.statuses ?? []
-  );
-  const [assignees, setAssignees] = useState<string[]>(
-    initialPreferences?.assignees ?? []
-  );
-  const [priorities, setPriorities] = useState<string[]>(
-    initialPreferences?.priorities ?? []
-  );
-  const [externalProjects, setExternalProjects] = useState<string[]>(
-    initialPreferences?.externalProjects ?? []
-  );
-  const [labels, setLabels] = useState<string[]>(
-    initialPreferences?.labels ?? []
-  );
-  const [query, setQuery] = useState(initialPreferences?.query ?? '');
-  const [committedQuery, setCommittedQuery] = useState(
-    initialPreferences?.committedQuery ?? ''
-  );
-  const [view, setView] = useState<TrackerView>(
-    initialPreferences?.view ?? 'list'
-  );
+  const [committedQuery, setCommittedQuery] = useState(() => query.trim());
   const [error, setError] = useState<string | null>(null);
   const requestRevisionRef = useRef(0);
   const stateFilterEnabled = boardSettings.enabledFilters.includes('state');
@@ -2978,11 +3985,17 @@ function TrackerList({
       .then(result => {
         if (cancelled) return;
         setBoardSettings(result.settings);
-        if (!initialPreferences) setView(result.settings.defaultView);
+        browsePreferenceStore.seed(preferenceScope, {
+          view: result.settings.defaultView
+        });
       })
       .catch(() => {
         if (cancelled) return;
-        setBoardSettings(defaultProjectBoardSettings(projectId));
+        const defaults = defaultProjectBoardSettings(projectId);
+        setBoardSettings(defaults);
+        browsePreferenceStore.seed(preferenceScope, {
+          view: defaults.defaultView
+        });
       })
       .finally(() => {
         if (!cancelled) setBoardSettingsReady(true);
@@ -2990,9 +4003,10 @@ function TrackerList({
     return () => {
       cancelled = true;
     };
-  }, [initialPreferences, projectId, rpc]);
+  }, [preferenceScope, projectId, rpc]);
 
   const loadItems = useCallback(async () => {
+    if (!boardSettingsReady) return;
     const requestRevision = ++requestRevisionRef.current;
     setError(null);
     try {
@@ -3006,6 +4020,14 @@ function TrackerList({
         limit: 500
       });
       if (requestRevision !== requestRevisionRef.current) return;
+      const provider = result.provider;
+      if (projectId !== null && provider) {
+        browsePreferenceStore.reconcileProvider(
+          projectBrowseScope(projectId),
+          provider,
+          { view: boardSettings.defaultView }
+        );
+      }
       setItems(result.items);
     } catch (nextError) {
       if (requestRevision !== requestRevisionRef.current) return;
@@ -3018,49 +4040,27 @@ function TrackerList({
     source,
     committedQuery,
     stateCategories,
-    stateFilterEnabled
+    stateFilterEnabled,
+    boardSettings.defaultView,
+    boardSettingsReady
   ]);
 
   useEffect(() => {
     void loadItems();
   }, [loadItems, refreshGeneration]);
   useEffect(() => {
-    if (projectId !== null && source !== ALL_SOURCES) setSource(ALL_SOURCES);
-  }, [projectId, source]);
+    if (projectId !== null && source !== ALL_SOURCES) {
+      updatePreferences(current => ({ ...current, source: ALL_SOURCES }));
+    }
+  }, [projectId, source, updatePreferences]);
   useEffect(() => {
+    requestRevisionRef.current += 1;
     const timeout = window.setTimeout(
       () => setCommittedQuery(query.trim()),
       160
     );
     return () => window.clearTimeout(timeout);
   }, [query]);
-  useEffect(() => {
-    onPreferencesChange(preferenceScope, {
-      source,
-      stateCategories,
-      statuses,
-      assignees,
-      priorities,
-      externalProjects,
-      labels,
-      query,
-      committedQuery,
-      view
-    });
-  }, [
-    committedQuery,
-    assignees,
-    externalProjects,
-    labels,
-    onPreferencesChange,
-    preferenceScope,
-    priorities,
-    query,
-    source,
-    stateCategories,
-    statuses,
-    view
-  ]);
   useEffect(
     () => () => {
       requestRevisionRef.current += 1;
@@ -3103,6 +4103,54 @@ function TrackerList({
     () => labelFilterOptions(items ?? [], labels),
     [items, labels]
   );
+  useEffect(() => {
+    updatePreferences(current => {
+      const nextStatuses = canonicalizeSelectedFilterOptions(
+        current.statuses,
+        availableStatuses
+      );
+      const nextAssignees = canonicalizeSelectedFilterOptions(
+        current.assignees,
+        availableAssignees
+      );
+      const nextPriorities = canonicalizeSelectedFilterOptions(
+        current.priorities,
+        availablePriorities
+      );
+      const nextExternalProjects = canonicalizeSelectedFilterOptions(
+        current.externalProjects,
+        availableExternalProjects
+      );
+      const nextLabels = canonicalizeSelectedFilterOptions(
+        current.labels,
+        availableLabels
+      );
+      if (
+        sameStringValues(current.statuses, nextStatuses) &&
+        sameStringValues(current.assignees, nextAssignees) &&
+        sameStringValues(current.priorities, nextPriorities) &&
+        sameStringValues(current.externalProjects, nextExternalProjects) &&
+        sameStringValues(current.labels, nextLabels)
+      ) {
+        return current;
+      }
+      return {
+        ...current,
+        statuses: nextStatuses,
+        assignees: nextAssignees,
+        priorities: nextPriorities,
+        externalProjects: nextExternalProjects,
+        labels: nextLabels
+      };
+    });
+  }, [
+    availableAssignees,
+    availableExternalProjects,
+    availableLabels,
+    availablePriorities,
+    availableStatuses,
+    updatePreferences
+  ]);
   const visibleItems = useMemo(
     () =>
       sortWorkItemsByWorkflow(
@@ -3170,16 +4218,22 @@ function TrackerList({
     (boardSettings.enabledFilters.includes('labels') && labels.length > 0) ||
     committedQuery.trim() !== '';
   const clearFilters = () => {
-    setSource(ALL_SOURCES);
-    setStateCategories([]);
-    setStatuses([]);
-    setAssignees([]);
-    setPriorities([]);
-    setExternalProjects([]);
-    setLabels([]);
-    setQuery('');
+    browsePreferenceStore.clearFilters(preferenceScope);
     setCommittedQuery('');
   };
+  const toggleGroup = useCallback(
+    (groupKey: string, category: WorkStateCategory) => {
+      updatePreferences(current => ({
+        ...current,
+        collapsedGroups: toggleGroupCollapsedOverride(
+          current.collapsedGroups,
+          groupKey,
+          category
+        )
+      }));
+    },
+    [updatePreferences]
+  );
   const moveItemStatus = useCallback(
     async (item: WorkItem, option: WorkStatusOption) => {
       const matches = (candidate: WorkItem) =>
@@ -3221,7 +4275,7 @@ function TrackerList({
 
   const content = (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="tb-frame mx-auto flex h-full min-h-0 w-full max-w-[100rem] flex-col overflow-hidden">
+      <div className="tb-frame flex h-full min-h-0 w-full flex-col overflow-hidden">
         <TrackerFilterBar
           source={projectId === null ? source : ALL_SOURCES}
           enabledFilters={boardSettings.enabledFilters}
@@ -3238,17 +4292,48 @@ function TrackerList({
           labelOptions={availableLabels}
           query={query}
           view={view}
+          surfaceMode={surfaceMode}
           showSourceFilter={projectId === null}
           showViewToggle={projectId !== null}
-          onSourceChange={setSource}
-          onStateCategoriesChange={setStateCategories}
-          onStatusesChange={setStatuses}
-          onAssigneesChange={setAssignees}
-          onPrioritiesChange={setPriorities}
-          onExternalProjectsChange={setExternalProjects}
-          onLabelsChange={setLabels}
-          onQueryChange={setQuery}
-          onViewChange={setView}
+          onSourceChange={nextSource =>
+            updatePreferences(current => ({ ...current, source: nextSource }))
+          }
+          onStateCategoriesChange={nextStateCategories =>
+            updatePreferences(current => ({
+              ...current,
+              stateCategories: nextStateCategories
+            }))
+          }
+          onStatusesChange={nextStatuses =>
+            updatePreferences(current => ({ ...current, statuses: nextStatuses }))
+          }
+          onAssigneesChange={nextAssignees =>
+            updatePreferences(current => ({
+              ...current,
+              assignees: nextAssignees
+            }))
+          }
+          onPrioritiesChange={nextPriorities =>
+            updatePreferences(current => ({
+              ...current,
+              priorities: nextPriorities
+            }))
+          }
+          onExternalProjectsChange={nextExternalProjects =>
+            updatePreferences(current => ({
+              ...current,
+              externalProjects: nextExternalProjects
+            }))
+          }
+          onLabelsChange={nextLabels =>
+            updatePreferences(current => ({ ...current, labels: nextLabels }))
+          }
+          onQueryChange={nextQuery =>
+            updatePreferences(current => ({ ...current, query: nextQuery }))
+          }
+          onViewChange={nextView =>
+            updatePreferences(current => ({ ...current, view: nextView }))
+          }
           onClear={clearFilters}
         />
         <p
@@ -3269,25 +4354,29 @@ function TrackerList({
         </p>
         <div className="min-h-0 flex-1 overflow-y-auto @container">
           {items === undefined || !boardSettingsReady ? (
-            <LoadingRows />
+            <ListMeasure>
+              <LoadingRows />
+            </ListMeasure>
           ) : error ? (
-            <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
-              <Icon name="AlertCircle" className="size-5 text-destructive" />
-              <p className="text-sm font-medium">Could not load work items</p>
-              <p role="alert" className="max-w-md text-sm text-destructive">
-                {error}
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setItems(undefined);
-                  void loadItems();
-                }}
-              >
-                Try again
-              </Button>
-            </div>
+            <ListMeasure className="h-full">
+              <div className="flex h-full flex-col items-center justify-center gap-2 p-6 text-center">
+                <Icon name="AlertCircle" className="size-5 text-destructive" />
+                <p className="text-sm font-medium">Could not load work items</p>
+                <p role="alert" className="max-w-md text-sm text-destructive">
+                  {error}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setItems(undefined);
+                    void loadItems();
+                  }}
+                >
+                  Try again
+                </Button>
+              </div>
+            </ListMeasure>
           ) : projectId !== null && view === 'kanban' ? (
             <KanbanBoard
               key={projectId}
@@ -3298,51 +4387,63 @@ function TrackerList({
               onMove={moveItemStatus}
             />
           ) : visibleItems.length === 0 ? (
-            <EmptyState filtered={filtered} onClear={clearFilters} />
+            <ListMeasure className="h-full">
+              <EmptyState filtered={filtered} onClear={clearFilters} />
+            </ListMeasure>
           ) : projectId === null ? (
-            acrossProjectGroups.map(({ project, items: projectItems }) => (
-              <section
-                key={project.id}
-                aria-labelledby={`project-${project.id}`}
-                className="border-b border-border last:border-b-0"
-              >
-                <h2
-                  id={`project-${project.id}`}
-                  className="tb-project-strip sticky top-0 z-20 flex h-8 items-center gap-2 border-b px-2.5 text-xs font-semibold"
+            <ListMeasure>
+              {acrossProjectGroups.map(({ project, items: projectItems }) => (
+                <section
+                  key={project.id}
+                  aria-labelledby={`project-${project.id}`}
+                  className="border-b border-border last:border-b-0"
                 >
-                  <Icon
-                    name="Folder"
-                    className="size-3.5 text-muted-foreground"
+                  <h2
+                    id={`project-${project.id}`}
+                    className="tb-project-strip sticky top-0 z-20 flex h-8 items-center gap-2 border-b px-2.5 text-xs font-semibold"
+                  >
+                    <Icon
+                      name="Folder"
+                      className="size-3.5 text-muted-foreground"
+                    />
+                    {project.name}
+                    {duplicateProjectNames.has(project.name) ? (
+                      <span className="truncate font-mono text-xs font-normal text-muted-foreground">
+                        {project.id}
+                      </span>
+                    ) : null}
+                  </h2>
+                  <ListStateGroups
+                    items={projectItems}
+                    statusOrder={boardSettings.statusOrder}
+                    projectsById={projectsById}
+                    showProject={false}
+                    idPrefix={project.id}
+                    nested
+                    collapsedGroups={collapsedGroups}
+                    searchActive={committedQuery.trim() !== ''}
+                    onToggleGroup={toggleGroup}
+                    onMove={moveItemStatus}
+                    onOpen={onOpen}
                   />
-                  {project.name}
-                  {duplicateProjectNames.has(project.name) ? (
-                    <span className="truncate font-mono text-xs font-normal text-muted-foreground">
-                      {project.id}
-                    </span>
-                  ) : null}
-                </h2>
-                <ListStateGroups
-                  items={projectItems}
-                  statusOrder={boardSettings.statusOrder}
-                  projectsById={projectsById}
-                  showProject={false}
-                  idPrefix={project.id}
-                  nested
-                  onMove={moveItemStatus}
-                  onOpen={onOpen}
-                />
-              </section>
-            ))
+                </section>
+              ))}
+            </ListMeasure>
           ) : (
-            <ListStateGroups
-              items={visibleItems}
-              statusOrder={boardSettings.statusOrder}
-              projectsById={projectsById}
-              showProject={false}
-              idPrefix={projectId ?? 'selected-project'}
-              onMove={moveItemStatus}
-              onOpen={onOpen}
-            />
+            <ListMeasure>
+              <ListStateGroups
+                items={visibleItems}
+                statusOrder={boardSettings.statusOrder}
+                projectsById={projectsById}
+                showProject={false}
+                idPrefix={projectId ?? 'selected-project'}
+                collapsedGroups={collapsedGroups}
+                searchActive={committedQuery.trim() !== ''}
+                onToggleGroup={toggleGroup}
+                onMove={moveItemStatus}
+                onOpen={onOpen}
+              />
+            </ListMeasure>
           )}
         </div>
       </div>
@@ -3484,20 +4585,12 @@ function TrackerDetail({
     );
   }
 
-  const prompt = [
-    `Work on ${sourceName(item.source)} issue ${item.key}: ${item.title}`,
-    '',
-    `External issue: ${item.url}`,
-    `BB project: ${item.bbProjectId}`,
-    `Status: ${item.status}`,
-    '',
-    item.description
-  ].join('\n');
+  const prompt = formatWorkItemHandoffPrompt(item);
 
   return (
-    <div className="@container flex min-h-full flex-col p-3">
-      <div className="tb-detail-frame flex flex-1 items-stretch rounded-lg border">
-        <article className="mx-auto w-full min-w-0 max-w-[55rem] flex-1 px-7 pb-16 pt-8 @3xl:px-13 @3xl:pt-11">
+    <div className="@container flex min-h-full flex-col">
+      <div className="tb-detail-frame flex flex-1 items-stretch">
+        <article className="mx-auto w-full min-w-0 max-w-[52rem] flex-1 px-5 pb-16 pt-7 @3xl:px-10 @3xl:pt-10">
           <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <span className="font-medium tabular-nums">{item.key}</span>
             <WorkItemStatusMenu
@@ -3535,7 +4628,7 @@ function TrackerDetail({
 
           <DetailMetadata
             item={item}
-            className="tb-detail-meta mt-5 rounded-lg border p-4 @[45rem]:hidden"
+            className="tb-detail-meta mt-5 border-y py-4 @[45rem]:hidden"
           />
 
           {item.labels.length > 0 ? (
@@ -3560,22 +4653,26 @@ function TrackerDetail({
           </section>
 
           {item.comments.length > 0 ? (
-            <section className="mt-8 space-y-3">
-              <h2 className="text-sm font-semibold">Comments</h2>
-              {item.comments.map((comment, index) => (
-                <article
-                  key={`${comment.author}:${comment.createdAt}:${index}`}
-                  className="tb-comment-card rounded-lg border p-4"
-                >
-                  <div className="mb-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
-                    <span className="font-medium text-foreground">
-                      {comment.author}
-                    </span>
-                    <time>{formatUpdatedAt(comment.createdAt)}</time>
-                  </div>
-                  <Markdown content={comment.body} />
-                </article>
-              ))}
+            <section className="tb-comment-rail mt-8 border-t pt-5">
+              <h2 className="mb-1 text-sm font-semibold">
+                Comments <span className="text-muted-foreground">{item.comments.length}</span>
+              </h2>
+              <div className="ml-2">
+                {item.comments.map((comment, index) => (
+                  <article
+                    key={`${comment.author}:${comment.createdAt}:${index}`}
+                    className="tb-comment-entry relative py-4 pl-6"
+                  >
+                    <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {comment.author}
+                      </span>
+                      <time>{formatUpdatedAt(comment.createdAt)}</time>
+                    </div>
+                    <Markdown content={comment.body} />
+                  </article>
+                ))}
+              </div>
             </section>
           ) : null}
         </article>
@@ -4282,7 +5379,14 @@ function ProjectBoardSettingsForm({
                 }}
               />
               <span className="min-w-0">
-                <span className="block text-sm font-medium">{option.label}</span>
+                <span className="flex items-center gap-1.5 text-sm font-medium">
+                  <Icon
+                    name={option.icon}
+                    className="size-3.5 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <span>{option.label}</span>
+                </span>
                 <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
                   {option.description}
                 </span>
@@ -4525,9 +5629,6 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
   const [refreshGeneration, setRefreshGeneration] = useState(0);
   const projectsRequestRevisionRef = useRef(0);
   const handledContextSelectionRef = useRef<string | null>(null);
-  const browsePreferencesRef = useRef(
-    new Map<string, TrackerBrowsePreferences>()
-  );
   const lastBrowseRouteRef = useRef<Extract<
     TrackerRoute,
     { kind: 'all' | 'project' }
@@ -4564,13 +5665,6 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
       return null;
     }
   }, [rpc]);
-  const rememberBrowsePreferences = useCallback(
-    (scope: string, preferences: TrackerBrowsePreferences) => {
-      browsePreferencesRef.current.set(scope, preferences);
-    },
-    []
-  );
-
   useEffect(() => {
     void loadProjects();
     return () => {
@@ -4765,16 +5859,13 @@ function TaskboardPanel({ subPath }: PluginNavPanelProps) {
         : route.kind === 'root'
           ? preferredProjectId
           : null;
-    const preferenceScope = projectId ?? 'across-projects';
     outlet = (
       <TrackerList
         key={projectId ?? 'all'}
         projectId={projectId}
         projects={projects}
         refreshGeneration={refreshGeneration}
-        preferenceScope={preferenceScope}
-        initialPreferences={browsePreferencesRef.current.get(preferenceScope)}
-        onPreferencesChange={rememberBrowsePreferences}
+        surfaceMode={narrow ? 'constrained' : 'full'}
         onOpen={item =>
           go({
             kind: 'item',
@@ -4851,7 +5942,6 @@ function TaskboardRightPanel({
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const [refreshGeneration, setRefreshGeneration] = useState(0);
   const [pinned, setPinned] = useState(loadRightPanelPinned);
-  const preferencesRef = useRef(new Map<string, TrackerBrowsePreferences>());
 
   useEffect(() => {
     setItemRoute(null);
@@ -4869,13 +5959,6 @@ function TaskboardRightPanel({
       window.removeEventListener('storage', syncStoredPin);
     };
   }, []);
-
-  const rememberPreferences = useCallback(
-    (scope: string, preferences: TrackerBrowsePreferences) => {
-      preferencesRef.current.set(scope, preferences);
-    },
-    []
-  );
 
   const refresh = async () => {
     if (!projectId || refreshing) return;
@@ -4932,6 +6015,12 @@ function TaskboardRightPanel({
                 : 'Choose a BB project'}
             </p>
           </div>
+          {!activeItemRoute ? (
+            <DirectCreateIssueAction
+              projectId={projectId ?? null}
+              variant="icon"
+            />
+          ) : null}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -5004,7 +6093,12 @@ function TaskboardRightPanel({
             {refreshError}
           </p>
         ) : null}
-        <div className="min-h-0 flex-1 overflow-hidden">
+        <div
+          className={cn(
+            'min-h-0 flex-1',
+            activeItemRoute ? 'overflow-y-auto' : 'overflow-hidden'
+          )}
+        >
           {projectId === undefined ? (
             <LoadingRows />
           ) : projectId === null ? (
@@ -5026,11 +6120,7 @@ function TaskboardRightPanel({
               projectId={projectId}
               projects={undefined}
               refreshGeneration={refreshGeneration}
-              preferenceScope={`right-panel:${projectId}`}
-              initialPreferences={preferencesRef.current.get(
-                `right-panel:${projectId}`
-              )}
-              onPreferencesChange={rememberPreferences}
+              surfaceMode="constrained"
               onOpen={item =>
                 setItemRoute({
                   kind: 'item',

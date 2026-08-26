@@ -1,8 +1,12 @@
 import { Buffer } from 'node:buffer';
 import { z } from 'zod';
-import type { WorkStateCategory } from '../contract.js';
+import {
+  CREATE_OUTCOME_UNCERTAIN_MARKER,
+  type WorkStateCategory
+} from '../contract.js';
 import type {
   ExternalWorkItemCreateInput,
+  ExternalWorkItemCreateMetadataInput,
   ExternalWorkItemDetail,
   ExternalWorkStatusOption,
   WorkSourceAdapter
@@ -28,7 +32,10 @@ const jiraIssueSchema = z
           .passthrough(),
         priority: z.object({ name: z.string() }).passthrough().nullable(),
         assignee: z
-          .object({ displayName: z.string() })
+          .object({
+            accountId: z.string().min(1).optional(),
+            displayName: z.string()
+          })
           .passthrough()
           .nullable(),
         project: z.object({ key: z.string(), name: z.string() }).passthrough(),
@@ -100,6 +107,86 @@ const jiraCreatedIssueSchema = z
     self: z.string().optional()
   })
   .passthrough();
+
+const jiraCreateIssueTypesSchema = z
+  .object({
+    startAt: z.number().int().nonnegative(),
+    maxResults: z.number().int().positive(),
+    total: z.number().int().nonnegative(),
+    issueTypes: z.array(
+      z
+        .object({
+          id: z.string().min(1),
+          name: z.string().min(1),
+          subtask: z.boolean().default(false)
+        })
+        .passthrough()
+    )
+  })
+  .passthrough();
+
+const jiraCreateFieldsSchema = z
+  .object({
+    startAt: z.number().int().nonnegative(),
+    maxResults: z.number().int().positive(),
+    total: z.number().int().nonnegative(),
+    fields: z.array(
+      z
+        .object({
+          fieldId: z.string().min(1),
+          allowedValues: z.array(z.unknown()).optional()
+        })
+        .passthrough()
+    )
+  })
+  .passthrough();
+
+const jiraAssignableUserSchema = z
+  .object({
+    accountId: z.string().min(1),
+    displayName: z.string().min(1),
+    active: z.boolean().optional()
+  })
+  .passthrough();
+const jiraAssignableUsersSchema = z.array(jiraAssignableUserSchema);
+
+const jiraLabelsSchema = z
+  .object({
+    startAt: z.number().int().nonnegative(),
+    maxResults: z.number().int().positive(),
+    total: z.number().int().nonnegative(),
+    isLast: z.boolean(),
+    values: z.array(z.string().min(1))
+  })
+  .passthrough();
+
+const jiraNamedIdSchema = z
+  .object({ id: z.string().min(1), name: z.string().min(1) })
+  .passthrough();
+const JIRA_CREATE_METADATA_PAGE_SIZE = 200;
+const JIRA_LABEL_PAGE_SIZE = 1000;
+
+function nextJiraPageStart(
+  page: {
+    startAt: number;
+    maxResults: number;
+    total: number;
+    isLast?: boolean;
+  },
+  requestedStart: number,
+  itemCount: number
+): number | null {
+  if (page.startAt !== requestedStart) {
+    throw new Error('Jira returned an invalid pagination offset');
+  }
+  if (itemCount === 0 || page.isLast === true) return null;
+  const nextStart = page.startAt + page.maxResults;
+  if (nextStart >= page.total) return null;
+  if (nextStart <= requestedStart) {
+    throw new Error('Jira returned an invalid pagination offset');
+  }
+  return nextStart;
+}
 
 function jiraDescription(value: string) {
   return {
@@ -315,6 +402,159 @@ export function createJiraAdapter(options: {
     return { issue, options: [...available.values()] };
   }
 
+  function assertProjectKey(destinationId: string): string {
+    const projectKey = destinationId.trim().toUpperCase();
+    if (!/^[A-Z][A-Z0-9_-]*$/u.test(projectKey)) {
+      throw new Error('Enter a valid Jira project key');
+    }
+    const configuredProjectKeys = jiraProjectKeysFromJql(options.jql);
+    if (
+      configuredProjectKeys.length > 0 &&
+      !configuredProjectKeys.includes(projectKey)
+    ) {
+      throw new Error(
+        `Jira project ${projectKey} is outside the configured JQL scope`
+      );
+    }
+    return projectKey;
+  }
+
+  async function createMetadata(input: ExternalWorkItemCreateMetadataInput) {
+    const projectKey = assertProjectKey(input.destinationId);
+    const issueTypesById = new Map<
+      string,
+      z.infer<typeof jiraCreateIssueTypesSchema>['issueTypes'][number]
+    >();
+    let issueTypesStart = 0;
+    for (;;) {
+      const issueTypesPayload = await jiraRequest(
+        auth,
+        `/rest/api/3/issue/createmeta/${encodeURIComponent(projectKey)}/issuetypes?startAt=${issueTypesStart}&maxResults=${JIRA_CREATE_METADATA_PAGE_SIZE}`
+      );
+      const page = jiraCreateIssueTypesSchema.parse(issueTypesPayload);
+      for (const issueType of page.issueTypes) {
+        issueTypesById.set(issueType.id, issueType);
+      }
+      const nextStart = nextJiraPageStart(
+        page,
+        issueTypesStart,
+        page.issueTypes.length
+      );
+      if (nextStart === null) break;
+      issueTypesStart = nextStart;
+    }
+    const issueTypes = [...issueTypesById.values()].filter(
+      issueType => !issueType.subtask
+    );
+    const requestedIssueType = input.issueType?.trim() ?? '';
+    const selectedIssueType =
+      issueTypes.find(issueType => issueType.id === requestedIssueType) ??
+      (requestedIssueType
+        ? issueTypes.find(
+            issueType =>
+              issueType.name.toLowerCase() ===
+              requestedIssueType.toLowerCase()
+          )
+        : undefined) ??
+      issueTypes.find(issueType => issueType.name.toLowerCase() === 'task') ??
+      issueTypes[0] ??
+      null;
+    if (!selectedIssueType) {
+      throw new Error(`Jira project ${projectKey} has no available issue types`);
+    }
+    const fieldsById = new Map<
+      string,
+      z.infer<typeof jiraCreateFieldsSchema>['fields'][number]
+    >();
+    let fieldsStart = 0;
+    for (;;) {
+      const fieldsPayload = await jiraRequest(
+        auth,
+        `/rest/api/3/issue/createmeta/${encodeURIComponent(projectKey)}/issuetypes/${encodeURIComponent(selectedIssueType.id)}?startAt=${fieldsStart}&maxResults=${JIRA_CREATE_METADATA_PAGE_SIZE}`
+      );
+      const page = jiraCreateFieldsSchema.parse(fieldsPayload);
+      for (const field of page.fields) fieldsById.set(field.fieldId, field);
+      const nextStart = nextJiraPageStart(
+        page,
+        fieldsStart,
+        page.fields.length
+      );
+      if (nextStart === null) break;
+      fieldsStart = nextStart;
+    }
+    const fields = [...fieldsById.values()];
+    const byId = new Map(fields.map(field => [field.fieldId, field]));
+    const assigneeField = byId.get('assignee');
+    const priorityField = byId.get('priority');
+    const assigneeAllowed = (assigneeField?.allowedValues ?? [])
+      .map(value => jiraAssignableUserSchema.safeParse(value))
+      .filter(result => result.success)
+      .map(result => result.data);
+    const priorityAllowed = (priorityField?.allowedValues ?? [])
+      .map(value => jiraNamedIdSchema.safeParse(value))
+      .filter(result => result.success)
+      .map(result => result.data);
+    const [fallbackAssignees, labels] = await Promise.all([
+      assigneeField
+        ? jiraRequest(
+            auth,
+            `/rest/api/3/user/assignable/search?project=${encodeURIComponent(projectKey)}&startAt=0&maxResults=1000`
+          )
+            .then(payload => jiraAssignableUsersSchema.parse(payload))
+            .catch(() => [])
+        : Promise.resolve([]),
+      byId.has('labels')
+        ? (async () => {
+            const labels = new Set<string>();
+            let labelsStart = 0;
+            for (;;) {
+              const payload = await jiraRequest(
+                auth,
+                `/rest/api/3/label?startAt=${labelsStart}&maxResults=${JIRA_LABEL_PAGE_SIZE}`
+              );
+              const page = jiraLabelsSchema.parse(payload);
+              for (const label of page.values) labels.add(label);
+              const nextStart = nextJiraPageStart(
+                page,
+                labelsStart,
+                page.values.length
+              );
+              if (nextStart === null) break;
+              labelsStart = nextStart;
+            }
+            return [...labels];
+          })().catch(() => [])
+        : Promise.resolve([])
+    ]);
+    const assignees = [
+      ...new Map(
+        [...assigneeAllowed, ...fallbackAssignees].map(user => [
+          user.accountId,
+          user
+        ])
+      ).values()
+    ];
+    return {
+      statusOptions: [],
+      assigneeOptions: assignees
+        .filter(user => user.active !== false)
+        .map(user => ({ id: user.accountId, label: user.displayName })),
+      priorityOptions: priorityAllowed.map(priority => ({
+        id: priority.id,
+        label: priority.name
+      })),
+      labelOptions: labels.map(label => ({ id: label, label })),
+      milestoneOptions: [],
+      issueTypeOptions: issueTypes.map(issueType => ({
+        id: issueType.id,
+        label: issueType.name
+      })),
+      defaultStatusId: null,
+      defaultIssueTypeId: selectedIssueType.id,
+      supportsDueDate: byId.has('duedate')
+    };
+  }
+
   return {
     source: 'jira',
     configured: () => configured,
@@ -377,43 +617,79 @@ export function createJiraAdapter(options: {
         ({ transitionId: _transitionId, ...option }) => option
       );
     },
+    async createMetadata(input) {
+      if (!configured) throw new Error('Jira is not configured');
+      return createMetadata(input);
+    },
     async create(input: ExternalWorkItemCreateInput) {
       if (!configured) throw new Error('Jira is not configured');
-      const projectKey = input.destinationId.trim().toUpperCase();
-      if (!/^[A-Z][A-Z0-9_-]*$/u.test(projectKey)) {
-        throw new Error('Enter a valid Jira project key');
+      const projectKey = assertProjectKey(input.destinationId);
+      if (input.statusId !== null) {
+        throw new Error('Jira issues are created in the project default status');
       }
-      const configuredProjectKeys = jiraProjectKeysFromJql(options.jql);
-      if (
-        configuredProjectKeys.length > 0 &&
-        !configuredProjectKeys.includes(projectKey)
-      ) {
+      if (input.milestoneId !== null) {
+        throw new Error('Jira issues use a due date instead of a milestone');
+      }
+      if (input.issueType === null) {
+        throw new Error('Choose a Jira issue type');
+      }
+      let created: z.infer<typeof jiraCreatedIssueSchema>;
+      try {
+        const payload = await jiraRequest(auth, '/rest/api/3/issue', {
+          method: 'POST',
+          body: JSON.stringify({
+            fields: {
+              project: { key: projectKey },
+              summary: input.title,
+              issuetype: { id: input.issueType },
+              ...(input.description
+                ? { description: jiraDescription(input.description) }
+                : {}),
+              ...(input.assigneeId
+                ? { assignee: { accountId: input.assigneeId } }
+                : {}),
+              ...(input.priorityId
+                ? { priority: { id: input.priorityId } }
+                : {}),
+              ...(input.labelIds.length > 0
+                ? { labels: input.labelIds }
+                : {}),
+              ...(input.dueDate ? { duedate: input.dueDate } : {})
+            }
+          })
+        });
+        created = jiraCreatedIssueSchema.parse(payload);
+      } catch {
         throw new Error(
-          `Jira project ${projectKey} is outside the configured JQL scope`
+          `${CREATE_OUTCOME_UNCERTAIN_MARKER} Jira may have created the issue, but Taskboard could not confirm the response. Refresh the board and check for it before trying again.`
         );
       }
-      const payload = await jiraRequest(auth, '/rest/api/3/issue', {
-        method: 'POST',
-        body: JSON.stringify({
-          fields: {
-            project: { key: projectKey },
-            summary: input.title,
-            issuetype: { name: input.issueType ?? 'Task' },
-            ...(input.description
-              ? { description: jiraDescription(input.description) }
-              : {})
-          }
-        })
-      });
-      const created = jiraCreatedIssueSchema.parse(payload);
-      const issue = await loadIssue(created.key, {
-        comments: false,
-        verifyScope: false
-      });
-      if (issue.id !== created.id || issue.fields.project.key !== projectKey) {
-        throw new Error('Jira returned an invalid new issue');
+      try {
+        const issue = await loadIssue(created.key, {
+          comments: false,
+          verifyScope: false
+        });
+        if (issue.id !== created.id || issue.fields.project.key !== projectKey) {
+          throw new Error('Jira returned an invalid new issue');
+        }
+        return {
+          item: toItem(baseUrl, issue),
+          warnings: [],
+          assigneeConfirmation:
+            issue.fields.assignee === null
+              ? { confirmed: true, id: null }
+              : issue.fields.assignee.accountId
+                ? {
+                    confirmed: true,
+                    id: issue.fields.assignee.accountId
+                  }
+                : { confirmed: false }
+        };
+      } catch {
+        throw new Error(
+          `${CREATE_OUTCOME_UNCERTAIN_MARKER} Jira created ${created.key}, but Taskboard could not confirm its details. Refresh the board and check for it before trying again.`
+        );
       }
-      return toItem(baseUrl, issue);
     },
     async updateStatus(locator, statusId) {
       if (!configured) throw new Error('Jira is not configured');

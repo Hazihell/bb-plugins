@@ -1,19 +1,25 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  ASSIGNEE_AVATAR_TONES,
   DEFAULT_WORKFLOW_STATUS_ORDER,
   NO_LABELS_FILTER,
   NO_PRIORITY_FILTER,
   NO_PROJECT_FILTER,
   UNASSIGNED_ASSIGNEE_FILTER,
+  assigneeAvatarIdentity,
   assigneeFilterOptions,
+  canonicalizeSelectedFilterOptions,
+  filterOptionIdentity,
   filterWorkItemsByAttributes,
   filterWorkItemsByAssignee,
+  isFilterOptionSelected,
   labelFilterOptions,
   priorityFilterOptions,
   projectFilterOptions,
   sortWorkItemsByWorkflow,
   statusFilterOptions,
+  toggleFilterOptionSelection,
   workflowStatusTone,
   workflowStatusGroups,
   workflowStatusLanes
@@ -23,6 +29,23 @@ import type {
   WorkStateCategory,
   WorkStatusOption
 } from '../contract.ts';
+
+test('derives stable Unicode-safe assignee avatar identities', () => {
+  const mateo = assigneeAvatarIdentity('  Mateo   Cerquetella  ');
+  const normalizedMateo = assigneeAvatarIdentity('mateo cerquetella');
+
+  assert.equal(mateo.initials, 'MC');
+  assert.equal(mateo.tone, 'violet');
+  assert.equal(mateo.tone, normalizedMateo.tone);
+  assert.ok(ASSIGNEE_AVATAR_TONES.includes(mateo.tone));
+  assert.deepEqual(assigneeAvatarIdentity('Élodie 王').initials, 'É王');
+  assert.equal(assigneeAvatarIdentity('ßeta Müller').initials, 'SM');
+  assert.equal(assigneeAvatarIdentity('— 💫').initials, '?');
+  assert.deepEqual(
+    assigneeAvatarIdentity('Henrique Neves da Silva'),
+    assigneeAvatarIdentity('Henrique Neves da Silva')
+  );
+});
 
 function item(
   key: string,
@@ -135,6 +158,38 @@ test('keeps selected assignees available when other filters return no items', ()
   assert.deepEqual(assigneeFilterOptions([], ['Mateo Cerquetella']), [
     { value: 'Mateo Cerquetella', label: 'Mateo Cerquetella' }
   ]);
+});
+
+test('canonicalizes facet selections and toggles every case variant', () => {
+  const options = [
+    { value: 'In Review', label: 'In Review' },
+    { value: 'Mateo', label: 'Mateo' }
+  ];
+
+  assert.equal(
+    filterOptionIdentity('IN REVIEW'),
+    filterOptionIdentity('In Review')
+  );
+  assert.deepEqual(
+    canonicalizeSelectedFilterOptions(
+      ['in review', 'IN REVIEW', 'Legacy value', 'LEGACY VALUE'],
+      options
+    ),
+    ['In Review', 'Legacy value']
+  );
+  assert.equal(isFilterOptionSelected(['IN REVIEW'], 'In Review'), true);
+  assert.equal(isFilterOptionSelected(['Todo'], 'In Review'), false);
+  assert.deepEqual(
+    toggleFilterOptionSelection(
+      ['IN REVIEW', 'in review', 'Legacy value'],
+      'In Review'
+    ),
+    ['Legacy value']
+  );
+  assert.deepEqual(
+    toggleFilterOptionSelection(['Legacy value'], 'In Review'),
+    ['Legacy value', 'In Review']
+  );
 });
 
 test('uses a configurable exact workflow order', () => {

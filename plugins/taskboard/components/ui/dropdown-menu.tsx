@@ -142,6 +142,8 @@ const DropdownMenuContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & {
     /** Title announced by screen readers when the mobile drawer opens. */
     mobileTitle?: string;
+    /** Called after responsive menu content mounts for each open transition. */
+    onOpenAutoFocus?: (event: Event) => void;
   }
 >(
   (
@@ -150,6 +152,7 @@ const DropdownMenuContent = React.forwardRef<
       sideOffset = 4,
       children,
       mobileTitle,
+      onOpenAutoFocus,
       onCloseAutoFocus,
       ...props
     },
@@ -159,6 +162,14 @@ const DropdownMenuContent = React.forwardRef<
     // Unconditional (rules of hooks — the compact branch returns early); the
     // compact drawer path is covered by DrawerContent's own stamp.
     const scopeProps = usePortalScopeProps();
+    const wasOpenRef = React.useRef(false);
+
+    React.useEffect(() => {
+      if (open && !wasOpenRef.current) {
+        onOpenAutoFocus?.(new Event("openAutoFocus", { cancelable: true }));
+      }
+      wasOpenRef.current = open;
+    }, [onOpenAutoFocus, open]);
 
     if (isCompactViewport) {
       const domProps = stripRadixContentProps(props);

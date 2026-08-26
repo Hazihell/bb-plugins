@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import type { WorkStateCategory } from '../contract.js';
+import {
+  CREATE_OUTCOME_UNCERTAIN_MARKER,
+  type WorkStateCategory
+} from '../contract.js';
 import type {
   ExternalWorkItemCreateInput,
   ExternalWorkItemDetail,
@@ -22,7 +25,7 @@ const issueFields = `
   assignee { id name }
   team { key name }
   project { name }
-  labels(first: 50) { nodes { name } }
+  labels(first: 100) { nodes { name } }
 `;
 
 const teamIssuesQuery = `
@@ -83,19 +86,38 @@ const teamForCreateQuery = `
   }
 `;
 
-const createIssueMutation = `
-  mutation TaskboardLinearCreateIssue(
-    $teamId: String!
-    $title: String!
-    $description: String!
+const createMetadataQuery = `
+  query TaskboardLinearCreateMetadata(
+    $teamKey: String!
+    $statesAfter: String
+    $membersAfter: String
+    $labelsAfter: String
   ) {
-    issueCreate(
-      input: {
-        teamId: $teamId
-        title: $title
-        description: $description
+    teams(filter: { key: { eqIgnoreCase: $teamKey } }, first: 2) {
+      nodes {
+        id
+        key
+        name
+        states(first: 50, after: $statesAfter) {
+          nodes { id name type }
+          pageInfo { hasNextPage endCursor }
+        }
+        members(first: 50, after: $membersAfter) {
+          nodes { id name }
+          pageInfo { hasNextPage endCursor }
+        }
+        labels(first: 50, after: $labelsAfter) {
+          nodes { id name }
+          pageInfo { hasNextPage endCursor }
+        }
       }
-    ) {
+    }
+  }
+`;
+
+const createIssueMutation = `
+  mutation TaskboardLinearCreateIssue($input: IssueCreateInput!) {
+    issueCreate(input: $input) {
       success
       issue { ${issueFields} }
     }
@@ -108,6 +130,33 @@ const assigneeSchema = z
   .strict();
 const stateSchema = z
   .object({ id: z.string().min(1), name: z.string(), type: z.string() })
+  .strict();
+const createOptionSchema = z
+  .object({ id: z.string().min(1), name: z.string().min(1) })
+  .strict();
+const createMetadataPageInfoSchema = z
+  .object({
+    hasNextPage: z.boolean(),
+    endCursor: z.string().nullable()
+  })
+  .strict();
+function createMetadataConnectionSchema<T extends z.ZodTypeAny>(nodeSchema: T) {
+  return z
+    .object({
+      nodes: z.array(nodeSchema),
+      pageInfo: createMetadataPageInfoSchema
+    })
+    .strict();
+}
+const createMetadataTeamSchema = z
+  .object({
+    id: z.string().min(1),
+    key: z.string().min(1),
+    name: z.string(),
+    states: createMetadataConnectionSchema(stateSchema),
+    members: createMetadataConnectionSchema(createOptionSchema),
+    labels: createMetadataConnectionSchema(createOptionSchema)
+  })
   .strict();
 const issueSchema = z
   .object({
@@ -186,7 +235,7 @@ function toItem(value: z.infer<typeof issueSchema>): ExternalWorkItemDetail {
 async function requestLinear(
   apiKey: string,
   query: string,
-  variables: Record<string, string> = {}
+  variables: Record<string, unknown> = {}
 ): Promise<unknown> {
   let response: Response;
   try {
@@ -284,6 +333,116 @@ export function createLinearAdapter(options: {
     }));
   }
 
+  async function createMetadata() {
+    const states = new Map<string, z.infer<typeof stateSchema>>();
+    const members = new Map<string, z.infer<typeof createOptionSchema>>();
+    const labels = new Map<string, z.infer<typeof createOptionSchema>>();
+    const seenStateCursors = new Set<string>();
+    const seenMemberCursors = new Set<string>();
+    const seenLabelCursors = new Set<string>();
+    let statesAfter: string | undefined;
+    let membersAfter: string | undefined;
+    let labelsAfter: string | undefined;
+    let loadStates = true;
+    let loadMembers = true;
+    let loadLabels = true;
+    let expectedTeamId: string | undefined;
+
+    while (loadStates || loadMembers || loadLabels) {
+      const data = await requestLinear(apiKey, createMetadataQuery, {
+        teamKey,
+        ...(statesAfter ? { statesAfter } : {}),
+        ...(membersAfter ? { membersAfter } : {}),
+        ...(labelsAfter ? { labelsAfter } : {})
+      });
+      const teams = z
+        .object({
+          teams: z
+            .object({ nodes: z.array(createMetadataTeamSchema) })
+            .strict()
+        })
+        .strict()
+        .parse(data).teams.nodes;
+      const team = teams.find(
+        candidate => candidate.key.toLowerCase() === teamKey.toLowerCase()
+      );
+      if (!team) throw new Error(`Linear team ${teamKey} was not found`);
+      if (expectedTeamId && team.id !== expectedTeamId) {
+        throw new Error('Linear returned inconsistent creation metadata');
+      }
+      expectedTeamId = team.id;
+
+      if (loadStates) {
+        for (const state of team.states.nodes) states.set(state.id, state);
+        if (!team.states.pageInfo.hasNextPage) {
+          loadStates = false;
+        } else {
+          const cursor = team.states.pageInfo.endCursor;
+          if (!cursor || seenStateCursors.has(cursor)) {
+            throw new Error('Linear returned an invalid states pagination cursor');
+          }
+          seenStateCursors.add(cursor);
+          statesAfter = cursor;
+        }
+      }
+      if (loadMembers) {
+        for (const member of team.members.nodes) members.set(member.id, member);
+        if (!team.members.pageInfo.hasNextPage) {
+          loadMembers = false;
+        } else {
+          const cursor = team.members.pageInfo.endCursor;
+          if (!cursor || seenMemberCursors.has(cursor)) {
+            throw new Error(
+              'Linear returned an invalid members pagination cursor'
+            );
+          }
+          seenMemberCursors.add(cursor);
+          membersAfter = cursor;
+        }
+      }
+      if (loadLabels) {
+        for (const label of team.labels.nodes) labels.set(label.id, label);
+        if (!team.labels.pageInfo.hasNextPage) {
+          loadLabels = false;
+        } else {
+          const cursor = team.labels.pageInfo.endCursor;
+          if (!cursor || seenLabelCursors.has(cursor)) {
+            throw new Error('Linear returned an invalid labels pagination cursor');
+          }
+          seenLabelCursors.add(cursor);
+          labelsAfter = cursor;
+        }
+      }
+    }
+
+    return {
+      statusOptions: [...states.values()].map(state => ({
+        id: state.id,
+        label: state.name
+      })),
+      assigneeOptions: [...members.values()].map(member => ({
+        id: member.id,
+        label: member.name
+      })),
+      priorityOptions: [
+        { id: '1', label: 'Urgent' },
+        { id: '2', label: 'High' },
+        { id: '3', label: 'Medium' },
+        { id: '4', label: 'Low' },
+        { id: '0', label: 'No priority' }
+      ],
+      labelOptions: [...labels.values()].map(label => ({
+        id: label.id,
+        label: label.name
+      })),
+      milestoneOptions: [],
+      issueTypeOptions: [],
+      defaultStatusId: null,
+      defaultIssueTypeId: null,
+      supportsDueDate: true
+    };
+  }
+
   return {
     source: 'linear',
     configured: () => configured,
@@ -337,6 +496,15 @@ export function createLinearAdapter(options: {
       if (!configured) throw new Error('Linear is not configured');
       return statusOptions(locator);
     },
+    async createMetadata(input) {
+      if (!configured) throw new Error('Linear is not configured');
+      if (input.destinationId.toLowerCase() !== teamKey.toLowerCase()) {
+        throw new Error(
+          `Linear team ${input.destinationId} is outside the configured scope`
+        );
+      }
+      return createMetadata();
+    },
     async create(input: ExternalWorkItemCreateInput) {
       if (!configured) throw new Error('Linear is not configured');
       if (input.destinationId.toLowerCase() !== teamKey.toLowerCase()) {
@@ -369,24 +537,79 @@ export function createLinearAdapter(options: {
         candidate => candidate.key.toLowerCase() === teamKey.toLowerCase()
       );
       if (!team) throw new Error(`Linear team ${teamKey} was not found`);
-      const data = await requestLinear(apiKey, createIssueMutation, {
-        teamId: team.id,
-        title: input.title,
-        description: input.description
-      });
-      const created = z
+      const priority =
+        input.priorityId === null ? null : Number(input.priorityId);
+      if (
+        priority !== null &&
+        (!Number.isInteger(priority) || priority < 0 || priority > 4)
+      ) {
+        throw new Error('Linear priority is invalid');
+      }
+      if (input.milestoneId !== null) {
+        throw new Error('Linear issues use a due date instead of a milestone');
+      }
+      let data: unknown;
+      try {
+        data = await requestLinear(apiKey, createIssueMutation, {
+          input: {
+            teamId: team.id,
+            title: input.title,
+            description: input.description,
+            ...(input.statusId ? { stateId: input.statusId } : {}),
+            ...(input.assigneeId ? { assigneeId: input.assigneeId } : {}),
+            ...(priority !== null ? { priority } : {}),
+            ...(input.labelIds.length > 0 ? { labelIds: input.labelIds } : {}),
+            ...(input.dueDate ? { dueDate: input.dueDate } : {})
+          }
+        });
+      } catch {
+        throw new Error(
+          `${CREATE_OUTCOME_UNCERTAIN_MARKER} Linear may have created the issue, but Taskboard could not confirm the response. Refresh the board and check for it before trying again.`
+        );
+      }
+      const acknowledgement = z
         .object({
           issueCreate: z
-            .object({ success: z.boolean(), issue: issueSchema })
-            .strict()
+            .object({
+              success: z.boolean(),
+              issue: z.unknown().nullable().optional()
+            })
+            .passthrough()
         })
-        .strict()
-        .parse(data).issueCreate;
-      if (!created.success) throw new Error('Linear rejected the new issue');
-      if (created.issue.team.key.toLowerCase() !== teamKey.toLowerCase()) {
-        throw new Error('Linear created the issue outside the configured team');
+        .passthrough()
+        .safeParse(data);
+      if (
+        acknowledgement.success &&
+        acknowledgement.data.issueCreate.success === false &&
+        acknowledgement.data.issueCreate.issue == null
+      ) {
+        throw new Error('Linear rejected the new issue');
       }
-      return toItem(created.issue);
+      try {
+        const created = z
+          .object({
+            issueCreate: z
+              .object({ success: z.literal(true), issue: issueSchema })
+              .strict()
+          })
+          .strict()
+          .parse(data).issueCreate;
+        if (created.issue.team.key.toLowerCase() !== teamKey.toLowerCase()) {
+          throw new Error('Linear created the issue outside the configured team');
+        }
+        return {
+          item: toItem(created.issue),
+          warnings: [],
+          assigneeConfirmation: {
+            confirmed: true,
+            id: created.issue.assignee?.id ?? null
+          }
+        };
+      } catch {
+        throw new Error(
+          `${CREATE_OUTCOME_UNCERTAIN_MARKER} Linear may have created the issue, but Taskboard could not confirm its details. Refresh the board and check for it before trying again.`
+        );
+      }
     },
     async updateStatus(locator, statusId) {
       if (!configured) throw new Error('Linear is not configured');

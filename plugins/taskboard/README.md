@@ -30,6 +30,10 @@ task to an agent without rebuilding context by hand.
 - **List and Kanban** — compact rows plus Linear-style Status, State group,
   Assignee, Priority, Project, and Labels filters. Filter values within one
   field match either value; different fields combine to narrow the view.
+- **Remembered project views** — each BB project remembers selected filters,
+  List or Kanban view, and collapsed finished groups on this device. The full
+  board and pinned right panel share one project view; Across projects remains
+  independent.
 - **Project board preferences** — Manage controls which filters are visible,
   the default List or Kanban layout, and the exact provider status order.
   Provider-native workflow groups, drag-and-drop, and keyboard status moves
@@ -38,16 +42,21 @@ task to an agent without rebuilding context by hand.
   fetches its current description, labels, assignee, and comments.
 - **Pinned beside every chat** — open Taskboard from the thread-header button,
   then keep it pinned in BB's right panel while moving between threads.
-- **Status changes everywhere** — use the status dot on a List row or the
+- **Status changes everywhere** — use the shaped status glyph on a List row or the
   status pill inside a task to move it through the provider's real workflow.
 - **Create without context switching** — turn a composer prompt into a
   provider-aware issue beside BB's native prompt actions in New thread or an
-  existing thread. Created issues are attached to the draft as Taskboard
-  mentions so the thread continues with live issue context.
+  existing thread, or choose **New issue** directly from a project board. Native
+  assignee, status, priority, labels, due date, milestone, and issue type fields
+  appear when supported. Taskboard remembers the last successfully used
+  assignee for that exact project and destination. Assisted creations attach a
+  Taskboard mention so the thread continues with live issue context.
 - **Agent handoff** — prefill a BB prompt from any task or attach one with the
   Taskboard mention result.
-- **Human and agent parity** — everything important is also available through
-  `bb taskboard`.
+- **CLI automation** — browse cached/live work, inspect transitions, move
+  statuses, refresh providers, and manage project connections through
+  `bb taskboard`. Issue creation remains an intentional review-and-confirm UI
+  action in the board or composer.
 
 ## Install
 
@@ -108,6 +117,11 @@ by default; provider-specific stages remain between the closest matching
 stages. Change that ordering per project in **Manage → Board preferences**.
 Rejected writes roll back the optimistic move.
 
+List view uses compact shaped state glyphs and collapses finished or canceled
+groups by default. Searching temporarily opens matching groups without changing
+their saved state. On constrained right panels, search stays visible while one
+compact **Filters** control holds the enabled project facets.
+
 From a thread, click the Taskboard panel button in the upper-right header. The
 panel opens beside the conversation; leave its pin enabled to reopen it
 automatically when you switch chats. Use the pin control in the panel header to
@@ -115,7 +129,7 @@ stop reopening it. The right panel follows the BB project selected for each
 thread, while **Open full Taskboard** keeps the larger workspace available when
 you need filters or board management.
 
-In List view, click the colored status dot on a task row to choose another
+In List view, click the shaped status glyph on a task row to choose another
 provider status. The same control appears as a labeled status pill at the top
 of task details. Changes update optimistically and roll back if GitHub, Linear,
 or Jira rejects the transition.
@@ -130,14 +144,21 @@ field when the scope cannot be inferred).
 The icon opens a review modal immediately while a hidden, read-only helper uses
 the BB project's repository context to turn the rough prompt into a natural
 title and a standalone description with requested changes and acceptance
-criteria. Nothing is sent to GitHub, Linear, or Jira until you review the draft
-and click **Create issue**. If the helper cannot produce a draft, the original
+criteria. Provider metadata can load for the review form, but no issue is
+created or mutated until you click **Create issue**. If the helper cannot produce a draft, the original
 prompt remains editable as a visible fallback. You can also choose **Use
 original prompt** immediately instead of waiting, then retry the
 repository-aware draft from the same modal.
 
+From a project board, choose **New issue** to open the same validated provider
+form with a blank editable title and description. Direct capture skips the
+repository drafting helper. It loads provider metadata for review but never
+creates or mutates an issue until you confirm creation.
+
 ![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 
+The CLI covers browsing, detail, transitions, status moves, refresh, and project
+configuration. Direct/composer-assisted issue creation stays in BB's review UI.
 The CLI uses the current BB project unless `--project <proj_id>` is supplied:
 
 ```text
@@ -164,6 +185,10 @@ and accepts credentials only through BB's authenticated interaction form.
 The external tracker remains authoritative. Taskboard caches task summaries
 and sync metadata in its plugin database; details and comments are fetched live
 when needed.
+
+Issue text attached to an agent is explicitly delimited as untrusted external
+tracker data. It remains useful context, but it is never presented as repository
+policy or agent instructions.
 
 ## Development
 

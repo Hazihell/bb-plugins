@@ -1,4 +1,6 @@
 import type {
+  AssigneeConfirmation,
+  CreateIssueMetadata,
   WorkItem,
   WorkItemDetail,
   WorkSource,
@@ -14,6 +16,23 @@ export interface ExternalWorkItemCreateInput {
   description: string;
   destinationId: string;
   issueType: string | null;
+  statusId: string | null;
+  assigneeId: string | null;
+  priorityId: string | null;
+  labelIds: string[];
+  dueDate: string | null;
+  milestoneId: string | null;
+}
+
+export interface ExternalWorkItemCreateMetadataInput {
+  destinationId: string;
+  issueType: string | null;
+}
+
+export interface ExternalWorkItemCreateResult {
+  item: ExternalWorkItemDetail;
+  warnings: string[];
+  assigneeConfirmation: AssigneeConfirmation;
 }
 
 export function withoutComments(
@@ -30,9 +49,12 @@ export interface WorkSourceAdapter {
   list(options?: { refresh?: boolean }): Promise<ExternalWorkItem[]>;
   get(locator: string): Promise<ExternalWorkItemDetail>;
   statusOptions(locator: string): Promise<ExternalWorkStatusOption[]>;
+  createMetadata(
+    input: ExternalWorkItemCreateMetadataInput
+  ): Promise<CreateIssueMetadata>;
   create(
     input: ExternalWorkItemCreateInput
-  ): Promise<ExternalWorkItemDetail>;
+  ): Promise<ExternalWorkItemCreateResult>;
   updateStatus(
     locator: string,
     statusId: string
