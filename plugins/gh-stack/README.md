@@ -42,17 +42,17 @@ gh extension install github/gh-stack
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-gh-stack
+bb plugin install npm:bb-plugin-gh-stack
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-gh-stack' build
+bun run --filter 'bb-plugin-gh-stack' build
 bb plugin install ./plugins/gh-stack
 ```
 
@@ -138,8 +138,8 @@ Install from source as shown under [Install](#install), then check a change
 with:
 
 ```sh
-bun run --filter '@smsunarto/bb-plugin-gh-stack' typecheck
-bun run --filter '@smsunarto/bb-plugin-gh-stack' test
+bun run --filter 'bb-plugin-gh-stack' typecheck
+bun run --filter 'bb-plugin-gh-stack' test
 ```
 
 The test script needs Node 22.6+.

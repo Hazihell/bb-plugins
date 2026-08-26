@@ -39,7 +39,7 @@ export const OBSOLETE_ORB_PROVIDER_ID = OBSOLETE_AMP_ORB_AGENT.providerId;
  * package.json "comments" field and test/cli-stub.test.ts).
  */
 export const BRIDGE_BUILD_HINT =
-  "Reinstall the plugin with `bb plugin install npm:@smsunarto/bb-plugin-amp`. "
+  "Reinstall the plugin with `bb plugin install npm:bb-plugin-amp`. "
   + "From a source checkout, run `bun install` at the repository root "
   + "(never `npm install` inside the plugin), then `bun run build` in plugins/amp.";
 

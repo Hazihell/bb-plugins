@@ -1,6 +1,6 @@
 # Third-party notices
 
-`@smsunarto/bb-plugin-gh-stack` is published as bundles. The build inlines its
+`bb-plugin-gh-stack` is published as bundles. The build inlines its
 dependencies into `dist/server.js`, `dist/app.js`, and `dist/app.css`, and the
 package also ships third-party icon artwork in `assets/`. This file lists every
 third-party work the package distributes, with the required notices.

@@ -1,6 +1,6 @@
 # Third-party notices
 
-`@smsunarto/bb-plugin-amp` is published as bundles. The build inlines its
+`bb-plugin-amp` is published as bundles. The build inlines its
 dependencies into `dist/bridge.js`, `dist/server.js`, and `dist/app.css`, and
 the package also ships third-party icon artwork in `assets/`. This file lists
 every third-party work the package distributes, with the required notices.

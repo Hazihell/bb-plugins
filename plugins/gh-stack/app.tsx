@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-gh-stack — frontend: a thread panel that visualizes the
+// bb-plugin-gh-stack — frontend: a thread panel that visualizes the
 // thread's stacked PRs (gh stack) and runs sync / submit / create.
 //
 // Layout: one rail. Uncommitted work sits at the top, then a composer row

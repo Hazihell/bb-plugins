@@ -1,13 +1,10 @@
 /**
  * Publish the supportable plugins to npm.
  *
- * npm is the only bb install channel that does not fetch a whole repository:
- * `bb plugin install npm:<name>` pulls one tarball. `git:<url>@<ref>` runs a
- * full `git clone` and reads the manifest at the repository ROOT
- * (managed-plugin-artifacts.ts: `git clone --quiet`, then `stagedRoot =
- * stagingDir`), and its parsed source carries only a url and a ref — there is
- * no subdirectory field. So a monorepo plugin cannot be installed over git: at
- * bb 0.36, and npm is the channel.
+ * npm is the bb install channel that fetches one leaf package directly:
+ * `bb plugin install npm:<name>` pulls one tarball. Current bb can also install
+ * a Git repository subdirectory, but that still clones the whole repository;
+ * this script owns the independently versioned npm release path.
  *
  * That makes the tarball the product, and everything bb reads at install time
  * has to be INSIDE it. bb never builds an npm plugin: it stats the manifest's
@@ -15,7 +12,7 @@
  * `files` allowlist that omits one of them ships a package that installs
  * nowhere. The gate below packs each plugin and looks for those paths in the
  * result — a check that costs one `npm pack --dry-run` and is the difference
- * between a release and eight dead tarballs.
+ * between a release and a set of dead tarballs.
  *
  *   bun scripts/publish.ts --dry-run     # pack and check, publish nothing
  *   bun scripts/publish.ts               # the real thing
@@ -56,7 +53,7 @@ export const ALLOWED_LICENSES: ReadonlySet<string> = new Set([
 /**
  * The unscoped twin of a scoped package name, or null when there is none.
  *
- * Both names derive the SAME bb plugin id — `@smsunarto/bb-plugin-notify` and
+ * Both names derive the SAME bb plugin id — `@scope/bb-plugin-notify` and
  * `bb-plugin-notify` both give `notify`, because derivePluginId() drops the
  * scope before it strips the prefix. So the mirror is not a second plugin: it
  * is the same tarball under a second registry name, published so that the
@@ -143,6 +140,7 @@ export function bbTargets(manifest: PluginManifest): BbTarget[] {
 
   file("bb.server", bb.server);
   file("bb.app", bb.app);
+  file("bb.host", bb.host);
   // branding.icon is either a host icon NAME or a plugin-relative path. bb
   // reads it out of the package only in the "./" form (isPluginOwnedIconPath).
   if (typeof bb.branding?.icon === "string" && bb.branding.icon.startsWith("./")) {
@@ -167,6 +165,16 @@ export function bbTargets(manifest: PluginManifest): BbTarget[] {
   return targets;
 }
 
+/** Build artifacts declared by a plugin manifest, in stable build order. */
+export function bbArtifactNames(
+  manifest: PluginManifest,
+): Array<"server" | "app" | "host"> {
+  const artifacts: Array<"server" | "app" | "host"> = ["server"];
+  if (manifest.bb?.app) artifacts.push("app");
+  if (manifest.bb?.host) artifacts.push("host");
+  return artifacts;
+}
+
 /**
  * Every file the source entries reach through relative imports, and whether the
  * tarball carries it.
@@ -178,6 +186,9 @@ export function bbTargets(manifest: PluginManifest): BbTarget[] {
  * so minor bumps are breaking and that path is live. A fallback that reaches an
  * unpacked file is a fallback that throws, and shipping the entry alone is not
  * enough — the whole import closure has to travel with it.
+ * `bb.app` and `bb.host` are build inputs for path and Git installs, so their
+ * source closures travel for the same reason: every declared source entry must
+ * remain self-contained when the package leaves this workspace.
  *
  * TypeScript's NodeNext style writes `./foo.js` for `foo.ts`, so a specifier is
  * probed against the source extensions before the literal one.
@@ -188,7 +199,11 @@ export function sourceClosureProblems(
   paths: readonly string[],
 ): string[] {
   const packed = new Set(paths);
-  const entries = [manifest.bb?.server, manifest.bb?.app].filter(
+  const entries = [
+    manifest.bb?.server,
+    manifest.bb?.app,
+    manifest.bb?.host,
+  ].filter(
     (entry): entry is string => typeof entry === "string" && entry.trim() !== "",
   );
 
@@ -212,8 +227,8 @@ export function sourceClosureProblems(
     if (!packed.has(rel)) {
       problems.push(
         `"${rel}" is reachable from a bb.* source entry but the tarball does not carry it` +
-          ` — bb falls back to source when the prebuilt bundle is missing or SDK-stale,` +
-          ` and that fallback would throw. Add it to the "files" allowlist.`,
+          ` — bb needs complete sources for fallback loading and managed source builds,` +
+          ` and either path would throw. Add it to the "files" allowlist.`,
       );
       continue;
     }
@@ -285,11 +300,12 @@ export function publishProblems(
         ` Add "${wanted}${target.tree ? "/" : ""}" to the "files" allowlist.`,
     );
   }
-  // bb reads these two at fixed paths, whatever bb.server and bb.app say:
-  // dist/app.js + dist/app.meta.json gate an npm install outright
-  // (managed-plugin-artifacts.ts), and the runtime reads dist/server.meta.json.
+  // bb reads these at fixed paths, whatever the source entries say. App and
+  // host artifacts gate an npm install outright (managed-plugin-artifacts.ts),
+  // and the runtime reads dist/server.meta.json for the backend fallback.
   const fixed = ["dist/server.meta.json"];
   if (manifest.bb?.app) fixed.push("dist/app.js", "dist/app.meta.json");
+  if (manifest.bb?.host) fixed.push("dist/host.js", "dist/host.meta.json");
   for (const path of fixed) {
     if (!files.has(path)) {
       problems.push(`the tarball has no ${path}, which bb requires of an npm plugin`);
@@ -436,7 +452,7 @@ function main(): void {
     const version = manifest.version;
     if (!existsSync(join(dir, "LICENSE"))) fail(`${id}: no LICENSE in the package`);
 
-    for (const artifact of ["server", ...(manifest.bb?.app ? ["app"] : [])]) {
+    for (const artifact of bbArtifactNames(manifest)) {
       const metaPath = join(dir, "dist", `${artifact}.meta.json`);
       if (!existsSync(metaPath)) fail(`${id}: missing dist/${artifact}.meta.json — build first`);
       const meta = JSON.parse(readFileSync(metaPath, "utf8"));

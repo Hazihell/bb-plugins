@@ -45,17 +45,17 @@ the machine that runs the bb server and gives it a management UI inside bb.
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-agent-proxy
+bb plugin install npm:bb-plugin-agent-proxy
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-agent-proxy' build
+bun run --filter 'bb-plugin-agent-proxy' build
 bb plugin install ./plugins/agent-proxy
 ```
 
@@ -146,8 +146,8 @@ Install from source as shown under [Install](#install), then check a change
 with:
 
 ```sh
-bun run --filter '@smsunarto/bb-plugin-agent-proxy' typecheck
-bun run --filter '@smsunarto/bb-plugin-agent-proxy' test
+bun run --filter 'bb-plugin-agent-proxy' typecheck
+bun run --filter 'bb-plugin-agent-proxy' test
 ```
 
 The test script needs Node 22.6+.

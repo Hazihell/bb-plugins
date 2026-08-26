@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-agentation — frontend entry.
+// bb-plugin-agentation — frontend entry.
 //
 // Three surfaces, one job:
 // - a content script that mounts the Agentation toolbar over the bb app shell,

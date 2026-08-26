@@ -1,6 +1,6 @@
 # Third-party notices — t3sidebar
 
-The plugin's own code is MIT, Copyright (c) 2026 Scott Sunarto. See [LICENSE](LICENSE).
+The plugin's own code is MIT, Copyright (c) 2026 Mateo Cerquetella. See [LICENSE](LICENSE).
 
 This package also ships code and artwork from the projects below, under their own
 terms. Every entry is MIT licensed; the licence text is given once at the end and

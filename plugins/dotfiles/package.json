@@ -1,16 +1,16 @@
 {
-  "name": "@smsunarto/bb-plugin-dotfiles",
+  "name": "bb-plugin-dotfiles",
   "version": "0.1.0",
   "description": "Browse, edit, render, and sync the tweakable dotfiles repo.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/dotfiles",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/dotfiles",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/dotfiles"
   },
   "keywords": [

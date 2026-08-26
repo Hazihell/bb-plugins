@@ -16,6 +16,9 @@
     "browser": true
   },
   "ignorePatterns": [
+    ".clones/**",
+    ".snapshots/**",
+    ".worktrees/**",
     "**/dist/**",
     "**/node_modules/**",
     "**/vendor/**",

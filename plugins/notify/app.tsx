@@ -1,4 +1,4 @@
-// Frontend half of @smsunarto/bb-plugin-notify.
+// Frontend half of bb-plugin-notify.
 //
 // macOS credits a notification to the process that posted it. A scripted
 // notification is therefore always the interpreter's, which is why the

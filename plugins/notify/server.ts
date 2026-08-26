@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-notify — desktop notifications for BB thread lifecycle events.
+// bb-plugin-notify — desktop notifications for BB thread lifecycle events.
 //
 // BB notifies agents (parent threads, workflow completions) but never notifies
 // the person. This plugin closes that gap: it listens to thread.idle and
@@ -402,9 +402,11 @@ export default async function plugin(bb: BbPluginApi) {
       "Post a desktop notification on the user's machine. Use it when the user has likely walked away and something needs them now: a long job finished, or you are blocked on a decision. Do not use it for routine progress while they are watching.",
     instructions:
       "notify_user posts a native desktop notification titled with the project and thread. Keep the message under 120 characters, lead with what the user would act on, and write plain prose — markdown syntax is stripped, not rendered.",
-    experimental_statusLabels: {
-      pending: "Notifying the user",
-      completed: "Notified the user",
+    presentation: {
+      label: {
+        pending: "Notifying the user",
+        completed: "Notified the user",
+      },
     },
     // No title parameter: the heading is always `<project> · <thread>`, the
     // same as an event notification. An agent-supplied headline would make

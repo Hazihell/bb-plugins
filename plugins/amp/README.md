@@ -37,17 +37,17 @@ amp login
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-amp
+bb plugin install npm:bb-plugin-amp
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-amp' build
+bun run --filter 'bb-plugin-amp' build
 bb plugin install ./plugins/amp
 ```
 

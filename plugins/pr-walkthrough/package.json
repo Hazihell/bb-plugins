@@ -1,17 +1,17 @@
 {
-  "name": "@smsunarto/bb-plugin-pr-walkthrough",
+  "name": "bb-plugin-pr-walkthrough",
   "version": "0.1.0",
   "private": true,
   "description": "WORK IN PROGRESS \u2014 unfinished and unsupported. Generate a human-friendly pull-request walkthrough with semantic review groups, inline diffs, and a built-in viewer panel.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/pr-walkthrough#readme",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/pr-walkthrough#readme",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/pr-walkthrough"
   },
   "keywords": [

@@ -1,6 +1,6 @@
 # Third-party notices — Usage Tracker
 
-The plugin's own code is MIT, Copyright (c) 2026 Scott Sunarto. See
+The plugin's own code is MIT, Copyright (c) 2026 Mateo Cerquetella. See
 [LICENSE](LICENSE).
 
 This package also ships code and artwork from the projects below. They are MIT

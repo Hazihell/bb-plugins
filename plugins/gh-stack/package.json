@@ -1,16 +1,16 @@
 {
-  "name": "@smsunarto/bb-plugin-gh-stack",
+  "name": "bb-plugin-gh-stack",
   "version": "0.1.0",
   "description": "Visualize and drive stacked pull requests (gh stack) from BB threads.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/gh-stack#readme",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/gh-stack#readme",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/gh-stack"
   },
   "keywords": [

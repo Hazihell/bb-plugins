@@ -6,6 +6,7 @@ import {
   BellIcon,
   BarChartIcon,
   ChatFeedbackIcon,
+  ComputerTerminal01Icon,
   GitPullRequestIcon,
   Layers01Icon,
   PanelLeftIcon,
@@ -92,6 +93,10 @@ const customIcons = {
   "gh-stack": {
     name: "Layers",
     nodes: Layers01Icon,
+  },
+  "machine-monitor": {
+    name: "ComputerTerminal01",
+    nodes: ComputerTerminal01Icon,
   },
   notify: {
     name: "Bell",

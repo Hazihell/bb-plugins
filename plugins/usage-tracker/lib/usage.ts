@@ -39,11 +39,7 @@ export type RawProviderUsage =
       accountEmail?: string | null;
     };
 
-export interface RawUsageResponse {
-  codex: RawProviderUsage;
-  claudeCode: RawProviderUsage;
-  cursor: RawProviderUsage;
-}
+export type RawUsageResponse = Record<string, RawProviderUsage>;
 
 export interface UsageWindow {
   label: string;

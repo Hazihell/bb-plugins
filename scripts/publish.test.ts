@@ -2,27 +2,31 @@
 // checks that matter get a test each — most of all the one that reads the
 // manifest's bb.* paths back out of the packed file list.
 import { describe, expect, test } from "bun:test";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   ALLOWED_LICENSES,
+  bbArtifactNames,
   bbTargets,
   mirrorPackageName,
   nonRegistryProtocol,
   packedPaths,
   publishProblems,
+  sourceClosureProblems,
 } from "./publish";
 import { derivePluginId, workspacePlugins } from "./plugin-package";
-import { join } from "node:path";
 import type { PluginManifest } from "./plugin-package";
 
 /** A manifest and a packed file list that the gate accepts. */
 function healthy(): { manifest: PluginManifest; paths: string[] } {
   return {
     manifest: {
-      name: "@smsunarto/bb-plugin-example",
+      name: "bb-plugin-example",
       version: "1.0.0",
       description: "An example plugin.",
       repository: { type: "git", url: "git+https://example.invalid/x.git" },
-      author: "Scott Sunarto",
+      author: "Mateo Cerquetella",
       license: "MIT",
       publishConfig: { access: "public" },
       files: ["dist/", "assets/", "skills/", "LICENSE"],
@@ -72,6 +76,21 @@ describe("publishProblems", () => {
     expect(problems[0]).toContain("files");
   });
 
+  test("rejects a bb.host source entry that the files allowlist leaves out", () => {
+    const { manifest, paths } = healthy();
+    manifest.bb!.host = "./host.ts";
+
+    const problems = publishProblems(manifest, [
+      ...paths,
+      "dist/host.js",
+      "dist/host.meta.json",
+    ]);
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toContain("bb.host");
+    expect(problems[0]).toContain("./host.ts");
+    expect(problems[0]).toContain("files");
+  });
+
   test("rejects missing branding, theme, and skills targets", () => {
     const { manifest, paths } = healthy();
     manifest.bb!.themes = [{ id: "example", css: "./themes/example.css" }];
@@ -104,6 +123,22 @@ describe("publishProblems", () => {
     expect(problems).toEqual([
       "the tarball has no dist/app.meta.json, which bb requires of an npm plugin",
     ]);
+  });
+
+  test("requires both fixed host artifacts when bb.host is declared", () => {
+    const { manifest, paths } = healthy();
+    manifest.bb!.host = "./host.ts";
+    const withHostSource = [...paths, "host.ts"];
+
+    expect(publishProblems(manifest, withHostSource)).toEqual([
+      "the tarball has no dist/host.js, which bb requires of an npm plugin",
+      "the tarball has no dist/host.meta.json, which bb requires of an npm plugin",
+    ]);
+    expect(publishProblems(manifest, [
+      ...withHostSource,
+      "dist/host.js",
+      "dist/host.meta.json",
+    ])).toEqual([]);
   });
 
   test("rejects dependencies the registry cannot serve", () => {
@@ -182,9 +217,20 @@ describe("publishProblems", () => {
 });
 
 describe("bbTargets", () => {
+  test("includes the host source entry as a package file target", () => {
+    expect(bbTargets({
+      name: "bb-plugin-example",
+      bb: { server: "./server.ts", host: "./host.ts" },
+    })).toContainEqual({
+      label: "bb.host",
+      entry: "./host.ts",
+      tree: false,
+    });
+  });
+
   test("strips a trailing /* from a skills root the way bb does", () => {
     const targets = bbTargets({
-      name: "@smsunarto/bb-plugin-example",
+      name: "bb-plugin-example",
       bb: { server: "./dist/server.js", skills: ["skills/*"] },
     });
     expect(targets).toContainEqual({
@@ -195,7 +241,7 @@ describe("bbTargets", () => {
     // Explicitly: the "/*" must not be looked for as a literal file name.
     expect(publishProblems(
       {
-        name: "@smsunarto/bb-plugin-example",
+        name: "bb-plugin-example",
         license: "MIT",
         files: ["dist/"],
         description: "x",
@@ -206,6 +252,36 @@ describe("bbTargets", () => {
       },
       ["LICENSE", "dist/server.js", "dist/server.meta.json", "skills/a/SKILL.md"],
     )).toEqual([]);
+  });
+});
+
+describe("bbArtifactNames", () => {
+  test("includes host metadata in the publish-time version check", () => {
+    expect(bbArtifactNames({
+      name: "bb-plugin-example",
+      bb: { server: "./server.ts", app: "./app.tsx", host: "./host.ts" },
+    })).toEqual(["server", "app", "host"]);
+  });
+});
+
+describe("sourceClosureProblems", () => {
+  test("walks imports from the host source entry", () => {
+    const dir = mkdtempSync(join(tmpdir(), "bb-publish-host-"));
+    try {
+      writeFileSync(join(dir, "host.ts"), 'import "./contract.js";\n');
+      writeFileSync(join(dir, "contract.ts"), "export const contract = {};\n");
+      const manifest: PluginManifest = {
+        name: "bb-plugin-example",
+        bb: { host: "./host.ts" },
+      };
+
+      const missing = sourceClosureProblems(dir, manifest, ["host.ts"]);
+      expect(missing).toHaveLength(1);
+      expect(missing[0]).toContain('"contract.ts"');
+      expect(sourceClosureProblems(dir, manifest, ["host.ts", "contract.ts"])).toEqual([]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 
@@ -232,8 +308,8 @@ describe("nonRegistryProtocol", () => {
 // plugin rather than the same one, so the id equality is the real assertion.
 describe("mirrorPackageName", () => {
   test("a scoped name mirrors to its unscoped twin", () => {
-    expect(mirrorPackageName("@smsunarto/bb-plugin-notify")).toBe("bb-plugin-notify");
-    expect(mirrorPackageName("@smsunarto/bb-plugin-gh-stack")).toBe("bb-plugin-gh-stack");
+    expect(mirrorPackageName("@scope/bb-plugin-notify")).toBe("bb-plugin-notify");
+    expect(mirrorPackageName("@scope/bb-plugin-gh-stack")).toBe("bb-plugin-gh-stack");
   });
 
   test("an already-unscoped name has no mirror, so it publishes once", () => {
@@ -241,10 +317,10 @@ describe("mirrorPackageName", () => {
   });
 
   for (const plugin of workspacePlugins(join(import.meta.dir, ".."))) {
-    test(`${plugin.directory} mirrors to a name bb reads as the same plugin`, () => {
+    test(`${plugin.directory} publishes once under its unscoped name`, () => {
       const mirror = mirrorPackageName(plugin.name);
-      expect(mirror).toBe(`bb-plugin-${plugin.directory}`);
-      expect(derivePluginId(mirror as string)).toBe(plugin.id);
+      expect(mirror).toBeNull();
+      expect(derivePluginId(plugin.name)).toBe(plugin.id);
     });
   }
 });
@@ -261,7 +337,7 @@ describe("packedPaths", () => {
     "packed 510B server.ts",
     "packed 18.45KB themes/bb-monokai.css",
     "",
-    "smsunarto-bb-plugin-monokai-0.1.0.tgz",
+    "bb-plugin-monokai-0.1.0.tgz",
     "",
     "Total files: 4",
     "Unpacked size: 38.83KB",
@@ -277,7 +353,7 @@ describe("packedPaths", () => {
   });
 
   test("keeps the tarball name and size lines out of the file list", () => {
-    expect(packedPaths(real)).not.toContain("smsunarto-bb-plugin-monokai-0.1.0.tgz");
+    expect(packedPaths(real)).not.toContain("bb-plugin-monokai-0.1.0.tgz");
   });
 
   test("throws when the count disagrees with bun's own total", () => {

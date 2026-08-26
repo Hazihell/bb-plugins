@@ -30,17 +30,17 @@ thread it came from.
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-notify
+bb plugin install npm:bb-plugin-notify
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-notify' build
+bun run --filter 'bb-plugin-notify' build
 bb plugin install ./plugins/notify
 ```
 
@@ -170,8 +170,8 @@ Install from source as shown under [Install](#install), then check a change
 with:
 
 ```sh
-bun run --filter '@smsunarto/bb-plugin-notify' typecheck
-bun run --filter '@smsunarto/bb-plugin-notify' test
+bun run --filter 'bb-plugin-notify' typecheck
+bun run --filter 'bb-plugin-notify' test
 ```
 
 The test script needs Node 22.6+.

@@ -1,16 +1,16 @@
 {
-  "name": "@smsunarto/bb-plugin-agent-proxy",
+  "name": "bb-plugin-agent-proxy",
   "version": "0.1.0",
   "description": "Run CLIProxyAPI as a persistent macOS or Linux service with OAuth accounts, providers, usage, and agent wiring.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/agent-proxy",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/agent-proxy",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/agent-proxy"
   },
   "keywords": [

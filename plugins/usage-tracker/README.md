@@ -8,6 +8,10 @@ Select either provider to reveal its full five-hour and weekly rows, including
 reset timing, without leaving the current thread. Use the refresh icon to fetch
 both providers again.
 
+Claude Code and Codex are enabled independently in **Settings → Plugins →
+Usage Tracker**. Both are shown by default; disable either one to remove it
+from the sidebar strip.
+
 ## What it shows
 
 - Five-hour and weekly percentages for Codex and Claude Code.
@@ -22,7 +26,7 @@ footer, removes everything on reload/disable, and runs alongside t3sidebar.
 ## Install
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-usage-tracker
+bb plugin install npm:bb-plugin-usage-tracker
 ```
 
 ## Develop

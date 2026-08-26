@@ -21,6 +21,7 @@ import {
   sidebarUsageSummary,
   sidebarUsageWindows,
 } from "../lib/sidebar-usage.ts";
+import { enabledSidebarProviderIds } from "../lib/preferences.ts";
 
 function healthyResponse(): RawUsageResponse {
   return {
@@ -73,6 +74,25 @@ function makeSdk(overrides: Partial<UsageSdk> = {}): UsageSdk {
   };
 }
 
+test("enables sidebar providers independently in display order", () => {
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: true }),
+    ["claudeCode", "codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: false }),
+    ["claudeCode"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: true }),
+    ["codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: false }),
+    [],
+  );
+});
+
 test("normalizes providers in stable order with every usage window", () => {
   const snapshot = normalizeUsage(
     healthyResponse(),
@@ -97,6 +117,21 @@ test("normalizes providers in stable order with every usage window", () => {
   assert.match(snapshot.providers[1]?.message ?? "", /`claude`/);
   assert.equal(snapshot.providers[2]?.status, "unauthenticated");
   assert.match(snapshot.providers[2]?.message ?? "", /cursor-agent login/);
+});
+
+test("ignores usage entries outside the tracked provider roster", () => {
+  const snapshot = normalizeUsage(
+    {
+      ...healthyResponse(),
+      anotherProvider: { status: "not_installed" },
+    },
+    { id: null, name: null },
+  );
+
+  assert.deepEqual(
+    snapshot.providers.map((provider) => provider.id),
+    ["codex", "claudeCode", "cursor"],
+  );
 });
 
 test("normalizes not-installed and provider-error states", () => {

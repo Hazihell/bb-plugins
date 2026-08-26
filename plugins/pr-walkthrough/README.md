@@ -52,10 +52,10 @@ approval verdicts. "Reviewed" means you read it.
 ## Install
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-pr-walkthrough' build
+bun run --filter 'bb-plugin-pr-walkthrough' build
 bb plugin install ./plugins/pr-walkthrough
 ```
 

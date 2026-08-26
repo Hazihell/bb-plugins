@@ -1,6 +1,6 @@
 # Third-party notices
 
-`@smsunarto/bb-plugin-agent-proxy` ships pre-built artifacts. The bundlers copy
+`bb-plugin-agent-proxy` ships pre-built artifacts. The bundlers copy
 code from the projects listed below into `dist/server.js`, `dist/app.js`, and
 `dist/app.css`, and the SVG files under `assets/` are derived from Hugeicons
 artwork. This file gives the attribution those licences require.

@@ -31,7 +31,7 @@ keeping bb's defaults.
 **From npm** — install the plugin, then select the palette:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-monokai
+bb plugin install npm:bb-plugin-monokai
 bb theme set plugin:monokai:bb-monokai
 ```
 
@@ -39,10 +39,10 @@ bb theme set plugin:monokai:bb-monokai
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-monokai' build
+bun run --filter 'bb-plugin-monokai' build
 bb plugin install ./plugins/monokai
 bb theme set plugin:monokai:bb-monokai
 ```
