@@ -10,7 +10,6 @@
 
 <p align="center">
   <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
-  <a href="https://www.npmjs.com/package/bb-plugin-taskboard"><img src="https://img.shields.io/npm/v/bb-plugin-taskboard?style=flat-square" alt="npm version" /></a>
   <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
   <img src="https://img.shields.io/badge/GitHub%20%C2%B7%20Linear%20%C2%B7%20Jira-supported-2563eb?style=flat-square" alt="GitHub, Linear, and Jira supported" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
@@ -60,11 +59,18 @@ task to an agent without rebuilding context by hand.
 
 ## Install
 
-Taskboard is a full-trust BB plugin. Review the source, then install the public
-[npm package](https://www.npmjs.com/package/bb-plugin-taskboard):
+Taskboard is a full-trust BB plugin. Review the source, then install its tracking
+Git release directly from this monorepo:
 
 ```sh
-bb plugin install npm:bb-plugin-taskboard
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
+```
+
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+is merged and live, the equivalent shorthand is:
+
+```sh
+bb plugin install taskboard
 ```
 
 Open **Taskboard → Manage**, choose a BB project, select its tracker, and save
@@ -72,7 +78,7 @@ the connection. The same page configures that project's filters, default
 layout, and workflow ordering. Each project selects exactly one tracker; other
 projects can choose a different provider and board setup.
 
-Update, reload, or remove the npm installation later:
+Update, reload, or remove the managed Git installation later:
 
 ```sh
 bb plugin outdated

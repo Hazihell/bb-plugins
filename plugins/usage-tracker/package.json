@@ -1,6 +1,7 @@
 {
   "name": "bb-plugin-usage-tracker",
   "version": "0.1.2",
+  "private": true,
   "description": "Compact Codex and Claude usage limits in bb's sidebar footer.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
@@ -23,9 +24,6 @@
     "claude-code",
     "cursor"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "type": "module",
   "engines": {
     "bb": ">=0.38",
@@ -45,24 +43,6 @@
     "app": "./app.tsx",
     "skills": []
   },
-  "files": [
-    "dist/server.js",
-    "dist/server.meta.json",
-    "dist/app.js",
-    "dist/app.meta.json",
-    "dist/app.css",
-    "assets/",
-    "CHANGELOG.md",
-    "README.md",
-    "LICENSE",
-    "THIRD_PARTY_NOTICES.md",
-    "server.ts",
-    "app.tsx",
-    "app.css",
-    "lib/",
-    "types/",
-    "tsconfig.json"
-  ],
   "dependencies": {
     "zod": "^4.3.6"
   },
@@ -80,7 +60,6 @@
     "types:check": "env -u BB_CLI bb plugin types --check .",
     "types:refresh": "env -u BB_CLI bb plugin types .",
     "test": "node --test --experimental-strip-types test/*.test.ts",
-    "check": "npm run types:check && npm run typecheck && npm test && npm run build",
-    "prepack": "npm run check"
+    "check": "npm run types:check && npm run typecheck && npm test && npm run build"
   }
 }

@@ -9,7 +9,6 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/bb-plugin-usage-tracker"><img src="https://img.shields.io/npm/v/bb-plugin-usage-tracker?style=flat-square" alt="npm version" /></a>
   <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
@@ -37,10 +36,17 @@ usage reading, without adding a navigation item or a separate plugin page.
 
 ## Install
 
-Usage Tracker requires BB 0.38 or newer. Install the public npm package:
+Usage Tracker requires BB 0.38 or newer. Install its tracking Git release:
 
 ```sh
-bb plugin install npm:bb-plugin-usage-tracker
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+```
+
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+is updated and live, the equivalent shorthand is:
+
+```sh
+bb plugin install usage-tracker
 ```
 
 The strip appears in the bottom of the sidebar as soon as the plugin loads.
@@ -124,7 +130,6 @@ npm run build --workspace bb-plugin-usage-tracker
 
 ## Links
 
-- [npm package](https://www.npmjs.com/package/bb-plugin-usage-tracker)
 - [Source repository](https://github.com/MateoCerquetella/bb-plugins)
 - [Issue tracker](https://github.com/MateoCerquetella/bb-plugins/issues)
 - [MIT license](./LICENSE)

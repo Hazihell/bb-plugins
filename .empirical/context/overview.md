@@ -2,7 +2,7 @@
 
 ## Purpose
 
-- This npm workspace contains focused plugins for BB, the agent IDE.
+- This workspace contains focused plugins for BB, the agent IDE.
 - Taskboard gives each BB project one GitHub, Linear, or Jira-backed List/Kanban
   board with cached browsing, live detail, status changes, issue creation,
   mentions, CLI access, and agent handoff.
@@ -19,6 +19,9 @@
 - Taskboard selects exactly one external tracker per BB project. Provider APIs
   remain authoritative; Taskboard stores project configuration, credentials,
   cached summaries, sync state, and board preferences.
+- Taskboard and Usage Tracker are private/non-publishable workspaces. They
+  release through immutable plugin-specific Git tags plus the BB Community
+  marketplace.
 - Generated `dist/` and `node_modules/` are build/install products, not authored
   source and are not committed.
 - Empirical tracker integration is explicitly disabled in this checkout, so
@@ -31,5 +34,7 @@
 - Taskboard behavior and package contract: `plugins/taskboard/README.md`,
   `plugins/taskboard/package.json`, `plugins/taskboard/server.ts`, and
   `plugins/taskboard/app.tsx`.
+- Taskboard distribution contract:
+  `.empirical/capabilities/taskboard-distribution/spec.md`.
 - Usage Tracker behavior: `plugins/usage-tracker/README.md` and its manifest.
 - Hosted verification: `.github/workflows/ci.yml`.
