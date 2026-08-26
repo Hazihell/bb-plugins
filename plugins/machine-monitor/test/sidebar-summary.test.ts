@@ -406,7 +406,7 @@ describe("Host Monitor sidebar threshold colors", () => {
     );
   });
 
-  it("colors download blue and upload red independently of threshold colors", () => {
+  it("colors download red and upload blue independently of threshold colors", () => {
     const css = readFileSync(
       new URL("../app.css", import.meta.url),
       "utf8",
@@ -425,11 +425,11 @@ describe("Host Monitor sidebar threshold colors", () => {
     );
     assert.match(
       sidebarCss,
-      /--host-monitor-network-down:\s*var\(--timeline-accent\)/u,
+      /--host-monitor-network-down:\s*var\(--destructive\)/u,
     );
     assert.match(
       sidebarCss,
-      /--host-monitor-network-up:\s*var\(--destructive\)/u,
+      /--host-monitor-network-up:\s*var\(--timeline-accent\)/u,
     );
   });
 

@@ -71,7 +71,7 @@ test("keeps threshold color hooks on percentages without rendering a legend or c
   assert.match(accessorySource, /hosts connected, all healthy/u);
 });
 
-test("marks download blue and upload red across network readings", () => {
+test("marks download red and upload blue across network readings", () => {
   const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
   const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
 
@@ -89,8 +89,44 @@ test("marks download blue and upload red across network readings", () => {
     source,
     /valueNetworkDirection=\{network\.available \? "up" : undefined\}/u,
   );
-  assert.match(css, /--host-monitor-network-down:\s*var\(--timeline-accent\)/u);
-  assert.match(css, /--host-monitor-network-up:\s*var\(--destructive\)/u);
+  assert.match(css, /--host-monitor-network-down:\s*var\(--destructive\)/u);
+  assert.match(css, /--host-monitor-network-up:\s*var\(--timeline-accent\)/u);
+});
+
+test("keeps the redesigned host cards flat, private, and keyboard-native", () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
+  const cardStart = source.indexOf("function FleetCardGrid(");
+  const cardEnd = source.indexOf("function DesktopFleetTable(", cardStart);
+  const skeletonStart = source.indexOf("function FleetSkeleton(");
+  const skeletonEnd = source.indexOf("function ErrorNotice(", skeletonStart);
+
+  assert.notEqual(cardStart, -1);
+  assert.notEqual(cardEnd, -1);
+  assert.notEqual(skeletonStart, -1);
+  assert.notEqual(skeletonEnd, -1);
+  const cardSource = source.slice(cardStart, cardEnd);
+  const skeletonSource = source.slice(skeletonStart, skeletonEnd);
+
+  assert.equal([...cardSource.matchAll(/<button\b/gu)].length, 1);
+  assert.match(cardSource, /aria-current=\{selected \? "true" : undefined\}/u);
+  assert.match(cardSource, /<CardMachineIdentity machine=\{machine\}/u);
+  assert.match(cardSource, /<CardMetric/u);
+  assert.match(cardSource, /<IpAddressValue/u);
+  assert.match(cardSource, /const sampleLabel = cardSampleLabel\(machine\)/u);
+  assert.match(cardSource, /<span className="sr-only">\{network\.accessibleText\}<\/span>/u);
+  assert.match(cardSource, />Download<\/span>/u);
+  assert.match(cardSource, />Upload<\/span>/u);
+  assert.match(cardSource, /data-network-direction="down"/u);
+  assert.match(cardSource, /data-network-direction="up"/u);
+  assert.match(skeletonSource, /machine-monitor-card-skeleton__metadata/u);
+  assert.match(skeletonSource, /machine-monitor-card-skeleton__metric/u);
+  assert.match(skeletonSource, /machine-monitor-card-skeleton__network/u);
+  assert.match(css, /minmax\(min\(100%, 20rem\), 1fr\)/u);
+  assert.match(css, /\.machine-monitor-host-card__status\[data-connected="false"\]/u);
+  assert.match(css, /\.machine-monitor-host-card__network-lane/u);
+  assert.match(css, /\.machine-monitor-host-card__network-direction/u);
+  assert.match(css, /\.machine-monitor-host-card\[aria-current="true"\]/u);
 });
 
 test("registers the Host Monitor sidebar surfaces and targeted inspector", async () => {

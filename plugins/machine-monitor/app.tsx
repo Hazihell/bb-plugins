@@ -559,6 +559,14 @@ function machineSampleLabel(machine: MachineRow): string {
   return age;
 }
 
+function cardSampleLabel(machine: MachineRow): string {
+  const label = machineSampleLabel(machine);
+  if (machine.sampleState === "fresh" && machine.snapshot !== null) {
+    return `Updated ${label}`;
+  }
+  return `${label.charAt(0).toUpperCase()}${label.slice(1)}`;
+}
+
 function machineDescription(machine: MachineRow): string {
   if (machine.snapshot !== null) {
     return `${machine.snapshot.system.osName} · ${machine.snapshot.system.arch}`;
@@ -588,18 +596,21 @@ function MachineIdentity({ machine }: { machine: MachineRow }) {
 }
 
 function CardMachineIdentity({ machine }: { machine: MachineRow }) {
-  const presentation = machineBadgePresentation(machine);
+  const description = machineDescription(machine);
 
   return (
     <span className="machine-monitor-host-card__identity">
       <span
         aria-hidden="true"
         className="machine-monitor-host-card__status"
-        data-tone={presentation.tone}
+        data-connected={machine.host.status === "connected" ? "true" : "false"}
       />
       <span className="machine-monitor-host-card__identity-copy">
         <span className="machine-monitor-host-card__name">
           {machine.host.name}
+        </span>
+        <span className="machine-monitor-host-card__system" title={description}>
+          {description}
         </span>
       </span>
     </span>
@@ -870,18 +881,31 @@ function FleetSkeleton({ mode }: { mode: FleetViewMode }) {
               </span>
               <span className="machine-monitor-skeleton block h-5 w-16 rounded-full" />
             </span>
-            <span className="machine-monitor-card-skeleton__ip machine-monitor-skeleton block h-2.5 w-24 rounded" />
+            <span className="machine-monitor-card-skeleton__metadata">
+              <span className="machine-monitor-skeleton block h-2.5 w-24 rounded" />
+              <span className="machine-monitor-skeleton block h-2.5 w-16 rounded" />
+            </span>
             <span className="machine-monitor-card-skeleton__metrics">
               {Array.from({ length: 3 }, (_, metricIndex) => (
-                <span key={metricIndex} className="space-y-2">
-                  <span className="machine-monitor-skeleton block h-2.5 w-3/4 rounded" />
-                  <span className="machine-monitor-skeleton block h-0.5 w-full rounded-full" />
+                <span key={metricIndex} className="machine-monitor-card-skeleton__metric">
+                  <span className="machine-monitor-skeleton block h-2 w-8 rounded" />
+                  <span className="machine-monitor-skeleton block h-4 w-12 rounded" />
+                  <span className="machine-monitor-skeleton block h-[3px] w-full rounded-full" />
                 </span>
               ))}
             </span>
             <span className="machine-monitor-card-skeleton__footer">
-              <span className="machine-monitor-skeleton block h-2.5 w-20 rounded" />
-              <span className="machine-monitor-skeleton block h-2.5 w-14 rounded" />
+              <span className="machine-monitor-skeleton block h-2 w-14 rounded" />
+              <span className="machine-monitor-card-skeleton__network">
+                <span className="space-y-1.5">
+                  <span className="machine-monitor-skeleton block h-2 w-12 rounded" />
+                  <span className="machine-monitor-skeleton block h-3 w-16 rounded" />
+                </span>
+                <span className="space-y-1.5">
+                  <span className="machine-monitor-skeleton block h-2 w-10 rounded" />
+                  <span className="machine-monitor-skeleton block h-3 w-16 rounded" />
+                </span>
+              </span>
             </span>
           </span>
         ))}
@@ -954,6 +978,7 @@ function FleetCardGrid({
           machine.snapshot?.network.receiveBytesPerSecond ?? null,
           machine.snapshot?.network.sendBytesPerSecond ?? null,
         );
+        const sampleLabel = cardSampleLabel(machine);
         return (
           <li key={machine.host.id} className="min-w-0">
             <button
@@ -972,13 +997,6 @@ function FleetCardGrid({
                 </span>
               </span>
               <span className="machine-monitor-host-card__metadata">
-                <span
-                  className="machine-monitor-host-card__system"
-                  title={machineDescription(machine)}
-                >
-                  {machineDescription(machine)}
-                </span>
-                <span aria-hidden="true" className="machine-monitor-host-card__separator" />
                 <IpAddressValue
                   className="machine-monitor-host-card__ip"
                   machine={machine}
@@ -987,9 +1005,9 @@ function FleetCardGrid({
                 <span aria-hidden="true" className="machine-monitor-host-card__separator" />
                 <span
                   className="machine-monitor-host-card__sample"
-                  title={machineSampleLabel(machine)}
+                  title={sampleLabel}
                 >
-                  {machineSampleLabel(machine)}
+                  {sampleLabel}
                 </span>
               </span>
 
@@ -1013,19 +1031,25 @@ function FleetCardGrid({
                   <span className="sr-only">{network.accessibleText}</span>
                   <span aria-hidden="true" className="machine-monitor-host-card__network-label">Network</span>
                   <span aria-hidden="true" className="machine-monitor-host-card__network-rates">
-                    <span
-                      className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
-                      data-network-direction="down"
-                    >
-                      <span className="machine-monitor-network-rate__arrow">↓</span>
-                      <span className="machine-monitor-network-rate__value font-mono">{network.receive}</span>
+                    <span className="machine-monitor-host-card__network-lane">
+                      <span className="machine-monitor-host-card__network-direction">Download</span>
+                      <span
+                        className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
+                        data-network-direction="down"
+                      >
+                        <span className="machine-monitor-network-rate__arrow">↓</span>
+                        <span className="machine-monitor-network-rate__value font-mono">{network.receive}</span>
+                      </span>
                     </span>
-                    <span
-                      className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
-                      data-network-direction="up"
-                    >
-                      <span className="machine-monitor-network-rate__arrow">↑</span>
-                      <span className="machine-monitor-network-rate__value font-mono">{network.send}</span>
+                    <span className="machine-monitor-host-card__network-lane">
+                      <span className="machine-monitor-host-card__network-direction">Upload</span>
+                      <span
+                        className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
+                        data-network-direction="up"
+                      >
+                        <span className="machine-monitor-network-rate__arrow">↑</span>
+                        <span className="machine-monitor-network-rate__value font-mono">{network.send}</span>
+                      </span>
                     </span>
                   </span>
                 </span>

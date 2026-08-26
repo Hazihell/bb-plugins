@@ -8,7 +8,9 @@ It keeps each host isolated: a failed or disconnected machine never prevents
 the fleet matrix from updating, and the last successful reading stays visible
 when a machine goes offline. Select a host to open that machine's telemetry in
 bb's native Inspect panel. The dashboard defaults to responsive host cards;
-the Cards/Rows choice is remembered per browser.
+the Cards/Rows choice is remembered per browser. Each card keeps host identity
+and freshness prominent, groups CPU/RAM/disk into one pressure strip, and
+separates download and upload into labeled network lanes.
 
 Each sampled host can report one validated primary IP address. Host Monitor
 keeps it out of the rendered page until you explicitly choose **Show IPs** (or
@@ -49,9 +51,9 @@ percentages are red. Labels, progress rails, machine status, and connected-host
 counts stay neutral. Host Monitor's plugin settings let you adjust the yellow
 and red cutoffs or turn threshold colors off without hiding any information.
 The same cutoffs apply to health classification, the full page, sidebar
-popover, and floating window. Network throughput uses bb's blue timeline
-accent for downloads and destructive red for uploads independently of
-threshold colors; the arrows keep receive and send readings distinct.
+popover, and floating window. Network throughput uses destructive red for
+downloads and bb's blue timeline accent for uploads independently of threshold
+colors; the arrows keep receive and send readings distinct.
 
 Select **Processes** from Host details—or use the contextual action on a CPU
 or memory pressure alert—to inspect that host's current workload. The view is
