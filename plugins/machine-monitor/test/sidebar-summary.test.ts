@@ -406,7 +406,7 @@ describe("Host Monitor sidebar threshold colors", () => {
     );
   });
 
-  it("colors network throughput by direction independently of threshold colors", () => {
+  it("colors download blue and upload red independently of threshold colors", () => {
     const css = readFileSync(
       new URL("../app.css", import.meta.url),
       "utf8",
@@ -422,6 +422,14 @@ describe("Host Monitor sidebar threshold colors", () => {
     assert.match(
       sidebarCss,
       /\.host-monitor-sidebar__metric\[data-network-direction="up"\][^{}]*\.host-monitor-sidebar__metric-value\s*\{[^{}]*var\(--host-monitor-network-up\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /--host-monitor-network-down:\s*var\(--timeline-accent\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /--host-monitor-network-up:\s*var\(--destructive\)/u,
     );
   });
 

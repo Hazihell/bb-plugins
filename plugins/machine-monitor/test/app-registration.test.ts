@@ -71,8 +71,9 @@ test("keeps threshold color hooks on percentages without rendering a legend or c
   assert.match(accessorySource, /hosts connected, all healthy/u);
 });
 
-test("marks receive and send values for stable directional network colors", () => {
+test("marks download blue and upload red across network readings", () => {
   const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
 
   assert.match(source, /machine-monitor-network-rate__arrow/u);
   assert.match(source, /machine-monitor-network-rate__value/u);
@@ -88,6 +89,8 @@ test("marks receive and send values for stable directional network colors", () =
     source,
     /valueNetworkDirection=\{network\.available \? "up" : undefined\}/u,
   );
+  assert.match(css, /--host-monitor-network-down:\s*var\(--timeline-accent\)/u);
+  assert.match(css, /--host-monitor-network-up:\s*var\(--destructive\)/u);
 });
 
 test("registers the Host Monitor sidebar surfaces and targeted inspector", async () => {
@@ -114,7 +117,7 @@ test("registers the Host Monitor sidebar surfaces and targeted inspector", async
   assert.equal(typeof panel.headerContent, "function");
   assert.equal(typeof panel.experimental_sidebarAccessory, "function");
 
-  assert.equal(panel.fixedTabs?.length, 1);
+  assert.equal(panel.fixedTabs?.length, 2);
   const inspectTab = panel.fixedTabs?.[0];
   assert.ok(inspectTab);
   assert.deepEqual(
@@ -151,6 +154,48 @@ test("registers the Host Monitor sidebar surfaces and targeted inspector", async
     assert.equal(validateTarget(target), false);
   }
 
+  const processesTab = panel.fixedTabs?.[1];
+  assert.ok(processesTab);
+  assert.deepEqual(
+    {
+      panelId: processesTab.panelId,
+      id: processesTab.id,
+      title: processesTab.title,
+      icon: processesTab.icon,
+      layout: processesTab.layout,
+    },
+    {
+      panelId: "machines",
+      id: "processes",
+      title: "Processes",
+      icon: "Activity",
+      layout: "flush",
+    },
+  );
+  assert.equal(typeof processesTab.component, "function");
+  assert.ok(processesTab.experimental_target);
+  const validateProcessesTarget = processesTab.experimental_target.validate;
+  assert.equal(
+    validateProcessesTarget({ hostId: "host-alpha", initialSort: "cpu" }),
+    true,
+  );
+  assert.equal(
+    validateProcessesTarget({ hostId: "host-alpha", initialSort: "memory" }),
+    true,
+  );
+  const malformedProcessTargets: JsonValue[] = [
+    null,
+    {},
+    { hostId: "host-alpha" },
+    { initialSort: "cpu" },
+    { hostId: "", initialSort: "cpu" },
+    { hostId: "host-alpha", initialSort: "name" },
+    { hostId: "host-alpha", initialSort: "cpu", extra: true },
+  ];
+  for (const target of malformedProcessTargets) {
+    assert.equal(validateProcessesTarget(target), false);
+  }
+
   assert.equal(registrations.sidebarFooterActions.length, 1);
   const footerAction = registrations.sidebarFooterActions[0];
   assert.ok(footerAction);
@@ -173,4 +218,107 @@ test("registers the Host Monitor sidebar surfaces and targeted inspector", async
   assert.ok(contentScript);
   assert.equal(contentScript.id, "host-monitor-sidebar");
   assert.equal(typeof contentScript.mount, "function");
+});
+
+test("keeps process inspection on demand, target-bound, and privacy-safe", () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /PROCESS_POLL_INTERVAL_MS = 5_000/u);
+  assert.match(source, /rpc\.call\("listProcesses"/u);
+  assert.match(source, /rpc\.call\("prepareProcessTermination"/u);
+  assert.match(source, /rpc\.call\("executeProcessTermination"/u);
+  assert.match(source, /confirmationToken: token/u);
+  assert.match(source, /consumedTokens\.current\.has\(token\)/u);
+  assert.match(source, /onOpenAutoFocus/u);
+  assert.match(source, /cancelRef\.current\?\.focus\(\)/u);
+  assert.match(source, /onCloseAutoFocus/u);
+  assert.match(source, /usePortalScopeProps/u);
+  assert.match(source, /forceContext.*"persisted"/su);
+  assert.doesNotMatch(source, /process\.command|process\.user|process\.path/u);
+  const processesStart = source.indexOf("function ProcessesPanel()");
+  const processesEnd = source.indexOf("function InspectorEmpty(", processesStart);
+  assert.notEqual(processesStart, -1);
+  assert.notEqual(processesEnd, -1);
+  assert.doesNotMatch(
+    source.slice(processesStart, processesEnd),
+    /targetState\?\.target\.hostId \?\?/u,
+  );
+  assert.doesNotMatch(
+    source.slice(processesStart, processesEnd),
+    /thresholdTone|data-host-monitor-threshold-colors/u,
+  );
+  assert.doesNotMatch(
+    source.slice(processesStart, processesEnd),
+    /bulk|process tree|auto.?kill/iu,
+  );
+  const processesSource = source.slice(processesStart, processesEnd);
+  assert.match(processesSource, /prepareInFlight\.current/u);
+  assert.match(processesSource, /sequence !== prepareSequence\.current/u);
+  assert.match(processesSource, /generation !== targetGeneration\.current/u);
+  assert.match(processesSource, /listInFlight\.current/u);
+  assert.match(processesSource, /listQueued\.current/u);
+  assert.match(processesSource, /!actionBusyRef\.current/u);
+  assert.match(processesSource, /actionsBusy=\{destructiveActionsBusy\}/u);
+  assert.match(source, /preferred\?\.isConnected/u);
+  assert.match(source, /preferred\.disabled/u);
+  assert.match(source, /getAttribute\("aria-disabled"\) === "true"/u);
+  assert.match(source, /fallbackFocus\.current\?\.isConnected/u);
+  assert.match(source, /fallbackFocus\.current\.focus\(\)/u);
+  assert.match(processesSource, /params\.sortBy === listParams\.current\.sortBy/u);
+  assert.match(processesSource, /dashboard\.dashboard\?\.machines\.find/u);
+  assert.match(processesSource, /ref=\{fallbackFocus\}/u);
+  assert.match(processesSource, /tabIndex=\{-1\}/u);
+  assert.match(processesSource, /toast\.info\(executed\.message\)/u);
+  assert.doesNotMatch(processesSource, /toast\.success/u);
+  assert.match(
+    processesSource,
+    /Host Monitor could not confirm whether the stop request completed\. Refresh before trying again\./u,
+  );
+  assert.doesNotMatch(processesSource, /connection dropped/iu);
+  assert.match(processesSource, /consumedTokens\.current\.delete\(token\)/u);
+  assert.match(
+    processesSource,
+    /aria-label="Sort processes; Process is A to Z, CPU and RAM are highest first"/u,
+  );
+  assert.match(processesSource, /filterProcessRows\(sortedRows, processQuery\)/u);
+  assert.match(processesSource, /aria-keyshortcuts="Escape"/u);
+  assert.match(processesSource, /ProcessSummaryStrip/u);
+  assert.match(processesSource, /machine-monitor-process-surface/u);
+  assert.match(
+    source,
+    /<th aria-label=\{`\$\{row\.name\}, PID \$\{row\.pid\}`\} scope="row">/u,
+  );
+  assert.match(processesSource, /maximumCpu=\{maximumCpu\}/u);
+  assert.match(processesSource, /maximumMemory=\{maximumMemory\}/u);
+});
+
+test("keeps process sorting responsive and accessible", () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
+
+  assert.match(source, /function ProcessTableSortHeader/u);
+  assert.match(source, /aria-sort=\{active \? direction : undefined\}/u);
+  assert.match(source, /className="machine-monitor-process-column-sort"/u);
+  assert.match(source, /onClick=\{\(\) => onSort\("name"\)\}/u);
+  assert.match(source, /onClick=\{\(\) => onSort\("cpu"\)\}/u);
+  assert.match(source, /onClick=\{\(\) => onSort\("memory"\)\}/u);
+  assert.match(source, /onSort=\{selectSort\}/u);
+  assert.match(source, /aria-pressed=\{active\}/u);
+  assert.match(source, /Sorted by Process, A to Z\./u);
+  assert.match(source, /Sorted by.*highest first\./u);
+  assert.equal([...source.matchAll(/<ProcessSortButton /gu)].length, 3);
+  assert.match(
+    css,
+    /@container \(min-width: 32rem\)\s*\{\s*\.machine-monitor-process-sort-group\s*\{\s*display:\s*none;/u,
+  );
+  assert.match(css, /\.machine-monitor-process-column-sort:focus-visible/u);
+});
+
+test("stamps portaled process confirmations with the plugin overlay scope", async () => {
+  const { usePortalScopeProps } = await import("../lib/portal-scope");
+  const scope = usePortalScopeProps();
+
+  assert.equal(scope["data-bb-portaled-overlay"], "");
+  assert.equal(scope["data-bb-plugin-root"], "");
+  assert.equal(scope["data-bb-plugin"], undefined);
 });

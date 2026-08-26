@@ -6,7 +6,11 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactNode,
+  type RefObject,
 } from "react";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import { toast } from "sonner";
 import {
   definePluginApp,
   experimental_useAppPanel as useAppPanel,
@@ -21,6 +25,11 @@ import {
 import type {
   Dashboard,
   MachineRow,
+  PreparedTermination,
+  ProcessListResult,
+  ProcessRow,
+  ProcessSortBy,
+  ProcessTerminationMode,
   rpcContract,
 } from "./contract";
 import {
@@ -38,6 +47,15 @@ import {
 } from "./lib/fleet-view-preference";
 import { primaryIpAddressPresentation } from "./lib/ip-address-presentation";
 import { networkRateSummary } from "./lib/network-presentation";
+import {
+  blockedProcessReason,
+  filterProcessRows,
+  processActionPresentation,
+  processOwnerLabel,
+  sortProcessRows,
+  summarizeProcessRows,
+} from "./lib/process-presentation";
+import { usePortalScopeProps } from "./lib/portal-scope";
 import {
   thresholdColorsEnabled,
   thresholdToneAccessibleLabel,
@@ -62,6 +80,11 @@ interface DashboardViewState {
 
 interface InspectTarget extends Record<string, JsonValue> {
   hostId: string;
+}
+
+interface ProcessesTarget extends Record<string, JsonValue> {
+  hostId: string;
+  initialSort: "cpu" | "memory";
 }
 
 const RECONCILE_INTERVAL_MS = 30_000;
@@ -95,6 +118,28 @@ const INSPECT_TAB = {
   id: "inspect",
   experimental_target: inspectTargetContract,
 } satisfies ExperimentalPluginFixedTabReference<InspectTarget>;
+
+const processesTargetContract = {
+  validate(value: JsonValue): value is ProcessesTarget {
+    if (typeof value !== "object" || value === null || Array.isArray(value)) {
+      return false;
+    }
+    return (
+      Object.keys(value).length === 2 &&
+      "hostId" in value &&
+      typeof value.hostId === "string" &&
+      value.hostId.length > 0 &&
+      "initialSort" in value &&
+      (value.initialSort === "cpu" || value.initialSort === "memory")
+    );
+  },
+};
+
+const PROCESSES_TAB = {
+  panelId: "machines",
+  id: "processes",
+  experimental_target: processesTargetContract,
+} satisfies ExperimentalPluginFixedTabReference<ProcessesTarget>;
 
 let dashboardState: DashboardViewState = {
   dashboard: null,
@@ -273,6 +318,45 @@ function AlertIcon({ className = "size-4" }: { className?: string }) {
         strokeWidth="1.7"
       />
       <path d="M12 9v4.25M12 16.5v.1" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+function ProcessesIcon({ className = "size-3.5" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+      <path
+        d="M4 7.5h16M4 12h16M4 16.5h16"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.6"
+      />
+      <circle cx="7" cy="7.5" fill="currentColor" r="1" />
+      <circle cx="12.5" cy="12" fill="currentColor" r="1" />
+      <circle cx="17" cy="16.5" fill="currentColor" r="1" />
+    </svg>
+  );
+}
+
+function SearchIcon({ className = "size-3.5" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+      <circle cx="10.5" cy="10.5" r="5.75" stroke="currentColor" strokeWidth="1.7" />
+      <path d="m15 15 4.25 4.25" stroke="currentColor" strokeLinecap="round" strokeWidth="1.7" />
+    </svg>
+  );
+}
+
+function ShieldIcon({ className = "size-3.5" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+      <path
+        d="M12 3.75 19 6.5v4.85c0 4.35-2.65 7.45-7 8.9-4.35-1.45-7-4.55-7-8.9V6.5l7-2.75Z"
+        stroke="currentColor"
+        strokeLinejoin="round"
+        strokeWidth="1.6"
+      />
+      <path d="M9.5 12.1 11.25 14l3.5-4" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.6" />
     </svg>
   );
 }
@@ -1255,13 +1339,13 @@ function NetworkRateDetails({ machine }: { machine: MachineRow }) {
     <>
       <DetailItem
         label="Network receive"
-        value={network.available ? network.receive : unavailable}
+        value={network.available ? `↓ ${network.receive}` : unavailable}
         valueClassName="machine-monitor-network-detail"
         valueNetworkDirection={network.available ? "down" : undefined}
       />
       <DetailItem
         label="Network send"
-        value={network.available ? network.send : unavailable}
+        value={network.available ? `↑ ${network.send}` : unavailable}
         valueClassName="machine-monitor-network-detail"
         valueNetworkDirection={network.available ? "up" : undefined}
       />
@@ -1325,6 +1409,983 @@ function IpAddressDetail({
   );
 }
 
+type ProcessListOk = Extract<ProcessListResult, { outcome: "ok" }>;
+type PreparedTerminationReady = Extract<
+  PreparedTermination,
+  { outcome: "ready" }
+>;
+type ForceDialogContext = "platform" | "persisted";
+
+const PROCESS_POLL_INTERVAL_MS = 5_000;
+const PROCESS_PAGE_LIMIT = 200;
+const PROCESS_SKELETON_ROWS = [
+  "process-skeleton-1",
+  "process-skeleton-2",
+  "process-skeleton-3",
+  "process-skeleton-4",
+  "process-skeleton-5",
+  "process-skeleton-6",
+  "process-skeleton-7",
+] as const;
+
+function ProcessSortIcon({ active, descending }: { active: boolean; descending: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`machine-monitor-process-sort-icon size-3 transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
+      fill="none"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d={descending ? "m7 14 5 5 5-5M12 5v14" : "m7 10 5-5 5 5M12 5v14"}
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function ProcessTableSortHeader({
+  active,
+  children,
+  direction,
+  disabled,
+  onClick,
+}: {
+  active: boolean;
+  children: string;
+  direction: "ascending" | "descending";
+  disabled: boolean;
+  onClick(): void;
+}) {
+  const directionLabel =
+    direction === "descending" ? "highest first" : "A to Z";
+  return (
+    <th
+      aria-sort={active ? direction : undefined}
+      className="machine-monitor-process-table__sortable"
+      scope="col"
+    >
+      <button
+        aria-label={`Sort by ${children}, ${directionLabel}${active ? ", selected" : ""}`}
+        className="machine-monitor-process-column-sort"
+        data-active={active ? "true" : "false"}
+        disabled={disabled}
+        onClick={onClick}
+        type="button"
+      >
+        {children}
+        <ProcessSortIcon active={active} descending={direction === "descending"} />
+      </button>
+    </th>
+  );
+}
+
+function ProcessSortButton({
+  active,
+  children,
+  disabled,
+  direction,
+  onClick,
+}: {
+  active: boolean;
+  children: string;
+  disabled?: boolean;
+  direction: "ascending" | "descending";
+  onClick(): void;
+}) {
+  return (
+    <button
+      aria-label={`${children}, ${direction === "descending" ? "highest first" : "A to Z"}${active ? ", selected" : ""}`}
+      aria-pressed={active}
+      className="machine-monitor-process-sort"
+      data-active={active ? "true" : "false"}
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+      <ProcessSortIcon active={active} descending={direction === "descending"} />
+    </button>
+  );
+}
+
+function ProcessListSkeleton() {
+  return (
+    <output
+      aria-label="Loading processes"
+      className="machine-monitor-process-skeleton"
+    >
+      {PROCESS_SKELETON_ROWS.map((rowId) => (
+        <span className="machine-monitor-process-skeleton__row" key={rowId}>
+          <span className="machine-monitor-process-skeleton__line machine-monitor-process-skeleton__line--name" />
+          <span className="machine-monitor-process-skeleton__line" />
+          <span className="machine-monitor-process-skeleton__line" />
+          <span className="machine-monitor-process-skeleton__line machine-monitor-process-skeleton__line--action" />
+        </span>
+      ))}
+    </output>
+  );
+}
+
+function ProcessStateMessage({
+  action,
+  message,
+  title,
+}: {
+  action?: ReactNode;
+  message: string;
+  title: string;
+}) {
+  return (
+    <div className="machine-monitor-process-state">
+      <ProcessesIcon className="size-5" />
+      <strong>{title}</strong>
+      <p>{message}</p>
+      {action}
+    </div>
+  );
+}
+
+function ProcessAction({
+  actionsBusy,
+  onPrepare,
+  pending,
+  row,
+}: {
+  actionsBusy: boolean;
+  onPrepare(row: ProcessRow, mode: ProcessTerminationMode, trigger: HTMLElement): void;
+  pending: boolean;
+  row: ProcessRow;
+}) {
+  const action = processActionPresentation(row);
+  if (action.disabled) {
+    return (
+      <button
+        aria-disabled="true"
+        aria-label={`${row.name}, PID ${row.pid}: ${action.reason}`}
+        className="machine-monitor-process-action"
+        data-protected="true"
+        title={action.reason ?? undefined}
+        type="button"
+      >
+        <ShieldIcon />
+        <span className="sr-only">{action.label}</span>
+      </button>
+    );
+  }
+  return (
+    <button
+      aria-label={`${action.label} ${row.name}, PID ${row.pid}`}
+      className="machine-monitor-process-action"
+      data-protected="false"
+      disabled={actionsBusy}
+      onClick={(event) => {
+        if (action.mode !== null) {
+          onPrepare(row, action.mode, event.currentTarget);
+        }
+      }}
+      title={action.reason ?? `${action.label} ${row.name}`}
+      type="button"
+    >
+      {pending ? <Spinner className="size-3" /> : null}
+      {pending ? "Checking…" : action.label}
+    </button>
+  );
+}
+
+function ProcessMetric({
+  detail,
+  maximum,
+  value,
+}: {
+  detail?: string;
+  maximum: number;
+  value: number;
+}) {
+  const relativeWidth =
+    maximum > 0 ? Math.max(0, Math.min(100, (value / maximum) * 100)) : 0;
+  return (
+    <span className="machine-monitor-process-metric">
+      <span className="machine-monitor-process-metric__readout">
+        <strong>{formatPercent(value)}</strong>
+        {detail === undefined ? null : <small>{detail}</small>}
+      </span>
+      <span aria-hidden="true" className="machine-monitor-process-metric__track">
+        <span style={{ width: `${relativeWidth}%` }} />
+      </span>
+    </span>
+  );
+}
+
+function ProcessSummaryStrip({ rows, totalCount }: { rows: ProcessRow[]; totalCount: number }) {
+  const summary = summarizeProcessRows(rows);
+  const actionableCount = rows.length - summary.protectedCount;
+  return (
+    <dl aria-label="Process summary" className="machine-monitor-process-summary">
+      <div>
+        <dt>Shown</dt>
+        <dd>
+          <strong>{rows.length}</strong>
+          <span>{rows.length === totalCount ? "processes" : `of ${totalCount} total`}</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Top CPU</dt>
+        <dd>
+          <span className="machine-monitor-process-summary__name" title={summary.topCpu?.name}>
+            {summary.topCpu?.name ?? "—"}
+          </span>
+          <strong>{summary.topCpu === null ? "—" : formatPercent(summary.topCpu.cpuPercent)}</strong>
+        </dd>
+      </div>
+      <div>
+        <dt>Top RAM</dt>
+        <dd>
+          <span className="machine-monitor-process-summary__name" title={summary.topMemory?.name}>
+            {summary.topMemory?.name ?? "—"}
+          </span>
+          <strong>{summary.topMemory === null ? "—" : formatPercent(summary.topMemory.memoryPercent)}</strong>
+        </dd>
+      </div>
+      <div>
+        <dt>Actions</dt>
+        <dd>
+          <strong>{actionableCount}</strong>
+          <span>available · {summary.protectedCount} protected</span>
+        </dd>
+      </div>
+    </dl>
+  );
+}
+
+function ProcessRows({
+  actionsBusy,
+  maximumCpu,
+  maximumMemory,
+  onPrepare,
+  onSort,
+  pendingIdentity,
+  rows,
+  sortBy,
+  sortDisabled,
+}: {
+  actionsBusy: boolean;
+  maximumCpu: number;
+  maximumMemory: number;
+  onPrepare(row: ProcessRow, mode: ProcessTerminationMode, trigger: HTMLElement): void;
+  onSort(sort: ProcessSortBy): void;
+  pendingIdentity: string | null;
+  rows: ProcessRow[];
+  sortBy: ProcessSortBy;
+  sortDisabled: boolean;
+}) {
+  return (
+    <>
+      <div className="machine-monitor-process-table">
+        <table>
+          <thead>
+            <tr>
+              <ProcessTableSortHeader
+                active={sortBy === "name"}
+                direction="ascending"
+                disabled={sortDisabled}
+                onClick={() => onSort("name")}
+              >
+                Process
+              </ProcessTableSortHeader>
+              <ProcessTableSortHeader
+                active={sortBy === "cpu"}
+                direction="descending"
+                disabled={sortDisabled}
+                onClick={() => onSort("cpu")}
+              >
+                CPU
+              </ProcessTableSortHeader>
+              <ProcessTableSortHeader
+                active={sortBy === "memory"}
+                direction="descending"
+                disabled={sortDisabled}
+                onClick={() => onSort("memory")}
+              >
+                RAM
+              </ProcessTableSortHeader>
+              <th scope="col"><span className="sr-only">Action</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr key={`${row.pid}:${row.identity ?? "protected"}`}>
+                <th aria-label={`${row.name}, PID ${row.pid}`} scope="row">
+                  <span className="machine-monitor-process-primary">
+                    <span aria-hidden="true" className="machine-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="machine-monitor-process-identity">
+                      <span className="machine-monitor-process-name" title={row.name}>{row.name}</span>
+                      <span className="machine-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
+                      {row.blockedReason === null ? null : (
+                        <span className="machine-monitor-process-protected-reason">
+                          {blockedProcessReason(row.blockedReason)}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                </th>
+                <td>
+                  <ProcessMetric maximum={maximumCpu} value={row.cpuPercent} />
+                </td>
+                <td>
+                  <ProcessMetric
+                    detail={formatBytes(row.rssBytes)}
+                    maximum={maximumMemory}
+                    value={row.memoryPercent}
+                  />
+                </td>
+                <td className="machine-monitor-process-action-cell">
+                  <ProcessAction
+                    actionsBusy={actionsBusy}
+                    onPrepare={onPrepare}
+                    pending={row.identity !== null && pendingIdentity === row.identity}
+                    row={row}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <ol className="machine-monitor-process-list">
+        {rows.map((row, index) => (
+          <li key={`${row.pid}:${row.identity ?? "protected"}`}>
+            <span aria-hidden="true" className="machine-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
+            <div className="machine-monitor-process-list__body">
+              <div className="machine-monitor-process-list__header">
+                <span className="min-w-0">
+                  <span className="machine-monitor-process-name" title={row.name}>{row.name}</span>
+                  <span className="machine-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
+                  {row.blockedReason === null ? null : (
+                    <span className="machine-monitor-process-protected-reason">
+                      {blockedProcessReason(row.blockedReason)}
+                    </span>
+                  )}
+                </span>
+                <ProcessAction
+                  actionsBusy={actionsBusy}
+                  onPrepare={onPrepare}
+                  pending={row.identity !== null && pendingIdentity === row.identity}
+                  row={row}
+                />
+              </div>
+              <dl className="machine-monitor-process-list__metrics">
+                <div><dt>CPU</dt><dd><ProcessMetric maximum={maximumCpu} value={row.cpuPercent} /></dd></div>
+                <div><dt>RAM</dt><dd><ProcessMetric detail={formatBytes(row.rssBytes)} maximum={maximumMemory} value={row.memoryPercent} /></dd></div>
+              </dl>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
+function ProcessTerminationDialog({
+  challenge,
+  executing,
+  fallbackFocus,
+  forceContext,
+  onCancel,
+  onExecute,
+  returnFocus,
+}: {
+  challenge: PreparedTerminationReady | null;
+  executing: boolean;
+  fallbackFocus: RefObject<HTMLElement | null>;
+  forceContext: ForceDialogContext | null;
+  onCancel(): void;
+  onExecute(): void;
+  returnFocus: RefObject<HTMLElement | null>;
+}) {
+  const cancelRef = useRef<HTMLButtonElement>(null);
+  const scopeProps = usePortalScopeProps();
+  const force = challenge?.process.mode === "force";
+  const description = force
+    ? forceContext === "persisted"
+      ? "The process did not exit after a graceful request. Force stop can discard unsaved work and leave dependent work incomplete."
+      : "This platform only supports a force stop. Unsaved work can be lost immediately."
+    : "Ask the process to exit gracefully. If it remains running, Host Monitor will offer a separate force-stop confirmation.";
+
+  return (
+    <AlertDialog.Root
+      onOpenChange={(open) => {
+        if (!open && !executing) onCancel();
+      }}
+      open={challenge !== null}
+    >
+      <AlertDialog.Portal>
+        <AlertDialog.Overlay
+          {...scopeProps}
+          className="machine-monitor-process-dialog__overlay"
+        />
+        <AlertDialog.Content
+          {...scopeProps}
+          aria-busy={executing}
+          className="machine-monitor-process-dialog"
+          onCloseAutoFocus={(event) => {
+            event.preventDefault();
+            const preferred = returnFocus.current;
+            const preferredDisabled =
+              preferred instanceof HTMLButtonElement
+                ? preferred.disabled || preferred.getAttribute("aria-disabled") === "true"
+                : preferred?.getAttribute("aria-disabled") === "true";
+            if (preferred?.isConnected && !preferredDisabled) preferred.focus();
+            else if (fallbackFocus.current?.isConnected) fallbackFocus.current.focus();
+          }}
+          onOpenAutoFocus={(event) => {
+            event.preventDefault();
+            cancelRef.current?.focus();
+          }}
+        >
+          {challenge === null ? null : (
+            <>
+              <div className="machine-monitor-process-dialog__icon" data-force={force ? "true" : "false"}>
+                <AlertIcon />
+              </div>
+              <div className="min-w-0">
+                <AlertDialog.Title className="machine-monitor-process-dialog__title">
+                  {force ? "Force stop process?" : "End process?"}
+                </AlertDialog.Title>
+                <AlertDialog.Description className="machine-monitor-process-dialog__description">
+                  {description}
+                </AlertDialog.Description>
+              </div>
+              <dl className="machine-monitor-process-dialog__facts">
+                <div><dt>Host</dt><dd>{challenge.host.name}</dd></div>
+                <div><dt>Process</dt><dd>{challenge.process.name}</dd></div>
+                <div><dt>PID</dt><dd>{challenge.process.pid}</dd></div>
+                <div><dt>CPU</dt><dd>{formatPercent(challenge.process.cpuPercent)}</dd></div>
+                <div><dt>Memory</dt><dd>{formatPercent(challenge.process.memoryPercent)} · {formatBytes(challenge.process.rssBytes)}</dd></div>
+              </dl>
+              <p className="machine-monitor-process-dialog__freshness">
+                Checked just now · confirmation expires at {new Date(challenge.expiresAtMs).toLocaleTimeString()}
+              </p>
+              <div className="machine-monitor-process-dialog__actions">
+                <AlertDialog.Cancel asChild>
+                  <button
+                    className="machine-monitor-process-dialog__cancel"
+                    disabled={executing}
+                    ref={cancelRef}
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                </AlertDialog.Cancel>
+                <AlertDialog.Action asChild>
+                  <button
+                    className="machine-monitor-process-dialog__confirm"
+                    data-force={force ? "true" : "false"}
+                    disabled={executing}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      onExecute();
+                    }}
+                    type="button"
+                  >
+                    {executing ? <Spinner className="size-3.5" /> : null}
+                    {executing ? "Sending…" : force ? "Force stop" : "End process"}
+                  </button>
+                </AlertDialog.Action>
+              </div>
+            </>
+          )}
+        </AlertDialog.Content>
+      </AlertDialog.Portal>
+    </AlertDialog.Root>
+  );
+}
+
+function ProcessesPanel() {
+  const rpc = useRpc<typeof rpcContract>();
+  const dashboard = useDashboardState();
+  const targetState = useFixedTabTarget(PROCESSES_TAB);
+  const target = targetState?.target ?? null;
+  const targetHostId = target?.hostId ?? null;
+  const targetInitialSort = target?.initialSort ?? null;
+  const [sortBy, setSortBy] = useState<ProcessSortBy>(
+    () => target?.initialSort ?? "cpu",
+  );
+  const [processQuery, setProcessQuery] = useState("");
+  const [result, setResult] = useState<ProcessListResult | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [pendingIdentity, setPendingIdentity] = useState<string | null>(null);
+  const [challenge, setChallenge] = useState<PreparedTerminationReady | null>(null);
+  const [forceContext, setForceContext] = useState<ForceDialogContext | null>(null);
+  const [executing, setExecuting] = useState(false);
+  const [announcement, setAnnouncement] = useState("");
+  const targetGeneration = useRef(0);
+  const listGeneration = useRef(0);
+  const listInFlight = useRef(false);
+  const listQueued = useRef(false);
+  const listParams = useRef<{
+    generation: number;
+    hostId: string | null;
+    sortBy: ProcessSortBy;
+  }>({ generation: 0, hostId: targetHostId, sortBy });
+  const prepareInFlight = useRef(false);
+  const prepareSequence = useRef(0);
+  const executeSequence = useRef(0);
+  const consumedTokens = useRef(new Set<string>());
+  const returnFocus = useRef<HTMLElement | null>(null);
+  const fallbackFocus = useRef<HTMLElement | null>(null);
+  const actionBusy = pendingIdentity !== null || challenge !== null || executing;
+  const destructiveActionsBusy = actionBusy || loading;
+  const actionBusyRef = useRef(actionBusy);
+  actionBusyRef.current = actionBusy;
+  listParams.current = {
+    generation: listGeneration.current,
+    hostId: targetHostId,
+    sortBy,
+  };
+
+  const loadProcesses = useCallback(async function loadProcessesNow(): Promise<ProcessListResult | null> {
+    if (listInFlight.current) {
+      listQueued.current = true;
+      return null;
+    }
+    const params = { ...listParams.current };
+    if (params.hostId === null) return null;
+    listInFlight.current = true;
+    setLoading(true);
+    try {
+      const next = await rpc.call("listProcesses", {
+        hostId: params.hostId,
+        limit: PROCESS_PAGE_LIMIT,
+        sortBy: params.sortBy,
+      });
+      if (
+        params.generation === listGeneration.current &&
+        params.hostId === listParams.current.hostId &&
+        params.sortBy === listParams.current.sortBy
+      ) {
+        setResult(next);
+        setRequestError(null);
+      }
+      return next;
+    } catch {
+      if (
+        params.generation === listGeneration.current &&
+        params.hostId === listParams.current.hostId &&
+        params.sortBy === listParams.current.sortBy
+      ) {
+        setRequestError("Host Monitor could not reach the process service.");
+      }
+      return null;
+    } finally {
+      const current =
+        params.generation === listGeneration.current &&
+        params.hostId === listParams.current.hostId &&
+        params.sortBy === listParams.current.sortBy;
+      if (current) setLoading(false);
+      listInFlight.current = false;
+      if (listQueued.current) {
+        listQueued.current = false;
+        const queued = listParams.current;
+        if (
+          !actionBusyRef.current &&
+          queued.hostId !== null &&
+          queued.generation === listGeneration.current
+        ) {
+          window.queueMicrotask(() => void loadProcessesNow());
+        }
+      }
+    }
+  }, [rpc]);
+
+  useEffect(() => {
+    targetGeneration.current += 1;
+    listGeneration.current += 1;
+    prepareSequence.current += 1;
+    executeSequence.current += 1;
+    prepareInFlight.current = false;
+    listQueued.current = false;
+    listParams.current = {
+      generation: listGeneration.current,
+      hostId: targetHostId,
+      sortBy: targetInitialSort ?? listParams.current.sortBy,
+    };
+    setResult(null);
+    setRequestError(null);
+    setLoading(false);
+    setChallenge(null);
+    setPendingIdentity(null);
+    setExecuting(false);
+    setProcessQuery("");
+    if (targetInitialSort !== null) setSortBy(targetInitialSort);
+    return () => {
+      targetGeneration.current += 1;
+      listGeneration.current += 1;
+      prepareSequence.current += 1;
+      executeSequence.current += 1;
+      prepareInFlight.current = false;
+      listQueued.current = false;
+    };
+  }, [targetHostId, targetInitialSort]);
+
+  useEffect(() => {
+    if (targetHostId === null) return;
+    void loadProcesses();
+    const interval = window.setInterval(() => {
+      if (!actionBusyRef.current) void loadProcesses();
+    }, PROCESS_POLL_INTERVAL_MS);
+    return () => window.clearInterval(interval);
+  }, [loadProcesses, sortBy, targetHostId]);
+
+  const prepareTermination = useCallback(async (
+    row: ProcessRow,
+    mode: ProcessTerminationMode,
+    trigger: HTMLElement,
+    context: ForceDialogContext | null = mode === "force" ? "platform" : null,
+  ) => {
+    if (
+      targetHostId === null ||
+      row.identity === null ||
+      prepareInFlight.current
+    ) return;
+    if (listInFlight.current) {
+      const message = "Wait for the current process refresh to finish.";
+      setAnnouncement(message);
+      toast.info(message);
+      return;
+    }
+    const sequence = ++prepareSequence.current;
+    const generation = targetGeneration.current;
+    const hostId = targetHostId;
+    prepareInFlight.current = true;
+    returnFocus.current = trigger;
+    setPendingIdentity(row.identity);
+    try {
+      const prepared = await rpc.call("prepareProcessTermination", {
+        hostId,
+        identity: row.identity,
+        mode,
+        pid: row.pid,
+      });
+      if (
+        sequence !== prepareSequence.current ||
+        generation !== targetGeneration.current
+      ) return;
+      if (prepared.outcome === "ready") {
+        setForceContext(context);
+        setChallenge(prepared);
+        setAnnouncement(`${prepared.process.name} is ready for confirmation.`);
+      } else {
+        setAnnouncement(prepared.message);
+        toast.error(prepared.message);
+        void loadProcesses();
+      }
+    } catch {
+      if (
+        sequence !== prepareSequence.current ||
+        generation !== targetGeneration.current
+      ) return;
+      const message = "Host Monitor could not safely check this process.";
+      setAnnouncement(message);
+      toast.error(message);
+    } finally {
+      if (sequence === prepareSequence.current) {
+        prepareInFlight.current = false;
+        if (generation === targetGeneration.current) setPendingIdentity(null);
+      }
+    }
+  }, [loadProcesses, rpc, targetHostId]);
+
+  const executeTermination = useCallback(async () => {
+    if (challenge === null || executing) return;
+    const token = challenge.confirmationToken;
+    if (consumedTokens.current.has(token)) return;
+    consumedTokens.current.add(token);
+    const sequence = ++executeSequence.current;
+    const generation = targetGeneration.current;
+    setExecuting(true);
+    try {
+      const executed = await rpc.call("executeProcessTermination", {
+        confirmationToken: token,
+      });
+      if (
+        sequence !== executeSequence.current ||
+        generation !== targetGeneration.current
+      ) return;
+      if (executed.outcome === "still-running" && challenge.process.mode === "graceful") {
+        const forceRow: ProcessRow = {
+          ...challenge.process,
+          allowedTerminationModes: ["force"],
+          blockedReason: null,
+          ownerCategory: "same-user",
+        };
+        setChallenge(null);
+        setAnnouncement(executed.message);
+        toast.warning(executed.message);
+        await prepareTermination(forceRow, "force", returnFocus.current ?? document.body, "persisted");
+        return;
+      }
+
+      setExecuting(false);
+      setChallenge(null);
+      setAnnouncement(executed.message);
+      if (executed.outcome === "signal-sent") {
+        toast.info(executed.message);
+      } else if (executed.outcome === "outcome-unknown") {
+        toast.warning(executed.message);
+      } else {
+        toast.error(executed.message);
+      }
+      await loadProcesses();
+    } catch {
+      if (
+        sequence !== executeSequence.current ||
+        generation !== targetGeneration.current
+      ) return;
+      const message =
+        "Host Monitor could not confirm whether the stop request completed. Refresh before trying again.";
+      setExecuting(false);
+      setChallenge(null);
+      setAnnouncement(`Process outcome unknown. ${message}`);
+      toast.warning(message);
+      await loadProcesses();
+    } finally {
+      consumedTokens.current.delete(token);
+      if (
+        sequence === executeSequence.current &&
+        generation === targetGeneration.current
+      ) setExecuting(false);
+    }
+  }, [challenge, executing, loadProcesses, prepareTermination, rpc]);
+
+  const selectSort = useCallback((nextSort: ProcessSortBy) => {
+    setSortBy(nextSort);
+    setAnnouncement(
+      nextSort === "name"
+        ? "Sorted by Process, A to Z."
+        : `Sorted by ${nextSort === "cpu" ? "CPU" : "RAM"}, highest first.`,
+    );
+  }, []);
+
+  const okResult: ProcessListOk | null = result?.outcome === "ok" ? result : null;
+  const sortedRows = useMemo(
+    () => sortProcessRows(okResult?.processes ?? [], sortBy),
+    [okResult?.processes, sortBy],
+  );
+  const rows = useMemo(
+    () => filterProcessRows(sortedRows, processQuery),
+    [processQuery, sortedRows],
+  );
+  const maximumCpu = useMemo(
+    () => Math.max(0, ...sortedRows.map((row) => row.cpuPercent)),
+    [sortedRows],
+  );
+  const maximumMemory = useMemo(
+    () => Math.max(0, ...sortedRows.map((row) => row.memoryPercent)),
+    [sortedRows],
+  );
+  const knownHostName =
+    dashboard.dashboard?.machines.find(
+      (machine) => machine.host.id === targetHostId,
+    )?.host.name ?? null;
+  const hostName = okResult?.host.name ?? knownHostName ?? "Selected host";
+  const firstLoad = result === null && requestError === null;
+
+  if (target === null) {
+    return (
+      <section className="machine-monitor-processes" ref={fallbackFocus} tabIndex={-1}>
+        <ProcessStateMessage
+          message="Open Processes from a specific host. Host Monitor never guesses which machine to control."
+          title="Choose a host first"
+        />
+      </section>
+    );
+  }
+
+  return (
+    <section
+      aria-label={`Processes on ${hostName}`}
+      className="machine-monitor-processes"
+      ref={fallbackFocus}
+      tabIndex={-1}
+    >
+      <output aria-live="polite" className="sr-only">{announcement}</output>
+      <header className="machine-monitor-processes__header">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <ProcessesIcon className="size-4 shrink-0 text-muted-foreground" />
+            <h2
+              className="truncate text-sm font-semibold text-foreground"
+            >
+              {hostName}
+            </h2>
+          </div>
+          <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
+            {okResult === null
+              ? "Live processes"
+              : `${okResult.totalCount} processes · sampled ${formatRelativeTime(okResult.sampledAtMs)}`}
+          </p>
+        </div>
+        <button
+          aria-label={`Refresh processes on ${hostName}`}
+          className={CONTROL_BUTTON_CLASS}
+          disabled={loading || actionBusy}
+          onClick={() => void loadProcesses()}
+          title="Refresh processes"
+          type="button"
+        >
+          <RefreshIcon active={loading} />
+          <span className="hidden sm:inline">Refresh</span>
+        </button>
+      </header>
+
+      <div className="machine-monitor-processes__toolbar">
+        <label className="machine-monitor-process-search">
+          <SearchIcon />
+          <span className="sr-only">Search shown processes by name or PID</span>
+          <input
+            aria-keyshortcuts="Escape"
+            onChange={(event) => setProcessQuery(event.currentTarget.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && processQuery.length > 0) {
+                event.preventDefault();
+                setProcessQuery("");
+              }
+            }}
+            placeholder={okResult?.truncated ? "Search shown processes" : "Search name or PID"}
+            type="search"
+            value={processQuery}
+          />
+        </label>
+        {processQuery.length > 0 ? (
+          <button
+            aria-label="Clear process search"
+            className="machine-monitor-process-search__clear"
+            onClick={() => setProcessQuery("")}
+            type="button"
+          >
+            Clear
+          </button>
+        ) : null}
+        <fieldset
+          aria-label="Sort processes; Process is A to Z, CPU and RAM are highest first"
+          className="machine-monitor-process-sort-group"
+        >
+          <ProcessSortButton active={sortBy === "name"} direction="ascending" disabled={actionBusy} onClick={() => selectSort("name")}>Process</ProcessSortButton>
+          <ProcessSortButton active={sortBy === "cpu"} direction="descending" disabled={actionBusy} onClick={() => selectSort("cpu")}>CPU</ProcessSortButton>
+          <ProcessSortButton active={sortBy === "memory"} direction="descending" disabled={actionBusy} onClick={() => selectSort("memory")}>RAM</ProcessSortButton>
+        </fieldset>
+        <output aria-live="polite" className="machine-monitor-processes__toolbar-status">
+          {loading && okResult !== null ? <><Spinner className="size-3" />Updating</> : null}
+          {!loading && processQuery.length > 0 && okResult !== null
+            ? `${rows.length} ${rows.length === 1 ? "match" : "matches"}`
+            : null}
+        </output>
+      </div>
+
+      <div className="machine-monitor-processes__content">
+        {requestError !== null && okResult !== null ? (
+          <div className="machine-monitor-process-notice" role="alert">
+            <AlertIcon className="size-3.5 shrink-0" />
+            <span>Could not refresh processes: {requestError}</span>
+          </div>
+        ) : null}
+        {okResult?.elevated ? (
+          <output className="machine-monitor-process-notice">
+            <AlertIcon className="size-3.5 shrink-0" />
+            <span>Process actions are protected while Host Monitor is running with elevated privileges.</span>
+          </output>
+        ) : null}
+
+        {firstLoad ? (
+          <ProcessListSkeleton />
+        ) : result !== null && result.outcome !== "ok" ? (
+          <ProcessStateMessage
+            action={
+              <button className={CONTROL_BUTTON_CLASS} onClick={() => void loadProcesses()} type="button">
+                Try again
+              </button>
+            }
+            message={result.message}
+            title={
+              result.outcome === "offline"
+                ? "Host is offline"
+                : result.outcome === "unsupported"
+                  ? "Processes are unsupported"
+                  : result.outcome === "not-found"
+                    ? "Host not found"
+                    : "Processes unavailable"
+            }
+          />
+        ) : okResult !== null && sortedRows.length === 0 ? (
+          <ProcessStateMessage
+            message="No user-visible processes were reported by this host."
+            title="No processes to show"
+          />
+        ) : okResult !== null ? (
+          <div className="machine-monitor-process-surface">
+            <ProcessSummaryStrip rows={sortedRows} totalCount={okResult.totalCount} />
+            {rows.length === 0 ? (
+              <ProcessStateMessage
+                action={
+                  <button className={CONTROL_BUTTON_CLASS} onClick={() => setProcessQuery("")} type="button">
+                    Clear search
+                  </button>
+                }
+                message={`No shown process matches “${processQuery.trim()}”.`}
+                title="No matching processes"
+              />
+            ) : (
+              <ProcessRows
+                actionsBusy={destructiveActionsBusy}
+                maximumCpu={maximumCpu}
+                maximumMemory={maximumMemory}
+                onPrepare={(row, mode, trigger) => void prepareTermination(row, mode, trigger)}
+                onSort={selectSort}
+                pendingIdentity={pendingIdentity}
+                rows={rows}
+                sortBy={sortBy}
+                sortDisabled={actionBusy}
+              />
+            )}
+            {okResult.truncated ? (
+              <p className="machine-monitor-processes__truncated">
+                Search covers these {okResult.processes.length} shown processes; {okResult.totalCount} exist on the host.
+              </p>
+            ) : null}
+          </div>
+        ) : requestError !== null ? (
+          <ProcessStateMessage
+            action={<button className={CONTROL_BUTTON_CLASS} onClick={() => void loadProcesses()} type="button">Try again</button>}
+            message={requestError}
+            title="Could not load processes"
+          />
+        ) : null}
+      </div>
+
+      <ProcessTerminationDialog
+        challenge={challenge}
+        executing={executing}
+        fallbackFocus={fallbackFocus}
+        forceContext={forceContext}
+        onCancel={() => {
+          setChallenge(null);
+          setForceContext(null);
+          setAnnouncement("Process action cancelled.");
+          void loadProcesses();
+        }}
+        onExecute={() => void executeTermination()}
+        returnFocus={returnFocus}
+      />
+    </section>
+  );
+}
+
 function InspectorEmpty({ message }: { message: string }) {
   return <div className="flex h-full min-h-48 items-center justify-center text-center text-sm text-muted-foreground">{message}</div>;
 }
@@ -1333,6 +2394,7 @@ function MachineInspector() {
   const rpc = useRpc<typeof rpcContract>();
   const settings = useSettings();
   const state = useDashboardState();
+  const panel = useAppPanel();
   const targetState = useFixedTabTarget(INSPECT_TAB);
   const activeHostId =
     targetState?.target.hostId ?? state.dashboard?.machines[0]?.host.id ?? null;
@@ -1376,6 +2438,13 @@ function MachineInspector() {
   }
   const snapshot = machine.snapshot;
   const refreshing = state.requestKind === "refresh-host" && state.requestHostId === machine.host.id;
+  const openProcesses = (initialSort: "cpu" | "memory") => {
+    panel.openFixedTab({
+      surface: { kind: "current" },
+      tab: PROCESSES_TAB,
+      target: { hostId: machine.host.id, initialSort },
+    });
+  };
 
   return (
     <section
@@ -1390,7 +2459,19 @@ function MachineInspector() {
           </div>
           <p className="mt-1 truncate text-xs text-muted-foreground">{snapshot ? `${snapshot.system.osName} · ${snapshot.system.arch}` : machine.host.status === "connected" ? "Connected · waiting for telemetry" : "Disconnected · no live telemetry"}</p>
         </div>
-        <button aria-label={`Refresh ${machine.host.name}`} className={CONTROL_BUTTON_CLASS} disabled={state.requestKind !== null} onClick={() => void requestDashboard(rpc, "refresh-host", machine.host.id)} title="Refresh this host" type="button"><RefreshIcon active={refreshing} /></button>
+        <span className="flex shrink-0 items-center gap-1.5">
+          <button
+            aria-label={`View processes on ${machine.host.name}`}
+            className={CONTROL_BUTTON_CLASS}
+            onClick={() => openProcesses("cpu")}
+            title="View processes"
+            type="button"
+          >
+            <ProcessesIcon />
+            <span className="hidden sm:inline">Processes</span>
+          </button>
+          <button aria-label={`Refresh ${machine.host.name}`} className={CONTROL_BUTTON_CLASS} disabled={state.requestKind !== null} onClick={() => void requestDashboard(rpc, "refresh-host", machine.host.id)} title="Refresh this host" type="button"><RefreshIcon active={refreshing} /></button>
+        </span>
       </header>
 
       {machine.alert !== null ? (
@@ -1406,7 +2487,16 @@ function MachineInspector() {
           role="alert"
         >
           <AlertIcon className="mt-0.5 size-3.5 shrink-0" />
-          <span>{machine.alert.message}</span>
+          <span className="min-w-0 flex-1">{machine.alert.message}</span>
+          {machine.alert.metric === "cpu" || machine.alert.metric === "memory" ? (
+            <button
+              className="machine-monitor-threshold-alert__action"
+              onClick={() => openProcesses(machine.alert?.metric === "memory" ? "memory" : "cpu")}
+              type="button"
+            >
+              View {machine.alert.metric === "memory" ? "memory" : "CPU"} processes
+            </button>
+          ) : null}
         </div>
       ) : null}
       {machine.error !== null ? <p className="text-xs text-destructive">{machine.error}</p> : null}
@@ -1483,6 +2573,13 @@ export default definePluginApp((app) => {
         icon: "Terminal",
         component: MachineInspector,
         layout: "padded",
+      },
+      {
+        ...PROCESSES_TAB,
+        title: "Processes",
+        icon: "Activity",
+        component: ProcessesPanel,
+        layout: "flush",
       },
     ],
   });

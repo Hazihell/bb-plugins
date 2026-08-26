@@ -16,8 +16,8 @@
     --destructive-text,
     var(--destructive)
   );
-  --host-monitor-network-down: var(--timeline-accent, var(--primary));
-  --host-monitor-network-up: var(--success);
+  --host-monitor-network-down: var(--timeline-accent);
+  --host-monitor-network-up: var(--destructive);
 }
 
 [data-host-monitor-trigger] {
@@ -1285,6 +1285,891 @@
   transition: stroke-dashoffset 280ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.machine-monitor-threshold-alert__action {
+  flex: none;
+  cursor: pointer;
+  border: 0;
+  border-radius: calc(var(--radius, 0.625rem) - 0.25rem);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  padding: 0.1875rem 0.4375rem;
+  color: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.machine-monitor-threshold-alert__action:hover {
+  background: color-mix(in srgb, currentColor 14%, transparent);
+}
+
+.machine-monitor-threshold-alert__action:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.machine-monitor-processes {
+  container-type: inline-size;
+  height: 100%;
+  overflow-y: auto;
+  background: var(--background);
+  color: var(--foreground);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.machine-monitor-processes:focus-visible {
+  box-shadow: inset 0 0 0 2px
+    color-mix(in srgb, var(--ring) 42%, transparent);
+}
+
+.machine-monitor-processes__header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 94%, transparent);
+  padding: 0.75rem 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.machine-monitor-processes__toolbar {
+  position: sticky;
+  top: 3.75rem;
+  z-index: 2;
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 95%, transparent);
+  padding: 0.5rem 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.machine-monitor-process-search {
+  display: flex;
+  min-width: 9rem;
+  height: 1.875rem;
+  flex: 1 1 12rem;
+  align-items: center;
+  gap: 0.4375rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  background: color-mix(in srgb, var(--muted) 36%, transparent);
+  padding: 0 0.5rem;
+  color: var(--muted-foreground);
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.machine-monitor-process-search:focus-within {
+  border-color: color-mix(in srgb, var(--ring) 55%, var(--border));
+  background: var(--background);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 18%, transparent);
+}
+
+.machine-monitor-process-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.6875rem;
+}
+
+.machine-monitor-process-search input::placeholder {
+  color: var(--muted-foreground);
+}
+
+.machine-monitor-process-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.machine-monitor-process-search__clear {
+  cursor: pointer;
+  border: 0;
+  background: transparent;
+  padding: 0.25rem 0;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.machine-monitor-process-search__clear:hover {
+  color: var(--foreground);
+}
+
+.machine-monitor-process-search__clear:focus-visible {
+  border-radius: 0.25rem;
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.machine-monitor-process-sort-group {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  background: color-mix(in srgb, var(--muted) 48%, transparent);
+  padding: 0.125rem;
+}
+
+.machine-monitor-process-sort {
+  display: inline-flex;
+  height: 1.625rem;
+  cursor: pointer;
+  align-items: center;
+  gap: 0.125rem;
+  border: 0;
+  border-radius: calc(var(--radius, 0.625rem) - 0.25rem);
+  background: transparent;
+  padding: 0 0.4375rem;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.machine-monitor-process-sort:hover {
+  color: var(--foreground);
+}
+
+.machine-monitor-process-sort[data-active="true"] {
+  background: var(--background);
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--foreground) 12%, transparent);
+  color: var(--foreground);
+}
+
+.machine-monitor-process-sort:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.machine-monitor-process-sort:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.machine-monitor-processes__toolbar-status {
+  display: inline-flex;
+  min-width: 3.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  margin-left: auto;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  white-space: nowrap;
+}
+
+.machine-monitor-processes__content {
+  min-height: calc(100% - 6.75rem);
+  padding: 0.75rem 1rem 1rem;
+}
+
+.machine-monitor-process-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  background: color-mix(in srgb, var(--muted) 45%, transparent);
+  padding: 0.5rem 0.625rem;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.4;
+}
+
+.machine-monitor-process-state {
+  display: flex;
+  min-height: 16rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 2rem;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.machine-monitor-process-surface {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) + 0.0625rem);
+  background: var(--card);
+  box-shadow: 0 0.125rem 0.5rem
+    color-mix(in srgb, var(--foreground) 3%, transparent);
+}
+
+.machine-monitor-process-summary {
+  display: grid;
+  margin: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--muted) 32%, transparent);
+}
+
+.machine-monitor-process-summary > div {
+  min-width: 0;
+  padding: 0.5625rem 0.6875rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.machine-monitor-process-summary > div:nth-child(2n) {
+  border-right: 0;
+}
+
+.machine-monitor-process-summary > div:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.machine-monitor-process-summary dt {
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.055em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.machine-monitor-process-summary dd {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin: 0.1875rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+}
+
+.machine-monitor-process-summary dd strong {
+  flex: none;
+  color: var(--foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.machine-monitor-process-summary__name {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: 0.6875rem;
+  font-weight: 550;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-monitor-process-state strong {
+  margin-top: 0.625rem;
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.machine-monitor-process-state p {
+  max-width: 26rem;
+  margin: 0.25rem 0 0.875rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.machine-monitor-process-skeleton {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) + 0.0625rem);
+  background: var(--card);
+}
+
+.machine-monitor-process-skeleton__row {
+  display: grid;
+  min-height: 3.625rem;
+  grid-template-columns: minmax(8rem, 2fr) repeat(2, minmax(4rem, 0.7fr)) minmax(5rem, 0.8fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.machine-monitor-process-skeleton__row:last-child {
+  border-bottom: 0;
+}
+
+.machine-monitor-process-skeleton__line {
+  display: block;
+  width: 60%;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--muted);
+  animation: machine-monitor-pulse 1.6s ease-in-out infinite;
+}
+
+.machine-monitor-process-skeleton__line--name {
+  width: min(11rem, 75%);
+}
+
+.machine-monitor-process-skeleton__line--action {
+  width: 4.5rem;
+  justify-self: end;
+}
+
+.machine-monitor-process-table {
+  display: none;
+}
+
+.machine-monitor-process-table table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  text-align: left;
+}
+
+.machine-monitor-process-table thead {
+  background: color-mix(in srgb, var(--muted) 20%, transparent);
+  color: var(--muted-foreground);
+}
+
+.machine-monitor-process-table thead th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.625rem;
+  font-weight: 550;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.machine-monitor-process-table thead th.machine-monitor-process-table__sortable {
+  padding: 0;
+}
+
+.machine-monitor-process-column-sort {
+  display: flex;
+  width: 100%;
+  min-height: 2.125rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.25rem;
+  border: 0;
+  background: transparent;
+  padding: 0.5rem 0.75rem;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.machine-monitor-process-column-sort:hover {
+  background: color-mix(in srgb, var(--accent) 54%, transparent);
+  color: var(--foreground);
+}
+
+.machine-monitor-process-column-sort:focus-visible {
+  background: color-mix(in srgb, var(--accent) 54%, transparent);
+  color: var(--foreground);
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
+.machine-monitor-process-column-sort:hover
+  .machine-monitor-process-sort-icon,
+.machine-monitor-process-column-sort:focus-visible
+  .machine-monitor-process-sort-icon {
+  opacity: 0.45;
+}
+
+.machine-monitor-process-column-sort[data-active="true"] {
+  color: var(--foreground);
+}
+
+.machine-monitor-process-column-sort[data-active="true"]
+  .machine-monitor-process-sort-icon {
+  opacity: 1;
+}
+
+.machine-monitor-process-column-sort:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.machine-monitor-process-table thead th:first-child {
+  width: 46%;
+}
+
+.machine-monitor-process-table thead th:nth-child(2) {
+  width: 15%;
+}
+
+.machine-monitor-process-table thead th:nth-child(3) {
+  width: 21%;
+}
+
+.machine-monitor-process-table thead th:last-child {
+  width: 18%;
+}
+
+.machine-monitor-process-table tbody tr {
+  border-top: 1px solid var(--border);
+  transition: background-color 120ms ease;
+}
+
+.machine-monitor-process-table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 44%, transparent);
+}
+
+.machine-monitor-process-table tbody th,
+.machine-monitor-process-table tbody td {
+  min-width: 0;
+  padding: 0.5rem 0.625rem;
+  vertical-align: middle;
+}
+
+.machine-monitor-process-table tbody th {
+  font-weight: 400;
+}
+
+.machine-monitor-process-primary {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.machine-monitor-process-rank {
+  flex: none;
+  color: color-mix(in srgb, var(--muted-foreground) 68%, transparent);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.5625rem;
+  font-weight: 550;
+}
+
+.machine-monitor-process-identity {
+  display: block;
+  min-width: 0;
+}
+
+.machine-monitor-process-name,
+.machine-monitor-process-pid,
+.machine-monitor-process-protected-reason {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-monitor-process-name {
+  color: var(--foreground);
+  font-size: 0.78125rem;
+  font-weight: 650;
+}
+
+.machine-monitor-process-pid {
+  margin-top: 0.125rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.625rem;
+}
+
+.machine-monitor-process-protected-reason {
+  margin-top: 0.125rem;
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  font-weight: 400;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.machine-monitor-process-metric {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--foreground);
+}
+
+.machine-monitor-process-metric__readout {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.3125rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.machine-monitor-process-metric__readout strong {
+  flex: none;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.machine-monitor-process-metric__readout small {
+  overflow: hidden;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-size: 0.5625rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-monitor-process-metric__track {
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 0.125rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--muted-foreground) 14%, transparent);
+}
+
+.machine-monitor-process-metric__track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--muted-foreground) 64%, transparent);
+  transition: width 180ms ease;
+}
+
+.machine-monitor-process-action-cell {
+  text-align: right;
+}
+
+.machine-monitor-process-action {
+  display: inline-flex;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3125rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  background: transparent;
+  padding: 0.25rem 0.5rem;
+  color: var(--foreground);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.machine-monitor-process-action:hover:not(:disabled):not([aria-disabled="true"]) {
+  border-color: color-mix(in srgb, var(--destructive) 42%, var(--border));
+  background: color-mix(in srgb, var(--destructive) 7%, transparent);
+  color: var(--destructive);
+}
+
+.machine-monitor-process-action:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.machine-monitor-process-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.machine-monitor-process-action[data-protected="true"] {
+  cursor: help;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--muted) 54%, transparent);
+  padding-inline: 0.375rem;
+  color: var(--muted-foreground);
+}
+
+.machine-monitor-process-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.machine-monitor-process-list > li {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 1.25rem minmax(0, 1fr);
+  gap: 0.5rem;
+  padding: 0.625rem 0.6875rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.machine-monitor-process-list > li:last-child {
+  border-bottom: 0;
+}
+
+.machine-monitor-process-list__header {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.machine-monitor-process-list__body {
+  min-width: 0;
+}
+
+.machine-monitor-process-list__metrics {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.875rem;
+  margin: 0.4375rem 0 0;
+}
+
+.machine-monitor-process-list__metrics div {
+  display: grid;
+  min-width: 0;
+  flex: 1 1 0;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.375rem;
+}
+
+.machine-monitor-process-list__metrics dt {
+  color: var(--muted-foreground);
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.machine-monitor-process-list__metrics dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.machine-monitor-processes__truncated {
+  margin: 0;
+  border-top: 1px solid var(--border);
+  padding: 0.5rem 0.6875rem;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+  text-align: right;
+}
+
+@container (min-width: 32rem) {
+  .machine-monitor-process-sort-group {
+    display: none;
+  }
+
+  .machine-monitor-process-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .machine-monitor-process-summary > div,
+  .machine-monitor-process-summary > div:nth-child(2n) {
+    border-right: 1px solid var(--border);
+    border-bottom: 0;
+  }
+
+  .machine-monitor-process-summary > div:last-child {
+    border-right: 0;
+  }
+
+  .machine-monitor-process-table {
+    display: block;
+  }
+
+  .machine-monitor-process-list {
+    display: none;
+  }
+}
+
+.machine-monitor-process-dialog__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: color-mix(in srgb, black 42%, transparent);
+  backdrop-filter: blur(1px);
+  animation: machine-monitor-dialog-fade 120ms ease-out;
+}
+
+.machine-monitor-process-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 81;
+  display: grid;
+  width: min(calc(100dvw - 2rem), 28rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  transform: translate(-50%, -50%);
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) + 0.125rem);
+  background: var(--popover, var(--background));
+  padding: 1rem;
+  box-shadow: 0 1.25rem 4rem color-mix(in srgb, black 28%, transparent);
+  color: var(--popover-foreground, var(--foreground));
+  font-variant-numeric: tabular-nums;
+  animation: machine-monitor-dialog-enter 140ms ease-out;
+}
+
+.machine-monitor-process-dialog:focus-visible {
+  outline: none;
+}
+
+.machine-monitor-process-dialog__icon {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+  color: var(--warning-text, var(--warning));
+}
+
+.machine-monitor-process-dialog__icon[data-force="true"] {
+  background: color-mix(in srgb, var(--destructive) 12%, transparent);
+  color: var(--destructive);
+}
+
+.machine-monitor-process-dialog__title {
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.machine-monitor-process-dialog__description {
+  margin-top: 0.25rem;
+  color: var(--muted-foreground);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.machine-monitor-process-dialog__facts {
+  grid-column: 1 / -1;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  background: color-mix(in srgb, var(--muted) 36%, transparent);
+}
+
+.machine-monitor-process-dialog__facts div {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.4375rem 0.625rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.machine-monitor-process-dialog__facts div:last-child {
+  border-bottom: 0;
+}
+
+.machine-monitor-process-dialog__facts dt {
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+}
+
+.machine-monitor-process-dialog__facts dd {
+  overflow: hidden;
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  font-weight: 550;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-monitor-process-dialog__freshness {
+  grid-column: 1 / -1;
+  margin: -0.125rem 0 0;
+  color: var(--muted-foreground);
+  font-size: 0.625rem;
+}
+
+.machine-monitor-process-dialog__actions {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.125rem;
+}
+
+.machine-monitor-process-dialog__cancel,
+.machine-monitor-process-dialog__confirm {
+  display: inline-flex;
+  min-height: 2rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: calc(var(--radius, 0.625rem) - 0.125rem);
+  padding: 0.375rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.machine-monitor-process-dialog__cancel {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.machine-monitor-process-dialog__confirm {
+  border: 1px solid color-mix(in srgb, var(--destructive) 40%, transparent);
+  background: color-mix(in srgb, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+}
+
+.machine-monitor-process-dialog__confirm[data-force="false"] {
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning-text, var(--warning));
+}
+
+.machine-monitor-process-dialog__cancel:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.machine-monitor-process-dialog__confirm:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.machine-monitor-process-dialog__cancel:focus-visible,
+.machine-monitor-process-dialog__confirm:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.machine-monitor-process-dialog__cancel:disabled,
+.machine-monitor-process-dialog__confirm:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+@keyframes machine-monitor-dialog-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes machine-monitor-dialog-enter {
+  from {
+    transform: translate(-50%, -48%) scale(0.98);
+    opacity: 0;
+  }
+}
+
 .machine-monitor-skeleton {
   background: var(--muted);
   animation: machine-monitor-pulse 1.6s ease-in-out infinite;
@@ -1333,6 +2218,12 @@
 
   .machine-monitor-gauge {
     transition: none;
+  }
+
+  .machine-monitor-process-skeleton__line,
+  .machine-monitor-process-dialog,
+  .machine-monitor-process-dialog__overlay {
+    animation: none;
   }
 
   .machine-monitor-skeleton,

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { networkSnapshotSchema } from "../contract.ts";
+import {
+  networkSnapshotSchema,
+  processListResultSchema,
+  processRowSchema,
+} from "../contract.ts";
 
 test("network snapshot accepts only a canonical primary IP or null", () => {
   const throughput = {
@@ -85,6 +89,89 @@ test("network snapshot rejects malformed addresses and extra interface data", ()
       primaryIpAddress: null,
       receiveBytesPerSecond: 0,
       sendBytesPerSecond: null,
+    }),
+  );
+});
+
+test("process rows expose only the bounded privacy-safe projection", () => {
+  const row = {
+    pid: 42,
+    name: "worker",
+    identity: "i".repeat(43),
+    cpuPercent: 12,
+    rssBytes: 1_024,
+    memoryPercent: 1,
+    startedAtMs: 1_000,
+    ownerCategory: "same-user",
+    allowedTerminationModes: ["graceful", "force"],
+    blockedReason: null,
+  } as const;
+  assert.deepEqual(processRowSchema.parse(row), row);
+  for (const secretField of ["argv", "path", "cwd", "environment", "username", "uid"]) {
+    assert.throws(() =>
+      processRowSchema.parse({ ...row, [secretField]: "must-not-cross-RPC" }),
+    );
+  }
+});
+
+test("process row protection fields cannot contradict each other", () => {
+  const base = {
+    pid: 42,
+    name: "worker",
+    identity: "i".repeat(43),
+    cpuPercent: 12,
+    rssBytes: 1_024,
+    memoryPercent: 1,
+    startedAtMs: 1_000,
+    ownerCategory: "same-user",
+  } as const;
+  assert.throws(() =>
+    processRowSchema.parse({
+      ...base,
+      allowedTerminationModes: [],
+      blockedReason: null,
+    }),
+  );
+  assert.deepEqual(
+    processRowSchema.parse({
+      ...base,
+      identity: null,
+      allowedTerminationModes: [],
+      blockedReason: "elevated-session",
+    }),
+    {
+      ...base,
+      identity: null,
+      allowedTerminationModes: [],
+      blockedReason: "elevated-session",
+    },
+  );
+  assert.throws(() =>
+    processRowSchema.parse({
+      ...base,
+      identity: null,
+      allowedTerminationModes: ["force"],
+      blockedReason: null,
+    }),
+  );
+});
+
+test("process list result is strict and bounded", () => {
+  assert.throws(() =>
+    processListResultSchema.parse({
+      outcome: "ok",
+      host: {
+        id: "host-alpha",
+        name: "Alpha",
+        status: "connected",
+        platform: "linux",
+        address: "192.0.2.1",
+      },
+      sampledAtMs: 1,
+      elevated: false,
+      totalCount: 0,
+      truncated: false,
+      processes: [],
     }),
   );
 });
