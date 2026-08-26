@@ -47,3 +47,65 @@ test('keeps structural headers on neutral host theme surfaces', () => {
   assert.match(kanbanColumn, /border-color:\s*var\(--tb-border\)/);
   assert.match(kanbanHeader, /box-shadow:[^;]*var\(--tb-border\)/s);
 });
+
+test('uses restrained state glyph, focus, and conversation treatments', () => {
+  const stateGlyph = ruleBody(
+    /\.tb-state-glyph\s*\{([^}]*)\}/s,
+    'state glyph'
+  );
+  const commentRail = ruleBody(
+    /\.tb-comment-rail\s*>\s*div\s*\{([^}]*)\}/s,
+    'comment rail'
+  );
+
+  assert.match(stateGlyph, /color:\s*var\(--tb-state-accent\)/u);
+  assert.match(commentRail, /box-shadow:\s*inset 1px 0 0/u);
+  assert.match(stylesheet, /\.tb-item-row:hover,\s*\.tb-item-row:focus-within/u);
+  assert.doesNotMatch(
+    stylesheet,
+    /\.tb-group-heading\[data-state-category\][^{]*\{[^}]*inset 2px/u
+  );
+  assert.match(stylesheet, /\.tb-comment-entry::before/u);
+  assert.match(stylesheet, /\.tb-search-shell:focus-within/u);
+});
+
+test('keeps constrained filter values inside the vertical menu measure', () => {
+  const filterValues = ruleBody(
+    /\[data-taskboard-filter-values\] \[role='menuitemcheckbox'\]\s*\{([^}]*)\}/s,
+    'constrained filter values'
+  );
+
+  assert.match(filterValues, /min-width:\s*0/u);
+  assert.match(filterValues, /white-space:\s*normal/u);
+  assert.match(filterValues, /overflow-wrap:\s*anywhere/u);
+});
+
+test('keeps assignee avatars compact with six theme-safe identity tones', () => {
+  const avatar = ruleBody(
+    /\.tb-assignee-mark\s*\{([^}]*)\}/s,
+    'assignee avatar'
+  );
+
+  assert.match(avatar, /inline-size:\s*20px/u);
+  assert.match(avatar, /block-size:\s*20px/u);
+  assert.match(avatar, /box-sizing:\s*border-box/u);
+  assert.match(avatar, /min-inline-size:\s*20px/u);
+  assert.match(avatar, /min-block-size:\s*20px/u);
+  assert.match(avatar, /max-inline-size:\s*20px/u);
+  assert.match(avatar, /max-block-size:\s*20px/u);
+  assert.match(avatar, /flex:\s*0 0 20px/u);
+  assert.match(avatar, /font-size:\s*9px/u);
+  assert.match(avatar, /font-weight:\s*700/u);
+  assert.match(avatar, /color-mix\(in oklch/u);
+  assert.match(avatar, /radial-gradient/u);
+  for (const tone of ['violet', 'blue', 'teal', 'amber', 'rose', 'slate']) {
+    assert.match(
+      stylesheet,
+      new RegExp(`\\.tb-assignee-mark\\[data-assignee-tone='${tone}'\\]`)
+    );
+  }
+  assert.match(
+    stylesheet,
+    /@container \(max-width: 36rem\)[\s\S]*?\.tb-item-row \.tb-assignee-mark\s*\{\s*display:\s*none;/u
+  );
+});

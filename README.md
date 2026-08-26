@@ -131,9 +131,3 @@ automatically.
 ## License
 
 [MIT](./LICENSE) © 2026 Mateo Cerquetella.
-
-## Acknowledgements
-
-Repository layout inspired by
-[smsunarto/bb-plugins](https://github.com/smsunarto/bb-plugins). Thanks to
-Scott Sunarto for the clear multi-plugin structure.

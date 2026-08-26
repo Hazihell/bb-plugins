@@ -1,6 +1,9 @@
 import type { BbPluginApi, PluginRpcHandlers } from '@get-bb/plugin-sdk';
 import {
   bbProjectIdSchema,
+  createIssueMetadataSchema,
+  escapeExternalInlineText,
+  escapeExternalJsonOutput,
   formatWorkItemContext,
   issueDraftRecordSchema,
   projectConfigMutationSchema,
@@ -12,6 +15,7 @@ import {
   taskboardRpcContract,
   type CreateIssueContext,
   type CreateIssueInput,
+  type CreateIssueMetadata,
   type IssueDraftRecord,
   type ProjectConfigMutation,
   type ProjectConfigView,
@@ -30,7 +34,12 @@ import {
   parseIssueDraftOutput,
   type ParsedIssueDraft
 } from './issue-draft.js';
-import { assertExpectedIssueSource } from './create-issue.js';
+import {
+  assertExpectedConnectorRevision,
+  assertExpectedIssueSource,
+  createSafeIssueMetadataFailure,
+  reconcileIssueCreation
+} from './create-issue.js';
 import {
   createProjectCredentialVault,
   type CredentialSource
@@ -46,6 +55,7 @@ import { jiraProjectKeysFromJql } from './sources/jira-scope.js';
 import { createLinearAdapter } from './sources/linear.js';
 import {
   withoutComments,
+  type ExternalWorkItemCreateResult,
   type ExternalWorkItem,
   type ExternalWorkItemDetail,
   type WorkSourceAdapter
@@ -622,6 +632,7 @@ export default async function plugin(bb: BbPluginApi) {
   }
 
   const sourceRevisions = new Map<string, number>();
+  const connectorRevisions = new Map<string, number>();
   type SourceRevisionSnapshot = Record<WorkSource, number>;
   interface ExpectedProjectMutationState {
     config: ProjectSourceConfig;
@@ -630,6 +641,13 @@ export default async function plugin(bb: BbPluginApi) {
 
   function currentRevision(projectId: string, source: WorkSource): number {
     return sourceRevisions.get(syncKey(projectId, source)) ?? 0;
+  }
+
+  function currentConnectorRevision(
+    projectId: string,
+    source: WorkSource
+  ): number {
+    return connectorRevisions.get(syncKey(projectId, source)) ?? 0;
   }
 
   function revisionSnapshot(projectId: string): SourceRevisionSnapshot {
@@ -660,6 +678,10 @@ export default async function plugin(bb: BbPluginApi) {
 
   function invalidateSource(projectId: string, source: WorkSource): void {
     advanceSourceRevision(projectId, source);
+    connectorRevisions.set(
+      syncKey(projectId, source),
+      currentConnectorRevision(projectId, source) + 1
+    );
     store.clearSource(projectId, source);
   }
 
@@ -864,6 +886,51 @@ export default async function plugin(bb: BbPluginApi) {
       allowsCustomDestination: config.source === 'jira',
       defaultIssueType: config.source === 'jira' ? 'Task' : null
     };
+  }
+
+  async function getCreateIssueMetadata(input: {
+    projectId: string;
+    expectedSource: WorkSource;
+    destinationId: string;
+    issueType: string | null;
+  }) {
+    await waitForMutations(input.projectId, SOURCES);
+    const config = projectConfig(input.projectId, true);
+    const source = assertExpectedIssueSource(
+      input.expectedSource,
+      config.source
+    );
+    const connectorRevision = currentConnectorRevision(input.projectId, source);
+    const adapter = (await adapters(input.projectId, true)).get(source);
+    if (!adapter) throw new Error(`Missing ${source} adapter`);
+    assertExpectedConnectorRevision(
+      connectorRevision,
+      currentConnectorRevision(input.projectId, source),
+      source
+    );
+    if (!adapter.configured()) {
+      throw new Error(
+        adapter.configurationMessage() ??
+          `${sourceName(source)} is not configured`
+      );
+    }
+    let metadata: CreateIssueMetadata;
+    try {
+      metadata = createIssueMetadataSchema.parse(
+        await adapter.createMetadata({
+          destinationId: input.destinationId,
+          issueType: input.issueType
+        })
+      );
+    } catch (error) {
+      return createSafeIssueMetadataFailure(source, error);
+    }
+    assertExpectedConnectorRevision(
+      connectorRevision,
+      currentConnectorRevision(input.projectId, source),
+      source
+    );
+    return { ok: true as const, metadata, connectorRevision };
   }
 
   function readCredentialFormSnapshot(projectId: string) {
@@ -1528,12 +1595,24 @@ export default async function plugin(bb: BbPluginApi) {
     return mutation;
   }
 
-  async function createWorkItem(input: CreateIssueInput): Promise<WorkItem> {
+  async function createWorkItem(
+    input: CreateIssueInput
+  ): Promise<{
+    item: WorkItem;
+    warnings: string[];
+    assigneeConfirmation: ExternalWorkItemCreateResult['assigneeConfirmation'];
+  }> {
     await waitForMutations(input.projectId, SOURCES);
     const config = projectConfig(input.projectId, true);
     const source = assertExpectedIssueSource(
       input.expectedSource,
       config.source
+    );
+    const connectorRevision = currentConnectorRevision(input.projectId, source);
+    assertExpectedConnectorRevision(
+      input.connectorRevision,
+      connectorRevision,
+      source
     );
     const revision = currentRevision(input.projectId, source);
     const adapter = (await adapters(input.projectId, true)).get(source);
@@ -1550,15 +1629,32 @@ export default async function plugin(bb: BbPluginApi) {
           `${sourceName(source)} settings changed before the issue was created; try again`
         );
       }
+      assertExpectedConnectorRevision(
+        input.connectorRevision,
+        currentConnectorRevision(input.projectId, source),
+        source
+      );
       advanceSourceRevision(input.projectId, source);
       let externalItem: ExternalWorkItemDetail;
+      let warnings: string[];
+      // Preserve the provider-native confirmation separately from display text.
+      let assigneeConfirmation: ExternalWorkItemCreateResult['assigneeConfirmation'];
       try {
-        externalItem = await adapter.create({
+        const result = await adapter.create({
           title: input.title,
           description: input.description,
           destinationId: input.destinationId,
-          issueType: input.issueType
+          issueType: input.issueType,
+          statusId: input.statusId,
+          assigneeId: input.assigneeId,
+          priorityId: input.priorityId,
+          labelIds: input.labelIds,
+          dueDate: input.dueDate,
+          milestoneId: input.milestoneId
         });
+        externalItem = result.item;
+        warnings = result.warnings;
+        assigneeConfirmation = result.assigneeConfirmation;
       } catch (error) {
         throw new Error(
           `${sourceName(source)} could not create the issue. ${errorMessage(error)}`
@@ -1575,13 +1671,11 @@ export default async function plugin(bb: BbPluginApi) {
         projectId: input.projectId,
         source
       });
-      return item;
+      return { item, warnings, assigneeConfirmation };
     });
-    void mutation
-      .then(
-        () => syncAll(input.projectId, source, false),
-        () => syncAll(input.projectId, source, false)
-      )
+    void reconcileIssueCreation(mutation, forceRefresh =>
+      syncAll(input.projectId, source, forceRefresh)
+    )
       .catch((error: unknown) => {
         bb.log.warn(
           `${sourceName(source)} reconciliation failed for ${input.projectId}: ${errorMessage(error)}`
@@ -1606,20 +1700,25 @@ export default async function plugin(bb: BbPluginApi) {
     async listItems(input) {
       if (input.projectId) {
         await assertProjectExists(input.projectId);
+        await waitForMutations(input.projectId, SOURCES);
         if (input.source) {
           await assertSelectedSourceAfterMutations(
             input.projectId,
             input.source
           );
         }
-        return { items: store.list(input) };
+        return {
+          items: store.list(input),
+          provider: projectConfig(input.projectId, true).source
+        };
       }
       const projects = await listProjects();
       return {
         items: store.list({
           ...input,
           projectIds: projects.map(project => project.id)
-        })
+        }),
+        provider: null
       };
     },
     async refresh(input) {
@@ -1661,6 +1760,10 @@ export default async function plugin(bb: BbPluginApi) {
       await assertProjectExists(input.projectId);
       return { context: await getCreateIssueContext(input.projectId) };
     },
+    async getCreateIssueMetadata(input) {
+      await assertProjectExists(input.projectId);
+      return getCreateIssueMetadata(input);
+    },
     async startIssueDraft(input) {
       await assertProjectExists(input.projectId);
       return startIssueDraft(input);
@@ -1699,9 +1802,12 @@ export default async function plugin(bb: BbPluginApi) {
     },
     async createIssue(input) {
       await assertProjectExists(input.projectId);
-      const item = await createWorkItem(input);
+      const { item, warnings, assigneeConfirmation } =
+        await createWorkItem(input);
       return {
         item,
+        warnings,
+        assigneeConfirmation,
         mention: {
           provider: 'external-work-item',
           id: mentionId(item),
@@ -1977,11 +2083,11 @@ export default async function plugin(bb: BbPluginApi) {
           return {
             exitCode: 0,
             stdout: args.json
-              ? JSON.stringify({ items }, null, 2)
+              ? escapeExternalJsonOutput(JSON.stringify({ items }, null, 2))
               : items
                   .map(
                     item =>
-                      `${item.bbProjectId}\t${sourceName(item.source)}\t${item.key}\t${item.status}\t${item.assignee ?? '-'}\t${item.title}`
+                      `${escapeExternalInlineText(item.bbProjectId)}\t${sourceName(item.source)}\t${escapeExternalInlineText(item.key)}\t${escapeExternalInlineText(item.status)}\t${escapeExternalInlineText(item.assignee ?? '-')}\t${escapeExternalInlineText(item.title)}`
                   )
                   .join('\n')
           };
@@ -2006,7 +2112,7 @@ export default async function plugin(bb: BbPluginApi) {
           return {
             exitCode: 0,
             stdout: args.json
-              ? JSON.stringify({ item }, null, 2)
+              ? escapeExternalJsonOutput(JSON.stringify({ item }, null, 2))
               : formatWorkItemContext(item)
           };
         }
@@ -2030,20 +2136,22 @@ export default async function plugin(bb: BbPluginApi) {
           return {
             exitCode: 0,
             stdout: args.json
-              ? JSON.stringify(
-                  {
-                    projectId: project.id,
-                    source: parsedSource.data,
-                    locator,
-                    options
-                  },
-                  null,
-                  2
+              ? escapeExternalJsonOutput(
+                  JSON.stringify(
+                    {
+                      projectId: project.id,
+                      source: parsedSource.data,
+                      locator,
+                      options
+                    },
+                    null,
+                    2
+                  )
                 )
               : options
                   .map(
                     option =>
-                      `${option.id}\t${option.name}\t${option.stateCategory}\t${option.current ? 'current' : 'available'}`
+                      `${escapeExternalInlineText(option.id)}\t${escapeExternalInlineText(option.name)}\t${option.stateCategory}\t${option.current ? 'current' : 'available'}`
                   )
                   .join('\n')
           };
@@ -2068,7 +2176,7 @@ export default async function plugin(bb: BbPluginApi) {
           return {
             exitCode: 0,
             stdout: args.json
-              ? JSON.stringify({ item }, null, 2)
+              ? escapeExternalJsonOutput(JSON.stringify({ item }, null, 2))
               : formatWorkItemContext(item)
           };
         }

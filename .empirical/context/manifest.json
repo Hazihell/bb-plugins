@@ -1,0 +1,649 @@
+{
+  "schemaVersion": 2,
+  "generator": "empirical-0.28.0",
+  "sourceDigest": "sha256:7eec076fe90c5cbc57984cfab992ac000553c42d3a1d7cc5242ae43e45775857",
+  "files": [
+    {
+      "path": ".agents/skills/empirical/SKILL.md",
+      "size": 5967,
+      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
+    },
+    {
+      "path": ".bb/plugins.json",
+      "size": 311,
+      "digest": "sha256:2e26f2715c4204472cd4812ecad0608ddca618c8cb0bd7bf002a4a23dd1266b7"
+    },
+    {
+      "path": ".claude/skills/empirical/SKILL.md",
+      "size": 5967,
+      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
+    },
+    {
+      "path": ".codex/config.toml",
+      "size": 111,
+      "digest": "sha256:f5740bba08f992d4a5fe9f5b9f8a2c191f6922a16b5f9ac61695da88b6131d82"
+    },
+    {
+      "path": ".cursor/mcp.json",
+      "size": 119,
+      "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
+    },
+    {
+      "path": ".gemini/settings.json",
+      "size": 137,
+      "digest": "sha256:58b7bc1fef265b214425ef17eeb67f9f9ad687e049cc8d65c368c01ef5bb8780"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "size": 868,
+      "digest": "sha256:3fce5056ed692a110045ee245117b074081c22494f66efc5367253de4ca3cc21"
+    },
+    {
+      "path": ".gitignore",
+      "size": 53,
+      "digest": "sha256:1214cddc9e626fb2a761fad209bafecd4e8bf7ffeefef0ec4e567d63c877b2d9"
+    },
+    {
+      "path": ".mcp.json",
+      "size": 119,
+      "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
+    },
+    {
+      "path": ".npmrc.publish",
+      "size": 46,
+      "digest": "sha256:38f7c43d9982d5d29e3c1cd7e2ab727600c75c2e0530cbf1e18c21629b48915a"
+    },
+    {
+      "path": ".windsurf/skills/empirical/SKILL.md",
+      "size": 5967,
+      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
+    },
+    {
+      "path": "AGENTS.md",
+      "size": 2720,
+      "digest": "sha256:e907e06cfe05924c9b90bde87636696bf8d16f4c5d0527f10b62d64b05b48544"
+    },
+    {
+      "path": "CLAUDE.md",
+      "size": 1083,
+      "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
+    },
+    {
+      "path": "GEMINI.md",
+      "size": 1083,
+      "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
+    },
+    {
+      "path": "LICENSE",
+      "size": 1074,
+      "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
+    },
+    {
+      "path": "README.md",
+      "size": 4888,
+      "digest": "sha256:578f6f3a02396d20ee6bcfbdff2ba2370f1086e2fc1c893e3e25340b4a0becb0"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "size": 887,
+      "digest": "sha256:35749c2f47e8a002ea1a8738113450a53645887ab66acdb9b136109eec4b54fa"
+    },
+    {
+      "path": "demos/taskboard-create-issue.html",
+      "size": 20197,
+      "digest": "sha256:302543880cb7398b21695ec2873aeab6bcc297014e6a96677e9595f7c161dc0d"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 211341,
+      "digest": "sha256:23d8b8c9d50bf1c22df8756b246d40a282837bbe18c9bdf972e982387bba1bb4"
+    },
+    {
+      "path": "package.json",
+      "size": 440,
+      "digest": "sha256:ea7f7ffac59a15ec7fc3bcc40793a7b987a8d533682069d1d08ad31c058ce93c"
+    },
+    {
+      "path": "plugins/taskboard/LICENSE",
+      "size": 1074,
+      "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
+    },
+    {
+      "path": "plugins/taskboard/README.md",
+      "size": 10574,
+      "digest": "sha256:0ece1a7aa70f7f4f9c914a4698d77ce3669f8765b148f8a5b0864f1d505f929d"
+    },
+    {
+      "path": "plugins/taskboard/THIRD_PARTY_NOTICES.md",
+      "size": 373,
+      "digest": "sha256:41c73319f93c7df72d2ea21252836cdb7656b4944c6b4dd0805233ae98399f90"
+    },
+    {
+      "path": "plugins/taskboard/app.css",
+      "size": 14303,
+      "digest": "sha256:2afd9e16f02455914b5dcadfb6a1beea696877af200313c1d6006c2cbaa9bccd"
+    },
+    {
+      "path": "plugins/taskboard/app.tsx",
+      "size": 216129,
+      "digest": "sha256:9fd7f5200b442a04b977d4ce679a90828205737955867f03e7e279060daa249b"
+    },
+    {
+      "path": "plugins/taskboard/assets/icon.svg",
+      "size": 414,
+      "digest": "sha256:0b77950cec05ed35134dcc8d0c8ff96460c806106cb8e28cedeb15903ccd08ef"
+    },
+    {
+      "path": "plugins/taskboard/board-settings.ts",
+      "size": 2013,
+      "digest": "sha256:f1554d8f745cb3af4326b765f002623c272a9d2ede7db4b0cbe55771fdb814a5"
+    },
+    {
+      "path": "plugins/taskboard/browse-preferences.ts",
+      "size": 18960,
+      "digest": "sha256:9d43c41f07dd7816c0ed7219425b44f352cf1fb0b3a4844553ee200d29bf5a3b"
+    },
+    {
+      "path": "plugins/taskboard/browse.ts",
+      "size": 16018,
+      "digest": "sha256:cd756a8ad01e1af0002e666f33f47f489ed53e5ccf1c013aad924849ab137c4e"
+    },
+    {
+      "path": "plugins/taskboard/components.json",
+      "size": 494,
+      "digest": "sha256:ac9677084652089d3a90b5190b1894fe6c798aef5ec13c957a5a454bc436bb87"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/badge.tsx",
+      "size": 1066,
+      "digest": "sha256:a8e76dd2b5878c7cd8bf1c7d8044b9e9fb84c09d101025323dac9d020105d8df"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/button.tsx",
+      "size": 2202,
+      "digest": "sha256:c3e716d90e4fd5e5a8c73141182024d297a3113b9fa36ed3f54352a3638f1e70"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/coarse-pointer-sizing.ts",
+      "size": 3838,
+      "digest": "sha256:793017aa3f68d95bf0bb19ef581ab0cb3a93845ec35f0e23c73e6b7d341deef5"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/dialog.tsx",
+      "size": 5687,
+      "digest": "sha256:00bd594d5cf95729492725985f04e8f1d7979c5c41737838e31c5816849dec68"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/drawer.tsx",
+      "size": 3384,
+      "digest": "sha256:98f68262442c2f2c701672a1737d2287ef2dd68c397f144ded9b4d33c52a4d67"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/dropdown-menu.tsx",
+      "size": 23152,
+      "digest": "sha256:52b141586ab99103a308dfc5bdb9d336c2ba8f103ce2f6536e1691d369eab55c"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/hooks/use-compact-viewport.tsx",
+      "size": 903,
+      "digest": "sha256:56c7e82a62e3f0f35e6ffbaa1611569479de7f193ad20daef9f9466a44bce9e9"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/hooks/use-media-query.ts",
+      "size": 1743,
+      "digest": "sha256:b449ce28a929d5c3f1d10b9c20e4b56aa7f30a758e296d723a24889c37754458"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/hooks/use-pointer-coarse.ts",
+      "size": 207,
+      "digest": "sha256:29936c113eca630b26af167bb694920a034216cfdcb408daef13512b9e0e9a9e"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/icon.tsx",
+      "size": 12501,
+      "digest": "sha256:b546d26b707d20787fe5a4bc30c542c8493f1a4857b98c944fb50ef95c9ad6f9"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/input.tsx",
+      "size": 1066,
+      "digest": "sha256:91027ceb1c2ae675cc9dcb867088083a522d54fbe5e4031d656a407f18e8f64c"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/menu-item-hover.tsx",
+      "size": 3933,
+      "digest": "sha256:9286c07a5a97fd51ea424daf4b03dad2099c6cd9f299b1b017865ab443c37bc8"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/motion.ts",
+      "size": 150,
+      "digest": "sha256:c96650e4436a54f2280efef8a953b160beae30044f36f7af4a146296d5859f82"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/overlay-trigger.ts",
+      "size": 4111,
+      "digest": "sha256:bf1022691fafc28ac7e82b5a862b65b8118b50fcd597879e0c4eed766f4a7e2b"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/responsive-overlay.tsx",
+      "size": 10278,
+      "digest": "sha256:2c065506bd56dfd5b33cc7b7b9fe3c0a7eb6b09363503efe75c204fb87c37d89"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/select.tsx",
+      "size": 5982,
+      "digest": "sha256:54b872bcb1734ebeb524115c9993b682fe1124ce4bd71c728bc12435d8662224"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/skeleton.tsx",
+      "size": 303,
+      "digest": "sha256:c01cd8f11bd191fe7de5de2cac7b68fd2b36516d5836815bab19868c6d2dcd6d"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/textarea.tsx",
+      "size": 830,
+      "digest": "sha256:06c0a8b13711216cb24ef48f270060912c2a103dd53227ef7ba511e95d90f81f"
+    },
+    {
+      "path": "plugins/taskboard/components/ui/tooltip.tsx",
+      "size": 1620,
+      "digest": "sha256:0762c69461aa3c5f6335d3c0b581a7e7ed2c9830041312935fe3e9b6d884b44b"
+    },
+    {
+      "path": "plugins/taskboard/contract.ts",
+      "size": 15611,
+      "digest": "sha256:be526fef6ac969c5a5bf1c238e2876afc9cfe57c6e5c8e42b8edb3ef4004356c"
+    },
+    {
+      "path": "plugins/taskboard/create-issue.ts",
+      "size": 1183,
+      "digest": "sha256:73dcb0b4bc8c997e0c6bce8342e79a22b21b5d8a6becdb044bf1d23dde2dccf3"
+    },
+    {
+      "path": "plugins/taskboard/hooks/useBrowserDimmingModal.ts",
+      "size": 812,
+      "digest": "sha256:505daff1cfcc8aa86195dbb00db274feee4ed47cc75f50ed90f10b6de049ea9c"
+    },
+    {
+      "path": "plugins/taskboard/issue-draft.ts",
+      "size": 3175,
+      "digest": "sha256:b25c1dd0d169026a42313dcdc7589bd3db4c5a7d2646bcb42d7e2a22c63ce774"
+    },
+    {
+      "path": "plugins/taskboard/lib/portal-scope.ts",
+      "size": 439,
+      "digest": "sha256:cbf23e81c4436585a5e55a4893591d0cc22c189f54d004d70cb7e1a8cc72f988"
+    },
+    {
+      "path": "plugins/taskboard/lib/utils.ts",
+      "size": 909,
+      "digest": "sha256:b301870e836f68abd6670b19e4590a8c0e08d051a4191feee06a6d4e3ef2dda1"
+    },
+    {
+      "path": "plugins/taskboard/package.json",
+      "size": 2947,
+      "digest": "sha256:ad4de5e4ae2ed389927ebff98c69c189a495f3c2a5de85fe71e6c948a44044f0"
+    },
+    {
+      "path": "plugins/taskboard/project-selection.ts",
+      "size": 2295,
+      "digest": "sha256:543ed6c976898ffcbed3ada2a490f9b418b692df2b643304c8b0b0c1bde042b1"
+    },
+    {
+      "path": "plugins/taskboard/scripts/verify-build.mjs",
+      "size": 850,
+      "digest": "sha256:cf402a62febc0222cd1ae7320c9890a1b1c76869b031032f246bce03d955127b"
+    },
+    {
+      "path": "plugins/taskboard/server.ts",
+      "size": 80994,
+      "digest": "sha256:a3c0435ffbd6d26cf9e45b8907937e1de1d172b3b03edb8972b56bde6b4b8c2a"
+    },
+    {
+      "path": "plugins/taskboard/sources/github.ts",
+      "size": 17057,
+      "digest": "sha256:a9c64f03a2b06d36061e78deb05fa1213626b5265956c8b45db97cd1f131354c"
+    },
+    {
+      "path": "plugins/taskboard/sources/jira-scope.ts",
+      "size": 971,
+      "digest": "sha256:6230cc7ac96ac702f8412ec89482d7cb8e8096062ba2c5431113218078524e72"
+    },
+    {
+      "path": "plugins/taskboard/sources/jira.ts",
+      "size": 22925,
+      "digest": "sha256:b6be203edb6225003ce0dbf3c6ce11732fa2157a4a04e6b0553a77fcb2ef724f"
+    },
+    {
+      "path": "plugins/taskboard/sources/linear.ts",
+      "size": 19580,
+      "digest": "sha256:e83f97802cfb2ec9d706deee4b3802a708592b098ea85dc06da4ebbc7a1f94a7"
+    },
+    {
+      "path": "plugins/taskboard/sources/types.ts",
+      "size": 1662,
+      "digest": "sha256:23ec12606c18e596319b8c0903dfabe041631c75c5b20b983a8ac716a08c642f"
+    },
+    {
+      "path": "plugins/taskboard/store.ts",
+      "size": 22822,
+      "digest": "sha256:b399f0ccaa917f83c71146fb0d2e0a270c1d4d6d35405d317b9d97e4f4f18468"
+    },
+    {
+      "path": "plugins/taskboard/test/app-ui.test.ts",
+      "size": 6669,
+      "digest": "sha256:f706051aef557110cefbb0194dcff2f83b0a585b929849b989512e711549d185"
+    },
+    {
+      "path": "plugins/taskboard/test/browse-preferences.test.ts",
+      "size": 15921,
+      "digest": "sha256:af281ad81fbabe93d355541ddcc0ac4eae0a20ed48e9b1851417bd104ec759f8"
+    },
+    {
+      "path": "plugins/taskboard/test/browse.test.ts",
+      "size": 10275,
+      "digest": "sha256:682922384c33b8f87ce811078c8ac66d67e11710a2febd819cb301ab91ddcf82"
+    },
+    {
+      "path": "plugins/taskboard/test/contract.test.ts",
+      "size": 11252,
+      "digest": "sha256:449dd9fc28c9eea7d3c9963ceedb9002a815bc8ffbde3392c156d157372a9413"
+    },
+    {
+      "path": "plugins/taskboard/test/create-metadata.test.ts",
+      "size": 42871,
+      "digest": "sha256:ba6de4d8a73dc99c5c4db4232747de1aabc9e556d0d4e32901ed75afd3edd6af"
+    },
+    {
+      "path": "plugins/taskboard/test/issue-draft.test.ts",
+      "size": 1787,
+      "digest": "sha256:0b074d4310021579148eb67518c7f1a41b736eaecea84df894f6aa06cd5e6caa"
+    },
+    {
+      "path": "plugins/taskboard/test/project-selection.test.ts",
+      "size": 2902,
+      "digest": "sha256:1f1e6edcf3699355e9afc20a332d2d8d1796615ee41243c08b1edae72d2816d1"
+    },
+    {
+      "path": "plugins/taskboard/test/source-types.test.ts",
+      "size": 3505,
+      "digest": "sha256:3f0641b5835fe438faee98b361b4d6ce0a54b2f9c2c37f0a46c09af338dd48b7"
+    },
+    {
+      "path": "plugins/taskboard/test/theme-css.test.ts",
+      "size": 3678,
+      "digest": "sha256:a8c0a94caf8d576135583d670ae7112dcd70394c7f45a5394cf59bc94ec877d4"
+    },
+    {
+      "path": "plugins/taskboard/tsconfig.json",
+      "size": 563,
+      "digest": "sha256:3817ff83f2f2b7e4a0d8690452ca6a827bb5102b6102cf949221454cb7c46947"
+    },
+    {
+      "path": "plugins/usage-tracker/CHANGELOG.md",
+      "size": 967,
+      "digest": "sha256:74f3089728634423b3429ed71880066025fb5d68a10fa692a7731bb3ee668afd"
+    },
+    {
+      "path": "plugins/usage-tracker/LICENSE",
+      "size": 1074,
+      "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
+    },
+    {
+      "path": "plugins/usage-tracker/README.md",
+      "size": 4335,
+      "digest": "sha256:f6c82295efbd5459c1c38d70d3ab9c4d3d9ef292770e37e8c5d5aac290089014"
+    },
+    {
+      "path": "plugins/usage-tracker/THIRD_PARTY_NOTICES.md",
+      "size": 2494,
+      "digest": "sha256:0bbc84dd0210cf63bb3fcfa8853ef3487154feb3ebc56ad7671dea56067a49be"
+    },
+    {
+      "path": "plugins/usage-tracker/app.css",
+      "size": 8023,
+      "digest": "sha256:cfe02754495dab749372a4560942a3c25faad57f6a544a9ea0c5bee7445733a9"
+    },
+    {
+      "path": "plugins/usage-tracker/app.tsx",
+      "size": 315,
+      "digest": "sha256:139f28f2789ebab30ec4c0bcac86e824620bdc99cacaf3159af69ffee96df280"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/icon.svg",
+      "size": 1760,
+      "digest": "sha256:cc9ae5bda3c9f538a8f1029ce0bb3df14a1f77aca61d9e150c42a03a1aefb38c"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/logo-dark.svg",
+      "size": 1842,
+      "digest": "sha256:20bb6227268a51feebb91ac716a59c13d1dc201367a0d77ee79800eb1289982c"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/logo.svg",
+      "size": 1842,
+      "digest": "sha256:fad229f3ce61e7b3702571b889d619fef51be7f1f498624c7b45f31d3110a7d2"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/load-usage.ts",
+      "size": 1658,
+      "digest": "sha256:4e686c5707b8d5621d9676c32466c1a782efff46a24150c73f7a34a1dc92c425"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/preferences.ts",
+      "size": 512,
+      "digest": "sha256:bc87248e00fbc0144ec54e6a3ffdeff2726a23e6d96bd4aa33c1e6f778f739ee"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/provider-marks.ts",
+      "size": 3936,
+      "digest": "sha256:eae449f52ce1780b0c8784899ca582ce0c18d0179cf7bf324afc756207010241"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/sidebar-strip.ts",
+      "size": 17252,
+      "digest": "sha256:5111901332f34509008ca79960a962d04a15f8f478f56bf2012dc6775bc26ce8"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/sidebar-usage.ts",
+      "size": 2271,
+      "digest": "sha256:46a12cea97d95fddf06c38539db7439d356bb66db0f2716243f2771fd2b6ca7e"
+    },
+    {
+      "path": "plugins/usage-tracker/lib/usage.ts",
+      "size": 6008,
+      "digest": "sha256:af875fb62affc52e3ce4df29ee9466a9a1b73cafad55402628df56060e198b62"
+    },
+    {
+      "path": "plugins/usage-tracker/package.json",
+      "size": 2147,
+      "digest": "sha256:4e07623474e9d32249a6f8976c7629eec2991a45aa3bb5a5966bc10fb273edc1"
+    },
+    {
+      "path": "plugins/usage-tracker/server.ts",
+      "size": 2382,
+      "digest": "sha256:9a387ac8e3e6c804944c55d66a60d1d0b0f0edee71e28f5b5461d0daa02d5502"
+    },
+    {
+      "path": "plugins/usage-tracker/test/usage.test.ts",
+      "size": 9451,
+      "digest": "sha256:b65badb72e9c4e7700f0ef20dc2212451c0a09212aa94059ceebcae54e53bf0f"
+    },
+    {
+      "path": "plugins/usage-tracker/tsconfig.json",
+      "size": 491,
+      "digest": "sha256:2a2fb82ee99dfae528c4e864282bc4c88363f5dcdd6cdde12aa5887861969461"
+    },
+    {
+      "path": "plugins/usage-tracker/types/css-modules.d.ts",
+      "size": 24,
+      "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
+    }
+  ],
+  "pages": [
+    {
+      "path": ".empirical/context/index.md",
+      "generator": "empirical-0.28.0",
+      "managed": true,
+      "dependencies": [
+        ".agents/skills/empirical/SKILL.md",
+        ".bb/plugins.json",
+        ".claude/skills/empirical/SKILL.md",
+        ".codex/config.toml",
+        ".cursor/mcp.json",
+        ".gemini/settings.json",
+        ".github/workflows/ci.yml",
+        ".gitignore",
+        ".mcp.json",
+        ".npmrc.publish",
+        ".windsurf/skills/empirical/SKILL.md",
+        "AGENTS.md",
+        "CLAUDE.md",
+        "GEMINI.md",
+        "LICENSE",
+        "README.md",
+        "THIRD_PARTY_NOTICES.md",
+        "demos/taskboard-create-issue.html",
+        "package-lock.json",
+        "package.json",
+        "plugins/taskboard/LICENSE",
+        "plugins/taskboard/README.md",
+        "plugins/taskboard/THIRD_PARTY_NOTICES.md",
+        "plugins/taskboard/app.css",
+        "plugins/taskboard/app.tsx",
+        "plugins/taskboard/assets/icon.svg",
+        "plugins/taskboard/board-settings.ts",
+        "plugins/taskboard/browse-preferences.ts",
+        "plugins/taskboard/browse.ts",
+        "plugins/taskboard/components.json",
+        "plugins/taskboard/components/ui/badge.tsx",
+        "plugins/taskboard/components/ui/button.tsx",
+        "plugins/taskboard/components/ui/coarse-pointer-sizing.ts",
+        "plugins/taskboard/components/ui/dialog.tsx",
+        "plugins/taskboard/components/ui/drawer.tsx",
+        "plugins/taskboard/components/ui/dropdown-menu.tsx",
+        "plugins/taskboard/components/ui/hooks/use-compact-viewport.tsx",
+        "plugins/taskboard/components/ui/hooks/use-media-query.ts",
+        "plugins/taskboard/components/ui/hooks/use-pointer-coarse.ts",
+        "plugins/taskboard/components/ui/icon.tsx",
+        "plugins/taskboard/components/ui/input.tsx",
+        "plugins/taskboard/components/ui/menu-item-hover.tsx",
+        "plugins/taskboard/components/ui/motion.ts",
+        "plugins/taskboard/components/ui/overlay-trigger.ts",
+        "plugins/taskboard/components/ui/responsive-overlay.tsx",
+        "plugins/taskboard/components/ui/select.tsx",
+        "plugins/taskboard/components/ui/skeleton.tsx",
+        "plugins/taskboard/components/ui/textarea.tsx",
+        "plugins/taskboard/components/ui/tooltip.tsx",
+        "plugins/taskboard/contract.ts",
+        "plugins/taskboard/create-issue.ts",
+        "plugins/taskboard/hooks/useBrowserDimmingModal.ts",
+        "plugins/taskboard/issue-draft.ts",
+        "plugins/taskboard/lib/portal-scope.ts",
+        "plugins/taskboard/lib/utils.ts",
+        "plugins/taskboard/package.json",
+        "plugins/taskboard/project-selection.ts",
+        "plugins/taskboard/scripts/verify-build.mjs",
+        "plugins/taskboard/server.ts",
+        "plugins/taskboard/sources/github.ts",
+        "plugins/taskboard/sources/jira-scope.ts",
+        "plugins/taskboard/sources/jira.ts",
+        "plugins/taskboard/sources/linear.ts",
+        "plugins/taskboard/sources/types.ts",
+        "plugins/taskboard/store.ts",
+        "plugins/taskboard/test/app-ui.test.ts",
+        "plugins/taskboard/test/browse-preferences.test.ts",
+        "plugins/taskboard/test/browse.test.ts",
+        "plugins/taskboard/test/contract.test.ts",
+        "plugins/taskboard/test/create-metadata.test.ts",
+        "plugins/taskboard/test/issue-draft.test.ts",
+        "plugins/taskboard/test/project-selection.test.ts",
+        "plugins/taskboard/test/source-types.test.ts",
+        "plugins/taskboard/test/theme-css.test.ts",
+        "plugins/taskboard/tsconfig.json",
+        "plugins/usage-tracker/CHANGELOG.md",
+        "plugins/usage-tracker/LICENSE",
+        "plugins/usage-tracker/README.md",
+        "plugins/usage-tracker/THIRD_PARTY_NOTICES.md",
+        "plugins/usage-tracker/app.css",
+        "plugins/usage-tracker/app.tsx",
+        "plugins/usage-tracker/assets/icon.svg",
+        "plugins/usage-tracker/assets/logo-dark.svg",
+        "plugins/usage-tracker/assets/logo.svg",
+        "plugins/usage-tracker/lib/load-usage.ts",
+        "plugins/usage-tracker/lib/preferences.ts",
+        "plugins/usage-tracker/lib/provider-marks.ts",
+        "plugins/usage-tracker/lib/sidebar-strip.ts",
+        "plugins/usage-tracker/lib/sidebar-usage.ts",
+        "plugins/usage-tracker/lib/usage.ts",
+        "plugins/usage-tracker/package.json",
+        "plugins/usage-tracker/server.ts",
+        "plugins/usage-tracker/test/usage.test.ts",
+        "plugins/usage-tracker/tsconfig.json",
+        "plugins/usage-tracker/types/css-modules.d.ts"
+      ],
+      "sourceDigest": "sha256:7eec076fe90c5cbc57984cfab992ac000553c42d3a1d7cc5242ae43e45775857",
+      "digest": "sha256:12c14036c9907ab37a5b3d0f4fa5b986ca6b9df0d91fde06e566855bce230217",
+      "freshness": "fresh"
+    },
+    {
+      "path": ".empirical/context/overview.md",
+      "generator": "empirical-0.28.0",
+      "managed": false,
+      "dependencies": [
+        "README.md",
+        "package.json",
+        "plugins/taskboard/README.md",
+        "plugins/taskboard/package.json",
+        "plugins/taskboard/project-selection.ts",
+        "plugins/taskboard/test/project-selection.test.ts",
+        "plugins/usage-tracker/README.md",
+        "plugins/usage-tracker/package.json"
+      ],
+      "sourceDigest": "sha256:a19baf68e7a7d58b3ae8fa51ea2ff9df02c66aeeb94685f80cd0782cfe11d058",
+      "digest": "sha256:c1bfd20add5828cd50b53af55ddb5b64d4267a18fe767fe9f295823a4768b97b",
+      "freshness": "fresh"
+    },
+    {
+      "path": ".empirical/context/architecture.md",
+      "generator": "empirical-0.28.0",
+      "managed": false,
+      "dependencies": [
+        "package.json",
+        "plugins/taskboard/package.json",
+        "plugins/usage-tracker/package.json"
+      ],
+      "sourceDigest": "sha256:b1bbe01d3cb944ea4b43931db78b78ee36088535f631bd8629e41491c0d9375c",
+      "digest": "sha256:cf35569f39859940f71f035ff9e93a78f5221e0329dc3e93731f3382dc6bd6a2",
+      "freshness": "fresh"
+    },
+    {
+      "path": ".empirical/context/commands.md",
+      "generator": "empirical-0.28.0",
+      "managed": false,
+      "dependencies": [
+        ".github/workflows/ci.yml",
+        "package.json",
+        "plugins/taskboard/package.json",
+        "plugins/usage-tracker/package.json"
+      ],
+      "sourceDigest": "sha256:341e22cf930ff184c0baf4d28afb25385cfceb248e47bf853b8a4f06d7c8ab19",
+      "digest": "sha256:6237386d2e8cd12ac314b621773f434a70b4d5baefe6f9a986912243839f1bb5",
+      "freshness": "fresh"
+    },
+    {
+      "path": ".empirical/context/conventions.md",
+      "generator": "empirical-0.28.0",
+      "managed": false,
+      "dependencies": [
+        "AGENTS.md",
+        "plugins/taskboard/tsconfig.json",
+        "plugins/usage-tracker/tsconfig.json"
+      ],
+      "sourceDigest": "sha256:3355168fffc08f9379e8832a2a5f1119125404c150234121c20c70691ad41720",
+      "digest": "sha256:da6fa0c52984a71d3f6cb1f78c3872950be99c05e999f93b21154d4e4c45d2f8",
+      "freshness": "fresh"
+    }
+  ],
+  "truncated": false,
+  "digest": "sha256:0cb67d1dfa79d9bdca15e0dd6c4f0514470a8847183008c9e44a7a5d27712f5d"
+}

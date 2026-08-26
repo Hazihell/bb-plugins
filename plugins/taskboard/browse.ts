@@ -29,6 +29,52 @@ export interface FilterOption {
 
 export type AssigneeFilterOption = FilterOption;
 
+export const ASSIGNEE_AVATAR_TONES = [
+  'violet',
+  'blue',
+  'teal',
+  'amber',
+  'rose',
+  'slate'
+] as const;
+export type AssigneeAvatarTone = (typeof ASSIGNEE_AVATAR_TONES)[number];
+
+export interface AssigneeAvatarIdentity {
+  initials: string;
+  tone: AssigneeAvatarTone;
+}
+
+export function assigneeAvatarIdentity(name: string): AssigneeAvatarIdentity {
+  const normalized = name
+    .normalize('NFKC')
+    .trim()
+    .replace(/\s+/gu, ' ');
+  const initials =
+    normalized
+      .split(' ')
+      .flatMap(token => {
+        const character = Array.from(token).find(value =>
+          /[\p{L}\p{N}]/u.test(value)
+        );
+        return character ? [character] : [];
+      })
+      .slice(0, 2)
+      .map(character => Array.from(character.toUpperCase())[0] ?? '')
+      .join('') || '?';
+  let hash = 2166136261;
+  for (const character of normalized.toLowerCase()) {
+    hash ^= character.codePointAt(0) ?? 0;
+    hash = Math.imul(hash, 16777619);
+  }
+  return {
+    initials,
+    tone:
+      ASSIGNEE_AVATAR_TONES[
+        (hash >>> 0) % ASSIGNEE_AVATAR_TONES.length
+      ]!
+  };
+}
+
 export interface WorkItemAttributeFilters {
   statuses: readonly string[];
   assignees: readonly string[];
@@ -265,8 +311,52 @@ function normalizedProject(value: string | null): string | null {
   return normalizedOptionalValue(value, /^(?:none|no project)$/iu);
 }
 
-function optionIdentity(value: string): string {
+export function filterOptionIdentity(value: string): string {
   return value.toLocaleLowerCase();
+}
+
+export function canonicalizeSelectedFilterOptions(
+  selected: readonly string[],
+  options: readonly FilterOption[]
+): string[] {
+  const canonicalValues = new Map<string, string>();
+  for (const option of options) {
+    const identity = filterOptionIdentity(option.value);
+    if (!canonicalValues.has(identity)) {
+      canonicalValues.set(identity, option.value);
+    }
+  }
+
+  const seen = new Set<string>();
+  const canonicalized: string[] = [];
+  for (const value of selected) {
+    const identity = filterOptionIdentity(value);
+    if (seen.has(identity)) continue;
+    seen.add(identity);
+    canonicalized.push(canonicalValues.get(identity) ?? value);
+  }
+  return canonicalized;
+}
+
+export function isFilterOptionSelected(
+  selected: readonly string[],
+  optionValue: string
+): boolean {
+  const identity = filterOptionIdentity(optionValue);
+  return selected.some(value => filterOptionIdentity(value) === identity);
+}
+
+export function toggleFilterOptionSelection(
+  selected: readonly string[],
+  optionValue: string
+): string[] {
+  const identity = filterOptionIdentity(optionValue);
+  const remaining = selected.filter(
+    value => filterOptionIdentity(value) !== identity
+  );
+  return remaining.length === selected.length
+    ? [...selected, optionValue]
+    : remaining;
 }
 
 function singleValueFilterOptions(
@@ -284,7 +374,7 @@ function singleValueFilterOptions(
       hasEmpty = true;
       continue;
     }
-    const identity = optionIdentity(normalized);
+    const identity = filterOptionIdentity(normalized);
     if (!options.has(identity)) {
       options.set(identity, { value: normalized, label: normalized });
     }
@@ -296,7 +386,7 @@ function singleValueFilterOptions(
     }
     const normalized = normalize(value);
     if (!normalized) continue;
-    const identity = optionIdentity(normalized);
+    const identity = filterOptionIdentity(normalized);
     if (!options.has(identity)) {
       options.set(identity, { value: normalized, label: normalized });
     }
@@ -317,7 +407,10 @@ export function statusFilterOptions(
 ): FilterOption[] {
   const categories = new Map<string, WorkStateCategory>();
   for (const item of items) {
-    categories.set(optionIdentity(item.status.trim()), item.stateCategory);
+    categories.set(
+      filterOptionIdentity(item.status.trim()),
+      item.stateCategory
+    );
   }
   return singleValueFilterOptions(
     items.map(item => item.status),
@@ -327,11 +420,11 @@ export function statusFilterOptions(
     compareWorkflowStatuses(
       {
         name: left.label,
-        category: categories.get(optionIdentity(left.value)) ?? 'todo'
+        category: categories.get(filterOptionIdentity(left.value)) ?? 'todo'
       },
       {
         name: right.label,
-        category: categories.get(optionIdentity(right.value)) ?? 'todo'
+        category: categories.get(filterOptionIdentity(right.value)) ?? 'todo'
       },
       statusOrder
     )
@@ -428,9 +521,9 @@ function matchesSingleValueFilter(
       .filter(candidate => candidate !== emptyToken)
       .map(candidate => normalize(candidate))
       .filter((candidate): candidate is string => candidate !== null)
-      .map(optionIdentity)
+      .map(filterOptionIdentity)
   );
-  return selectedValues.has(optionIdentity(normalized));
+  return selectedValues.has(filterOptionIdentity(normalized));
 }
 
 export function filterWorkItemsByAssignee(
@@ -454,7 +547,7 @@ export function filterWorkItemsByAttributes(
   const selectedLabels = new Set(
     filters.labels
       .filter(label => label !== NO_LABELS_FILTER)
-      .map(optionIdentity)
+      .map(filterOptionIdentity)
   );
   const includeNoLabels = filters.labels.includes(NO_LABELS_FILTER);
 
@@ -491,7 +584,7 @@ export function filterWorkItemsByAttributes(
     const labels = item.labels
       .map(label => label.trim())
       .filter(Boolean)
-      .map(optionIdentity);
+      .map(filterOptionIdentity);
     return labels.length === 0
       ? includeNoLabels
       : labels.some(label => selectedLabels.has(label));
