@@ -3,6 +3,7 @@
 - Authenticated account: `MateoCerquetella`
 - Repository: `https://github.com/MateoCerquetella/bb-plugins.git`
 - Base/main merge: `daffcd47cb1c642774f6227df19cf8357d597f7e`
+- Local release commit: `3555def9bda20f096fdc9e72a5bcd8d2f3c744fc`
 - Package/id/version: `bb-plugin-usage-tracker` / `usage-tracker` / `0.1.3`
 - Proposed tag: `usage-tracker/v0.1.3`
 - Existing exact remote tag: absent
@@ -22,7 +23,7 @@
 ## Checks
 
 - Focused Usage Tracker check: passed (23/23 tests plus SDK/type/build).
-- Root workspace check: passed.
+- Root workspace check: passed again at exact clean release commit `3555def`.
 - `dist/server.meta.json`: `usage-tracker` / `0.1.3` / SDK `0.4.6`.
 - `dist/app.meta.json`: `usage-tracker` / `0.1.3` / SDK `0.4.6`.
 - Generated `dist/` files are ignored and untracked.
