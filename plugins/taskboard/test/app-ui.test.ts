@@ -24,6 +24,53 @@ test('canonicalizes provider facet casing before rendering and persistence', () 
   assert.match(app, /sameStringValues\(current\.assignees, nextAssignees\)/u);
 });
 
+test('applies project presets through the released preference store', () => {
+  assert.match(app, /useProjectFilterPresets\(projectId\)/u);
+  assert.match(app, /useRealtime\('taskboard:presets-changed'/u);
+  assert.match(app, /projectIdRef\.current !== projectId/u);
+  assert.match(app, /loadedProjectId === projectId/u);
+  assert.match(app, /projectId === null \? null : presetState\.presets/u);
+  assert.match(app, /preset\.projectId !== projectId/u);
+  assert.match(app, /preset\.state\.provider !== authoritativeProvider/u);
+  assert.match(app, /browsePreferenceStore\.set\(preferenceScope, preset\.state\)/u);
+  assert.doesNotMatch(app, /setCommittedQuery\(preset\.state\.query/u);
+  assert.match(app, /state: preferences/u);
+  assert.match(app, /Could not load presets:/u);
+  assert.match(app, /Save current view as/u);
+  assert.match(app, /mutationInFlightRef/u);
+  assert.match(app, /value=\{nameDrafts\[preset\.id\] \?\? preset\.name\}/u);
+});
+
+test('keeps preset refreshes, drafts, and focus non-disruptive', () => {
+  const hook = app.match(
+    /function useProjectFilterPresets[\s\S]*?\nfunction loadRightPanelPinned/u
+  )?.[0];
+  assert.ok(hook, 'Missing project preset hook');
+  assert.ok(
+    [...hook.matchAll(/void reload\(\{ background: true \}\)/gu)].length >= 3,
+    'Realtime, reconnect, and mutation reconciliation must stay in the background'
+  );
+  assert.match(hook, /if \(options\.background\) \{\s*setRefreshError\(message\)/u);
+  assert.doesNotMatch(
+    hook,
+    /if \(options\.background\) \{[^}]*setPresets\(\[\]\)/u
+  );
+  assert.match(app, /Keeping your loaded presets and edits/u);
+  assert.match(app, /authoritativeNamesRef/u);
+  assert.match(app, /presetActionButtonRefs/u);
+  assert.match(app, /restorePresetFocus\(preset\.id/u);
+  assert.match(app, /flex min-w-0 flex-col gap-1\.5 @sm:flex-row/u);
+  assert.match(app, /max-md:pointer-coarse:h-10 max-md:pointer-coarse:w-10/u);
+});
+
+test('announces preset apply and keeps save errors with the draft', () => {
+  assert.match(app, /toast\.success\(`Applied preset/u);
+  assert.match(app, /<DialogDescription id=\{presetSaveDescriptionId\}>/u);
+  assert.match(app, /setPresetSaveError\(message\)/u);
+  assert.match(app, /aria-invalid=\{presetSaveError !== null\}/u);
+  assert.match(app, /id=\{presetSaveErrorId\}[\s\S]*?role="alert"/u);
+});
+
 test('keeps List measured and Kanban unconstrained', () => {
   assert.match(app, /data-taskboard-list-measure/u);
   assert.match(app, /max-w-\[56rem\]/u);

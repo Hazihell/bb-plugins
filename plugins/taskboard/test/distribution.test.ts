@@ -164,3 +164,33 @@ test('has no active registry publication automation or credential path', () => {
     }
   }
 });
+
+test('credits merged contributors without reviving superseded filter storage', async () => {
+  assert.match(
+    rootReadme,
+    /https:\/\/github\.com\/stephendolan/u
+  );
+  assert.match(rootReadme, /https:\/\/github\.com\/RIP21/u);
+  assert.match(taskboardReadme, /named filter presets/u);
+  assert.match(usageReadme, /configurable Compact limit/u);
+
+  for (const path of ['filter-state.ts', 'work-schemas.ts']) {
+    await assert.rejects(
+      readFile(new URL(`../${path}`, import.meta.url), 'utf8'),
+      /ENOENT/u
+    );
+  }
+
+  const activeTaskboardSource = await Promise.all([
+    readFile(new URL('../app.tsx', import.meta.url), 'utf8'),
+    readFile(new URL('../contract.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../server.ts', import.meta.url), 'utf8'),
+    readFile(new URL('../store.ts', import.meta.url), 'utf8'),
+  ]);
+  for (const source of activeTaskboardSource) {
+    assert.doesNotMatch(
+      source,
+      /project_filter_state|getBoardFilterState|saveBoardFilterState/u
+    );
+  }
+});

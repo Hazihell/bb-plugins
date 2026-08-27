@@ -36,6 +36,10 @@ Commands below are verified from workspace and plugin manifests.
 - `npm run types:refresh --workspace bb-plugin-taskboard` followed by
   `npm install` — deliberate SDK declaration pin refresh when the minimum BB
   release changes.
+- `bb taskboard presets list|save|rename|delete` — manage named presets for the
+  current or explicitly selected BB project.
+- `bb taskboard list --preset <name>` — apply a named preset to CLI listing;
+  explicit `--source` and `--query` flags take precedence.
 
 ## Verification evidence
 

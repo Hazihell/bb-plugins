@@ -4,8 +4,8 @@
 Generated from bounded repository metadata.
 
 - Repository: bb-plugins
-- Source fingerprint: sha256:3d56bb1df1789c65d8b6b94e6c007dc5d2c57bd88619bda52871ee9f96b0751e
-- Included files: 145
+- Source fingerprint: sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356
+- Included files: 148
 - Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, ., .github, .windsurf, demos, plugins
 - Manifests: package.json, plugins/host-monitor/package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
 - Primary docs: README.md, plugins/host-monitor/README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md

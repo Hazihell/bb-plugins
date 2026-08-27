@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.28.0",
-  "sourceDigest": "sha256:3d56bb1df1789c65d8b6b94e6c007dc5d2c57bd88619bda52871ee9f96b0751e",
+  "sourceDigest": "sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -80,8 +80,8 @@
     },
     {
       "path": "README.md",
-      "size": 6939,
-      "digest": "sha256:14af51851faf39cc9ce02dcdabd8a03b729efb9b8bfe024ea53ec3a6527d5f4e"
+      "size": 7476,
+      "digest": "sha256:3f2329c2972211c4d125973e79d232289d78971d925f69b1eb2c132777c59628"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -355,8 +355,8 @@
     },
     {
       "path": "plugins/taskboard/README.md",
-      "size": 10657,
-      "digest": "sha256:e49d179da5fc15f6b7ba2bf7c654a4ee4d0f0b2a042311258c8d2e8545f8db47"
+      "size": 11791,
+      "digest": "sha256:47693d5c57e8fa68ae90d8808a4876c2e14d4e2477b0e050baec1cb3b0509e3b"
     },
     {
       "path": "plugins/taskboard/THIRD_PARTY_NOTICES.md",
@@ -370,8 +370,8 @@
     },
     {
       "path": "plugins/taskboard/app.tsx",
-      "size": 216411,
-      "digest": "sha256:d9ff669f5363b241fc38f6cfdb374f2779fdd3048b4b774fd2528ab0b3a368f2"
+      "size": 246184,
+      "digest": "sha256:46be0443e5037aacd66f379b6c0499231e57ab107712a7688d58bf795aa01205"
     },
     {
       "path": "plugins/taskboard/assets/icon.svg",
@@ -495,13 +495,18 @@
     },
     {
       "path": "plugins/taskboard/contract.ts",
-      "size": 16418,
-      "digest": "sha256:58ab4008601b064136962ebcf4573f6f19b60b7c44ce97bb19f8aed1a727e38b"
+      "size": 18552,
+      "digest": "sha256:c284a8cab0d839baf35698b13943c029f305d38206f4e9fce8f8b61e1cd0c1f4"
     },
     {
       "path": "plugins/taskboard/create-issue.ts",
       "size": 1553,
       "digest": "sha256:a8890400be739b897eebee623b5b67a37cb7075b091193ce6c6eef026d1c5018"
+    },
+    {
+      "path": "plugins/taskboard/filter-presets.ts",
+      "size": 11737,
+      "digest": "sha256:44021a7c2a9e1b4375c8cf57dcf2a6c9a2d284aa0af638708c528325358f40c2"
     },
     {
       "path": "plugins/taskboard/hooks/useBrowserDimmingModal.ts",
@@ -540,8 +545,8 @@
     },
     {
       "path": "plugins/taskboard/server.ts",
-      "size": 81420,
-      "digest": "sha256:489f0d029402698304d23467e1b81a1630f9afcd775347ad584132bce736cfb5"
+      "size": 93686,
+      "digest": "sha256:2d5cd743428680e5843b31cd3ed7356edce927ae31bf5de16393b43455fc3af2"
     },
     {
       "path": "plugins/taskboard/sources/github.ts",
@@ -570,13 +575,13 @@
     },
     {
       "path": "plugins/taskboard/store.ts",
-      "size": 22822,
-      "digest": "sha256:b399f0ccaa917f83c71146fb0d2e0a270c1d4d6d35405d317b9d97e4f4f18468"
+      "size": 34366,
+      "digest": "sha256:b55ad7e9229126d0b88fbc2c8521c1ac7c744e4f91c38340a59dd9c949e30b6c"
     },
     {
       "path": "plugins/taskboard/test/app-ui.test.ts",
-      "size": 6827,
-      "digest": "sha256:b30785467f38c82749a7e7efab5fa67c1d43985da086517c2a96994bf95c9ce0"
+      "size": 9155,
+      "digest": "sha256:839986b40692441946a3d4212b394df9a819d3263bd49207ed410216ea7821ac"
     },
     {
       "path": "plugins/taskboard/test/browse-preferences.test.ts",
@@ -600,8 +605,18 @@
     },
     {
       "path": "plugins/taskboard/test/distribution.test.ts",
-      "size": 5738,
-      "digest": "sha256:f38909df86e53a0851c06b3f14842050ea0b0f9c664151fda62bf04d96bfd3d7"
+      "size": 6759,
+      "digest": "sha256:1642e47bc3932a2356ab7962dc4ddcd3f4da9b5dcb2bc4eab0c1f1c2c8428214"
+    },
+    {
+      "path": "plugins/taskboard/test/filter-presets-backend.test.ts",
+      "size": 13737,
+      "digest": "sha256:81c78e84b811e965f8c38661833c284b86db0d86019936f98271c167891fcfdb"
+    },
+    {
+      "path": "plugins/taskboard/test/filter-presets.test.ts",
+      "size": 6818,
+      "digest": "sha256:acfd2867b81df3b3991f2395c01925cebde79d46800202303a1eb7e768442d38"
     },
     {
       "path": "plugins/taskboard/test/issue-draft.test.ts",
@@ -630,8 +645,8 @@
     },
     {
       "path": "plugins/usage-tracker/CHANGELOG.md",
-      "size": 1147,
-      "digest": "sha256:9162d4c38c1614575ce93bec273ebdf3047b5a1d411a124d91a816e6b740c3be"
+      "size": 1230,
+      "digest": "sha256:3a63a16cd6f7a26c2e9c8acdab3be1b2325262212362938d76abd296aad64882"
     },
     {
       "path": "plugins/usage-tracker/LICENSE",
@@ -640,8 +655,8 @@
     },
     {
       "path": "plugins/usage-tracker/README.md",
-      "size": 4586,
-      "digest": "sha256:69577875e054e43550fa1b9310e56ac334f75671e61e63c7046c036b79bd78f1"
+      "size": 4703,
+      "digest": "sha256:08150c1e0fcc972e2596c055ab93f1080f4247e90e9f732f4b3c2b93594019e4"
     },
     {
       "path": "plugins/usage-tracker/THIRD_PARTY_NOTICES.md",
@@ -690,13 +705,13 @@
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-strip.ts",
-      "size": 18240,
-      "digest": "sha256:0b365b5658e87efd43c81b7384b256f9d17838b041ec6a9887497eee11acc4ed"
+      "size": 18625,
+      "digest": "sha256:2c09e3ebb4114edb1a8c9d7b27bc0145c267f68d9dd0b7a22926e32d5f5bd109"
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-usage.ts",
-      "size": 2622,
-      "digest": "sha256:49435c8b69a228e71b9095bf27fca198d537e59d076289012b66d08f9dd30998"
+      "size": 5873,
+      "digest": "sha256:bed287af0be9ad854a1c055ec343d2c1ca75e505930a56eeb7594ebae9ccbe7e"
     },
     {
       "path": "plugins/usage-tracker/lib/usage.ts",
@@ -715,8 +730,8 @@
     },
     {
       "path": "plugins/usage-tracker/test/usage.test.ts",
-      "size": 10762,
-      "digest": "sha256:d847f1d6659ae78c7b80fc23748c054e5667b4a0a79bf067f213f5aa36b107e1"
+      "size": 14922,
+      "digest": "sha256:1e2e114082731791ddc7c418df0c8f4441cb8bcf80bf1afa04cc4d99d8347bee"
     },
     {
       "path": "plugins/usage-tracker/tsconfig.json",
@@ -835,6 +850,7 @@
         "plugins/taskboard/components/ui/tooltip.tsx",
         "plugins/taskboard/contract.ts",
         "plugins/taskboard/create-issue.ts",
+        "plugins/taskboard/filter-presets.ts",
         "plugins/taskboard/hooks/useBrowserDimmingModal.ts",
         "plugins/taskboard/issue-draft.ts",
         "plugins/taskboard/lib/portal-scope.ts",
@@ -855,6 +871,8 @@
         "plugins/taskboard/test/contract.test.ts",
         "plugins/taskboard/test/create-metadata.test.ts",
         "plugins/taskboard/test/distribution.test.ts",
+        "plugins/taskboard/test/filter-presets-backend.test.ts",
+        "plugins/taskboard/test/filter-presets.test.ts",
         "plugins/taskboard/test/issue-draft.test.ts",
         "plugins/taskboard/test/project-selection.test.ts",
         "plugins/taskboard/test/source-types.test.ts",
@@ -881,8 +899,8 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:3d56bb1df1789c65d8b6b94e6c007dc5d2c57bd88619bda52871ee9f96b0751e",
-      "digest": "sha256:fb5ee1d50c4cc40205ac2a15222a9b9c0ab86dcdcc6d87310dbfeac7ffa8643b",
+      "sourceDigest": "sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356",
+      "digest": "sha256:2b4a9b9ca0f4c33a55fd2d188816549e1b10611c406a12313079ccc7f93956a4",
       "freshness": "fresh"
     },
     {
@@ -901,8 +919,8 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:2fd7874e2ae0fe4020eeac2795637952b8c81805993642e8b62ae2e95017bd2b",
-      "digest": "sha256:42a938ff0f6a3f28ee7ed1114c4050f6bcaf88cfed6e6eea9e3f8c864c50462f",
+      "sourceDigest": "sha256:25e29cae8d25655047a205edd69cc5769bad991e0a06c0aa378e59461e2f0d70",
+      "digest": "sha256:67162c51b3ff088759f391b657e163a87f044470f114b6cd8b172b17ef05c00f",
       "freshness": "fresh"
     },
     {
@@ -916,7 +934,7 @@
         "plugins/usage-tracker/package.json"
       ],
       "sourceDigest": "sha256:aabb11678ec0e7ba007059edfa9af686a2f114d8a845308db77579143c286acf",
-      "digest": "sha256:be3719e78d74aa9cd7844edc77c4871d928ffc884c3845c2fd4d002552ac4a93",
+      "digest": "sha256:a4a57ffee4400c9ea75cfff5dc430a8998edde1ea57b51498d87f5b1acda74ce",
       "freshness": "fresh"
     },
     {
@@ -931,7 +949,7 @@
         "plugins/usage-tracker/package.json"
       ],
       "sourceDigest": "sha256:3f1a6d29ccff2e8242e514f4313d60c8f2be09e25d9204a5e07aba0af9180371",
-      "digest": "sha256:c7934e4a371bd82aa46ff04e1e50124cab90fe88558440e44e7bcc17b87611b4",
+      "digest": "sha256:120aa36ecc387bdd82ba4a0589da8c5abb132ac21b68f32956568d197afebd9b",
       "freshness": "fresh"
     },
     {
@@ -950,5 +968,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:dd37f1af0b7642748ac6ff0611370febb7041cf8d69294903b83143da00efe1b"
+  "digest": "sha256:931bdafb71718a1260d85e5a58667881cd9c60ceb7c37cdca3658acb8424841d"
 }
