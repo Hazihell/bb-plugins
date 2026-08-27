@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.28.0",
-  "sourceDigest": "sha256:ff6a92e5f69bcf805c3c47999eac4debf8e23d0aac79020c98063858c6f4107a",
+  "sourceDigest": "sha256:c10945040eafc31d2860d5258d0c9a0e6843abf05e6e91927f384331f3be7fec",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -10,8 +10,8 @@
     },
     {
       "path": ".bb/plugins.json",
-      "size": 311,
-      "digest": "sha256:2e26f2715c4204472cd4812ecad0608ddca618c8cb0bd7bf002a4a23dd1266b7"
+      "size": 401,
+      "digest": "sha256:288ae9f6cee7a8abeb3bb148531bbfe79cec217467844a3d2fb12144b5f7adc1"
     },
     {
       "path": ".claude/skills/empirical/SKILL.md",
@@ -80,13 +80,13 @@
     },
     {
       "path": "README.md",
-      "size": 5086,
-      "digest": "sha256:2b01d7ec7cc19e0200f5395e6a24b2166bae872b7ee2b53701c1a883ebe2d681"
+      "size": 6741,
+      "digest": "sha256:9a39f8e17a49ef0991afab0d08445ed81ba801042be1d1ef19525d32dcbb17a4"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
-      "size": 895,
-      "digest": "sha256:5e95975f6ee89b0997521cecdad9d8045000b87077dbd9f8cf3282bf0b227f0c"
+      "size": 1199,
+      "digest": "sha256:f7d0009a3b018e70249d199771e201b95ab2865c1271cd0442b7a76c1d8d1125"
     },
     {
       "path": "demos/taskboard-create-issue.html",
@@ -95,13 +95,258 @@
     },
     {
       "path": "package-lock.json",
-      "size": 211341,
-      "digest": "sha256:92dbb8a6582ff3b1116f6056c03f163bbc42f8dce3d0695ce0b68716e7891a58"
+      "size": 278013,
+      "digest": "sha256:c0911e486b71c776c9c2f7f7487ca7ee93ca014ab36214fc8563ddef4022662d"
     },
     {
       "path": "package.json",
       "size": 440,
       "digest": "sha256:ea7f7ffac59a15ec7fc3bcc40793a7b987a8d533682069d1d08ad31c058ce93c"
+    },
+    {
+      "path": "plugins/machine-monitor/LICENSE",
+      "size": 1074,
+      "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
+    },
+    {
+      "path": "plugins/machine-monitor/README.md",
+      "size": 6005,
+      "digest": "sha256:c5de1546265d6c48a8970dac53cc8ab5a8a74700e1b5bd44ae0ccf9fc8ab1bbf"
+    },
+    {
+      "path": "plugins/machine-monitor/THIRD_PARTY_NOTICES.md",
+      "size": 2012,
+      "digest": "sha256:2564c76f9eb205d4b60a6042e56faacd48ba1719697c36cccec7f665eb801770"
+    },
+    {
+      "path": "plugins/machine-monitor/app.css",
+      "size": 53522,
+      "digest": "sha256:295908b17a70bb14b34955fb165d502d7e6ae0730b0d17f49d6a462d2dcf8125"
+    },
+    {
+      "path": "plugins/machine-monitor/app.tsx",
+      "size": 97049,
+      "digest": "sha256:5af8aa814c4ac5c11acf6bc2cc034177b0f049f67bb724c90071491c0c5bfe15"
+    },
+    {
+      "path": "plugins/machine-monitor/assets/icon.svg",
+      "size": 975,
+      "digest": "sha256:112563319707acd7e766717b06a7e2dad369234ff398acae4fa02543e2f19381"
+    },
+    {
+      "path": "plugins/machine-monitor/assets/logo-dark.svg",
+      "size": 1057,
+      "digest": "sha256:b64d27054d9428b7a4308310963dba69ed2349b50bc7ef59ccdfc2cb1963b179"
+    },
+    {
+      "path": "plugins/machine-monitor/assets/logo.svg",
+      "size": 1057,
+      "digest": "sha256:cc57f1269248347b6c938fa05c60c1a3ef27503f8485fe9438c4b56e5582adb4"
+    },
+    {
+      "path": "plugins/machine-monitor/contract.ts",
+      "size": 13703,
+      "digest": "sha256:16d1671a0d3e7d126718b9c226d3a077765356ea12498c70faf4188a1055cf2f"
+    },
+    {
+      "path": "plugins/machine-monitor/host.ts",
+      "size": 836,
+      "digest": "sha256:8a6816e7a1cf5957b224846c92f331501021568971732fe33bbebb9f07abe0fc"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/dashboard.ts",
+      "size": 10317,
+      "digest": "sha256:ed60f47f814c6edf601d16bb7a52f43a445161beefbd84099fc2e051bdfcdd09"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/fleet-presentation.ts",
+      "size": 2284,
+      "digest": "sha256:7ddd8279abb35ee8a2134eee4974efb2c0881f964c8fb53aa5dfde3888a29070"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/fleet-view-preference.ts",
+      "size": 1112,
+      "digest": "sha256:2d6e645e5b4a10e3e7bdc69382b48010dd7efe7a0b9653f656479c273146f6ee"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/ip-address-presentation.ts",
+      "size": 858,
+      "digest": "sha256:1368b736c42dd732231ba11004b0202a18a29e99959a938c3ba91d088fb03ebc"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/metrics.ts",
+      "size": 36084,
+      "digest": "sha256:98d23a7d31bd4d54bb2879c95ad937afb97ecfa1504513b390cfd25187c51079"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/network-presentation.ts",
+      "size": 1354,
+      "digest": "sha256:2dab59ffa3ded56cbc20d9530ce4cc6b9847366f96f6e6b2f1231e93021d2648"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/network-throughput.ts",
+      "size": 9500,
+      "digest": "sha256:4314bbf314e2a4f9d065772f5d67c39dcbc3b0fa5106cbc1fc0a45c73fd66a26"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/portal-scope.ts",
+      "size": 604,
+      "digest": "sha256:88411fff670098cdbedd95dafafef52c5cb8da2a686029dcdc23c804949a3b54"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/process-confirmations.ts",
+      "size": 4531,
+      "digest": "sha256:ce2a7b620ef3b1e19edff4d31a275f90ce6e1d21b1dcb069efbc9a5b32d6b862"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/process-operation-gate.ts",
+      "size": 2617,
+      "digest": "sha256:34136632de540625ee1f6aa37a002c8a80259cf838840e3856542a450c8e9fda"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/process-presentation.ts",
+      "size": 4591,
+      "digest": "sha256:c0aaa018397270a2eb06f2f20663dd155c3fee24fb26abfbcab444a89aad9d36"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/processes.ts",
+      "size": 38501,
+      "digest": "sha256:08d3a9f534e2a8ea46924df95748476a928916026a5b790449e53cf4e77acad1"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/sidebar-host-monitor.ts",
+      "size": 59013,
+      "digest": "sha256:11722f84588c039481c4851ccd26dd79460d670ee53686704ffead055f34fdec"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/threshold-presentation.ts",
+      "size": 1820,
+      "digest": "sha256:52bcfde16c8b2670f5885fae346eae51af4ddab4e3789d9b3c42a8baeb9d7f58"
+    },
+    {
+      "path": "plugins/machine-monitor/lib/thresholds.ts",
+      "size": 1713,
+      "digest": "sha256:88dd2c1d09db528e3a22ccf2c4de7ef3b9fd172090044d6ec125f19afdfa14db"
+    },
+    {
+      "path": "plugins/machine-monitor/package.json",
+      "size": 3027,
+      "digest": "sha256:35746be9f1dd5bad85ddfb5d441d3669d99e1254f26d3fb1c018f42f10294f38"
+    },
+    {
+      "path": "plugins/machine-monitor/server.ts",
+      "size": 19483,
+      "digest": "sha256:57a9d8600946a44560e72596a2943e4d3a5cce3550b43a059631bef30888c3af"
+    },
+    {
+      "path": "plugins/machine-monitor/test/app-registration.test.ts",
+      "size": 14616,
+      "digest": "sha256:a86d6d0586c705125609c92adf290ecc113fc7680e33f6599c01aca4dc342565"
+    },
+    {
+      "path": "plugins/machine-monitor/test/contract.test.ts",
+      "size": 4314,
+      "digest": "sha256:ddd04dc7dc8a24e2ef70b7bde11adf5805bae53406f4a53391343e2792d69dde"
+    },
+    {
+      "path": "plugins/machine-monitor/test/css-loader.mjs",
+      "size": 228,
+      "digest": "sha256:5827fd7856c49706d05259e2d74e6c366f4dbb730acbe8bbf09d64c2389160e2"
+    },
+    {
+      "path": "plugins/machine-monitor/test/dashboard.test.ts",
+      "size": 11601,
+      "digest": "sha256:43800a3f3a962ebbb5a8402204c26c7ada03fc4c42d64e70b6581aacb3c9874c"
+    },
+    {
+      "path": "plugins/machine-monitor/test/fleet-presentation.test.ts",
+      "size": 3977,
+      "digest": "sha256:cbae77c4548e6c6f7b0794d217afcd31d74041b6a31efa9995263d16c088631a"
+    },
+    {
+      "path": "plugins/machine-monitor/test/fleet-view-preference.test.ts",
+      "size": 1842,
+      "digest": "sha256:04fb1beced170f5d509e93ab59bbfab81d76f28d2635108e2e00e78ce10765df"
+    },
+    {
+      "path": "plugins/machine-monitor/test/ip-address-presentation.test.ts",
+      "size": 1325,
+      "digest": "sha256:a4b6f7f62f0da406cd85c38f4140af21344cec740695e946e03adfa2fd0d8378"
+    },
+    {
+      "path": "plugins/machine-monitor/test/metrics.test.ts",
+      "size": 10587,
+      "digest": "sha256:f9f1840e8ad6aadf6f6281ac13c93c8a31ebf943a61b912c309a311b80551df4"
+    },
+    {
+      "path": "plugins/machine-monitor/test/network-presentation.test.ts",
+      "size": 1398,
+      "digest": "sha256:3df04b600bf5aba207fd42354a5770ecf02efcf40780f92e4f0ac19ce07156dc"
+    },
+    {
+      "path": "plugins/machine-monitor/test/network-throughput.test.ts",
+      "size": 5814,
+      "digest": "sha256:d0d094d848048d59503b1d088a400ab6330d1d6786a13b7e38d0d3a8c5679ba2"
+    },
+    {
+      "path": "plugins/machine-monitor/test/process-confirmations.test.ts",
+      "size": 2796,
+      "digest": "sha256:543c094fc068b43647ba841b4da4bdd011f4ae79d73ccc1db469301f00993890"
+    },
+    {
+      "path": "plugins/machine-monitor/test/process-operation-gate.test.ts",
+      "size": 2572,
+      "digest": "sha256:29cf2b395bfcdea664e2a98e159d4688d89641b6d83e4a3dc14f5d689edced72"
+    },
+    {
+      "path": "plugins/machine-monitor/test/process-presentation.test.ts",
+      "size": 3934,
+      "digest": "sha256:c31b258c08883017bb9499246b4f87e353869f321d0206a5dc261cceeee9db56"
+    },
+    {
+      "path": "plugins/machine-monitor/test/process-server.test.ts",
+      "size": 10635,
+      "digest": "sha256:281ee07b241c7c987c1bb7282aebc7e58f8974aa28fafcbfebe80bb2294406b9"
+    },
+    {
+      "path": "plugins/machine-monitor/test/processes.test.ts",
+      "size": 10733,
+      "digest": "sha256:fa586c33b418c91f9ba1712111eb99f2820e60d33a1095a48fdf0336817948f8"
+    },
+    {
+      "path": "plugins/machine-monitor/test/register-css.mjs",
+      "size": 88,
+      "digest": "sha256:b22ca9935a50a43a5293b4437a5179bfe53541e3b7f4144de15fe56d9b7131a0"
+    },
+    {
+      "path": "plugins/machine-monitor/test/server.test.ts",
+      "size": 9555,
+      "digest": "sha256:508be78a886d89cca1b355942dc5967cae392f5fc2b0be49dd34f9070743429f"
+    },
+    {
+      "path": "plugins/machine-monitor/test/sidebar-summary.test.ts",
+      "size": 19336,
+      "digest": "sha256:daa3925809c0f06bae9732f6b5f3f4df788772ea30065c2a8859ca1343c9bff7"
+    },
+    {
+      "path": "plugins/machine-monitor/test/threshold-presentation.test.ts",
+      "size": 2956,
+      "digest": "sha256:2ce0ba9ceadcabd7aa5313e4e70bdcf1b000dd45fdc847acacae2bf744c58832"
+    },
+    {
+      "path": "plugins/machine-monitor/test/thresholds.test.ts",
+      "size": 2127,
+      "digest": "sha256:37584645daaf87e4cf3ecc77e9838a071d12f26f6fd82a74ba5c3bb16414d462"
+    },
+    {
+      "path": "plugins/machine-monitor/tsconfig.json",
+      "size": 507,
+      "digest": "sha256:3937f084433ad4293bf0168b3ee10f23f96fc154851f4897429962d36bb8fc3c"
+    },
+    {
+      "path": "plugins/machine-monitor/types/css-modules.d.ts",
+      "size": 24,
+      "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
     },
     {
       "path": "plugins/taskboard/LICENSE",
@@ -510,6 +755,55 @@
         "demos/taskboard-create-issue.html",
         "package-lock.json",
         "package.json",
+        "plugins/machine-monitor/LICENSE",
+        "plugins/machine-monitor/README.md",
+        "plugins/machine-monitor/THIRD_PARTY_NOTICES.md",
+        "plugins/machine-monitor/app.css",
+        "plugins/machine-monitor/app.tsx",
+        "plugins/machine-monitor/assets/icon.svg",
+        "plugins/machine-monitor/assets/logo-dark.svg",
+        "plugins/machine-monitor/assets/logo.svg",
+        "plugins/machine-monitor/contract.ts",
+        "plugins/machine-monitor/host.ts",
+        "plugins/machine-monitor/lib/dashboard.ts",
+        "plugins/machine-monitor/lib/fleet-presentation.ts",
+        "plugins/machine-monitor/lib/fleet-view-preference.ts",
+        "plugins/machine-monitor/lib/ip-address-presentation.ts",
+        "plugins/machine-monitor/lib/metrics.ts",
+        "plugins/machine-monitor/lib/network-presentation.ts",
+        "plugins/machine-monitor/lib/network-throughput.ts",
+        "plugins/machine-monitor/lib/portal-scope.ts",
+        "plugins/machine-monitor/lib/process-confirmations.ts",
+        "plugins/machine-monitor/lib/process-operation-gate.ts",
+        "plugins/machine-monitor/lib/process-presentation.ts",
+        "plugins/machine-monitor/lib/processes.ts",
+        "plugins/machine-monitor/lib/sidebar-host-monitor.ts",
+        "plugins/machine-monitor/lib/threshold-presentation.ts",
+        "plugins/machine-monitor/lib/thresholds.ts",
+        "plugins/machine-monitor/package.json",
+        "plugins/machine-monitor/server.ts",
+        "plugins/machine-monitor/test/app-registration.test.ts",
+        "plugins/machine-monitor/test/contract.test.ts",
+        "plugins/machine-monitor/test/css-loader.mjs",
+        "plugins/machine-monitor/test/dashboard.test.ts",
+        "plugins/machine-monitor/test/fleet-presentation.test.ts",
+        "plugins/machine-monitor/test/fleet-view-preference.test.ts",
+        "plugins/machine-monitor/test/ip-address-presentation.test.ts",
+        "plugins/machine-monitor/test/metrics.test.ts",
+        "plugins/machine-monitor/test/network-presentation.test.ts",
+        "plugins/machine-monitor/test/network-throughput.test.ts",
+        "plugins/machine-monitor/test/process-confirmations.test.ts",
+        "plugins/machine-monitor/test/process-operation-gate.test.ts",
+        "plugins/machine-monitor/test/process-presentation.test.ts",
+        "plugins/machine-monitor/test/process-server.test.ts",
+        "plugins/machine-monitor/test/processes.test.ts",
+        "plugins/machine-monitor/test/register-css.mjs",
+        "plugins/machine-monitor/test/server.test.ts",
+        "plugins/machine-monitor/test/sidebar-summary.test.ts",
+        "plugins/machine-monitor/test/threshold-presentation.test.ts",
+        "plugins/machine-monitor/test/thresholds.test.ts",
+        "plugins/machine-monitor/tsconfig.json",
+        "plugins/machine-monitor/types/css-modules.d.ts",
         "plugins/taskboard/LICENSE",
         "plugins/taskboard/README.md",
         "plugins/taskboard/THIRD_PARTY_NOTICES.md",
@@ -587,8 +881,8 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:ff6a92e5f69bcf805c3c47999eac4debf8e23d0aac79020c98063858c6f4107a",
-      "digest": "sha256:c5c71cc34993e8da9519edf65b1699450f8c87ffda5c6e2dc6e543d76318c0c7",
+      "sourceDigest": "sha256:c10945040eafc31d2860d5258d0c9a0e6843abf05e6e91927f384331f3be7fec",
+      "digest": "sha256:1e99625f48dacde8df49df1f670b46b700a29450a8f9f6c6cd7c8fabe2813947",
       "freshness": "fresh"
     },
     {
@@ -598,6 +892,8 @@
       "dependencies": [
         "README.md",
         "package.json",
+        "plugins/machine-monitor/README.md",
+        "plugins/machine-monitor/package.json",
         "plugins/taskboard/README.md",
         "plugins/taskboard/package.json",
         "plugins/taskboard/project-selection.ts",
@@ -605,8 +901,8 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:8139ea0e7f2220d2a16e15bf5b31768dd145c32611c66aeb93ecb96501e5b2fd",
-      "digest": "sha256:a9bd0fd5e0b162e48c773426b0c9961f9167f9f8d0ee03cfb382a0654813bb8d",
+      "sourceDigest": "sha256:03f70d2e214ed63f2a6d8a63e1f1b0b9a1fc6904eb22f96ad1e07cf489b04839",
+      "digest": "sha256:55ebbb86949c1b08092a2a7ea4ea85e38b59626730da7dd390070fb258f51505",
       "freshness": "fresh"
     },
     {
@@ -615,11 +911,12 @@
       "managed": false,
       "dependencies": [
         "package.json",
+        "plugins/machine-monitor/package.json",
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:8e005d80d64134d5f78533f6002ac5644f1f40fa86c48f9bdbc416bd2510f3d5",
-      "digest": "sha256:cf82e0cf94d6cb2044468bd950f9805bab3ab4b1347561692d336010e7591b5f",
+      "sourceDigest": "sha256:3c44cc059bd5b8e6f6b979c6908e07b2c148240560f09848eb649c867c035150",
+      "digest": "sha256:8ba00b1dd58e5707912e067f406ee3be3ba73cd7f5cd96ebd93758b4a452e483",
       "freshness": "fresh"
     },
     {
@@ -629,11 +926,12 @@
       "dependencies": [
         ".github/workflows/ci.yml",
         "package.json",
+        "plugins/machine-monitor/package.json",
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:b00902a698009e18b58a42805310a896f4ea4f9c1d21042b30d489ec633fd42b",
-      "digest": "sha256:601da84236499161d67caf1b277f1d516c110e7397572a9e51e850e805946152",
+      "sourceDigest": "sha256:b6055cc3f0fdf17329b3e2757d8f4e7cf945d56d032ead9c96d0cee7610b40f1",
+      "digest": "sha256:d56906b359fd58554bc579840482e23ec5b9c6c890a6dd099345dada1c112ccc",
       "freshness": "fresh"
     },
     {
@@ -642,14 +940,15 @@
       "managed": false,
       "dependencies": [
         "AGENTS.md",
+        "plugins/machine-monitor/tsconfig.json",
         "plugins/taskboard/tsconfig.json",
         "plugins/usage-tracker/tsconfig.json"
       ],
-      "sourceDigest": "sha256:3355168fffc08f9379e8832a2a5f1119125404c150234121c20c70691ad41720",
-      "digest": "sha256:d5f54a7cb973d3ce0a2177cbe28318ad7ff76b3d5a29a0108eb5f1cc99b30f9b",
+      "sourceDigest": "sha256:6c5ea2c5bf09a8d3daa69e53c46f6bedf06ce7e46e07addf22e37c156430d5e5",
+      "digest": "sha256:d16c4310858c56411ab3bc1daa0672ef75c7911a1d1cd77d02f46581fb9ab5a8",
       "freshness": "fresh"
     }
   ],
   "truncated": false,
-  "digest": "sha256:083e970c517a9dabaffe1d580ab2eda48ebb9f54ce4e20084c2c6d599b8127d0"
+  "digest": "sha256:a88a8175207e36c923521298fe7462db83f48827f1027151e06725ddc6ff376f"
 }
