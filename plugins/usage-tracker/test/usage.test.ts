@@ -13,11 +13,13 @@ import {
   formatUsedPercent,
   normalizeUsage,
   providerStatusLabel,
+  type RawProviderUsage,
   type RawUsageResponse,
 } from "../lib/usage.ts";
 import {
   mergeLastKnownWindows,
   selectSidebarUsagePrimary,
+  sidebarUsageDetailRows,
   sidebarUsagePrimaryAccessibleText,
   sidebarUsagePrimarySummary,
   sidebarUsagePrimaryWindow,
@@ -49,8 +51,20 @@ function healthyResponse(): RawUsageResponse {
         },
       ],
     },
-    claudeCode: { status: "expired" },
-    cursor: { status: "unauthenticated" },
+    "claude-code": { status: "expired" },
+    "acp-cursor": { status: "unauthenticated" },
+  };
+}
+
+function healthyProvider(
+  label: string,
+  usedPercent: number,
+): RawProviderUsage {
+  return {
+    status: "ok",
+    accountEmail: null,
+    planLabel: "Test",
+    windows: [{ label, usedPercent, resetsAt: null }],
   };
 }
 
@@ -77,6 +91,37 @@ function makeSdk(overrides: Partial<UsageSdk> = {}): UsageSdk {
       },
     },
     ...overrides,
+  };
+}
+
+function providerWithFable() {
+  const provider = normalizeUsage(
+    healthyResponse(),
+    { id: null, name: null },
+  ).providers[0]!;
+  const { fiveHour, weekly } = sidebarUsageWindows(provider);
+  if (fiveHour === null || weekly === null) {
+    assert.fail("provider fixture must contain canonical windows");
+  }
+
+  return {
+    ...provider,
+    windows: [
+      {
+        ...fiveHour,
+        label: "Current session",
+        usedPercent: 39,
+        barPercent: 39,
+      },
+      { ...weekly, usedPercent: 21, barPercent: 21 },
+      {
+        label: "Fable",
+        usedPercent: 21,
+        barPercent: 21,
+        resetsAt: null,
+        cost: null,
+      },
+    ],
   };
 }
 
@@ -132,7 +177,49 @@ test("normalizes providers in stable order with every usage window", () => {
   assert.match(snapshot.providers[2]?.message ?? "", /cursor-agent login/);
 });
 
-test("normalizes not-installed and provider-error states", () => {
+test("keeps current provider wire-key windows intact", () => {
+  const snapshot = normalizeUsage(
+    {
+      codex: healthyProvider("Codex weekly", 11),
+      "claude-code": healthyProvider("Claude Fable", 22),
+      "acp-cursor": healthyProvider("Cursor monthly", 33),
+    },
+    { id: null, name: null },
+  );
+
+  assert.deepEqual(
+    snapshot.providers.map((provider) => [
+      provider.id,
+      provider.status,
+      provider.windows.map((window) => [window.label, window.usedPercent]),
+    ]),
+    [
+      ["codex", "ok", [["Codex weekly", 11]]],
+      ["claudeCode", "ok", [["Claude Fable", 22]]],
+      ["cursor", "ok", [["Cursor monthly", 33]]],
+    ],
+  );
+});
+
+test("keeps healthy legacy provider windows intact", () => {
+  const snapshot = normalizeUsage(
+    {
+      codex: healthyProvider("Codex legacy", 10),
+      claudeCode: healthyProvider("Claude legacy", 20),
+      cursor: healthyProvider("Cursor legacy", 30),
+    },
+    { id: null, name: null },
+  );
+
+  assert.deepEqual(
+    snapshot.providers.map((provider) =>
+      provider.windows.map((window) => window.label),
+    ),
+    [["Codex legacy"], ["Claude legacy"], ["Cursor legacy"]],
+  );
+});
+
+test("accepts legacy provider keys and normalizes explicit statuses", () => {
   const response: RawUsageResponse = {
     codex: { status: "not_installed" },
     claudeCode: {
@@ -159,6 +246,49 @@ test("normalizes not-installed and provider-error states", () => {
   assert.equal(providerStatusLabel("error"), "Unavailable");
 });
 
+test("prefers current provider keys over legacy aliases", () => {
+  const response: RawUsageResponse = {
+    codex: healthyProvider("Codex current", 10),
+    "claude-code": healthyProvider("Claude current", 20),
+    claudeCode: healthyProvider("Claude legacy", 21),
+    "acp-cursor": healthyProvider("Cursor current", 30),
+    cursor: healthyProvider("Cursor legacy", 31),
+  };
+
+  const snapshot = normalizeUsage(response, { id: null, name: null });
+  assert.deepEqual(
+    snapshot.providers.map((provider) =>
+      provider.windows.map((window) => [window.label, window.usedPercent]),
+    ),
+    [
+      [["Codex current", 10]],
+      [["Claude current", 20]],
+      [["Cursor current", 30]],
+    ],
+  );
+});
+
+test("isolates an omitted provider response", () => {
+  const response = healthyResponse();
+  delete response["acp-cursor"];
+
+  const snapshot = normalizeUsage(response, { id: null, name: null });
+  assert.deepEqual(
+    snapshot.providers.map((provider) => provider.status),
+    ["ok", "expired", "error"],
+  );
+  assert.equal(snapshot.providers[0]?.windows.length, 2);
+  assert.deepEqual(snapshot.providers[2], {
+    id: "cursor",
+    name: "Cursor",
+    status: "error",
+    accountEmail: null,
+    planLabel: null,
+    message: "Cursor usage was not reported by bb.",
+    windows: [],
+  });
+});
+
 test("clamps progress geometry and rejects non-finite values", () => {
   assert.equal(clampPercent(-3), 0);
   assert.equal(clampPercent(45.5), 45.5);
@@ -166,8 +296,9 @@ test("clamps progress geometry and rejects non-finite values", () => {
   assert.throws(() => clampPercent(Number.NaN), /finite/);
 
   const response = healthyResponse();
-  if (response.codex.status !== "ok") assert.fail("codex fixture must be healthy");
-  response.codex.windows[0]!.usedPercent = Number.POSITIVE_INFINITY;
+  const codex = response.codex;
+  if (codex?.status !== "ok") assert.fail("codex fixture must be healthy");
+  codex.windows[0]!.usedPercent = Number.POSITIVE_INFINITY;
   assert.throws(
     () => normalizeUsage(response, { id: null, name: null }),
     /finite/,
@@ -211,6 +342,36 @@ test("selects the configured compact usage window", () => {
     "Five-hour limit",
   );
   assert.equal(sidebarUsagePrimarySummary(provider, "Five-hour"), "120%");
+});
+
+test("keeps additional provider windows in expanded details only", () => {
+  const provider = providerWithFable();
+  const rows = sidebarUsageDetailRows(provider);
+
+  assert.deepEqual(
+    rows.map((row) => [row.label, row.window?.label ?? null]),
+    [
+      ["5-hour limit", "Current session"],
+      ["Weekly limit", "Weekly limit"],
+      ["Fable", "Fable"],
+    ],
+  );
+  assert.strictEqual(rows[2]?.window, provider.windows[2]);
+  assert.equal(sidebarUsagePrimarySummary(provider, "Weekly"), "21%");
+  assert.equal(sidebarUsagePrimarySummary(provider, "Five-hour"), "39%");
+
+  const secondFiveHour = {
+    ...provider.windows[0]!,
+    usedPercent: 55,
+    barPercent: 55,
+  };
+  const duplicateLabelProvider = {
+    ...provider,
+    windows: [...provider.windows, secondFiveHour],
+  };
+  const duplicateRows = sidebarUsageDetailRows(duplicateLabelProvider);
+  assert.equal(duplicateRows.length, 4);
+  assert.strictEqual(duplicateRows[3]?.window, secondFiveHour);
 });
 
 test("falls back when the configured compact window is unavailable", () => {
@@ -304,6 +465,16 @@ test("describes configured, actual, and fallback compact windows accessibly", ()
 
   assert.notEqual(weeklyText, fiveHourText);
   assert.match(weeklyText, /Weekly configured; showing Weekly 17\.3%/u);
+  assert.match(weeklyText, /Open Codex usage details\./u);
+  assert.match(
+    sidebarUsagePrimaryAccessibleText(
+      "Codex",
+      "Weekly",
+      exactWeekly,
+      true,
+    ),
+    /Close Codex usage details\./u,
+  );
   assert.match(
     fiveHourText,
     /Five-hour configured; showing Five-hour 120%/u,
@@ -389,6 +560,82 @@ test("keeps last-known sidebar windows through partial and failed refreshes", ()
   assert.equal(lastKnownSelection.actualKind, "Weekly");
   assert.equal(lastKnownSelection.fallback, "last-known");
   assert.equal(lastKnownSelection.window?.usedPercent, 17.25);
+});
+
+test("keeps additional last-known windows without stale duplicates", () => {
+  const previous = providerWithFable();
+  const { fiveHour, weekly } = sidebarUsageWindows(previous);
+  const fable = previous.windows.find((window) => window.label === "Fable");
+  if (fiveHour === null || weekly === null || fable === undefined) {
+    assert.fail("provider fixture must contain all detail windows");
+  }
+
+  const currentWeekly = {
+    ...previous,
+    windows: [{ ...weekly, usedPercent: 32, barPercent: 32 }],
+  };
+  const mergedWeekly = mergeLastKnownWindows(currentWeekly, previous);
+  assert.deepEqual(
+    sidebarUsageDetailRows(mergedWeekly).map((row) => [
+      row.label,
+      row.window?.usedPercent ?? null,
+    ]),
+    [
+      ["5-hour limit", 39],
+      ["Weekly limit", 32],
+      ["Fable", 21],
+    ],
+  );
+  assert.strictEqual(
+    sidebarUsageDetailRows(mergedWeekly)[2]?.window,
+    fable,
+  );
+
+  const failed = {
+    ...previous,
+    status: "error" as const,
+    message: "Rate limited",
+    windows: [],
+  };
+  assert.deepEqual(
+    sidebarUsageDetailRows(mergeLastKnownWindows(failed, previous)).map(
+      (row) => row.window?.label ?? null,
+    ),
+    ["Current session", "Weekly limit", "Fable"],
+  );
+
+  const freshFable = { ...fable, usedPercent: 63, barPercent: 63 };
+  const mergedFable = mergeLastKnownWindows(
+    { ...previous, windows: [freshFable] },
+    previous,
+  );
+  const mergedFableWindows = mergedFable.windows.filter(
+    (window) => window.label === "Fable",
+  );
+  assert.deepEqual(mergedFableWindows, [freshFable]);
+  assert.strictEqual(mergedFableWindows[0], freshFable);
+
+  const canonicalLookingExtra = {
+    ...fiveHour,
+    label: "Five-hour bonus",
+    usedPercent: 12,
+    barPercent: 12,
+  };
+  const currentAlias = {
+    ...fiveHour,
+    label: "5 hour limit",
+    usedPercent: 44,
+    barPercent: 44,
+  };
+  const mergedAlias = mergeLastKnownWindows(
+    { ...previous, windows: [currentAlias] },
+    { ...previous, windows: [...previous.windows, canonicalLookingExtra] },
+  );
+  assert.deepEqual(
+    sidebarUsageDetailRows(mergedAlias).map((row) => row.window?.label ?? null),
+    ["5 hour limit", "Weekly limit", "Fable", "Five-hour bonus"],
+  );
+
 });
 
 test("resolves the thread environment host", async () => {

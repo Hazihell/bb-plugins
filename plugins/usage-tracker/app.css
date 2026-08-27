@@ -80,7 +80,8 @@
 
 .usage-tracker-sidebar__provider:focus-visible,
 .usage-tracker-sidebar__refresh:focus-visible,
-.usage-tracker-sidebar__close:focus-visible {
+.usage-tracker-sidebar__close:focus-visible,
+.usage-tracker-sidebar__windows:focus-visible {
   outline: 2px solid var(--usage-sidebar-focus);
   outline-offset: 1px;
 }
@@ -172,13 +173,13 @@
   height: 2rem;
 }
 
-.usage-tracker-sidebar__refresh:hover:not(:disabled),
+.usage-tracker-sidebar__refresh:hover[aria-disabled="false"],
 .usage-tracker-sidebar__close:hover {
   background: var(--usage-sidebar-hover);
   color: var(--usage-sidebar-text);
 }
 
-.usage-tracker-sidebar__refresh:disabled {
+.usage-tracker-sidebar__refresh[aria-disabled="true"] {
   cursor: wait;
   opacity: 0.55;
 }
@@ -199,10 +200,13 @@
 
 .usage-tracker-sidebar__details {
   position: absolute;
-  z-index: 40;
+  z-index: 60;
   right: 0;
   bottom: calc(100% + 0.375rem);
+  display: flex;
   width: min(18.9375rem, calc(100vw - 1rem));
+  max-height: min(30rem, calc(100vh - 6rem));
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--usage-sidebar-line);
   border-radius: var(--radius, 0.625rem);
@@ -214,6 +218,7 @@
 
 .usage-tracker-sidebar__details-header {
   display: flex;
+  flex: none;
   min-width: 0;
   align-items: center;
   justify-content: space-between;
@@ -264,7 +269,10 @@
 
 .usage-tracker-sidebar__windows {
   display: grid;
+  min-height: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .usage-tracker-sidebar__window {
@@ -275,8 +283,13 @@
   padding: 0.625rem;
 }
 
-.usage-tracker-sidebar__window + .usage-tracker-sidebar__window {
+.usage-tracker-sidebar__window:nth-child(2) {
   border-left: 1px solid var(--usage-sidebar-line);
+}
+
+.usage-tracker-sidebar__window:nth-child(n + 3) {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--usage-sidebar-line);
 }
 
 .usage-tracker-sidebar__window-heading {
@@ -290,7 +303,13 @@
   line-height: 1.2;
 }
 
+.usage-tracker-sidebar__window-heading > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .usage-tracker-sidebar__window-heading strong {
+  flex: none;
   color: var(--usage-sidebar-text);
   font-size: 0.75rem;
   font-weight: 650;
@@ -301,12 +320,10 @@
 }
 
 .usage-tracker-sidebar__reset {
-  overflow: hidden;
   color: var(--usage-sidebar-muted);
   font-size: 0.5625rem;
   line-height: 1.25;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .usage-tracker-sidebar__message {

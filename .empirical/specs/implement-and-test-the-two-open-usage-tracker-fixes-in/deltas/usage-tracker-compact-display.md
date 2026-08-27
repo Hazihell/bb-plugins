@@ -1,10 +1,6 @@
-# Usage Tracker Compact Display Specification
+# Usage Tracker Compact Display Delta
 
-## Purpose
-
-Define which provider usage window appears in the compact sidebar reading.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Configurable compact limit
 

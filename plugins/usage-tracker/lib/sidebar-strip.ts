@@ -16,9 +16,9 @@ import { providerMark } from "./provider-marks.ts";
 import {
   mergeLastKnownWindows,
   selectSidebarUsagePrimary,
+  sidebarUsageDetailRows,
   sidebarUsagePrimaryAccessibleText,
   sidebarUsagePrimarySelectionSummary,
-  sidebarUsageWindows,
 } from "./sidebar-usage.ts";
 
 const ROOT_ATTRIBUTE = "data-usage-tracker-sidebar";
@@ -28,6 +28,7 @@ const COMPACT_LIMIT_CACHE_KEY = "bb:usage-tracker:sidebar:compact-limit";
 const AUTO_REFRESH_MS = 5 * 60_000;
 const PREFERENCES_REFRESH_MS = 5_000;
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+const DETAILS_ID_PREFIX = "usage-tracker-sidebar-details";
 
 interface RpcEnvelope<T> {
   ok: boolean;
@@ -39,6 +40,13 @@ interface PreferencesResult {
   enabledProviderIds: SidebarProviderId[];
   compactLimit: CompactLimitOption;
 }
+
+type SidebarFocusTarget =
+  | { kind: "provider"; providerId: SidebarProviderId }
+  | { kind: "close" }
+  | { kind: "windows" }
+  | { kind: "refresh" }
+  | null;
 
 function element<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -134,6 +142,63 @@ function cacheSnapshot(snapshot: UsageSnapshot): void {
 
 function isSidebarProviderId(value: unknown): value is SidebarProviderId {
   return SIDEBAR_PROVIDER_IDS.some((providerId) => providerId === value);
+}
+
+function detailsId(providerId: string): string {
+  return `${DETAILS_ID_PREFIX}-${providerId}`;
+}
+
+function activeSidebarFocusTarget(root: HTMLElement): SidebarFocusTarget {
+  const active = document.activeElement;
+  if (!(active instanceof HTMLElement) || !root.contains(active)) return null;
+  if (active.classList.contains("usage-tracker-sidebar__close")) {
+    return { kind: "close" };
+  }
+  if (active.classList.contains("usage-tracker-sidebar__windows")) {
+    return { kind: "windows" };
+  }
+  if (active.classList.contains("usage-tracker-sidebar__refresh")) {
+    return { kind: "refresh" };
+  }
+  if (isSidebarProviderId(active.dataset.provider)) {
+    return { kind: "provider", providerId: active.dataset.provider };
+  }
+  return null;
+}
+
+function focusSidebarTarget(
+  root: HTMLElement,
+  target: Exclude<SidebarFocusTarget, null>,
+): boolean {
+  let element: HTMLElement | null;
+  switch (target.kind) {
+    case "provider":
+      element =
+        Array.from(
+          root.querySelectorAll<HTMLElement>(
+            ".usage-tracker-sidebar__provider",
+          ),
+        ).find((candidate) => candidate.dataset.provider === target.providerId) ??
+        null;
+      break;
+    case "close":
+      element = root.querySelector<HTMLElement>(
+        ".usage-tracker-sidebar__close",
+      );
+      break;
+    case "windows":
+      element = root.querySelector<HTMLElement>(
+        ".usage-tracker-sidebar__windows",
+      );
+      break;
+    case "refresh":
+      element = root.querySelector<HTMLElement>(
+        ".usage-tracker-sidebar__refresh",
+      );
+      break;
+  }
+  element?.focus({ preventScroll: true });
+  return element !== null && document.activeElement === element;
 }
 
 function readCachedProviderIds(): SidebarProviderId[] {
@@ -236,8 +301,8 @@ function detailsCard(
   provider: ProviderUsage,
   onClose: () => void,
 ): HTMLDivElement {
-  const pair = sidebarUsageWindows(provider);
   const card = element("div", "usage-tracker-sidebar__details");
+  card.id = detailsId(provider.id);
   card.setAttribute("role", "dialog");
   card.setAttribute("aria-label", `${provider.name} usage limits`);
 
@@ -267,9 +332,13 @@ function detailsCard(
   header.append(identity, close);
 
   const windows = element("div", "usage-tracker-sidebar__windows");
+  windows.tabIndex = 0;
+  windows.setAttribute("role", "region");
+  windows.setAttribute("aria-label", `${provider.name} usage windows`);
   windows.append(
-    detailWindowRow("5-hour limit", pair.fiveHour),
-    detailWindowRow("Weekly limit", pair.weekly),
+    ...sidebarUsageDetailRows(provider).map(({ label, window }) =>
+      detailWindowRow(label, window),
+    ),
   );
   card.append(header, windows);
 
@@ -311,6 +380,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
   let requestController: AbortController | null = null;
   let preferencesRequestController: AbortController | null = null;
   let ensureFrame: number | null = null;
+  let requestedFocus: SidebarFocusTarget = null;
   let disposed = false;
 
   const providerFor = (providerId: SidebarProviderId): ProviderUsage =>
@@ -321,6 +391,19 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
 
   const render = (): void => {
     if (root === null) return;
+    const focusTarget = requestedFocus ?? activeSidebarFocusTarget(root);
+    requestedFocus = null;
+    const previousDialog = root.querySelector<HTMLElement>(
+      ".usage-tracker-sidebar__details",
+    );
+    const previousWindows = root.querySelector<HTMLElement>(
+      ".usage-tracker-sidebar__windows",
+    );
+    const previousScrollTop =
+      selectedProviderId !== null &&
+      previousDialog?.id === detailsId(selectedProviderId)
+        ? (previousWindows?.scrollTop ?? 0)
+        : 0;
     root.dataset.providerCount = String(enabledProviderIds.length);
     root.hidden = enabledProviderIds.length === 0;
     if (enabledProviderIds.length === 0) {
@@ -330,9 +413,11 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     const content: Node[] = [];
 
     if (selectedProviderId !== null) {
+      const providerId = selectedProviderId;
       content.push(
-        detailsCard(providerFor(selectedProviderId), () => {
+        detailsCard(providerFor(providerId), () => {
           selectedProviderId = null;
+          requestedFocus = { kind: "provider", providerId };
           render();
         }),
       );
@@ -357,11 +442,14 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         provider.name,
         compactLimit,
         primary,
+        selectedProviderId === providerId,
       );
       const button = element("button", "usage-tracker-sidebar__provider");
       button.type = "button";
       button.dataset.provider = providerId;
       button.dataset.status = provider.status;
+      button.setAttribute("aria-haspopup", "dialog");
+      button.setAttribute("aria-controls", detailsId(providerId));
       button.setAttribute(
         "aria-expanded",
         String(selectedProviderId === providerId),
@@ -380,8 +468,11 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
       );
       button.append(mark, progressRail(primary.window), reading);
       button.addEventListener("click", () => {
-        selectedProviderId =
-          selectedProviderId === providerId ? null : providerId;
+        const isClosing = selectedProviderId === providerId;
+        selectedProviderId = isClosing ? null : providerId;
+        requestedFocus = isClosing
+          ? { kind: "provider", providerId }
+          : { kind: "close" };
         render();
       });
       strip.append(button);
@@ -389,7 +480,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
 
     const refresh = element("button", "usage-tracker-sidebar__refresh");
     refresh.type = "button";
-    refresh.disabled = isLoading;
+    refresh.setAttribute("aria-disabled", String(isLoading));
     refresh.dataset.loading = String(isLoading);
     if (lastError !== null) refresh.dataset.error = "true";
     refresh.setAttribute(
@@ -402,6 +493,11 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     strip.append(refresh);
     content.push(strip);
     root.replaceChildren(...content);
+    const nextWindows = root.querySelector<HTMLElement>(
+      ".usage-tracker-sidebar__windows",
+    );
+    if (nextWindows !== null) nextWindows.scrollTop = previousScrollTop;
+    if (focusTarget !== null) focusSidebarTarget(root, focusTarget);
   };
 
   const ensureMounted = (): void => {
@@ -514,6 +610,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         !enabledProviderIds.includes(selectedProviderId)
       ) {
         selectedProviderId = null;
+        requestedFocus = { kind: "refresh" };
       }
       cacheProviderIds(enabledProviderIds);
       cacheCompactLimit(compactLimit);
@@ -566,15 +663,28 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     },
     { signal },
   );
-  document.addEventListener(
+  window.addEventListener(
     "keydown",
     (event) => {
-      if (event.key === "Escape" && selectedProviderId !== null) {
+      const active = document.activeElement;
+      const belongsToUsageTracker =
+        root !== null &&
+        ((event.target instanceof Node && root.contains(event.target)) ||
+          (active instanceof Node && root.contains(active)));
+      if (
+        event.key === "Escape" &&
+        selectedProviderId !== null &&
+        belongsToUsageTracker
+      ) {
+        const providerId = selectedProviderId;
+        event.preventDefault();
+        event.stopImmediatePropagation();
         selectedProviderId = null;
+        requestedFocus = { kind: "provider", providerId };
         render();
       }
     },
-    { signal },
+    { capture: true, signal },
   );
 
   return () => {
