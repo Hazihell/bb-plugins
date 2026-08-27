@@ -17,9 +17,14 @@
   `sources/` contains the GitHub, Linear, and Jira adapters behind one interface.
 - `plugins/usage-tracker` is independent and owns its own server, app, provider
   usage model, tests, and assets.
-- Both plugin manifests remain workspace/build manifests but are private.
+- `plugins/machine-monitor/server.ts` owns fleet refresh, last-good snapshots,
+  thresholds, and host-targeted process orchestration. `host.ts` collects a
+  strict privacy-bounded telemetry/process projection on an enrolled machine;
+  `app.tsx` owns the dashboard, sidebar summary, floating monitor, inspector,
+  settings, and guarded process-confirmation UI.
+- All three plugin manifests remain workspace/build manifests but are private.
   BB resolves releases from the monorepo's plugin-specific Git tags and the
-  corresponding `plugins/taskboard` or `plugins/usage-tracker` subdirectory.
+  corresponding plugin subdirectory.
 
 ## Data and control flow
 
@@ -39,6 +44,11 @@
    BB composer. The external provider is never written before confirmation.
 6. A background service refreshes configured projects; the external tracker
    remains authoritative when cache and live state differ.
+7. Host Monitor asks BB for enrolled hosts, samples only connected targets via
+   the authenticated host-worker boundary, validates every response, and keeps
+   the last good reading when a target becomes stale, fails, or disconnects.
+   Process lists are fetched only for the explicitly opened host and stop
+   actions require a fresh one-use confirmation plus host-side revalidation.
 
 ## External dependencies
 
@@ -50,3 +60,6 @@
   Linear and Jira use project-isolated API credentials.
 - Runtime imports belong in leaf `dependencies`; types, test harnesses, and
   pinned build tooling belong in `devDependencies`.
+- Host Monitor deliberately carries BB 0.40 / SDK 0.4.21 tooling in its own
+  workspace while the older plugins retain their compatible BB 0.38 / SDK
+  0.4.6 toolchains.

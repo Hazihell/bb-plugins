@@ -3,12 +3,12 @@
 
 Generated from bounded repository metadata.
 
-- Repository: bb-plugins-taskboard-dev
-- Source fingerprint: sha256:ff6a92e5f69bcf805c3c47999eac4debf8e23d0aac79020c98063858c6f4107a
-- Included files: 96
+- Repository: bb-plugins
+- Source fingerprint: sha256:c10945040eafc31d2860d5258d0c9a0e6843abf05e6e91927f384331f3be7fec
+- Included files: 145
 - Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, ., .github, .windsurf, demos, plugins
-- Manifests: package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
-- Primary docs: README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md
+- Manifests: package.json, plugins/machine-monitor/package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
+- Primary docs: README.md, plugins/machine-monitor/README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md
 
 ## Topics
 

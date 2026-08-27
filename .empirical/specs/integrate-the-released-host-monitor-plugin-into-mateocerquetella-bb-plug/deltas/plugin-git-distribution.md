@@ -1,11 +1,6 @@
-# Plugin Git Distribution Specification
+# Plugin Git Distribution Delta
 
-## Purpose
-
-Define the shared active distribution boundary for repository plugins whose
-installable releases live in Git rather than the npm registry.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Active Git-only install surfaces
 
@@ -28,20 +23,6 @@ private and SHALL omit npm publication configuration and hooks.
 - **THEN** Host Monitor resolves its pinned BB/plugin SDK toolchain
 - **AND** its typecheck, tests, server/app/host builds, and package identity
   complete with the other workspace plugins
-
-### Requirement: Preserve Git-build package tooling
-
-Git-only distribution SHALL retain the package manifests, stable package names,
-workspace/lockfile dependency graph, source entry points, and package-manager
-development commands required to install dependencies, build, test, and derive
-BB plugin identity.
-
-#### Scenario: Distinguish tooling from distribution
-
-- **WHEN** an active audit encounters `package.json`, lockfile package records,
-  `@get-bb/plugin-sdk`, or npm install/run development commands
-- **THEN** those build and identity contracts remain intact
-- **AND** none is treated as evidence that either plugin is published to npm
 
 ### Requirement: Preserve distribution history
 
