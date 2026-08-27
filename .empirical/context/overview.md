@@ -5,9 +5,9 @@
 - This workspace contains focused plugins for BB, the agent IDE.
 - Taskboard gives each BB project one GitHub, Linear, or Jira-backed List/Kanban
   board with cached browsing, live detail, status changes, issue creation,
-  mentions, CLI access, and agent handoff.
+  remembered and named project views, mentions, CLI access, and agent handoff.
 - Usage Tracker places Codex and Claude Code quota windows in BB's sidebar
-  footer.
+  footer and lets the user choose the weekly or five-hour compact reading.
 
 ## Boundaries
 
@@ -19,6 +19,9 @@
 - Taskboard selects exactly one external tracker per BB project. Provider APIs
   remain authoritative; Taskboard stores project configuration, credentials,
   cached summaries, sync state, and board preferences.
+- Taskboard's current browse state stays versioned and device-local; named
+  project presets store validated snapshots in the plugin database and apply
+  explicitly through that same browse store.
 - Taskboard and Usage Tracker are private/non-publishable workspaces. They
   release through immutable plugin-specific Git tags plus the BB Community
   marketplace.

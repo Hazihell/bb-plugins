@@ -24,6 +24,20 @@ test('canonicalizes provider facet casing before rendering and persistence', () 
   assert.match(app, /sameStringValues\(current\.assignees, nextAssignees\)/u);
 });
 
+test('applies project presets through the released preference store', () => {
+  assert.match(app, /useProjectFilterPresets\(projectId\)/u);
+  assert.match(app, /useRealtime\('taskboard:presets-changed'/u);
+  assert.match(app, /projectId === null \? null : presetState\.presets/u);
+  assert.match(app, /preset\.projectId !== projectId/u);
+  assert.match(app, /preset\.state\.provider !== authoritativeProvider/u);
+  assert.match(app, /browsePreferenceStore\.set\(preferenceScope, preset\.state\)/u);
+  assert.match(app, /state: preferences/u);
+  assert.match(app, /Could not load presets:/u);
+  assert.match(app, /Save current view as/u);
+  assert.match(app, /mutationInFlightRef/u);
+  assert.match(app, /value=\{nameDrafts\[preset\.id\] \?\? preset\.name\}/u);
+});
+
 test('keeps List measured and Kanban unconstrained', () => {
   assert.match(app, /data-taskboard-list-measure/u);
   assert.match(app, /max-w-\[56rem\]/u);
