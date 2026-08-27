@@ -84,6 +84,8 @@ import type {
 } from './contract.js';
 import {
   CREATE_OUTCOME_UNCERTAIN_MARKER,
+  FILTER_PRESET_NAME_MAX_LENGTH,
+  type FilterPreset,
   formatWorkItemHandoffPrompt
 } from './contract.js';
 import {
@@ -1617,6 +1619,72 @@ function useRefreshOnReconnect(refresh: () => void): void {
   }, [connectionState]);
 }
 
+function useProjectFilterPresets(projectId: string | null): {
+  presets: readonly FilterPreset[];
+  error: string | null;
+  loading: boolean;
+  reload: () => Promise<void>;
+  setAuthoritative: (presets: readonly FilterPreset[]) => void;
+} {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const [presets, setPresets] = useState<readonly FilterPreset[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(projectId !== null);
+  const requestRevisionRef = useRef(0);
+
+  const reload = useCallback(async () => {
+    const requestRevision = ++requestRevisionRef.current;
+    if (projectId === null) {
+      setPresets([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await rpc.call('listFilterPresets', { projectId });
+      if (requestRevision !== requestRevisionRef.current) return;
+      setPresets(result.presets);
+    } catch (nextError) {
+      if (requestRevision !== requestRevisionRef.current) return;
+      setPresets([]);
+      setError(describeError(nextError));
+    } finally {
+      if (requestRevision === requestRevisionRef.current) setLoading(false);
+    }
+  }, [projectId, rpc]);
+
+  useEffect(() => {
+    void reload();
+    return () => {
+      requestRevisionRef.current += 1;
+    };
+  }, [reload]);
+  useRealtime('taskboard:presets-changed', payload => {
+    if (projectId === null) return;
+    const changedProject = changedProjectId(payload);
+    if (changedProject === null || changedProject === projectId) {
+      void reload();
+    }
+  });
+  useRefreshOnReconnect(() => {
+    if (projectId !== null) void reload();
+  });
+
+  const setAuthoritative = useCallback(
+    (nextPresets: readonly FilterPreset[]) => {
+      requestRevisionRef.current += 1;
+      setPresets(nextPresets);
+      setError(null);
+      setLoading(false);
+    },
+    []
+  );
+
+  return { presets, error, loading, reload, setAuthoritative };
+}
+
 function loadRightPanelPinned(): boolean {
   try {
     return (
@@ -2293,7 +2361,107 @@ function TrackerViewToggle({
   );
 }
 
+function FilterPresetMenu({
+  presets,
+  error,
+  loading,
+  constrained = false,
+  onApply,
+  onRetry,
+  onSaveCurrent
+}: {
+  presets: readonly FilterPreset[];
+  error: string | null;
+  loading: boolean;
+  constrained?: boolean;
+  onApply: (preset: FilterPreset) => void;
+  onRetry: () => void;
+  onSaveCurrent: () => void;
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {constrained ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="tb-filter-chip h-7 shrink-0 gap-1.5 px-2 text-xs max-md:pointer-coarse:h-10"
+            data-active={error ? 'true' : 'false'}
+            aria-label={error ? 'Filter presets unavailable' : 'Filter presets'}
+          >
+            <Icon
+              name={error ? 'AlertCircle' : 'Star'}
+              className="size-3.5"
+              aria-hidden="true"
+            />
+            <span className="sr-only">Presets</span>
+          </Button>
+        ) : (
+          <button
+            type="button"
+            data-active={error ? 'true' : 'false'}
+            aria-label={error ? 'Presets unavailable' : undefined}
+            className="tb-filter-chip flex h-7 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-xs transition-colors hover:text-foreground max-md:pointer-coarse:h-10"
+          >
+            <Icon
+              name={error ? 'AlertCircle' : 'Star'}
+              className="size-3 shrink-0"
+              aria-hidden="true"
+            />
+            Presets
+          </button>
+        )}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align={constrained ? 'end' : 'start'}
+        className="min-w-52"
+      >
+        {loading ? (
+          <DropdownMenuItem disabled>Loading presets…</DropdownMenuItem>
+        ) : error ? (
+          <>
+            <div
+              role="alert"
+              className="max-w-72 px-2 py-1.5 text-xs leading-relaxed text-destructive"
+            >
+              Could not load presets: {error}
+            </div>
+            <DropdownMenuItem onSelect={onRetry}>
+              <Icon name="ArrowReloadHorizontal" className="size-3.5" />
+              Try again
+            </DropdownMenuItem>
+          </>
+        ) : presets.length === 0 ? (
+          <DropdownMenuItem disabled>No saved presets</DropdownMenuItem>
+        ) : (
+          presets.map(preset => (
+            <DropdownMenuItem
+              key={preset.id}
+              onSelect={() => onApply(preset)}
+            >
+              <Icon name="Star" className="size-3.5" aria-hidden="true" />
+              <span className="truncate">{preset.name}</span>
+            </DropdownMenuItem>
+          ))
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onSelect={onSaveCurrent}>
+          <Icon name="Plus" className="size-3.5" aria-hidden="true" />
+          Save current view as…
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function TrackerFilterBar({
+  presets,
+  presetsError,
+  presetsLoading,
+  onApplyPreset,
+  onRetryPresets,
+  onSaveCurrentPreset,
   source,
   enabledFilters,
   stateCategories,
@@ -2323,6 +2491,12 @@ function TrackerFilterBar({
   onViewChange,
   onClear
 }: {
+  presets: readonly FilterPreset[] | null;
+  presetsError: string | null;
+  presetsLoading: boolean;
+  onApplyPreset: (preset: FilterPreset) => void;
+  onRetryPresets: () => void;
+  onSaveCurrentPreset: () => void;
   source: SourceFilter;
   enabledFilters: readonly WorkItemFilterField[];
   stateCategories: readonly WorkStateCategory[];
@@ -2435,6 +2609,17 @@ function TrackerFilterBar({
           ) : (
             <span />
           )}
+          {presets !== null ? (
+            <FilterPresetMenu
+              presets={presets}
+              error={presetsError}
+              loading={presetsLoading}
+              constrained
+              onApply={onApplyPreset}
+              onRetry={onRetryPresets}
+              onSaveCurrent={onSaveCurrentPreset}
+            />
+          ) : null}
           <DropdownMenu
             onOpenChange={open => {
               if (!open) setFacetQuery('');
@@ -2696,6 +2881,16 @@ function TrackerFilterBar({
         )}
       >
         <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-px">
+        {presets !== null ? (
+          <FilterPresetMenu
+            presets={presets}
+            error={presetsError}
+            loading={presetsLoading}
+            onApply={onApplyPreset}
+            onRetry={onRetryPresets}
+            onSaveCurrent={onSaveCurrentPreset}
+          />
+        ) : null}
         {showSourceFilter ? (
           <FilterChip
             icon={FILTER_PRESENTATION.source.icon}
@@ -3967,6 +4162,10 @@ function TrackerList({
   const [boardSettingsReady, setBoardSettingsReady] = useState(
     projectId === null
   );
+  const presetState = useProjectFilterPresets(projectId);
+  const [presetNameDraft, setPresetNameDraft] = useState<string | null>(null);
+  const [savingPreset, setSavingPreset] = useState(false);
+  const savingPresetRef = useRef(false);
   const [committedQuery, setCommittedQuery] = useState(() => query.trim());
   const [error, setError] = useState<string | null>(null);
   const requestRevisionRef = useRef(0);
@@ -4234,6 +4433,51 @@ function TrackerList({
     },
     [updatePreferences]
   );
+  const applyPreset = useCallback(
+    (preset: FilterPreset) => {
+      if (projectId === null || preset.projectId !== projectId) {
+        toast.error('This preset belongs to a different project.');
+        return;
+      }
+      const current = browsePreferenceStore.get(preferenceScope);
+      if (current.provider === null) {
+        toast.error('Wait for this project’s tracker to finish loading.');
+        return;
+      }
+      if (preset.state.provider !== current.provider) {
+        toast.error(
+          'This preset was saved for a different tracker. Save a new preset for the current project connection.'
+        );
+        return;
+      }
+      browsePreferenceStore.set(preferenceScope, preset.state);
+      setCommittedQuery(preset.state.query.trim());
+    },
+    [preferenceScope, projectId]
+  );
+  const saveCurrentPreset = useCallback(
+    async (name: string) => {
+      if (projectId === null || savingPresetRef.current) return;
+      savingPresetRef.current = true;
+      setSavingPreset(true);
+      try {
+        const result = await rpc.call('saveFilterPreset', {
+          projectId,
+          name,
+          state: preferences
+        });
+        presetState.setAuthoritative(result.presets);
+        setPresetNameDraft(null);
+        toast.success(`Saved preset "${result.preset.name}"`);
+      } catch (nextError) {
+        toast.error(describeError(nextError));
+      } finally {
+        savingPresetRef.current = false;
+        setSavingPreset(false);
+      }
+    },
+    [preferences, presetState, projectId, rpc]
+  );
   const moveItemStatus = useCallback(
     async (item: WorkItem, option: WorkStatusOption) => {
       const matches = (candidate: WorkItem) =>
@@ -4277,6 +4521,12 @@ function TrackerList({
     <div className="flex h-full min-h-0 flex-col">
       <div className="tb-frame flex h-full min-h-0 w-full flex-col overflow-hidden">
         <TrackerFilterBar
+          presets={projectId === null ? null : presetState.presets}
+          presetsError={presetState.error}
+          presetsLoading={presetState.loading}
+          onApplyPreset={applyPreset}
+          onRetryPresets={() => void presetState.reload()}
+          onSaveCurrentPreset={() => setPresetNameDraft('')}
           source={projectId === null ? source : ALL_SOURCES}
           enabledFilters={boardSettings.enabledFilters}
           stateCategories={stateCategories}
@@ -4449,7 +4699,55 @@ function TrackerList({
       </div>
     </div>
   );
-  return <TooltipProvider delayDuration={180}>{content}</TooltipProvider>;
+  return (
+    <TooltipProvider delayDuration={180}>
+      {content}
+      <Dialog
+        open={presetNameDraft !== null}
+        onOpenChange={open => {
+          if (!open) setPresetNameDraft(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save filter preset</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={event => {
+              event.preventDefault();
+              const name = (presetNameDraft ?? '').trim();
+              if (name) void saveCurrentPreset(name);
+            }}
+            className="flex flex-col gap-3"
+          >
+            <Input
+              autoFocus
+              value={presetNameDraft ?? ''}
+              onChange={event => setPresetNameDraft(event.target.value)}
+              placeholder="My work"
+              maxLength={FILTER_PRESET_NAME_MAX_LENGTH}
+              aria-label="Preset name"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setPresetNameDraft(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={savingPreset || !(presetNameDraft ?? '').trim()}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </TooltipProvider>
+  );
 }
 
 function DetailMetadata({
@@ -5451,6 +5749,231 @@ function ProjectBoardSettingsForm({
   );
 }
 
+function FilterPresetsForm({ projectId }: { projectId: string }) {
+  const rpc = useRpc<TaskboardRpcContract>();
+  const presetState = useProjectFilterPresets(projectId);
+  const [nameDrafts, setNameDrafts] = useState<Record<string, string>>({});
+  const [mutating, setMutating] = useState(false);
+  const [mutationError, setMutationError] = useState<string | null>(null);
+  const mutationInFlightRef = useRef(false);
+  const skipRenameOnBlurRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    setNameDrafts(
+      Object.fromEntries(
+        presetState.presets.map(preset => [preset.id, preset.name])
+      )
+    );
+  }, [presetState.presets]);
+
+  const beginMutation = () => {
+    if (mutationInFlightRef.current) return false;
+    mutationInFlightRef.current = true;
+    setMutating(true);
+    setMutationError(null);
+    return true;
+  };
+  const finishMutation = () => {
+    mutationInFlightRef.current = false;
+    setMutating(false);
+  };
+  const reportMutationError = (nextError: unknown) => {
+    const message = describeError(nextError);
+    setMutationError(message);
+    toast.error(message);
+  };
+
+  const renamePreset = async (preset: FilterPreset) => {
+    const name = (nameDrafts[preset.id] ?? preset.name).trim();
+    if (name === preset.name) {
+      setNameDrafts(current => ({ ...current, [preset.id]: preset.name }));
+      return;
+    }
+    if (!name) {
+      setMutationError('Preset names cannot be empty.');
+      setNameDrafts(current => ({ ...current, [preset.id]: preset.name }));
+      return;
+    }
+    if (!beginMutation()) return;
+    try {
+      const result = await rpc.call('saveFilterPreset', {
+        projectId,
+        id: preset.id,
+        name,
+        state: preset.state
+      });
+      presetState.setAuthoritative(result.presets);
+    } catch (nextError) {
+      setNameDrafts(current => ({ ...current, [preset.id]: preset.name }));
+      reportMutationError(nextError);
+    } finally {
+      finishMutation();
+    }
+  };
+
+  const removePreset = async (preset: FilterPreset) => {
+    if (mutationInFlightRef.current) return;
+    if (!window.confirm(`Delete the preset "${preset.name}"?`)) return;
+    if (!beginMutation()) return;
+    try {
+      const result = await rpc.call('deleteFilterPreset', {
+        projectId,
+        id: preset.id
+      });
+      presetState.setAuthoritative(result.presets);
+    } catch (nextError) {
+      reportMutationError(nextError);
+    } finally {
+      finishMutation();
+    }
+  };
+
+  const movePreset = async (preset: FilterPreset, delta: number) => {
+    if (mutationInFlightRef.current) return;
+    const ids = presetState.presets.map(candidate => candidate.id);
+    const from = ids.indexOf(preset.id);
+    const to = from + delta;
+    if (from < 0 || to < 0 || to >= ids.length || !beginMutation()) return;
+    const reordered = [...ids];
+    const [moved] = reordered.splice(from, 1);
+    if (!moved) {
+      finishMutation();
+      return;
+    }
+    reordered.splice(to, 0, moved);
+    try {
+      const result = await rpc.call('reorderFilterPresets', {
+        projectId,
+        ids: reordered
+      });
+      presetState.setAuthoritative(result.presets);
+    } catch (nextError) {
+      reportMutationError(nextError);
+    } finally {
+      finishMutation();
+    }
+  };
+
+  return (
+    <div className="tb-settings-card space-y-3 rounded-lg border p-4 @lg:p-5">
+      <div className="space-y-1">
+        <h3 className="text-sm font-semibold">Filter presets</h3>
+        <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
+          Rename, reorder, or delete this project&apos;s saved views.
+        </p>
+      </div>
+      {presetState.loading ? (
+        <div className="space-y-2" aria-label="Loading filter presets">
+          <Skeleton className="h-7 w-full" />
+          <Skeleton className="h-7 w-4/5" />
+        </div>
+      ) : presetState.error ? (
+        <div className="rounded-md border border-destructive/30 p-3">
+          <p role="alert" className="text-xs text-destructive">
+            Could not load presets: {presetState.error}
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-2"
+            onClick={() => void presetState.reload()}
+          >
+            Try again
+          </Button>
+        </div>
+      ) : presetState.presets.length === 0 ? (
+        <p className="text-xs text-muted-foreground">
+          Save a preset from the Presets menu on this project&apos;s board.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-1.5">
+          {presetState.presets.map((preset, index) => (
+            <li key={preset.id} className="flex items-center gap-2">
+              <Input
+                value={nameDrafts[preset.id] ?? preset.name}
+                maxLength={FILTER_PRESET_NAME_MAX_LENGTH}
+                disabled={mutating}
+                aria-label={`Preset name for ${preset.name}`}
+                className="h-8 flex-1 text-xs"
+                onChange={event => {
+                  const name = event.target.value;
+                  setNameDrafts(current => ({
+                    ...current,
+                    [preset.id]: name
+                  }));
+                }}
+                onBlur={() => {
+                  if (skipRenameOnBlurRef.current === preset.id) {
+                    skipRenameOnBlurRef.current = null;
+                    return;
+                  }
+                  void renamePreset(preset);
+                }}
+                onKeyDown={event => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    event.currentTarget.blur();
+                  } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    skipRenameOnBlurRef.current = preset.id;
+                    setNameDrafts(current => ({
+                      ...current,
+                      [preset.id]: preset.name
+                    }));
+                    event.currentTarget.blur();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={mutating || index === 0}
+                aria-label={`Move ${preset.name} up`}
+                onClick={() => void movePreset(preset, -1)}
+              >
+                <Icon name="ChevronUp" className="size-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={
+                  mutating || index === presetState.presets.length - 1
+                }
+                aria-label={`Move ${preset.name} down`}
+                onClick={() => void movePreset(preset, 1)}
+              >
+                <Icon name="ChevronDown" className="size-3" />
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                disabled={mutating}
+                aria-label={`Delete ${preset.name}`}
+                onClick={() => void removePreset(preset)}
+              >
+                <Icon name="Trash2" className="size-3" />
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {mutationError ? (
+        <p role="alert" className="text-xs text-destructive">
+          {mutationError}
+        </p>
+      ) : mutating ? (
+        <p role="status" className="text-xs text-muted-foreground">
+          Updating presets…
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function ManageView({
   projectId,
   projects,
@@ -5580,6 +6103,10 @@ function ManageView({
                 setBoardSettings(result.settings);
                 return result.settings;
               }}
+            />
+            <FilterPresetsForm
+              key={`presets:${boardSettings.projectId}`}
+              projectId={boardSettings.projectId}
             />
           </>
         ) : (

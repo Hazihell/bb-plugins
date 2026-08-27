@@ -43,8 +43,10 @@ external tracker for it. Different BB projects can use different providers.
 
 Taskboard keeps rows and Kanban cards compact, preserves each provider's real
 workflow, opens live issue details, and can send any task to an agent with its
-context attached. See the [Taskboard README](./plugins/taskboard) for GitHub,
-Linear, Jira, CLI, and credential setup.
+context attached. Each project's remembered view can also be saved as a named
+preset and reapplied explicitly from the board or CLI. See the
+[Taskboard README](./plugins/taskboard) for GitHub, Linear, Jira, presets, CLI,
+and credential setup.
 
 Update or remove it with BB:
 
@@ -73,7 +75,8 @@ Usage Tracker mounts in BB's native sidebar footer beside the existing utility
 icons. Each provider gets a compact progress bar and current usage reading.
 Select Codex or Claude Code to expand its five-hour and weekly limits, reset
 times, and session status without leaving the current thread. There is no
-separate plugin page to manage.
+separate plugin page to manage. The **Compact limit** setting chooses whether
+the collapsed percentage and bar prefer weekly or five-hour usage.
 
 The strip refreshes automatically every five minutes, refreshes when a stale BB
 window becomes active again, and includes a manual refresh control. If a
@@ -138,6 +141,14 @@ npm run check
 New plugins belong in `plugins/<id>` with their own `package.json`, source,
 tests, pinned `@get-bb/plugin-sdk` development dependency, and README. Add each
 directory to `.bb/plugins.json`; the root workspace picks it up automatically.
+
+## Contributors
+
+- [Stephen Dolan (@stephendolan)](https://github.com/stephendolan) contributed
+  Usage Tracker's configurable Compact limit.
+- [Andrii Los (@RIP21)](https://github.com/RIP21) contributed Taskboard's
+  project-view persistence work and dogfooding fixes, plus named filter
+  presets.
 
 ## License
 

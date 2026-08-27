@@ -8,6 +8,15 @@ import {
   secretMutationSchema
 } from './credential-contract.js';
 import { projectBoardSettingsSchema } from './board-settings.js';
+import {
+  FILTER_PRESET_LIMIT,
+  filterPresetIdSchema,
+  filterPresetNameSchema,
+  filterPresetOrderSchema,
+  filterPresetProjectIdSchema,
+  filterPresetSchema,
+  filterPresetStateSchema
+} from './filter-presets.js';
 export {
   DEFAULT_WORK_ITEM_FILTER_FIELDS,
   DEFAULT_WORKFLOW_STATUS_ORDER,
@@ -21,6 +30,24 @@ export type {
   TrackerView,
   WorkItemFilterField
 } from './board-settings.js';
+export {
+  FILTER_PRESET_ID_MAX_LENGTH,
+  FILTER_PRESET_LIMIT,
+  FILTER_PRESET_NAME_MAX_LENGTH,
+  FILTER_PRESET_NORMALIZED_NAME_MAX_LENGTH,
+  FILTER_PRESET_PROJECT_ID_MAX_LENGTH,
+  FILTER_PRESET_STATE_JSON_MAX_LENGTH,
+  filterPresetIdSchema,
+  filterPresetNameSchema,
+  filterPresetOrderSchema,
+  filterPresetProjectIdSchema,
+  filterPresetSchema,
+  filterPresetStateSchema,
+  normalizePresetName,
+  resolvePresetOrder,
+  serializeFilterPresetState
+} from './filter-presets.js';
+export type { FilterPreset } from './filter-presets.js';
 export {
   bbProjectIdSchema,
   jiraBaseUrlSchema,
@@ -446,6 +473,56 @@ export const taskboardRpcContract = defineRpcContract({
   saveProjectBoardSettings: {
     input: projectBoardSettingsSchema,
     output: z.object({ settings: projectBoardSettingsSchema }).strict()
+  },
+  listFilterPresets: {
+    input: z.object({ projectId: filterPresetProjectIdSchema }).strict(),
+    output: z
+      .object({
+        presets: z.array(filterPresetSchema).max(FILTER_PRESET_LIMIT)
+      })
+      .strict()
+  },
+  saveFilterPreset: {
+    input: z
+      .object({
+        projectId: filterPresetProjectIdSchema,
+        id: filterPresetIdSchema.optional(),
+        name: filterPresetNameSchema,
+        state: filterPresetStateSchema
+      })
+      .strict(),
+    output: z
+      .object({
+        preset: filterPresetSchema,
+        presets: z.array(filterPresetSchema).max(FILTER_PRESET_LIMIT)
+      })
+      .strict()
+  },
+  deleteFilterPreset: {
+    input: z
+      .object({
+        projectId: filterPresetProjectIdSchema,
+        id: filterPresetIdSchema
+      })
+      .strict(),
+    output: z
+      .object({
+        presets: z.array(filterPresetSchema).max(FILTER_PRESET_LIMIT)
+      })
+      .strict()
+  },
+  reorderFilterPresets: {
+    input: z
+      .object({
+        projectId: filterPresetProjectIdSchema,
+        ids: filterPresetOrderSchema
+      })
+      .strict(),
+    output: z
+      .object({
+        presets: z.array(filterPresetSchema).max(FILTER_PRESET_LIMIT)
+      })
+      .strict()
   }
 });
 
