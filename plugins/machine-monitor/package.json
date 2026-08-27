@@ -4,13 +4,13 @@
   "description": "Live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
-  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/machine-monitor#readme",
+  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/machine-monitor/v0.1.0/plugins/machine-monitor#readme",
   "bugs": {
-    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
+    "url": "https://github.com/MateoCerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
+    "url": "git+https://github.com/MateoCerquetella/bb-plugins.git",
     "directory": "plugins/machine-monitor"
   },
   "keywords": [

@@ -1148,6 +1148,23 @@
   line-height: 1;
 }
 
+.machine-monitor-host-card__metric-detail {
+  overflow: hidden;
+  width: 100%;
+  min-height: 0.5625rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.5625rem;
+  font-weight: 400;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.machine-monitor-host-card__metric-detail[data-empty="true"] {
+  visibility: hidden;
+}
+
 .machine-monitor-host-card__metric-rail {
   position: relative;
   display: block;
@@ -1925,6 +1942,10 @@
   font-size: 0.625rem;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.machine-monitor-process-action > svg {
+  flex: none;
 }
 
 .machine-monitor-process-action:hover:not(:disabled):not([aria-disabled="true"]) {

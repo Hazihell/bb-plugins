@@ -361,6 +361,19 @@ function ShieldIcon({ className = "size-3.5" }: { className?: string }) {
   );
 }
 
+function EndProcessIcon({ className = "size-3" }: { className?: string }) {
+  return (
+    <svg aria-hidden="true" className={className} fill="none" viewBox="0 0 24 24">
+      <path
+        d="M6 6l12 12M18 6 6 18"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
+
 function Spinner({ className = "size-3.5" }: { className?: string }) {
   return (
     <svg aria-hidden="true" className={`machine-monitor-spinner ${className}`} fill="none" viewBox="0 0 24 24">
@@ -409,6 +422,17 @@ function formatBytes(bytes: number): string {
     unitIndex += 1;
   }
   return `${byteNumber.format(value)} ${units[unitIndex]}`;
+}
+
+function formatByteUsage(usedBytes: number, totalBytes: number): string {
+  const units = ["B", "KB", "MB", "GB", "TB", "PB"] as const;
+  let divisor = 1;
+  let unitIndex = 0;
+  while (totalBytes / divisor >= 1_024 && unitIndex < units.length - 1) {
+    divisor *= 1_024;
+    unitIndex += 1;
+  }
+  return `${byteNumber.format(usedBytes / divisor)} / ${byteNumber.format(totalBytes / divisor)} ${units[unitIndex]}`;
 }
 
 function formatDuration(seconds: number): string {
@@ -502,11 +526,13 @@ function MetricRuler({
 }
 
 function CardMetric({
+  detail,
   isFresh,
   label,
   percent,
   thresholds,
 }: {
+  detail?: string;
   isFresh: boolean;
   label: string;
   percent: number | null;
@@ -521,7 +547,9 @@ function CardMetric({
       className="machine-monitor-host-card__metric"
       data-tone={tone}
     >
-      <span className="sr-only">{accessibleText}</span>
+      <span className="sr-only">
+        {detail === undefined ? accessibleText : `${accessibleText}; ${detail} used`}
+      </span>
       <span
         aria-hidden="true"
         className="machine-monitor-host-card__metric-heading"
@@ -529,6 +557,14 @@ function CardMetric({
         <span className="machine-monitor-host-card__metric-label">{label}</span>
         <span className="machine-monitor-host-card__metric-value">
           {bounded === null ? "—" : formatPercent(bounded)}
+        </span>
+        <span
+          aria-hidden="true"
+          className="machine-monitor-host-card__metric-detail"
+          data-empty={detail === undefined ? "true" : "false"}
+          title={detail}
+        >
+          {detail ?? "\u00a0"}
         </span>
       </span>
       <span aria-hidden="true" className="machine-monitor-host-card__metric-rail">
@@ -890,6 +926,7 @@ function FleetSkeleton({ mode }: { mode: FleetViewMode }) {
                 <span key={metricIndex} className="machine-monitor-card-skeleton__metric">
                   <span className="machine-monitor-skeleton block h-2 w-8 rounded" />
                   <span className="machine-monitor-skeleton block h-4 w-12 rounded" />
+                  <span className="machine-monitor-skeleton block h-2 w-16 rounded" />
                   <span className="machine-monitor-skeleton block h-[3px] w-full rounded-full" />
                 </span>
               ))}
@@ -1017,6 +1054,14 @@ function FleetCardGrid({
                     isFresh={machine.sampleState === "fresh"}
                     key={metric}
                     label={metric === "cpu" ? "CPU" : metric === "memory" ? "RAM" : "Disk"}
+                    detail={
+                      metric === "memory" && machine.snapshot !== null
+                        ? formatByteUsage(
+                            machine.snapshot.memory.usedBytes,
+                            machine.snapshot.memory.totalBytes,
+                          )
+                        : undefined
+                    }
                     percent={machinePercent(machine, metric)}
                     thresholds={thresholds}
                   />
@@ -1614,7 +1659,7 @@ function ProcessAction({
       title={action.reason ?? `${action.label} ${row.name}`}
       type="button"
     >
-      {pending ? <Spinner className="size-3" /> : null}
+      {pending ? <Spinner className="size-3" /> : <EndProcessIcon />}
       {pending ? "Checking…" : action.label}
     </button>
   );

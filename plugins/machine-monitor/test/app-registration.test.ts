@@ -112,6 +112,10 @@ test("keeps the redesigned host cards flat, private, and keyboard-native", () =>
   assert.match(cardSource, /aria-current=\{selected \? "true" : undefined\}/u);
   assert.match(cardSource, /<CardMachineIdentity machine=\{machine\}/u);
   assert.match(cardSource, /<CardMetric/u);
+  assert.match(
+    cardSource,
+    /formatByteUsage\(\s*machine\.snapshot\.memory\.usedBytes,\s*machine\.snapshot\.memory\.totalBytes,?\s*\)/su,
+  );
   assert.match(cardSource, /<IpAddressValue/u);
   assert.match(cardSource, /const sampleLabel = cardSampleLabel\(machine\)/u);
   assert.match(cardSource, /<span className="sr-only">\{network\.accessibleText\}<\/span>/u);
@@ -126,6 +130,7 @@ test("keeps the redesigned host cards flat, private, and keyboard-native", () =>
   assert.match(css, /\.machine-monitor-host-card__status\[data-connected="false"\]/u);
   assert.match(css, /\.machine-monitor-host-card__network-lane/u);
   assert.match(css, /\.machine-monitor-host-card__network-direction/u);
+  assert.match(css, /\.machine-monitor-host-card__metric-detail/u);
   assert.match(css, /\.machine-monitor-host-card\[aria-current="true"\]/u);
 });
 
@@ -270,6 +275,11 @@ test("keeps process inspection on demand, target-bound, and privacy-safe", () =>
   assert.match(source, /onCloseAutoFocus/u);
   assert.match(source, /usePortalScopeProps/u);
   assert.match(source, /forceContext.*"persisted"/su);
+  assert.match(source, /function EndProcessIcon/u);
+  assert.match(
+    source,
+    /pending \? <Spinner className="size-3" \/> : <EndProcessIcon \/>/u,
+  );
   assert.doesNotMatch(source, /process\.command|process\.user|process\.path/u);
   const processesStart = source.indexOf("function ProcessesPanel()");
   const processesEnd = source.indexOf("function InspectorEmpty(", processesStart);
