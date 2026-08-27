@@ -15,9 +15,9 @@ import {
 import { providerMark } from "./provider-marks.ts";
 import {
   mergeLastKnownWindows,
-  sidebarUsagePrimarySummary,
-  sidebarUsagePrimaryWindow,
-  sidebarUsageSummary,
+  selectSidebarUsagePrimary,
+  sidebarUsagePrimaryAccessibleText,
+  sidebarUsagePrimarySelectionSummary,
   sidebarUsageWindows,
 } from "./sidebar-usage.ts";
 
@@ -299,7 +299,8 @@ function visibleSidebarFooterMenu(): HTMLElement | null {
 
 export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
   let root: HTMLLIElement | null = null;
-  let snapshot = readCachedSnapshot();
+  let lastKnownSnapshot = readCachedSnapshot();
+  let currentSnapshot: UsageSnapshot | null = null;
   let enabledProviderIds = readCachedProviderIds();
   let compactLimit = readCachedCompactLimit();
   let selectedProviderId: SidebarProviderId | null = null;
@@ -313,7 +314,9 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
   let disposed = false;
 
   const providerFor = (providerId: SidebarProviderId): ProviderUsage =>
-    snapshot?.providers.find((provider) => provider.id === providerId) ??
+    lastKnownSnapshot?.providers.find(
+      (provider) => provider.id === providerId,
+    ) ??
     emptyProvider(providerId);
 
   const render = (): void => {
@@ -342,6 +345,19 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
 
     for (const providerId of enabledProviderIds) {
       const provider = providerFor(providerId);
+      const currentProvider = currentSnapshot?.providers.find(
+        (candidate) => candidate.id === providerId,
+      );
+      const primary = selectSidebarUsagePrimary(
+        currentProvider,
+        provider,
+        compactLimit,
+      );
+      const primaryAccessibleText = sidebarUsagePrimaryAccessibleText(
+        provider.name,
+        compactLimit,
+        primary,
+      );
       const button = element("button", "usage-tracker-sidebar__provider");
       button.type = "button";
       button.dataset.provider = providerId;
@@ -350,20 +366,19 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         "aria-expanded",
         String(selectedProviderId === providerId),
       );
-      button.setAttribute("aria-label", `${provider.name}: ${sidebarUsageSummary(provider)}`);
-      button.title = `${provider.name} · ${sidebarUsageSummary(provider)} · Click for 5-hour and weekly details`;
+      button.setAttribute("aria-label", primaryAccessibleText);
+      button.title = primaryAccessibleText;
 
       const mark = element("span", "usage-tracker-sidebar__mark");
       mark.append(providerGlyph(providerId));
-      const primaryWindow = sidebarUsagePrimaryWindow(provider, compactLimit);
       const reading = element(
         "span",
         "usage-tracker-sidebar__reading",
-        isLoading && snapshot === null
+        isLoading && lastKnownSnapshot === null
           ? "…"
-          : sidebarUsagePrimarySummary(provider, compactLimit),
+          : sidebarUsagePrimarySelectionSummary(primary),
       );
-      button.append(mark, progressRail(primaryWindow), reading);
+      button.append(mark, progressRail(primary.window), reading);
       button.addEventListener("click", () => {
         selectedProviderId =
           selectedProviderId === providerId ? null : providerId;
@@ -438,8 +453,9 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
       if (!response.ok || !payload.ok || payload.result === undefined) {
         throw new Error(payload.error?.message ?? "Usage is unavailable.");
       }
-      snapshot = mergeSnapshot(payload.result, snapshot);
-      cacheSnapshot(snapshot);
+      currentSnapshot = payload.result;
+      lastKnownSnapshot = mergeSnapshot(currentSnapshot, lastKnownSnapshot);
+      cacheSnapshot(lastKnownSnapshot);
       lastLoadedAt = Date.now();
     } catch (error) {
       if (!requestController.signal.aborted) {

@@ -1,4 +1,8 @@
-import type { BbPluginApi, PluginRpcHandlers } from '@get-bb/plugin-sdk';
+import {
+  PLUGIN_CLI_OUTPUT_MAX_BYTES,
+  type BbPluginApi,
+  type PluginRpcHandlers
+} from '@get-bb/plugin-sdk';
 import {
   FILTER_PRESET_STATE_JSON_MAX_LENGTH,
   bbProjectIdSchema,
@@ -29,6 +33,7 @@ import {
   type TrackerProject,
   type WorkItem,
   type WorkItemDetail,
+  type WorkItemFilterField,
   type WorkSource,
   type WorkStatusOption,
   type WorkSourceStatus
@@ -87,6 +92,14 @@ const DEFAULT_PROJECT_CONFIG = {
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+export function formatFilterPresetCliJson(value: unknown): string {
+  const output = escapeExternalJsonOutput(JSON.stringify(value));
+  if (new TextEncoder().encode(output).byteLength > PLUGIN_CLI_OUTPUT_MAX_BYTES) {
+    throw new Error('Filter preset output exceeds the plugin CLI limit');
+  }
+  return output;
 }
 
 function issueDraftRequestKey(requestId: string): string {
@@ -329,8 +342,10 @@ export function parseTaskboardCliArguments(
 export function resolvePresetListSelection(
   preset: FilterPreset | undefined,
   explicitSource: WorkSource | undefined,
-  explicitQuery: string | undefined
+  explicitQuery: string | undefined,
+  enabledFilters: readonly WorkItemFilterField[]
 ) {
+  const enabled = new Set(enabledFilters);
   const presetSource =
     preset && preset.state.source !== 'all'
       ? preset.state.source
@@ -338,14 +353,19 @@ export function resolvePresetListSelection(
   return {
     source: explicitSource ?? presetSource,
     query: explicitQuery ?? preset?.state.query,
-    stateCategories: preset?.state.stateCategories ?? [],
+    stateCategories:
+      preset && enabled.has('state') ? preset.state.stateCategories : [],
     attributeFilters: preset
       ? {
-          statuses: preset.state.statuses,
-          assignees: preset.state.assignees,
-          priorities: preset.state.priorities,
-          projects: preset.state.externalProjects,
-          labels: preset.state.labels
+          statuses: enabled.has('status') ? preset.state.statuses : [],
+          assignees: enabled.has('assignee') ? preset.state.assignees : [],
+          priorities: enabled.has('priority')
+            ? preset.state.priorities
+            : [],
+          projects: enabled.has('project')
+            ? preset.state.externalProjects
+            : [],
+          labels: enabled.has('labels') ? preset.state.labels : []
         }
       : null
   };
@@ -710,11 +730,10 @@ export default async function plugin(bb: BbPluginApi) {
     }
   }
 
-  async function assertPresetStateMatchesCurrentProvider(
+  function assertPresetStateMatchesCurrentProvider(
     projectId: string,
     state: FilterPreset['state']
-  ): Promise<void> {
-    await waitForMutations(projectId, SOURCES);
+  ): void {
     const provider = projectConfig(projectId, true).source;
     if (state.provider !== provider) {
       throw new Error(
@@ -723,23 +742,41 @@ export default async function plugin(bb: BbPluginApi) {
     }
   }
 
-  async function assertPresetWriteMatchesCurrentProvider(
+  function assertPresetWriteMatchesCurrentProvider(
     projectId: string,
     id: string | undefined,
     state: FilterPreset['state']
-  ): Promise<void> {
+  ): void {
     if (id) {
       const existing = store
         .listFilterPresets(projectId)
         .find(preset => preset.id === id);
-      if (
-        existing &&
-        JSON.stringify(existing.state) === JSON.stringify(state)
-      ) {
-        return;
+      if (!existing) throw new Error(`Unknown filter preset: ${id}`);
+      if (JSON.stringify(existing.state) !== JSON.stringify(state)) {
+        throw new Error('Renaming a filter preset cannot change its state');
       }
+      return;
     }
-    await assertPresetStateMatchesCurrentProvider(projectId, state);
+    assertPresetStateMatchesCurrentProvider(projectId, state);
+  }
+
+  function saveFilterPresetLinearized(input: {
+    projectId: string;
+    id?: string;
+    name: string;
+    state: FilterPreset['state'];
+  }): Promise<{ preset: FilterPreset; presets: FilterPreset[] }> {
+    return enqueueMutation(input.projectId, SOURCES, async () => {
+      assertPresetWriteMatchesCurrentProvider(
+        input.projectId,
+        input.id,
+        input.state
+      );
+      const preset = store.saveFilterPreset(input);
+      const presets = store.listFilterPresets(input.projectId);
+      publishFilterPresetsChanged(input.projectId);
+      return { preset, presets };
+    });
   }
 
   async function fallbackGithubRepos(projectId: string): Promise<string[]> {
@@ -1980,20 +2017,12 @@ export default async function plugin(bb: BbPluginApi) {
     },
     async saveFilterPreset(input) {
       await assertProjectExists(input.projectId);
-      await assertPresetWriteMatchesCurrentProvider(
-        input.projectId,
-        input.id,
-        input.state
-      );
-      const preset = store.saveFilterPreset({
+      return saveFilterPresetLinearized({
         projectId: input.projectId,
         ...(input.id ? { id: input.id } : {}),
         name: input.name,
         state: input.state
       });
-      const presets = store.listFilterPresets(input.projectId);
-      publishFilterPresetsChanged(input.projectId);
-      return { preset, presets };
     },
     async deleteFilterPreset(input) {
       await assertProjectExists(input.projectId);
@@ -2268,7 +2297,8 @@ export default async function plugin(bb: BbPluginApi) {
           const selection = resolvePresetListSelection(
             preset,
             parsedSource?.data,
-            args.query
+            args.query,
+            store.projectBoardSettings(project.id).enabledFilters
           );
           const { source, query } = selection;
           if (source) {
@@ -2524,9 +2554,7 @@ export default async function plugin(bb: BbPluginApi) {
             return {
               exitCode: 0,
               stdout: args.json
-                ? escapeExternalJsonOutput(
-                    JSON.stringify({ presets }, null, 2)
-                  )
+                ? formatFilterPresetCliJson({ presets })
                 : presets.length > 0
                   ? presets
                       .map(item => escapeExternalInlineText(item.name))
@@ -2555,22 +2583,15 @@ export default async function plugin(bb: BbPluginApi) {
                 '--from-state is not a valid project browse preference state'
               );
             }
-            await assertPresetStateMatchesCurrentProvider(
-              project.id,
-              parsedState.data
-            );
-            const preset = store.saveFilterPreset({
+            const { preset } = await saveFilterPresetLinearized({
               projectId: project.id,
               name: rest[0]!,
               state: parsedState.data
             });
-            publishFilterPresetsChanged(project.id);
             return {
               exitCode: 0,
               stdout: args.json
-                ? escapeExternalJsonOutput(
-                    JSON.stringify({ preset }, null, 2)
-                  )
+                ? formatFilterPresetCliJson({ preset })
                 : `Saved preset "${escapeExternalInlineText(preset.name)}"`
             };
           }
@@ -2583,19 +2604,16 @@ export default async function plugin(bb: BbPluginApi) {
               );
             }
             const existing = resolvePresetByName(project.id, rest[0]!);
-            const preset = store.saveFilterPreset({
+            const { preset } = await saveFilterPresetLinearized({
               projectId: project.id,
               id: existing.id,
               name: rest[1]!,
               state: existing.state
             });
-            publishFilterPresetsChanged(project.id);
             return {
               exitCode: 0,
               stdout: args.json
-                ? escapeExternalJsonOutput(
-                    JSON.stringify({ preset }, null, 2)
-                  )
+                ? formatFilterPresetCliJson({ preset })
                 : `Renamed preset "${escapeExternalInlineText(existing.name)}" to "${escapeExternalInlineText(preset.name)}"`
             };
           }
@@ -2613,9 +2631,7 @@ export default async function plugin(bb: BbPluginApi) {
             return {
               exitCode: 0,
               stdout: args.json
-                ? escapeExternalJsonOutput(
-                    JSON.stringify({ presets }, null, 2)
-                  )
+                ? formatFilterPresetCliJson({ presets })
                 : `Deleted preset "${escapeExternalInlineText(existing.name)}"`
             };
           }

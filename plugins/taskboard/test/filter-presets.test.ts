@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { defaultBrowsePreferences } from '../browse-preferences.ts';
+import {
+  defaultBrowsePreferences,
+  type BrowsePreferences
+} from '../browse-preferences.ts';
 import {
   FILTER_PRESET_LIMIT,
+  FILTER_PRESET_STATE_JSON_MAX_LENGTH,
   filterPresetIdSchema,
   filterPresetNameSchema,
   filterPresetOrderSchema,
@@ -10,11 +14,37 @@ import {
   filterPresetSchema,
   filterPresetStateSchema,
   normalizePresetName,
-  resolvePresetOrder
+  resolvePresetOrder,
+  serializeFilterPresetState
 } from '../filter-presets.ts';
 
 function githubPreferences() {
   return defaultBrowsePreferences({ provider: 'github' });
+}
+
+function maximumUtf8Preferences(): BrowsePreferences {
+  const values = Array.from({ length: 100 }, (_, index) =>
+    `${'界'.repeat(497)}${String(index).padStart(3, '0')}`
+  );
+  return {
+    ...githubPreferences(),
+    source: 'github' as const,
+    view: 'kanban' as const,
+    query: '界'.repeat(500),
+    stateCategories: [
+      'backlog',
+      'todo',
+      'in_progress',
+      'done',
+      'canceled'
+    ],
+    statuses: values,
+    assignees: values,
+    priorities: values,
+    externalProjects: values,
+    labels: values,
+    collapsedGroups: Object.fromEntries(values.map(value => [value, true]))
+  };
 }
 
 test('accepts a complete strict project browse preference snapshot', () => {
@@ -119,6 +149,60 @@ test('rejects control characters in preset identity and state', () => {
       assignees: ['Mateo\n']
     })
   );
+});
+
+test('rejects oversized adversarial containers before inspecting elements', () => {
+  let indexedReads = 0;
+  const oversizedLabels = new Proxy([] as string[], {
+    get(target, property, receiver) {
+      if (property === 'length') return 1_000_000;
+      if (typeof property === 'string' && /^\d+$/u.test(property)) {
+        indexedReads += 1;
+      }
+      return Reflect.get(target, property, receiver);
+    }
+  });
+  assert.throws(() =>
+    filterPresetStateSchema.parse({
+      ...githubPreferences(),
+      labels: oversizedLabels
+    })
+  );
+  assert.equal(indexedReads, 0);
+
+  let queryGetterCalled = false;
+  const accessorState = { ...githubPreferences() };
+  Object.defineProperty(accessorState, 'query', {
+    enumerable: true,
+    get() {
+      queryGetterCalled = true;
+      return 'unsafe';
+    }
+  });
+  assert.throws(() => filterPresetStateSchema.parse(accessorState));
+  assert.equal(queryGetterCalled, false);
+
+  let orderIndexedReads = 0;
+  const oversizedOrder = new Proxy([] as string[], {
+    get(target, property, receiver) {
+      if (property === 'length') return 100_000;
+      if (typeof property === 'string' && /^\d+$/u.test(property)) {
+        orderIndexedReads += 1;
+      }
+      return Reflect.get(target, property, receiver);
+    }
+  });
+  assert.throws(() => filterPresetOrderSchema.parse(oversizedOrder));
+  assert.equal(orderIndexedReads, 0);
+});
+
+test('accepts the maximum valid browse state inside the UTF-8 envelope', () => {
+  const largestState = maximumUtf8Preferences();
+  const largestSerialized = serializeFilterPresetState(largestState);
+  const byteLength = new TextEncoder().encode(largestSerialized).byteLength;
+  assert.ok(byteLength <= FILTER_PRESET_STATE_JSON_MAX_LENGTH);
+  assert.ok(byteLength > 890_000);
+  assert.deepEqual(filterPresetStateSchema.parse(largestState), largestState);
 });
 
 test('normalizes unique names without depending on locale', () => {

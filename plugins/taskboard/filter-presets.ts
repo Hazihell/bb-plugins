@@ -3,14 +3,34 @@ import {
   browsePreferencesV1Schema,
   type BrowsePreferences
 } from './browse-preferences.ts';
-import { bbProjectIdSchema } from './credential-contract.ts';
 
 export const FILTER_PRESET_NAME_MAX_LENGTH = 60;
 export const FILTER_PRESET_NORMALIZED_NAME_MAX_LENGTH = 240;
 export const FILTER_PRESET_ID_MAX_LENGTH = 100;
 export const FILTER_PRESET_PROJECT_ID_MAX_LENGTH = 500;
 export const FILTER_PRESET_LIMIT = 50;
-export const FILTER_PRESET_STATE_JSON_MAX_LENGTH = 1_000_000;
+export const FILTER_PRESET_STATE_JSON_MAX_LENGTH = 910_000;
+export const FILTER_PRESET_PROJECT_STATE_BYTES_MAX = 950_000;
+
+const FILTER_PRESET_VALUE_LIMIT = 100;
+const FILTER_PRESET_COLLAPSED_GROUP_LIMIT = 100;
+const FILTER_PRESET_VALUE_MAX_LENGTH = 500;
+const FILTER_PRESET_QUERY_MAX_LENGTH = 500;
+const FILTER_PRESET_STATE_CATEGORY_LIMIT = 5;
+const FILTER_PRESET_TOP_LEVEL_KEYS = new Set([
+  'version',
+  'provider',
+  'source',
+  'view',
+  'query',
+  'stateCategories',
+  'statuses',
+  'assignees',
+  'priorities',
+  'externalProjects',
+  'labels',
+  'collapsedGroups'
+]);
 
 const unsafeControlCharacters =
   /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u2028-\u202e\u2066-\u2069]/u;
@@ -19,17 +39,36 @@ function hasUnsafeControlCharacters(value: string): boolean {
   return unsafeControlCharacters.test(value);
 }
 
-export const filterPresetProjectIdSchema = bbProjectIdSchema
+export const filterPresetProjectIdSchema = z
+  .string()
+  .startsWith('proj_')
   .min(6)
   .max(FILTER_PRESET_PROJECT_ID_MAX_LENGTH)
-  .refine(value => !hasUnsafeControlCharacters(value), {
+  .refine(
+    value =>
+      value.length > FILTER_PRESET_PROJECT_ID_MAX_LENGTH ||
+      !hasUnsafeControlCharacters(value),
+    {
     message: 'Project id cannot contain control characters'
-  });
+    }
+  );
 
 export const filterPresetIdSchema = z
   .string()
-  .refine(value => !hasUnsafeControlCharacters(value), {
-    message: 'Preset id cannot contain control characters'
+  .superRefine((value, context) => {
+    if (value.length > FILTER_PRESET_ID_MAX_LENGTH) {
+      context.addIssue({
+        code: 'custom',
+        message: `Preset id must contain at most ${FILTER_PRESET_ID_MAX_LENGTH} characters`
+      });
+      return;
+    }
+    if (hasUnsafeControlCharacters(value)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Preset id cannot contain control characters'
+      });
+    }
   })
   .trim()
   .min(1)
@@ -37,61 +76,232 @@ export const filterPresetIdSchema = z
 
 export const filterPresetNameSchema = z
   .string()
-  .refine(value => !hasUnsafeControlCharacters(value), {
-    message: 'Preset name cannot contain control characters'
+  .superRefine((value, context) => {
+    if (value.length > FILTER_PRESET_NAME_MAX_LENGTH) {
+      context.addIssue({
+        code: 'custom',
+        message: `Preset name must contain at most ${FILTER_PRESET_NAME_MAX_LENGTH} characters`
+      });
+      return;
+    }
+    if (hasUnsafeControlCharacters(value)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Preset name cannot contain control characters'
+      });
+    }
   })
   .trim()
   .min(1)
   .max(FILTER_PRESET_NAME_MAX_LENGTH);
 
+function inspectBoundedString(
+  value: unknown,
+  maxLength: number,
+  path: Array<string | number>,
+  context: z.core.$RefinementCtx<unknown>
+): void {
+  if (typeof value !== 'string') return;
+  if (value.length > maxLength) {
+    context.addIssue({
+      code: 'custom',
+      path,
+      message: `String must contain at most ${maxLength} characters`
+    });
+    return;
+  }
+  if (hasUnsafeControlCharacters(value)) {
+    context.addIssue({
+      code: 'custom',
+      path,
+      message: 'Preset state cannot contain control characters'
+    });
+  }
+}
+
+function ownDataValue(
+  object: Record<string, unknown>,
+  key: string,
+  context: z.core.$RefinementCtx<unknown>
+): unknown {
+  const descriptor = Object.getOwnPropertyDescriptor(object, key);
+  if (!descriptor) return undefined;
+  if (!('value' in descriptor)) {
+    context.addIssue({
+      code: 'custom',
+      path: [key],
+      message: 'Preset state must contain plain data properties'
+    });
+    return undefined;
+  }
+  return descriptor.value;
+}
+
+function inspectBoundedStringArray(
+  object: Record<string, unknown>,
+  key: string,
+  maxItems: number,
+  context: z.core.$RefinementCtx<unknown>
+): void {
+  const value = ownDataValue(object, key, context);
+  if (!Array.isArray(value)) return;
+  if (value.length > maxItems) {
+    context.addIssue({
+      code: 'custom',
+      path: [key],
+      message: `Array must contain at most ${maxItems} values`
+    });
+    return;
+  }
+  for (let index = 0; index < value.length; index += 1) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+    if (descriptor && !('value' in descriptor)) {
+      context.addIssue({
+        code: 'custom',
+        path: [key, index],
+        message: 'Preset state must contain plain data properties'
+      });
+      continue;
+    }
+    inspectBoundedString(
+      descriptor?.value,
+      FILTER_PRESET_VALUE_MAX_LENGTH,
+      [key, index],
+      context
+    );
+  }
+}
+
 const controlFreePresetStateInputSchema = z.unknown().superRefine(
   (input, context) => {
-    const pending: Array<{
-      value: unknown;
-      path: Array<string | number>;
-    }> = [{ value: input, path: [] }];
-    const seen = new WeakSet<object>();
-    let inspected = 0;
-    while (pending.length > 0) {
-      const current = pending.pop()!;
-      inspected += 1;
-      if (inspected > 2_000) {
+    if (
+      typeof input !== 'object' ||
+      input === null ||
+      Array.isArray(input)
+    ) {
+      return;
+    }
+    const record = input as Record<string, unknown>;
+    const prototype = Object.getPrototypeOf(record);
+    if (prototype !== Object.prototype && prototype !== null) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Preset state must be a plain object'
+      });
+      return;
+    }
+    let topLevelKeyCount = 0;
+    for (const key in record) {
+      topLevelKeyCount += 1;
+      if (
+        topLevelKeyCount > FILTER_PRESET_TOP_LEVEL_KEYS.size ||
+        !Object.hasOwn(record, key) ||
+        !FILTER_PRESET_TOP_LEVEL_KEYS.has(key)
+      ) {
         context.addIssue({
           code: 'custom',
-          message: 'Preset state is too complex'
+          message: 'Preset state contains unknown or inherited fields'
         });
         return;
       }
-      if (typeof current.value === 'string') {
-        if (hasUnsafeControlCharacters(current.value)) {
-          context.addIssue({
-            code: 'custom',
-            path: current.path,
-            message: 'Preset state cannot contain control characters'
-          });
-        }
-        continue;
-      }
-      if (typeof current.value !== 'object' || current.value === null) {
-        continue;
-      }
-      if (seen.has(current.value)) continue;
-      seen.add(current.value);
-      if (Array.isArray(current.value)) {
-        current.value.forEach((value, index) => {
-          pending.push({ value, path: [...current.path, index] });
+    }
+
+    ownDataValue(record, 'version', context);
+    inspectBoundedString(
+      ownDataValue(record, 'provider', context),
+      10,
+      ['provider'],
+      context
+    );
+    inspectBoundedString(
+      ownDataValue(record, 'source', context),
+      10,
+      ['source'],
+      context
+    );
+    inspectBoundedString(
+      ownDataValue(record, 'view', context),
+      10,
+      ['view'],
+      context
+    );
+    inspectBoundedString(
+      ownDataValue(record, 'query', context),
+      FILTER_PRESET_QUERY_MAX_LENGTH,
+      ['query'],
+      context
+    );
+    inspectBoundedStringArray(
+      record,
+      'stateCategories',
+      FILTER_PRESET_STATE_CATEGORY_LIMIT,
+      context
+    );
+    for (const key of [
+      'statuses',
+      'assignees',
+      'priorities',
+      'externalProjects',
+      'labels'
+    ]) {
+      inspectBoundedStringArray(
+        record,
+        key,
+        FILTER_PRESET_VALUE_LIMIT,
+        context
+      );
+    }
+
+    const collapsedGroups = ownDataValue(
+      record,
+      'collapsedGroups',
+      context
+    );
+    if (
+      typeof collapsedGroups === 'object' &&
+      collapsedGroups !== null &&
+      !Array.isArray(collapsedGroups)
+    ) {
+      const prototype = Object.getPrototypeOf(collapsedGroups);
+      if (prototype !== Object.prototype && prototype !== null) {
+        context.addIssue({
+          code: 'custom',
+          path: ['collapsedGroups'],
+          message: 'Collapse overrides must be a plain object'
         });
-        continue;
+        return;
       }
-      for (const [key, value] of Object.entries(current.value)) {
-        if (hasUnsafeControlCharacters(key)) {
+      let groupCount = 0;
+      for (const key in collapsedGroups) {
+        groupCount += 1;
+        if (
+          groupCount > FILTER_PRESET_COLLAPSED_GROUP_LIMIT ||
+          !Object.hasOwn(collapsedGroups, key)
+        ) {
           context.addIssue({
             code: 'custom',
-            path: [...current.path, key],
-            message: 'Preset state cannot contain control characters'
+            path: ['collapsedGroups'],
+            message: `At most ${FILTER_PRESET_COLLAPSED_GROUP_LIMIT} collapse overrides are allowed`
+          });
+          return;
+        }
+        inspectBoundedString(
+          key,
+          FILTER_PRESET_VALUE_MAX_LENGTH,
+          ['collapsedGroups', key],
+          context
+        );
+        const descriptor = Object.getOwnPropertyDescriptor(
+          collapsedGroups,
+          key
+        );
+        if (descriptor && !('value' in descriptor)) {
+          context.addIssue({
+            code: 'custom',
+            path: ['collapsedGroups', key],
+            message: 'Preset state must contain plain data properties'
           });
         }
-        pending.push({ value, path: [...current.path, key] });
       }
     }
   }
@@ -126,9 +336,20 @@ export const filterPresetSchema = z
   .strict();
 export type FilterPreset = z.infer<typeof filterPresetSchema>;
 
-export const filterPresetOrderSchema = z
-  .array(filterPresetIdSchema)
-  .max(FILTER_PRESET_LIMIT);
+const filterPresetOrderInputSchema = z.unknown().superRefine(
+  (input, context) => {
+    if (Array.isArray(input) && input.length > FILTER_PRESET_LIMIT) {
+      context.addIssue({
+        code: 'custom',
+        message: `Preset order must contain at most ${FILTER_PRESET_LIMIT} ids`
+      });
+    }
+  }
+);
+
+export const filterPresetOrderSchema = filterPresetOrderInputSchema.pipe(
+  z.array(filterPresetIdSchema).max(FILTER_PRESET_LIMIT)
+);
 
 /**
  * Persisted uniqueness must not vary with the host locale. NFKC also makes
@@ -174,7 +395,10 @@ export function resolvePresetOrder(
 
 export function serializeFilterPresetState(state: BrowsePreferences): string {
   const serialized = JSON.stringify(filterPresetStateSchema.parse(state));
-  if (serialized.length > FILTER_PRESET_STATE_JSON_MAX_LENGTH) {
+  if (
+    new TextEncoder().encode(serialized).byteLength >
+    FILTER_PRESET_STATE_JSON_MAX_LENGTH
+  ) {
     throw new Error('Filter preset state is too large');
   }
   return serialized;

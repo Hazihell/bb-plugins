@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import {
   FILTER_PRESET_LIMIT,
+  FILTER_PRESET_PROJECT_STATE_BYTES_MAX,
   defaultProjectBoardSettings,
   filterPresetIdSchema,
   filterPresetNameSchema,
@@ -71,6 +72,7 @@ interface FilterPresetRow {
   id: string;
   bb_project_id: string;
   name: string;
+  name_normalized: string;
   filters_json: string;
   position: number;
 }
@@ -148,7 +150,22 @@ function filterPresetFromRow(row: FilterPresetRow): FilterPreset | null {
     state,
     position: row.position
   });
-  return parsed.success ? parsed.data : null;
+  if (!parsed.success) return null;
+  let normalizedName: string;
+  try {
+    normalizedName = normalizePresetName(parsed.data.name);
+  } catch {
+    return null;
+  }
+  if (
+    parsed.data.id !== row.id ||
+    parsed.data.projectId !== row.bb_project_id ||
+    parsed.data.name !== row.name ||
+    normalizedName !== row.name_normalized
+  ) {
+    return null;
+  }
+  return parsed.data;
 }
 
 function escapeLike(value: string): string {
@@ -367,7 +384,7 @@ export function createWorkItemStore(bb: BbPluginApi) {
     `,
     `
       CREATE TABLE project_filter_presets (
-        id TEXT PRIMARY KEY
+        id TEXT NOT NULL PRIMARY KEY
           CHECK (length(id) BETWEEN 1 AND 100),
         bb_project_id TEXT NOT NULL
           CHECK (
@@ -379,7 +396,9 @@ export function createWorkItemStore(bb: BbPluginApi) {
         name_normalized TEXT NOT NULL
           CHECK (length(name_normalized) BETWEEN 1 AND 240),
         filters_json TEXT NOT NULL
-          CHECK (length(filters_json) BETWEEN 1 AND 1000000),
+          CHECK (
+            length(CAST(filters_json AS BLOB)) BETWEEN 1 AND 910000
+          ),
         position INTEGER NOT NULL
           CHECK (position >= 0 AND position < 50),
         created_at TEXT NOT NULL,
@@ -502,16 +521,37 @@ export function createWorkItemStore(bb: BbPluginApi) {
   `);
 
   const readFilterPresets = db.prepare<[string], FilterPresetRow>(`
-    SELECT id, bb_project_id, name, filters_json, position
+    SELECT
+      id, bb_project_id, name, name_normalized, filters_json, position
     FROM project_filter_presets
     WHERE bb_project_id = ?
     ORDER BY position ASC, created_at ASC, id ASC
+    LIMIT ${FILTER_PRESET_LIMIT + 1}
   `);
 
   const readFilterPreset = db.prepare<[string, string], FilterPresetRow>(`
-    SELECT id, bb_project_id, name, filters_json, position
+    SELECT
+      id, bb_project_id, name, name_normalized, filters_json, position
     FROM project_filter_presets
     WHERE bb_project_id = ? AND id = ?
+  `);
+
+  const readFilterPresetStateBytes = db.prepare<
+    [string],
+    { total_bytes: number }
+  >(`
+    SELECT COALESCE(SUM(length(CAST(filters_json AS BLOB))), 0) AS total_bytes
+    FROM project_filter_presets
+    WHERE bb_project_id = ?
+  `);
+
+  const readFilterPresetStateBytesExcluding = db.prepare<
+    [string, string],
+    { total_bytes: number }
+  >(`
+    SELECT COALESCE(SUM(length(CAST(filters_json AS BLOB))), 0) AS total_bytes
+    FROM project_filter_presets
+    WHERE bb_project_id = ? AND id <> ?
   `);
 
   const clearSourceTransaction = db.transaction(
@@ -802,6 +842,20 @@ export function createWorkItemStore(bb: BbPluginApi) {
       }
 
       return db.transaction(() => {
+        const existingStateBytes = id
+          ? (readFilterPresetStateBytesExcluding.get(projectId, id)
+              ?.total_bytes ?? 0)
+          : (readFilterPresetStateBytes.get(projectId)?.total_bytes ?? 0);
+        const nextStateBytes = new TextEncoder().encode(serializedState).byteLength;
+        if (
+          existingStateBytes + nextStateBytes >
+          FILTER_PRESET_PROJECT_STATE_BYTES_MAX
+        ) {
+          throw new Error(
+            `Filter presets for this project exceed the ${FILTER_PRESET_PROJECT_STATE_BYTES_MAX}-byte limit`
+          );
+        }
+
         const conflict = db
           .prepare<[string, string], { id: string; name: string }>(
             `
@@ -899,6 +953,9 @@ export function createWorkItemStore(bb: BbPluginApi) {
         // position, so leaving it out here would let it collide with a
         // visible row forever instead of just until the next delete.
         const remaining = readFilterPresets.all(parsedProjectId);
+        if (remaining.length > FILTER_PRESET_LIMIT) {
+          return visibleFilterPresets(parsedProjectId);
+        }
         const now = new Date().toISOString();
         const updatePosition = db.prepare<[number, string, string, string]>(
           `
@@ -922,6 +979,9 @@ export function createWorkItemStore(bb: BbPluginApi) {
       const parsedIds = filterPresetOrderSchema.parse(ids);
       return db.transaction(() => {
         const rows = readFilterPresets.all(parsedProjectId);
+        if (rows.length > FILTER_PRESET_LIMIT) {
+          throw new Error('Stored filter preset limit exceeded');
+        }
         // A client can only ever request an order for presets it was
         // shown, and listFilterPresets hides rows that fail to parse. So
         // validate against, and renumber, only the parseable subset —

@@ -3,8 +3,17 @@ import { existsSync } from 'node:fs';
 import { registerHooks } from 'node:module';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { PLUGIN_CLI_OUTPUT_MAX_BYTES } from '@get-bb/plugin-sdk';
 import Database from 'better-sqlite3';
-import { defaultBrowsePreferences } from '../browse-preferences.ts';
+import {
+  defaultBrowsePreferences,
+  type BrowsePreferences
+} from '../browse-preferences.ts';
+import {
+  FILTER_PRESET_PROJECT_STATE_BYTES_MAX,
+  FILTER_PRESET_STATE_JSON_MAX_LENGTH,
+  serializeFilterPresetState
+} from '../filter-presets.ts';
 
 registerHooks({
   resolve(specifier, context, nextResolve) {
@@ -23,6 +32,7 @@ registerHooks({
 
 const { createWorkItemStore } = await import('../store.ts');
 const {
+  formatFilterPresetCliJson,
   parseTaskboardCliArguments,
   resolvePresetListSelection
 } = await import('../server.ts');
@@ -42,7 +52,7 @@ function createStore(): { db: Database.Database; store: WorkItemStore } {
   return { db, store: createWorkItemStore(bb) };
 }
 
-function state(provider: 'github' | 'linear' = 'github') {
+function state(provider: 'github' | 'linear' = 'github'): BrowsePreferences {
   return {
     ...defaultBrowsePreferences({ provider }),
     query: 'security',
@@ -57,6 +67,30 @@ function state(provider: 'github' | 'linear' = 'github') {
   };
 }
 
+function maximumUtf8State(): BrowsePreferences {
+  const values = Array.from({ length: 100 }, (_, index) =>
+    `${'界'.repeat(497)}${String(index).padStart(3, '0')}`
+  );
+  return {
+    ...state(),
+    source: 'github' as const,
+    query: '界'.repeat(500),
+    stateCategories: [
+      'backlog',
+      'todo',
+      'in_progress',
+      'done',
+      'canceled'
+    ],
+    statuses: values,
+    assignees: values,
+    priorities: values,
+    externalProjects: values,
+    labels: values,
+    collapsedGroups: Object.fromEntries(values.map(value => [value, true]))
+  };
+}
+
 test('appends only the preset migration and round-trips complete state', () => {
   const { db, store } = createStore();
   try {
@@ -66,6 +100,13 @@ test('appends only the preset migration and round-trips complete state', () => {
       .map(row => (row as { name: string }).name);
     assert.ok(tables.includes('project_filter_presets'));
     assert.equal(tables.includes('project_filter_state'), false);
+    const tableSql = db
+      .prepare(
+        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'project_filter_presets'"
+      )
+      .get() as { sql: string };
+    assert.match(tableSql.sql, /id TEXT NOT NULL PRIMARY KEY/u);
+    assert.match(tableSql.sql, /910000/u);
 
     const saved = store.saveFilterPreset({
       projectId: 'proj_alpha',
@@ -140,6 +181,52 @@ test('contains corrupt rows and makes reorder exact and atomic', () => {
       'corrupt',
       '{}',
       3,
+      '2026-01-01T00:00:00.000Z',
+      '2026-01-01T00:00:00.000Z'
+    );
+    const serializedState = serializeFilterPresetState(state());
+    db.prepare(
+      `INSERT INTO project_filter_presets (
+         id, bb_project_id, name, name_normalized, filters_json, position,
+         created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      'fp_trimmed ',
+      'proj_alpha',
+      'Trimmed ',
+      'trimmed',
+      serializedState,
+      4,
+      '2026-01-01T00:00:00.000Z',
+      '2026-01-01T00:00:00.000Z'
+    );
+    db.prepare(
+      `INSERT INTO project_filter_presets (
+         id, bb_project_id, name, name_normalized, filters_json, position,
+         created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      'fp_bad_normalized',
+      'proj_alpha',
+      'Canonical',
+      'not-canonical',
+      serializedState,
+      5,
+      '2026-01-01T00:00:00.000Z',
+      '2026-01-01T00:00:00.000Z'
+    );
+    db.prepare(
+      `INSERT INTO project_filter_presets (
+         id, bb_project_id, name, name_normalized, filters_json, position,
+         created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      'fp_expanded_name',
+      'proj_alpha',
+      '\ufdfa'.repeat(14),
+      'expanded-name',
+      serializedState,
+      6,
       '2026-01-01T00:00:00.000Z',
       '2026-01-01T00:00:00.000Z'
     );
@@ -233,6 +320,52 @@ test('enforces the per-project preset limit without blocking updates', () => {
   }
 });
 
+test('bounds reads and fails closed when raw rows exceed the preset limit', () => {
+  const { db, store } = createStore();
+  try {
+    Array.from({ length: 50 }, (_, index) =>
+      store.saveFilterPreset({
+        projectId: 'proj_alpha',
+        name: `Preset ${index}`,
+        state: state()
+      })
+    );
+    db.prepare(
+      `INSERT INTO project_filter_presets (
+         id, bb_project_id, name, name_normalized, filters_json, position,
+         created_at, updated_at
+       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      'fp_overflow',
+      'proj_alpha',
+      'Overflow',
+      'overflow',
+      '{}',
+      0,
+      '2025-01-01T00:00:00.000Z',
+      '2025-01-01T00:00:00.000Z'
+    );
+
+    const visible = store.listFilterPresets('proj_alpha');
+    assert.equal(visible.length, 50);
+    assert.throws(() =>
+      store.reorderFilterPresets(
+        'proj_alpha',
+        visible.map(preset => preset.id)
+      )
+    );
+    assert.throws(() =>
+      store.saveFilterPreset({
+        projectId: 'proj_alpha',
+        name: 'Blocked by overflow',
+        state: state()
+      })
+    );
+  } finally {
+    db.close();
+  }
+});
+
 test('rejects --from-state on wrong verbs and preserves explicit precedence', () => {
   assert.throws(() =>
     parseTaskboardCliArguments('presets', [
@@ -265,7 +398,8 @@ test('rejects --from-state on wrong verbs and preserves explicit precedence', ()
   const selection = resolvePresetListSelection(
     preset,
     'github',
-    ''
+    '',
+    ['state', 'status', 'assignee', 'priority', 'project', 'labels']
   );
   assert.equal(selection.source, 'github');
   assert.equal(selection.query, '');
@@ -276,4 +410,85 @@ test('rejects --from-state on wrong verbs and preserves explicit precedence', ()
     projects: ['Taskboard'],
     labels: ['backend']
   });
+
+  const disabled = resolvePresetListSelection(
+    preset,
+    undefined,
+    undefined,
+    ['assignee']
+  );
+  assert.deepEqual(disabled.stateCategories, []);
+  assert.deepEqual(disabled.attributeFilters, {
+    statuses: [],
+    assignees: ['Mateo'],
+    priorities: [],
+    projects: [],
+    labels: []
+  });
+});
+
+test('keeps maximum aggregate preset JSON compact and under the CLI cap', () => {
+  const nearMaxState = maximumUtf8State();
+  const nearMaxSerialized = serializeFilterPresetState(nearMaxState);
+  assert.ok(new TextEncoder().encode(nearMaxSerialized).byteLength > 890_000);
+
+  const presets = [{
+    id: 'fp_max',
+    projectId: `proj_${'p'.repeat(495)}`,
+    name: 'Maximum state',
+    state: nearMaxState,
+    position: 0
+  }];
+  const output = formatFilterPresetCliJson({ presets });
+  const outputBytes = new TextEncoder().encode(output).byteLength;
+  assert.ok(outputBytes > 700_000);
+  assert.ok(outputBytes <= PLUGIN_CLI_OUTPUT_MAX_BYTES);
+  assert.equal(output.includes('\n'), false);
+  assert.throws(() =>
+    formatFilterPresetCliJson({
+      value: 'x'.repeat(PLUGIN_CLI_OUTPUT_MAX_BYTES + 1)
+    })
+  );
+});
+
+test('enforces a transactional aggregate state-byte limit per project', () => {
+  const { db, store } = createStore();
+  try {
+    const maximum = maximumUtf8State();
+    const maximumBytes = new TextEncoder().encode(
+      serializeFilterPresetState(maximum)
+    ).byteLength;
+    assert.ok(maximumBytes <= FILTER_PRESET_STATE_JSON_MAX_LENGTH);
+    assert.ok(maximumBytes < FILTER_PRESET_PROJECT_STATE_BYTES_MAX);
+
+    const saved = store.saveFilterPreset({
+      projectId: 'proj_aggregate',
+      name: 'Maximum',
+      state: maximum
+    });
+    const medium = {
+      ...state(),
+      labels: Array.from({ length: 100 }, (_, index) =>
+        `${String(index).padStart(3, '0')}${'x'.repeat(497)}`
+      )
+    };
+    assert.throws(() =>
+      store.saveFilterPreset({
+        projectId: 'proj_aggregate',
+        name: 'Too much aggregate state',
+        state: medium
+      })
+    );
+    assert.equal(store.listFilterPresets('proj_aggregate').length, 1);
+
+    const renamed = store.saveFilterPreset({
+      projectId: 'proj_aggregate',
+      id: saved.id,
+      name: 'Maximum renamed',
+      state: maximum
+    });
+    assert.equal(renamed.name, 'Maximum renamed');
+  } finally {
+    db.close();
+  }
 });
