@@ -17,6 +17,8 @@ import {
 } from "../lib/usage.ts";
 import {
   mergeLastKnownWindows,
+  selectSidebarUsagePrimary,
+  sidebarUsagePrimaryAccessibleText,
   sidebarUsagePrimarySummary,
   sidebarUsagePrimaryWindow,
   sidebarUsageSummary,
@@ -233,6 +235,133 @@ test("falls back when the configured compact window is unavailable", () => {
   assert.equal(sidebarUsagePrimarySummary(fiveHourOnly, "Weekly"), "120%");
 });
 
+test("prefers a fresh alternative before merged last-known compact windows", () => {
+  const previous = normalizeUsage(
+    healthyResponse(),
+    { id: null, name: null },
+  ).providers[0]!;
+  const weekly = sidebarUsageWindows(previous).weekly!;
+  const fiveHour = sidebarUsageWindows(previous).fiveHour!;
+
+  const currentWeekly = {
+    ...previous,
+    windows: [{ ...weekly, usedPercent: 23, barPercent: 23 }],
+  };
+  const mergedWeekly = mergeLastKnownWindows(currentWeekly, previous);
+  const fiveHourSelection = selectSidebarUsagePrimary(
+    currentWeekly,
+    mergedWeekly,
+    "Five-hour",
+  );
+
+  assert.equal(fiveHourSelection.actualKind, "Weekly");
+  assert.equal(fiveHourSelection.fallback, "current-alternative");
+  assert.equal(fiveHourSelection.window?.usedPercent, 23);
+  assert.equal(fiveHourSelection.window?.barPercent, 23);
+  assert.equal(sidebarUsageWindows(mergedWeekly).fiveHour?.usedPercent, 120);
+
+  const currentFiveHour = {
+    ...previous,
+    windows: [{ ...fiveHour, usedPercent: 42, barPercent: 42 }],
+  };
+  const mergedFiveHour = mergeLastKnownWindows(currentFiveHour, previous);
+  const weeklySelection = selectSidebarUsagePrimary(
+    currentFiveHour,
+    mergedFiveHour,
+    "Weekly",
+  );
+
+  assert.equal(weeklySelection.actualKind, "Five-hour");
+  assert.equal(weeklySelection.fallback, "current-alternative");
+  assert.equal(weeklySelection.window?.usedPercent, 42);
+  assert.equal(weeklySelection.window?.barPercent, 42);
+  assert.equal(sidebarUsageWindows(mergedFiveHour).weekly?.usedPercent, 17.25);
+});
+
+test("describes configured, actual, and fallback compact windows accessibly", () => {
+  const previous = normalizeUsage(
+    healthyResponse(),
+    { id: null, name: null },
+  ).providers[0]!;
+  const weekly = sidebarUsageWindows(previous).weekly!;
+  const fiveHour = sidebarUsageWindows(previous).fiveHour!;
+  const exactWeekly = selectSidebarUsagePrimary(previous, previous, "Weekly");
+  const exactFiveHour = selectSidebarUsagePrimary(
+    previous,
+    previous,
+    "Five-hour",
+  );
+  const weeklyText = sidebarUsagePrimaryAccessibleText(
+    "Codex",
+    "Weekly",
+    exactWeekly,
+  );
+  const fiveHourText = sidebarUsagePrimaryAccessibleText(
+    "Codex",
+    "Five-hour",
+    exactFiveHour,
+  );
+
+  assert.notEqual(weeklyText, fiveHourText);
+  assert.match(weeklyText, /Weekly configured; showing Weekly 17\.3%/u);
+  assert.match(
+    fiveHourText,
+    /Five-hour configured; showing Five-hour 120%/u,
+  );
+
+  const currentWeekly = {
+    ...previous,
+    windows: [{ ...weekly, usedPercent: 23, barPercent: 23 }],
+  };
+  const currentFiveHour = {
+    ...previous,
+    windows: [{ ...fiveHour, usedPercent: 42, barPercent: 42 }],
+  };
+  const weeklyFallbackText = sidebarUsagePrimaryAccessibleText(
+    "Codex",
+    "Five-hour",
+    selectSidebarUsagePrimary(
+      currentWeekly,
+      mergeLastKnownWindows(currentWeekly, previous),
+      "Five-hour",
+    ),
+  );
+  const fiveHourFallbackText = sidebarUsagePrimaryAccessibleText(
+    "Codex",
+    "Weekly",
+    selectSidebarUsagePrimary(
+      currentFiveHour,
+      mergeLastKnownWindows(currentFiveHour, previous),
+      "Weekly",
+    ),
+  );
+
+  assert.notEqual(weeklyFallbackText, fiveHourFallbackText);
+  assert.match(
+    weeklyFallbackText,
+    /Five-hour configured; showing Weekly 23% as fallback/u,
+  );
+  assert.match(
+    fiveHourFallbackText,
+    /Weekly configured; showing Five-hour 42% as fallback/u,
+  );
+
+  const lastKnownText = sidebarUsagePrimaryAccessibleText(
+    "Codex",
+    "Weekly",
+    selectSidebarUsagePrimary(
+      { ...previous, windows: [] },
+      previous,
+      "Weekly",
+    ),
+  );
+  assert.notEqual(lastKnownText, weeklyText);
+  assert.match(
+    lastKnownText,
+    /Weekly configured; showing last-known Weekly 17\.3% as fallback/u,
+  );
+});
+
 test("keeps last-known sidebar windows through partial and failed refreshes", () => {
   const previous = normalizeUsage(
     healthyResponse(),
@@ -252,6 +381,14 @@ test("keeps last-known sidebar windows through partial and failed refreshes", ()
     sidebarUsageSummary(mergeLastKnownWindows(failed, previous)),
     "120% 5h · 17.3% wk",
   );
+  const lastKnownSelection = selectSidebarUsagePrimary(
+    { ...previous, windows: [] },
+    previous,
+    "Weekly",
+  );
+  assert.equal(lastKnownSelection.actualKind, "Weekly");
+  assert.equal(lastKnownSelection.fallback, "last-known");
+  assert.equal(lastKnownSelection.window?.usedPercent, 17.25);
 });
 
 test("resolves the thread environment host", async () => {

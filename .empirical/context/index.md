@@ -3,9 +3,9 @@
 
 Generated from bounded repository metadata.
 
-- Repository: bb-plugins
-- Source fingerprint: sha256:c10945040eafc31d2860d5258d0c9a0e6843abf05e6e91927f384331f3be7fec
-- Included files: 145
+- Repository: bb-plugins-taskboard-dev
+- Source fingerprint: sha256:227dd1f413a7fbde5332a3aa37aada62b4bcfe1dbc0de2e8dba7c58781784a7a
+- Included files: 148
 - Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, ., .github, .windsurf, demos, plugins
 - Manifests: package.json, plugins/machine-monitor/package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
 - Primary docs: README.md, plugins/machine-monitor/README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md

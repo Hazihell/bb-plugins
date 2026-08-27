@@ -36,6 +36,9 @@ usage reading, without adding a navigation item or a separate plugin page.
 - Cleans up its UI on plugin reload, disable, or removal and works alongside a
   custom thread list such as t3sidebar.
 
+The configurable Compact limit was contributed by
+[Stephen Dolan (@stephendolan)](https://github.com/stephendolan).
+
 ## Install
 
 Usage Tracker requires BB 0.38 or newer. Install its tracking Git release:
