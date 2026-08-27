@@ -74,7 +74,7 @@ Git release directly from this monorepo:
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
 ```
 
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
 is merged and live, the equivalent shorthand is:
 
 ```sh

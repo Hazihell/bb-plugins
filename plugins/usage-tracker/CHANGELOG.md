@@ -4,11 +4,22 @@ All notable changes to Usage Tracker are documented here.
 
 ## Unreleased
 
+## 0.1.3 - 2026-08-27
+
 ### Added
 
 - A Compact limit setting chooses whether the collapsed percentage and
   progress bar show weekly or five-hour usage. Weekly is the default.
   Contributed by [Stephen Dolan (@stephendolan)](https://github.com/stephendolan).
+
+### Fixed
+
+- Read the current BB provider keys for Claude Code and Cursor while preserving
+  compatibility with legacy keys, and isolate an omitted provider instead of
+  failing the complete usage snapshot.
+- Show and retain every additional provider usage window after the canonical
+  five-hour and weekly rows, with responsive scrolling, accessible focus, and
+  reliable close, refresh, and Escape behavior.
 
 ## 0.1.2 - 2026-08-17
 

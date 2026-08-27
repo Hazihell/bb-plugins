@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "sequence": 6,
+  "previousDigest": "sha256:cf586475c2538afd27cd9b119e0ae5ab5b176348112c56df19c35d71b0c46484",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Prepared Usage Tracker 0.1.3 manifest/lockfile/changelog/docs/distribution/context alignment, verified focused/root builds and ignored 0.1.3 metadata, confirmed tag/Release absence, prepared PR/release notes, and validated the existing marketplace PR #129 branch with both Git sources and an exact-tag post-publication gate.",
+  "createdAt": "2026-08-27T21:04:42.285Z",
+  "stateBeforeDigest": "sha256:253ad4860105ea5f329509d77e95fa7194485b267b48a6e25d3b33795a0cc3ec",
+  "stateAfterDigest": "sha256:242457b3bb00d15d648a0eb1c93305c6b8a7860952c8a4237c689677a391c78f",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 6,
+    "activeFeature": "prepare-usage-tracker-v0-1-3-from-the-merged-main",
+    "request": "Prepare Usage Tracker v0.1.3 from the merged main commit: bump all active version, lockfile, changelog, documentation, distribution-test, and context references; run complete verification; create one local release commit; and prepare the BB marketplace Git-source migration and ^0.1.3 range locally. Stop before any remote release-branch push, tag, GitHub Release, marketplace push, or marketplace PR so the exact release can receive separate approval.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Prepared Usage Tracker 0.1.3 manifest/lockfile/changelog/docs/distribution/context alignment, verified focused/root builds and ignored 0.1.3 metadata, confirmed tag/Release absence, prepared PR/release notes, and validated the existing marketplace PR #129 branch with both Git sources and an exact-tag post-publication gate.",
+    "implementationActor": "agent",
+    "specDigest": "sha256:0e5bee451ba15ea831cf0bc3c2bec1613d14760690c6aa187f04110eaea28b06",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:46bd08dc545016677c39f8e98d884baddd4df25eb74632b20d8b85f8fe3ae423",
+    "impactDigest": "sha256:83c7e445d26f2bbf35a6f50a0060095f2a51ff01ddf271626aa126e5147e30e5",
+    "capabilityClaimId": "prepare-usage-tracker-v0-1-3-from-the-merged-main-53b37a020578",
+    "authorizationDigest": "sha256:dce23bee10f47324632c2e1f3940367748a828785a06aac5a831ea521cc9ec0a",
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-27T21:04:42.285Z"
+  },
+  "digest": "sha256:1682dc190ddadcf4547a45c5b7899a68eddc160cf4db9bbeadb32eed1a43a71d"
+}

@@ -26,7 +26,8 @@ usage reading, without adding a navigation item or a separate plugin page.
   compacts for one provider and disappears when both are disabled.
 - Lets you choose whether the compact percentage and progress bar show the
   weekly or five-hour limit. Weekly is the default.
-- Expands either provider to show its five-hour and weekly percentages.
+- Expands either provider to show its five-hour, weekly, and additional
+  provider-defined percentages.
 - Includes reset timing and provider session status in the expanded view.
 - Refreshes automatically every five minutes and whenever a stale BB window
   becomes active again.
@@ -44,10 +45,10 @@ The configurable Compact limit was contributed by
 Usage Tracker requires BB 0.38 or newer. Install its tracking Git release:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
 ```
 
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
 is updated and live, the equivalent shorthand is:
 
 ```sh
@@ -74,7 +75,8 @@ to see the recovery instruction reported by BB.
 The collapsed strip is designed for quick scanning:
 
 - Select the Claude Code or Codex reading to open its details in place.
-- Review the full **5-hour limit**, **weekly limit**, and their reset times.
+- Review the full **5-hour limit**, **weekly limit**, every additional
+  provider-defined window, and their reset times.
 - Select the same provider again, use the close button, press <kbd>Esc</kbd>,
   or click outside the details to collapse it.
 - Select the refresh icon to fetch both providers immediately.
