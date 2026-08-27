@@ -234,7 +234,7 @@ function RefreshIcon({ active = false }: { active?: boolean }) {
   return (
     <svg
       aria-hidden="true"
-      className="machine-monitor-refresh-icon size-3.5"
+      className="host-monitor-refresh-icon size-3.5"
       data-active={active ? "true" : "false"}
       fill="none"
       viewBox="0 0 24 24"
@@ -376,7 +376,7 @@ function EndProcessIcon({ className = "size-3" }: { className?: string }) {
 
 function Spinner({ className = "size-3.5" }: { className?: string }) {
   return (
-    <svg aria-hidden="true" className={`machine-monitor-spinner ${className}`} fill="none" viewBox="0 0 24 24">
+    <svg aria-hidden="true" className={`host-monitor-spinner ${className}`} fill="none" viewBox="0 0 24 24">
       <circle className="opacity-25" cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
       <path d="M12 4a8 8 0 0 1 8 8" stroke="currentColor" strokeLinecap="round" strokeWidth="2" />
     </svg>
@@ -474,7 +474,7 @@ function HealthBadge({
   const presentation = machineBadgePresentation(machine);
   return (
     <span
-      className="machine-monitor-health-badge"
+      className="host-monitor-health-badge"
       data-tone={presentation.tone}
     >
       {presentation.busy ? (
@@ -503,13 +503,13 @@ function MetricRuler({
   const accessibleText = metricAccessibleText(label, bounded, tone);
   return (
     <div
-      className="machine-monitor-metric-ruler"
+      className="host-monitor-metric-ruler"
       data-tone={tone}
     >
       <span className="sr-only">{accessibleText}</span>
       <span
         aria-hidden="true"
-        className="machine-monitor-metric-ruler__percentage font-mono text-xs font-medium"
+        className="host-monitor-metric-ruler__percentage font-mono text-xs font-medium"
       >
         {bounded === null ? "—" : formatPercent(bounded)}
       </span>
@@ -544,7 +544,7 @@ function CardMetric({
 
   return (
     <span
-      className="machine-monitor-host-card__metric"
+      className="host-monitor-host-card__metric"
       data-tone={tone}
     >
       <span className="sr-only">
@@ -552,25 +552,25 @@ function CardMetric({
       </span>
       <span
         aria-hidden="true"
-        className="machine-monitor-host-card__metric-heading"
+        className="host-monitor-host-card__metric-heading"
       >
-        <span className="machine-monitor-host-card__metric-label">{label}</span>
-        <span className="machine-monitor-host-card__metric-value">
+        <span className="host-monitor-host-card__metric-label">{label}</span>
+        <span className="host-monitor-host-card__metric-value">
           {bounded === null ? "—" : formatPercent(bounded)}
         </span>
         <span
           aria-hidden="true"
-          className="machine-monitor-host-card__metric-detail"
+          className="host-monitor-host-card__metric-detail"
           data-empty={detail === undefined ? "true" : "false"}
           title={detail}
         >
           {detail ?? "\u00a0"}
         </span>
       </span>
-      <span aria-hidden="true" className="machine-monitor-host-card__metric-rail">
+      <span aria-hidden="true" className="host-monitor-host-card__metric-rail">
         {bounded === null ? null : (
           <span
-            className="machine-monitor-host-card__metric-fill"
+            className="host-monitor-host-card__metric-fill"
             style={{ width: `${bounded}%` }}
           />
         )}
@@ -619,7 +619,7 @@ function MachineIdentity({ machine }: { machine: MachineRow }) {
     <span className="flex min-w-0 items-center gap-2.5">
       <span
         aria-hidden="true"
-        className="machine-monitor-machine-identity__status"
+        className="host-monitor-machine-identity__status"
         data-connected={machine.host.status === "connected" ? "true" : "false"}
         data-tone={statusTone}
       />
@@ -635,17 +635,17 @@ function CardMachineIdentity({ machine }: { machine: MachineRow }) {
   const description = machineDescription(machine);
 
   return (
-    <span className="machine-monitor-host-card__identity">
+    <span className="host-monitor-host-card__identity">
       <span
         aria-hidden="true"
-        className="machine-monitor-host-card__status"
+        className="host-monitor-host-card__status"
         data-connected={machine.host.status === "connected" ? "true" : "false"}
       />
-      <span className="machine-monitor-host-card__identity-copy">
-        <span className="machine-monitor-host-card__name">
+      <span className="host-monitor-host-card__identity-copy">
+        <span className="host-monitor-host-card__name">
           {machine.host.name}
         </span>
-        <span className="machine-monitor-host-card__system" title={description}>
+        <span className="host-monitor-host-card__system" title={description}>
           {description}
         </span>
       </span>
@@ -733,21 +733,21 @@ function NetworkRateValue({ machine }: { machine: MachineRow }) {
       <span className="sr-only">{network.accessibleText}</span>
       <span
         aria-hidden="true"
-        className="machine-monitor-network-rate flex min-w-0 items-center gap-1.5"
+        className="host-monitor-network-rate flex min-w-0 items-center gap-1.5"
         data-network-direction="down"
       >
-        <span className="machine-monitor-network-rate__arrow shrink-0">↓</span>
-        <span className="machine-monitor-network-rate__value truncate font-mono">
+        <span className="host-monitor-network-rate__arrow shrink-0">↓</span>
+        <span className="host-monitor-network-rate__value truncate font-mono">
           {network.receive}
         </span>
       </span>
       <span
         aria-hidden="true"
-        className="machine-monitor-network-rate flex min-w-0 items-center gap-1.5"
+        className="host-monitor-network-rate flex min-w-0 items-center gap-1.5"
         data-network-direction="up"
       >
-        <span className="machine-monitor-network-rate__arrow shrink-0">↑</span>
-        <span className="machine-monitor-network-rate__value truncate font-mono">
+        <span className="host-monitor-network-rate__arrow shrink-0">↑</span>
+        <span className="host-monitor-network-rate__value truncate font-mono">
           {network.send}
         </span>
       </span>
@@ -810,7 +810,7 @@ function FleetSidebarAccessory() {
     return (
       <output
         aria-label={label}
-        className="machine-monitor-sidebar-accessory"
+        className="host-monitor-sidebar-accessory"
         title={label}
       >
         <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
@@ -832,7 +832,7 @@ function FleetSidebarAccessory() {
   return (
     <output
       aria-label={label}
-      className="machine-monitor-sidebar-accessory"
+      className="host-monitor-sidebar-accessory"
       title={label}
     >
       <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
@@ -867,12 +867,12 @@ function FleetViewToggle({
   return (
     <fieldset
       aria-label="Host layout"
-      className="machine-monitor-view-toggle m-0 inline-flex h-8 min-w-0 items-center rounded-md border border-border bg-muted/35 p-0.5"
+      className="host-monitor-view-toggle m-0 inline-flex h-8 min-w-0 items-center rounded-md border border-border bg-muted/35 p-0.5"
     >
       <button
         aria-label="Show hosts as cards"
         aria-pressed={mode === "cards"}
-        className="machine-monitor-view-toggle__button"
+        className="host-monitor-view-toggle__button"
         onClick={() => onChange("cards")}
         title="Cards"
         type="button"
@@ -883,7 +883,7 @@ function FleetViewToggle({
       <button
         aria-label="Show hosts as rows"
         aria-pressed={mode === "rows"}
-        className="machine-monitor-view-toggle__button"
+        className="host-monitor-view-toggle__button"
         onClick={() => onChange("rows")}
         title="Rows"
         type="button"
@@ -901,46 +901,46 @@ function FleetSkeleton({ mode }: { mode: FleetViewMode }) {
       <output
         aria-busy="true"
         aria-label="Loading hosts"
-        className="machine-monitor-card-grid"
+        className="host-monitor-card-grid"
       >
         <span className="sr-only">Loading hosts…</span>
         {Array.from({ length: 4 }, (_, index) => (
           <span
             key={index}
-            className="machine-monitor-card-skeleton"
+            className="host-monitor-card-skeleton"
           >
-            <span className="machine-monitor-card-skeleton__header">
-              <span className="machine-monitor-skeleton block size-2 shrink-0 rounded-full" />
+            <span className="host-monitor-card-skeleton__header">
+              <span className="host-monitor-skeleton block size-2 shrink-0 rounded-full" />
               <span className="min-w-0 flex-1 space-y-1.5">
-                <span className="machine-monitor-skeleton block h-3.5 w-3/5 rounded" />
-                <span className="machine-monitor-skeleton block h-2.5 w-2/5 rounded" />
+                <span className="host-monitor-skeleton block h-3.5 w-3/5 rounded" />
+                <span className="host-monitor-skeleton block h-2.5 w-2/5 rounded" />
               </span>
-              <span className="machine-monitor-skeleton block h-5 w-16 rounded-full" />
+              <span className="host-monitor-skeleton block h-5 w-16 rounded-full" />
             </span>
-            <span className="machine-monitor-card-skeleton__metadata">
-              <span className="machine-monitor-skeleton block h-2.5 w-24 rounded" />
-              <span className="machine-monitor-skeleton block h-2.5 w-16 rounded" />
+            <span className="host-monitor-card-skeleton__metadata">
+              <span className="host-monitor-skeleton block h-2.5 w-24 rounded" />
+              <span className="host-monitor-skeleton block h-2.5 w-16 rounded" />
             </span>
-            <span className="machine-monitor-card-skeleton__metrics">
+            <span className="host-monitor-card-skeleton__metrics">
               {Array.from({ length: 3 }, (_, metricIndex) => (
-                <span key={metricIndex} className="machine-monitor-card-skeleton__metric">
-                  <span className="machine-monitor-skeleton block h-2 w-8 rounded" />
-                  <span className="machine-monitor-skeleton block h-4 w-12 rounded" />
-                  <span className="machine-monitor-skeleton block h-2 w-16 rounded" />
-                  <span className="machine-monitor-skeleton block h-[3px] w-full rounded-full" />
+                <span key={metricIndex} className="host-monitor-card-skeleton__metric">
+                  <span className="host-monitor-skeleton block h-2 w-8 rounded" />
+                  <span className="host-monitor-skeleton block h-4 w-12 rounded" />
+                  <span className="host-monitor-skeleton block h-2 w-16 rounded" />
+                  <span className="host-monitor-skeleton block h-[3px] w-full rounded-full" />
                 </span>
               ))}
             </span>
-            <span className="machine-monitor-card-skeleton__footer">
-              <span className="machine-monitor-skeleton block h-2 w-14 rounded" />
-              <span className="machine-monitor-card-skeleton__network">
+            <span className="host-monitor-card-skeleton__footer">
+              <span className="host-monitor-skeleton block h-2 w-14 rounded" />
+              <span className="host-monitor-card-skeleton__network">
                 <span className="space-y-1.5">
-                  <span className="machine-monitor-skeleton block h-2 w-12 rounded" />
-                  <span className="machine-monitor-skeleton block h-3 w-16 rounded" />
+                  <span className="host-monitor-skeleton block h-2 w-12 rounded" />
+                  <span className="host-monitor-skeleton block h-3 w-16 rounded" />
                 </span>
                 <span className="space-y-1.5">
-                  <span className="machine-monitor-skeleton block h-2 w-10 rounded" />
-                  <span className="machine-monitor-skeleton block h-3 w-16 rounded" />
+                  <span className="host-monitor-skeleton block h-2 w-10 rounded" />
+                  <span className="host-monitor-skeleton block h-3 w-16 rounded" />
                 </span>
               </span>
             </span>
@@ -955,10 +955,10 @@ function FleetSkeleton({ mode }: { mode: FleetViewMode }) {
       <span className="sr-only">Loading hosts…</span>
       {Array.from({ length: 4 }, (_, index) => (
         <span key={index} className="flex items-center gap-4 border-b border-border p-4 last:border-b-0">
-          <span className="machine-monitor-skeleton block h-4 w-36 rounded" />
-          <span className="machine-monitor-skeleton ml-auto block h-4 w-16 rounded" />
-          <span className="machine-monitor-skeleton block h-4 w-16 rounded" />
-          <span className="machine-monitor-skeleton block h-4 w-16 rounded" />
+          <span className="host-monitor-skeleton block h-4 w-36 rounded" />
+          <span className="host-monitor-skeleton ml-auto block h-4 w-16 rounded" />
+          <span className="host-monitor-skeleton block h-4 w-16 rounded" />
+          <span className="host-monitor-skeleton block h-4 w-16 rounded" />
         </span>
       ))}
     </output>
@@ -1008,7 +1008,7 @@ function FleetCardGrid({
   thresholds: HealthThresholds;
 }) {
   return (
-    <ul className="machine-monitor-card-grid">
+    <ul className="host-monitor-card-grid">
       {machines.map((machine) => {
         const selected = selectedHostId === machine.host.id;
         const network = networkRateSummary(
@@ -1020,35 +1020,35 @@ function FleetCardGrid({
           <li key={machine.host.id} className="min-w-0">
             <button
               aria-current={selected ? "true" : undefined}
-              className="machine-monitor-host-card"
+              className="host-monitor-host-card"
               onClick={() => onInspect(machine)}
               type="button"
             >
-              <span className="machine-monitor-host-card__header">
+              <span className="host-monitor-host-card__header">
                 <CardMachineIdentity machine={machine} />
-                <span className="machine-monitor-host-card__header-actions">
+                <span className="host-monitor-host-card__header-actions">
                   <HealthBadge machine={machine} showIndicator={false} />
-                  <span className="machine-monitor-host-card__details">
+                  <span className="host-monitor-host-card__details">
                     <ChevronIcon />
                   </span>
                 </span>
               </span>
-              <span className="machine-monitor-host-card__metadata">
+              <span className="host-monitor-host-card__metadata">
                 <IpAddressValue
-                  className="machine-monitor-host-card__ip"
+                  className="host-monitor-host-card__ip"
                   machine={machine}
                   revealed={showIpAddresses}
                 />
-                <span aria-hidden="true" className="machine-monitor-host-card__separator" />
+                <span aria-hidden="true" className="host-monitor-host-card__separator" />
                 <span
-                  className="machine-monitor-host-card__sample"
+                  className="host-monitor-host-card__sample"
                   title={sampleLabel}
                 >
                   {sampleLabel}
                 </span>
               </span>
 
-              <span className="machine-monitor-host-card__metrics">
+              <span className="host-monitor-host-card__metrics">
                 {(["cpu", "memory", "disk"] as const).map((metric) => (
                   <CardMetric
                     isFresh={machine.sampleState === "fresh"}
@@ -1068,32 +1068,32 @@ function FleetCardGrid({
                 ))}
               </span>
 
-              <span className="machine-monitor-host-card__footer">
+              <span className="host-monitor-host-card__footer">
                 <span
-                  className="machine-monitor-host-card__network"
+                  className="host-monitor-host-card__network"
                   data-network-state={network.available ? "available" : "unavailable"}
                 >
                   <span className="sr-only">{network.accessibleText}</span>
-                  <span aria-hidden="true" className="machine-monitor-host-card__network-label">Network</span>
-                  <span aria-hidden="true" className="machine-monitor-host-card__network-rates">
-                    <span className="machine-monitor-host-card__network-lane">
-                      <span className="machine-monitor-host-card__network-direction">Download</span>
+                  <span aria-hidden="true" className="host-monitor-host-card__network-label">Network</span>
+                  <span aria-hidden="true" className="host-monitor-host-card__network-rates">
+                    <span className="host-monitor-host-card__network-lane">
+                      <span className="host-monitor-host-card__network-direction">Download</span>
                       <span
-                        className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
+                        className="host-monitor-network-rate host-monitor-host-card__network-rate"
                         data-network-direction="down"
                       >
-                        <span className="machine-monitor-network-rate__arrow">↓</span>
-                        <span className="machine-monitor-network-rate__value font-mono">{network.receive}</span>
+                        <span className="host-monitor-network-rate__arrow">↓</span>
+                        <span className="host-monitor-network-rate__value font-mono">{network.receive}</span>
                       </span>
                     </span>
-                    <span className="machine-monitor-host-card__network-lane">
-                      <span className="machine-monitor-host-card__network-direction">Upload</span>
+                    <span className="host-monitor-host-card__network-lane">
+                      <span className="host-monitor-host-card__network-direction">Upload</span>
                       <span
-                        className="machine-monitor-network-rate machine-monitor-host-card__network-rate"
+                        className="host-monitor-network-rate host-monitor-host-card__network-rate"
                         data-network-direction="up"
                       >
-                        <span className="machine-monitor-network-rate__arrow">↑</span>
-                        <span className="machine-monitor-network-rate__value font-mono">{network.send}</span>
+                        <span className="host-monitor-network-rate__arrow">↑</span>
+                        <span className="host-monitor-network-rate__value font-mono">{network.send}</span>
                       </span>
                     </span>
                   </span>
@@ -1109,7 +1109,7 @@ function FleetCardGrid({
 
 function DesktopFleetTable({ machines, onInspect, selectedHostId, showIpAddresses, thresholds }: { machines: MachineRow[]; onInspect(machine: MachineRow): void; selectedHostId: string | null; showIpAddresses: boolean; thresholds: HealthThresholds }) {
   return (
-    <div className="machine-monitor-desktop-fleet overflow-hidden rounded-lg border border-border bg-card">
+    <div className="host-monitor-desktop-fleet overflow-hidden rounded-lg border border-border bg-card">
       <table className="w-full table-fixed border-collapse text-left">
         <thead className="bg-muted/35 text-[10px] uppercase tracking-wider text-muted-foreground">
           <tr>
@@ -1161,7 +1161,7 @@ function DesktopFleetTable({ machines, onInspect, selectedHostId, showIpAddresse
 
 function CompactFleetList({ machines, onInspect, selectedHostId, showIpAddresses, thresholds }: { machines: MachineRow[]; onInspect(machine: MachineRow): void; selectedHostId: string | null; showIpAddresses: boolean; thresholds: HealthThresholds }) {
   return (
-    <ul className="machine-monitor-compact-fleet overflow-hidden rounded-lg border border-border bg-card">
+    <ul className="host-monitor-compact-fleet overflow-hidden rounded-lg border border-border bg-card">
       {machines.map((machine) => {
         const selected = selectedHostId === machine.host.id;
         return (
@@ -1263,7 +1263,7 @@ function FleetMatrix() {
 
   return (
     <main
-      className="machine-monitor-dashboard machine-monitor-fleet h-full overflow-y-auto"
+      className="host-monitor-dashboard host-monitor-fleet h-full overflow-y-auto"
       data-host-monitor-threshold-colors={showThresholdColors ? "true" : "false"}
     >
       <div className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-5">
@@ -1349,18 +1349,18 @@ function TelemetryGauge({
   const offset = bounded === null ? circumference : circumference * (1 - bounded / 100);
   return (
     <div
-      className="machine-monitor-telemetry-gauge"
+      className="host-monitor-telemetry-gauge"
       data-tone={tone}
     >
       <span className="sr-only">{accessibleText}</span>
       <div className="relative aspect-square w-full max-w-24">
         <svg aria-hidden="true" className="size-full -rotate-90" viewBox="0 0 64 64">
           <circle className="text-muted" cx="32" cy="32" fill="none" r="26" stroke="currentColor" strokeWidth="5" />
-          <circle className="machine-monitor-gauge" cx="32" cy="32" fill="none" r="26" stroke="currentColor" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" strokeWidth="5" />
+          <circle className="host-monitor-gauge" cx="32" cy="32" fill="none" r="26" stroke="currentColor" strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round" strokeWidth="5" />
         </svg>
         <span
           aria-hidden="true"
-          className="machine-monitor-telemetry-gauge__percentage absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold"
+          className="host-monitor-telemetry-gauge__percentage absolute inset-0 flex items-center justify-center font-mono text-sm font-semibold"
         >
           {bounded === null ? "—" : formatPercent(bounded)}
         </span>
@@ -1409,13 +1409,13 @@ function NetworkRateDetails({ machine }: { machine: MachineRow }) {
       <DetailItem
         label="Network receive"
         value={network.available ? `↓ ${network.receive}` : unavailable}
-        valueClassName="machine-monitor-network-detail"
+        valueClassName="host-monitor-network-detail"
         valueNetworkDirection={network.available ? "down" : undefined}
       />
       <DetailItem
         label="Network send"
         value={network.available ? `↑ ${network.send}` : unavailable}
-        valueClassName="machine-monitor-network-detail"
+        valueClassName="host-monitor-network-detail"
         valueNetworkDirection={network.available ? "up" : undefined}
       />
     </>
@@ -1501,7 +1501,7 @@ function ProcessSortIcon({ active, descending }: { active: boolean; descending: 
   return (
     <svg
       aria-hidden="true"
-      className={`machine-monitor-process-sort-icon size-3 transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
+      className={`host-monitor-process-sort-icon size-3 transition-opacity ${active ? "opacity-100" : "opacity-0"}`}
       fill="none"
       viewBox="0 0 24 24"
     >
@@ -1534,12 +1534,12 @@ function ProcessTableSortHeader({
   return (
     <th
       aria-sort={active ? direction : undefined}
-      className="machine-monitor-process-table__sortable"
+      className="host-monitor-process-table__sortable"
       scope="col"
     >
       <button
         aria-label={`Sort by ${children}, ${directionLabel}${active ? ", selected" : ""}`}
-        className="machine-monitor-process-column-sort"
+        className="host-monitor-process-column-sort"
         data-active={active ? "true" : "false"}
         disabled={disabled}
         onClick={onClick}
@@ -1569,7 +1569,7 @@ function ProcessSortButton({
     <button
       aria-label={`${children}, ${direction === "descending" ? "highest first" : "A to Z"}${active ? ", selected" : ""}`}
       aria-pressed={active}
-      className="machine-monitor-process-sort"
+      className="host-monitor-process-sort"
       data-active={active ? "true" : "false"}
       disabled={disabled}
       onClick={onClick}
@@ -1585,14 +1585,14 @@ function ProcessListSkeleton() {
   return (
     <output
       aria-label="Loading processes"
-      className="machine-monitor-process-skeleton"
+      className="host-monitor-process-skeleton"
     >
       {PROCESS_SKELETON_ROWS.map((rowId) => (
-        <span className="machine-monitor-process-skeleton__row" key={rowId}>
-          <span className="machine-monitor-process-skeleton__line machine-monitor-process-skeleton__line--name" />
-          <span className="machine-monitor-process-skeleton__line" />
-          <span className="machine-monitor-process-skeleton__line" />
-          <span className="machine-monitor-process-skeleton__line machine-monitor-process-skeleton__line--action" />
+        <span className="host-monitor-process-skeleton__row" key={rowId}>
+          <span className="host-monitor-process-skeleton__line host-monitor-process-skeleton__line--name" />
+          <span className="host-monitor-process-skeleton__line" />
+          <span className="host-monitor-process-skeleton__line" />
+          <span className="host-monitor-process-skeleton__line host-monitor-process-skeleton__line--action" />
         </span>
       ))}
     </output>
@@ -1609,7 +1609,7 @@ function ProcessStateMessage({
   title: string;
 }) {
   return (
-    <div className="machine-monitor-process-state">
+    <div className="host-monitor-process-state">
       <ProcessesIcon className="size-5" />
       <strong>{title}</strong>
       <p>{message}</p>
@@ -1635,7 +1635,7 @@ function ProcessAction({
       <button
         aria-disabled="true"
         aria-label={`${row.name}, PID ${row.pid}: ${action.reason}`}
-        className="machine-monitor-process-action"
+        className="host-monitor-process-action"
         data-protected="true"
         title={action.reason ?? undefined}
         type="button"
@@ -1648,7 +1648,7 @@ function ProcessAction({
   return (
     <button
       aria-label={`${action.label} ${row.name}, PID ${row.pid}`}
-      className="machine-monitor-process-action"
+      className="host-monitor-process-action"
       data-protected="false"
       disabled={actionsBusy}
       onClick={(event) => {
@@ -1677,12 +1677,12 @@ function ProcessMetric({
   const relativeWidth =
     maximum > 0 ? Math.max(0, Math.min(100, (value / maximum) * 100)) : 0;
   return (
-    <span className="machine-monitor-process-metric">
-      <span className="machine-monitor-process-metric__readout">
+    <span className="host-monitor-process-metric">
+      <span className="host-monitor-process-metric__readout">
         <strong>{formatPercent(value)}</strong>
         {detail === undefined ? null : <small>{detail}</small>}
       </span>
-      <span aria-hidden="true" className="machine-monitor-process-metric__track">
+      <span aria-hidden="true" className="host-monitor-process-metric__track">
         <span style={{ width: `${relativeWidth}%` }} />
       </span>
     </span>
@@ -1693,7 +1693,7 @@ function ProcessSummaryStrip({ rows, totalCount }: { rows: ProcessRow[]; totalCo
   const summary = summarizeProcessRows(rows);
   const actionableCount = rows.length - summary.protectedCount;
   return (
-    <dl aria-label="Process summary" className="machine-monitor-process-summary">
+    <dl aria-label="Process summary" className="host-monitor-process-summary">
       <div>
         <dt>Shown</dt>
         <dd>
@@ -1704,7 +1704,7 @@ function ProcessSummaryStrip({ rows, totalCount }: { rows: ProcessRow[]; totalCo
       <div>
         <dt>Top CPU</dt>
         <dd>
-          <span className="machine-monitor-process-summary__name" title={summary.topCpu?.name}>
+          <span className="host-monitor-process-summary__name" title={summary.topCpu?.name}>
             {summary.topCpu?.name ?? "—"}
           </span>
           <strong>{summary.topCpu === null ? "—" : formatPercent(summary.topCpu.cpuPercent)}</strong>
@@ -1713,7 +1713,7 @@ function ProcessSummaryStrip({ rows, totalCount }: { rows: ProcessRow[]; totalCo
       <div>
         <dt>Top RAM</dt>
         <dd>
-          <span className="machine-monitor-process-summary__name" title={summary.topMemory?.name}>
+          <span className="host-monitor-process-summary__name" title={summary.topMemory?.name}>
             {summary.topMemory?.name ?? "—"}
           </span>
           <strong>{summary.topMemory === null ? "—" : formatPercent(summary.topMemory.memoryPercent)}</strong>
@@ -1753,7 +1753,7 @@ function ProcessRows({
 }) {
   return (
     <>
-      <div className="machine-monitor-process-table">
+      <div className="host-monitor-process-table">
         <table>
           <thead>
             <tr>
@@ -1788,13 +1788,13 @@ function ProcessRows({
             {rows.map((row, index) => (
               <tr key={`${row.pid}:${row.identity ?? "protected"}`}>
                 <th aria-label={`${row.name}, PID ${row.pid}`} scope="row">
-                  <span className="machine-monitor-process-primary">
-                    <span aria-hidden="true" className="machine-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
-                    <span className="machine-monitor-process-identity">
-                      <span className="machine-monitor-process-name" title={row.name}>{row.name}</span>
-                      <span className="machine-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
+                  <span className="host-monitor-process-primary">
+                    <span aria-hidden="true" className="host-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="host-monitor-process-identity">
+                      <span className="host-monitor-process-name" title={row.name}>{row.name}</span>
+                      <span className="host-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
                       {row.blockedReason === null ? null : (
-                        <span className="machine-monitor-process-protected-reason">
+                        <span className="host-monitor-process-protected-reason">
                           {blockedProcessReason(row.blockedReason)}
                         </span>
                       )}
@@ -1811,7 +1811,7 @@ function ProcessRows({
                     value={row.memoryPercent}
                   />
                 </td>
-                <td className="machine-monitor-process-action-cell">
+                <td className="host-monitor-process-action-cell">
                   <ProcessAction
                     actionsBusy={actionsBusy}
                     onPrepare={onPrepare}
@@ -1825,17 +1825,17 @@ function ProcessRows({
         </table>
       </div>
 
-      <ol className="machine-monitor-process-list">
+      <ol className="host-monitor-process-list">
         {rows.map((row, index) => (
           <li key={`${row.pid}:${row.identity ?? "protected"}`}>
-            <span aria-hidden="true" className="machine-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
-            <div className="machine-monitor-process-list__body">
-              <div className="machine-monitor-process-list__header">
+            <span aria-hidden="true" className="host-monitor-process-rank">{String(index + 1).padStart(2, "0")}</span>
+            <div className="host-monitor-process-list__body">
+              <div className="host-monitor-process-list__header">
                 <span className="min-w-0">
-                  <span className="machine-monitor-process-name" title={row.name}>{row.name}</span>
-                  <span className="machine-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
+                  <span className="host-monitor-process-name" title={row.name}>{row.name}</span>
+                  <span className="host-monitor-process-pid">PID {row.pid} · {processOwnerLabel(row.ownerCategory)}</span>
                   {row.blockedReason === null ? null : (
-                    <span className="machine-monitor-process-protected-reason">
+                    <span className="host-monitor-process-protected-reason">
                       {blockedProcessReason(row.blockedReason)}
                     </span>
                   )}
@@ -1847,7 +1847,7 @@ function ProcessRows({
                   row={row}
                 />
               </div>
-              <dl className="machine-monitor-process-list__metrics">
+              <dl className="host-monitor-process-list__metrics">
                 <div><dt>CPU</dt><dd><ProcessMetric maximum={maximumCpu} value={row.cpuPercent} /></dd></div>
                 <div><dt>RAM</dt><dd><ProcessMetric detail={formatBytes(row.rssBytes)} maximum={maximumMemory} value={row.memoryPercent} /></dd></div>
               </dl>
@@ -1895,12 +1895,12 @@ function ProcessTerminationDialog({
       <AlertDialog.Portal>
         <AlertDialog.Overlay
           {...scopeProps}
-          className="machine-monitor-process-dialog__overlay"
+          className="host-monitor-process-dialog__overlay"
         />
         <AlertDialog.Content
           {...scopeProps}
           aria-busy={executing}
-          className="machine-monitor-process-dialog"
+          className="host-monitor-process-dialog"
           onCloseAutoFocus={(event) => {
             event.preventDefault();
             const preferred = returnFocus.current;
@@ -1918,31 +1918,31 @@ function ProcessTerminationDialog({
         >
           {challenge === null ? null : (
             <>
-              <div className="machine-monitor-process-dialog__icon" data-force={force ? "true" : "false"}>
+              <div className="host-monitor-process-dialog__icon" data-force={force ? "true" : "false"}>
                 <AlertIcon />
               </div>
               <div className="min-w-0">
-                <AlertDialog.Title className="machine-monitor-process-dialog__title">
+                <AlertDialog.Title className="host-monitor-process-dialog__title">
                   {force ? "Force stop process?" : "End process?"}
                 </AlertDialog.Title>
-                <AlertDialog.Description className="machine-monitor-process-dialog__description">
+                <AlertDialog.Description className="host-monitor-process-dialog__description">
                   {description}
                 </AlertDialog.Description>
               </div>
-              <dl className="machine-monitor-process-dialog__facts">
+              <dl className="host-monitor-process-dialog__facts">
                 <div><dt>Host</dt><dd>{challenge.host.name}</dd></div>
                 <div><dt>Process</dt><dd>{challenge.process.name}</dd></div>
                 <div><dt>PID</dt><dd>{challenge.process.pid}</dd></div>
                 <div><dt>CPU</dt><dd>{formatPercent(challenge.process.cpuPercent)}</dd></div>
                 <div><dt>Memory</dt><dd>{formatPercent(challenge.process.memoryPercent)} · {formatBytes(challenge.process.rssBytes)}</dd></div>
               </dl>
-              <p className="machine-monitor-process-dialog__freshness">
+              <p className="host-monitor-process-dialog__freshness">
                 Checked just now · confirmation expires at {new Date(challenge.expiresAtMs).toLocaleTimeString()}
               </p>
-              <div className="machine-monitor-process-dialog__actions">
+              <div className="host-monitor-process-dialog__actions">
                 <AlertDialog.Cancel asChild>
                   <button
-                    className="machine-monitor-process-dialog__cancel"
+                    className="host-monitor-process-dialog__cancel"
                     disabled={executing}
                     ref={cancelRef}
                     type="button"
@@ -1952,7 +1952,7 @@ function ProcessTerminationDialog({
                 </AlertDialog.Cancel>
                 <AlertDialog.Action asChild>
                   <button
-                    className="machine-monitor-process-dialog__confirm"
+                    className="host-monitor-process-dialog__confirm"
                     data-force={force ? "true" : "false"}
                     disabled={executing}
                     onClick={(event) => {
@@ -2267,7 +2267,7 @@ function ProcessesPanel() {
 
   if (target === null) {
     return (
-      <section className="machine-monitor-processes" ref={fallbackFocus} tabIndex={-1}>
+      <section className="host-monitor-processes" ref={fallbackFocus} tabIndex={-1}>
         <ProcessStateMessage
           message="Open Processes from a specific host. Host Monitor never guesses which machine to control."
           title="Choose a host first"
@@ -2279,12 +2279,12 @@ function ProcessesPanel() {
   return (
     <section
       aria-label={`Processes on ${hostName}`}
-      className="machine-monitor-processes"
+      className="host-monitor-processes"
       ref={fallbackFocus}
       tabIndex={-1}
     >
       <output aria-live="polite" className="sr-only">{announcement}</output>
-      <header className="machine-monitor-processes__header">
+      <header className="host-monitor-processes__header">
         <div className="min-w-0">
           <div className="flex min-w-0 items-center gap-2">
             <ProcessesIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -2313,8 +2313,8 @@ function ProcessesPanel() {
         </button>
       </header>
 
-      <div className="machine-monitor-processes__toolbar">
-        <label className="machine-monitor-process-search">
+      <div className="host-monitor-processes__toolbar">
+        <label className="host-monitor-process-search">
           <SearchIcon />
           <span className="sr-only">Search shown processes by name or PID</span>
           <input
@@ -2334,7 +2334,7 @@ function ProcessesPanel() {
         {processQuery.length > 0 ? (
           <button
             aria-label="Clear process search"
-            className="machine-monitor-process-search__clear"
+            className="host-monitor-process-search__clear"
             onClick={() => setProcessQuery("")}
             type="button"
           >
@@ -2343,13 +2343,13 @@ function ProcessesPanel() {
         ) : null}
         <fieldset
           aria-label="Sort processes; Process is A to Z, CPU and RAM are highest first"
-          className="machine-monitor-process-sort-group"
+          className="host-monitor-process-sort-group"
         >
           <ProcessSortButton active={sortBy === "name"} direction="ascending" disabled={actionBusy} onClick={() => selectSort("name")}>Process</ProcessSortButton>
           <ProcessSortButton active={sortBy === "cpu"} direction="descending" disabled={actionBusy} onClick={() => selectSort("cpu")}>CPU</ProcessSortButton>
           <ProcessSortButton active={sortBy === "memory"} direction="descending" disabled={actionBusy} onClick={() => selectSort("memory")}>RAM</ProcessSortButton>
         </fieldset>
-        <output aria-live="polite" className="machine-monitor-processes__toolbar-status">
+        <output aria-live="polite" className="host-monitor-processes__toolbar-status">
           {loading && okResult !== null ? <><Spinner className="size-3" />Updating</> : null}
           {!loading && processQuery.length > 0 && okResult !== null
             ? `${rows.length} ${rows.length === 1 ? "match" : "matches"}`
@@ -2357,15 +2357,15 @@ function ProcessesPanel() {
         </output>
       </div>
 
-      <div className="machine-monitor-processes__content">
+      <div className="host-monitor-processes__content">
         {requestError !== null && okResult !== null ? (
-          <div className="machine-monitor-process-notice" role="alert">
+          <div className="host-monitor-process-notice" role="alert">
             <AlertIcon className="size-3.5 shrink-0" />
             <span>Could not refresh processes: {requestError}</span>
           </div>
         ) : null}
         {okResult?.elevated ? (
-          <output className="machine-monitor-process-notice">
+          <output className="host-monitor-process-notice">
             <AlertIcon className="size-3.5 shrink-0" />
             <span>Process actions are protected while Host Monitor is running with elevated privileges.</span>
           </output>
@@ -2397,7 +2397,7 @@ function ProcessesPanel() {
             title="No processes to show"
           />
         ) : okResult !== null ? (
-          <div className="machine-monitor-process-surface">
+          <div className="host-monitor-process-surface">
             <ProcessSummaryStrip rows={sortedRows} totalCount={okResult.totalCount} />
             {rows.length === 0 ? (
               <ProcessStateMessage
@@ -2423,7 +2423,7 @@ function ProcessesPanel() {
               />
             )}
             {okResult.truncated ? (
-              <p className="machine-monitor-processes__truncated">
+              <p className="host-monitor-processes__truncated">
                 Search covers these {okResult.processes.length} shown processes; {okResult.totalCount} exist on the host.
               </p>
             ) : null}
@@ -2487,7 +2487,7 @@ function MachineInspector() {
   if (state.dashboard === null) {
     return (
       <section
-        className="machine-monitor-inspector h-full"
+        className="host-monitor-inspector h-full"
         data-host-monitor-threshold-colors={showThresholdColors ? "true" : "false"}
       >
         <InspectorEmpty message="Loading host telemetry…" />
@@ -2498,7 +2498,7 @@ function MachineInspector() {
   if (machine === null) {
     return (
       <section
-        className="machine-monitor-inspector h-full"
+        className="host-monitor-inspector h-full"
         data-host-monitor-threshold-colors={showThresholdColors ? "true" : "false"}
       >
         <InspectorEmpty message="Select a host to inspect its telemetry." />
@@ -2517,7 +2517,7 @@ function MachineInspector() {
 
   return (
     <section
-      className="machine-monitor-inspector space-y-4"
+      className="host-monitor-inspector space-y-4"
       data-host-monitor-threshold-colors={showThresholdColors ? "true" : "false"}
     >
       <header className="flex items-start gap-3">
@@ -2545,7 +2545,7 @@ function MachineInspector() {
 
       {machine.alert !== null ? (
         <div
-          className="machine-monitor-threshold-alert"
+          className="host-monitor-threshold-alert"
           data-tone={
             machine.sampleState !== "fresh"
               ? "neutral"
@@ -2559,7 +2559,7 @@ function MachineInspector() {
           <span className="min-w-0 flex-1">{machine.alert.message}</span>
           {machine.alert.metric === "cpu" || machine.alert.metric === "memory" ? (
             <button
-              className="machine-monitor-threshold-alert__action"
+              className="host-monitor-threshold-alert__action"
               onClick={() => openProcesses(machine.alert?.metric === "memory" ? "memory" : "cpu")}
               type="button"
             >
@@ -2574,7 +2574,7 @@ function MachineInspector() {
         <InspectorEmpty message={machine.sampleState === "offline" ? `This host is offline. Last seen ${formatRelativeTime(machine.host.lastSeenAt)}.` : "Waiting for the first telemetry sample."} />
       ) : (
         <>
-          <div className="machine-monitor-gauge-grid grid grid-cols-3 gap-2 rounded-lg border border-border bg-card p-3">
+          <div className="host-monitor-gauge-grid grid grid-cols-3 gap-2 rounded-lg border border-border bg-card p-3">
             <TelemetryGauge isFresh={machine.sampleState === "fresh"} label="CPU" percent={snapshot.cpu.usagePercent} thresholds={state.dashboard.thresholds} />
             <TelemetryGauge isFresh={machine.sampleState === "fresh"} label="Memory" percent={snapshot.memory.usagePercent} thresholds={state.dashboard.thresholds} />
             <TelemetryGauge isFresh={machine.sampleState === "fresh"} label="Disk" percent={snapshot.disk?.usagePercent ?? null} thresholds={state.dashboard.thresholds} />

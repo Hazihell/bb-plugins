@@ -65,20 +65,25 @@ This shorthand becomes available after
 and live:
 
 ```sh
-bb plugin install machine-monitor
+bb plugin install host-monitor
 ```
 
 ### Direct Git release
 
 ```sh
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 \
-  --subdirectory plugins/machine-monitor \
-  --tag-prefix machine-monitor/
+  --subdirectory plugins/host-monitor \
+  --tag-prefix host-monitor/
 ```
 
-The Git source tracks compatible `machine-monitor/vX.Y.Z` releases. BB still
+The Git source tracks compatible `host-monitor/vX.Y.Z` releases. BB still
 stages, validates, and rolls back plugin updates through its normal install
 pipeline.
+
+An installation made under Host Monitor's retired plugin id cannot update
+across the rename. Remove that earlier Host Monitor entry, then install
+`host-monitor`; threshold settings are scoped to the plugin id and must be
+applied again.
 
 ## Requirements and platform support
 
@@ -139,15 +144,15 @@ From the repository root:
 
 ```sh
 npm install
-bb plugin install ./plugins/machine-monitor
-npm run dev --workspace bb-plugin-machine-monitor
+bb plugin install ./plugins/host-monitor
+npm run dev --workspace bb-plugin-host-monitor
 ```
 
 The workspace dev loop rebuilds and reloads Host Monitor after source changes.
 Run its complete focused check with:
 
 ```sh
-npm run check --workspace bb-plugin-machine-monitor
+npm run check --workspace bb-plugin-host-monitor
 ```
 
 ## License

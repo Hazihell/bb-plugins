@@ -17,7 +17,7 @@
   `sources/` contains the GitHub, Linear, and Jira adapters behind one interface.
 - `plugins/usage-tracker` is independent and owns its own server, app, provider
   usage model, tests, and assets.
-- `plugins/machine-monitor/server.ts` owns fleet refresh, last-good snapshots,
+- `plugins/host-monitor/server.ts` owns fleet refresh, last-good snapshots,
   thresholds, and host-targeted process orchestration. `host.ts` collects a
   strict privacy-bounded telemetry/process projection on an enrolled machine;
   `app.tsx` owns the dashboard, sidebar summary, floating monitor, inspector,

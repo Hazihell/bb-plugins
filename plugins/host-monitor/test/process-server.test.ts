@@ -85,7 +85,7 @@ function preparedProcess(mode: "graceful" | "force" = "graceful") {
 
 test("listProcesses routes only to the explicit enrolled connected host", async (t) => {
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => [hostRecord()] } },
     experimental_callHostRpc: ({ method }) => {
       assert.equal(method, "listProcesses");
@@ -125,7 +125,7 @@ test("identical overlapping process polls are coalesced", async (t) => {
     resolveHostCall = resolve;
   });
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => [hostRecord()] } },
     experimental_callHostRpc: () => hostCall,
   });
@@ -147,7 +147,7 @@ test("termination preparation waits behind one active poll on the same host", as
     resolveList = resolve;
   });
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => [hostRecord()] } },
     experimental_callHostRpc: ({ method }) => {
       if (method === "listProcesses") return listCall;
@@ -187,7 +187,7 @@ test("termination preparation waits behind one active poll on the same host", as
 test("offline and unknown hosts never start a host worker", async (t) => {
   let hosts = [hostRecord("disconnected")];
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => hosts } },
     experimental_callHostRpc: () => {
       throw new Error("host call must not run");
@@ -224,7 +224,7 @@ test("offline and unknown hosts never start a host worker", async (t) => {
 
 test("prepare issues a one-use challenge and execute consumes it before dispatch", async (t) => {
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => [hostRecord()] } },
     experimental_callHostRpc: ({ method }) => {
       if (method === "inspectProcessTermination") return preparedProcess();
@@ -283,7 +283,7 @@ test("execute reports known preflight failure before dispatch and unknown transp
   let connected = true;
   let terminateShouldThrow = false;
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: {
       hosts: {
         list: async () => [hostRecord(connected ? "connected" : "disconnected")],

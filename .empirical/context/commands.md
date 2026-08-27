@@ -13,8 +13,8 @@ Commands below are verified from workspace and plugin manifests.
 - `bb plugin install ./plugins/usage-tracker` — register Usage Tracker locally.
 - `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/`
   — install the released Usage Tracker Git range directly.
-- `bb plugin install ./plugins/machine-monitor` — register Host Monitor locally.
-- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/machine-monitor --tag-prefix machine-monitor/`
+- `bb plugin install ./plugins/host-monitor` — register Host Monitor locally.
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/host-monitor --tag-prefix host-monitor/`
   — install the released Host Monitor Git range directly.
 
 ## Run, test, and build
@@ -29,9 +29,9 @@ Commands below are verified from workspace and plugin manifests.
   `npm test --workspace bb-plugin-taskboard` — focused Taskboard iteration.
 - `npm run check --workspace bb-plugin-taskboard` — Taskboard SDK-type check,
   typecheck, tests, build, and build-metadata verification.
-- `npm run dev --workspace bb-plugin-machine-monitor` — Host Monitor
+- `npm run dev --workspace bb-plugin-host-monitor` — Host Monitor
   watch/build/reload loop after local-path installation.
-- `npm run check --workspace bb-plugin-machine-monitor` — Host Monitor SDK-type
+- `npm run check --workspace bb-plugin-host-monitor` — Host Monitor SDK-type
   check, typecheck, complete Node/TSX test suite, and BB build.
 - `npm run types:refresh --workspace bb-plugin-taskboard` followed by
   `npm install` — deliberate SDK declaration pin refresh when the minimum BB

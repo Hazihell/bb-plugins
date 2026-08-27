@@ -83,7 +83,7 @@ test("refresh fans out only to connected hosts and isolates one failure", async 
     hostRecord("host-charlie", "Charlie", "disconnected"),
   ];
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: { hosts: { list: async () => machines } },
     experimental_callHostRpc: ({ hostId }) => {
       if (hostId === "host-bravo") throw new Error("fixture host failure");
@@ -143,7 +143,7 @@ test("refresh fans out only to connected hosts and isolates one failure", async 
 test("a failed refresh preserves the last good reading", async (t) => {
   let shouldFail = false;
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     sdk: {
       hosts: { list: async () => [hostRecord("host-alpha", "Alpha")] },
     },
@@ -172,7 +172,7 @@ test("a failed refresh preserves the last good reading", async (t) => {
 
 test("CPU health uses configurable thresholds after three high samples", async (t) => {
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     settings: {
       attentionThresholdPercent: "60",
       criticalThresholdPercent: "70",
@@ -208,7 +208,7 @@ test("CPU health uses configurable thresholds after three high samples", async (
 });
 
 test("threshold settings keep the toggle key and expose effective percentages", async (t) => {
-  const fake = createFakePluginHost({ pluginId: "machine-monitor" });
+  const fake = createFakePluginHost({ pluginId: "host-monitor" });
   t.after(() => fake.harness.lifecycle.dispose());
   await plugin(fake.bb);
 
@@ -279,7 +279,7 @@ test("threshold settings keep the toggle key and expose effective percentages", 
 
 test("settings changes immediately recompute dashboard health", async (t) => {
   const fake = createFakePluginHost({
-    pluginId: "machine-monitor",
+    pluginId: "host-monitor",
     settings: {
       attentionThresholdPercent: "40",
       criticalThresholdPercent: "60",

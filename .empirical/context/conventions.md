@@ -44,6 +44,9 @@
 - Host Monitor may expose only its strict telemetry/process contracts: one
   masked-by-default primary IP, no credentials/interface inventory/command
   lines/usernames, and no reading persistence or third-party telemetry.
+- Host Monitor's canonical active identity is `host-monitor` at
+  `plugins/host-monitor`; retired identities remain immutable history, not
+  aliases, duplicate collection rows, routes, or marketplace entries.
 - Host Monitor process stops remain explicitly host-targeted, one-at-a-time,
   freshly confirmed, and revalidated; do not add bulk, automatic, tree, or
   connection-management actions.
