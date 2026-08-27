@@ -21,7 +21,7 @@
   realtime invalidation.
 - `plugins/usage-tracker` is independent and owns its own server, app, provider
   usage model, compact-limit preference, tests, and assets.
-- `plugins/machine-monitor/server.ts` owns fleet refresh, last-good snapshots,
+- `plugins/host-monitor/server.ts` owns fleet refresh, last-good snapshots,
   thresholds, and host-targeted process orchestration. `host.ts` collects a
   strict privacy-bounded telemetry/process projection on an enrolled machine;
   `app.tsx` owns the dashboard, sidebar summary, floating monitor, inspector,
@@ -47,7 +47,7 @@
    request, caches the returned item, and inserts a Taskboard mention into the
    BB composer. The external provider is never written before confirmation.
 6. A background service refreshes configured projects; the external tracker
-  remains authoritative when cache and live state differ.
+   remains authoritative when cache and live state differ.
 7. Named presets never auto-apply. UI application provider-checks a preset,
    atomically replaces the current project `BrowsePreferences`, and lets the
    existing observable store synchronize full/right-panel surfaces.

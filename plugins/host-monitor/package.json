@@ -1,25 +1,24 @@
 {
-  "name": "bb-plugin-machine-monitor",
+  "name": "bb-plugin-host-monitor",
   "version": "0.1.0",
   "private": true,
   "description": "Live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
-  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/machine-monitor#readme",
+  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/host-monitor#readme",
   "bugs": {
     "url": "https://github.com/MateoCerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MateoCerquetella/bb-plugins.git",
-    "directory": "plugins/machine-monitor"
+    "directory": "plugins/host-monitor"
   },
   "keywords": [
     "bb",
     "bb-plugin",
     "host-monitor",
     "system-monitor",
-    "machine-monitor",
     "cpu",
     "memory",
     "disk",

@@ -910,7 +910,7 @@ function navigateToHostMonitor(pluginId: string): void {
 export function toggleHostMonitorPopover(): void {
   const event = new Event(TOGGLE_EVENT, { cancelable: true });
   const unhandled = window.dispatchEvent(event);
-  if (unhandled) window.location.assign("/plugins/machine-monitor/machines");
+  if (unhandled) window.location.assign("/plugins/host-monitor/machines");
 }
 
 export function mountHostMonitorSidebar(

@@ -4,8 +4,8 @@
   "name": "mateocerquetella-bb-plugins",
   "plugins": [
     {
-      "name": "machine-monitor",
-      "source": "./plugins/machine-monitor"
+      "name": "host-monitor",
+      "source": "./plugins/host-monitor"
     },
     {
       "name": "taskboard",

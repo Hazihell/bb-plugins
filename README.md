@@ -20,7 +20,7 @@
 
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
-| <img src="./plugins/machine-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/machine-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
+| <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 | <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 
@@ -29,17 +29,21 @@
 Install the immutable Host Monitor Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/machine-monitor --tag-prefix machine-monitor/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/host-monitor --tag-prefix host-monitor/
 ```
 
 Host Monitor requires BB 0.40 or later; the collection's other plugins retain
 their BB 0.38-compatible releases.
 
+An installation made under Host Monitor's retired plugin id cannot update
+across the rename. Remove that earlier Host Monitor entry, then use the command
+above; threshold settings must be applied again for a managed installation.
+
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/128)
 is merged and live, the equivalent shorthand is:
 
 ```sh
-bb plugin install machine-monitor
+bb plugin install host-monitor
 ```
 
 Host Monitor keeps live CPU, RAM used/total, disk, network, load, uptime, and
@@ -47,15 +51,15 @@ connection state in responsive cards or rows. Its sidebar control opens a
 compact summary or movable floating monitor, while Host details provides a
 searchable process ledger with explicit, freshly validated stop confirmations.
 IPs remain masked until revealed. See the
-[Host Monitor README](./plugins/machine-monitor) for platform support, privacy,
+[Host Monitor README](./plugins/host-monitor) for platform support, privacy,
 thresholds, and process-safety details.
 
 Update or remove it with BB:
 
 ```sh
 bb plugin outdated
-bb plugin update machine-monitor
-bb plugin remove machine-monitor
+bb plugin update host-monitor
+bb plugin remove host-monitor
 ```
 
 ## Taskboard quick start
@@ -139,7 +143,7 @@ git clone https://github.com/MateoCerquetella/bb-plugins.git
 cd bb-plugins
 npm install
 npm run build
-bb plugin install ./plugins/machine-monitor
+bb plugin install ./plugins/host-monitor
 bb plugin install ./plugins/taskboard
 bb plugin install ./plugins/usage-tracker
 ```
@@ -150,7 +154,7 @@ BB reads local-path plugins in place, so the development loop stays short:
 git pull
 npm install
 npm run build
-bb plugin reload machine-monitor
+bb plugin reload host-monitor
 bb plugin reload taskboard
 bb plugin reload usage-tracker
 ```
@@ -159,7 +163,7 @@ BB 0.38 and newer reads the repository's `.bb/plugins.json` collection, so a
 plugin can also be installed straight from Git:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin machine-monitor
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin host-monitor
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin taskboard
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin usage-tracker
 ```

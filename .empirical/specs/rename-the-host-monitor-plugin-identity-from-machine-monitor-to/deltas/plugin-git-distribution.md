@@ -1,11 +1,6 @@
-# Plugin Git Distribution Specification
+# Plugin Git Distribution Delta
 
-## Purpose
-
-Define the shared active distribution boundary for repository plugins whose
-installable releases live in Git rather than the npm registry.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Active Git-only install surfaces
 
@@ -31,20 +26,6 @@ omit npm publication configuration and hooks.
   workspace identity
 - **AND** its tests and server/app/host artifacts all report `host-monitor`
 
-### Requirement: Preserve Git-build package tooling
-
-Git-only distribution SHALL retain the package manifests, stable package names,
-workspace/lockfile dependency graph, source entry points, and package-manager
-development commands required to install dependencies, build, test, and derive
-BB plugin identity.
-
-#### Scenario: Distinguish tooling from distribution
-
-- **WHEN** an active audit encounters `package.json`, lockfile package records,
-  `@get-bb/plugin-sdk`, or npm install/run development commands
-- **THEN** those build and identity contracts remain intact
-- **AND** none is treated as evidence that either plugin is published to npm
-
 ### Requirement: Preserve distribution history
 
 The retired annotated `machine-monitor/v0.1.0` tag SHALL remain immutable at
@@ -58,6 +39,8 @@ separate annotated `host-monitor/v0.1.0` tag on the reviewed rename commit.
   commands use only `host-monitor`
 - **AND** the retired tag still peels to
   `9db09cc35553493113f31e5352a44911ae92bc73` without being moved or deleted
+
+## ADDED Requirements
 
 ### Requirement: Migrate a local Host Monitor identity safely
 

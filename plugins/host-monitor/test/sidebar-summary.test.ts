@@ -226,24 +226,24 @@ describe("Host Monitor sidebar summary", () => {
 describe("Host Monitor sidebar requests", () => {
   it("loads the declarative sidebar color preference", () => {
     assert.deepEqual(
-      hostMonitorSidebarPreferencesRpcRequest("machine-monitor"),
+      hostMonitorSidebarPreferencesRpcRequest("host-monitor"),
       {
-        url: "/api/v1/plugins/machine-monitor/rpc/getPreferences",
+        url: "/api/v1/plugins/host-monitor/rpc/getPreferences",
         body: "null",
       },
     );
   });
 
   it("uses the dashboard RPC for passive reads", () => {
-    assert.deepEqual(hostMonitorSidebarRpcRequest("machine-monitor", "dashboard"), {
-      url: "/api/v1/plugins/machine-monitor/rpc/dashboard",
+    assert.deepEqual(hostMonitorSidebarRpcRequest("host-monitor", "dashboard"), {
+      url: "/api/v1/plugins/host-monitor/rpc/dashboard",
       body: "null",
     });
   });
 
   it("uses refresh-all semantics for an explicit refresh", () => {
-    assert.deepEqual(hostMonitorSidebarRpcRequest("machine-monitor", "refresh"), {
-      url: "/api/v1/plugins/machine-monitor/rpc/refresh",
+    assert.deepEqual(hostMonitorSidebarRpcRequest("host-monitor", "refresh"), {
+      url: "/api/v1/plugins/host-monitor/rpc/refresh",
       body: '{"hostId":null}',
     });
   });
@@ -372,7 +372,7 @@ describe("Host Monitor sidebar threshold colors", () => {
       new URL("../app.css", import.meta.url),
       "utf8",
     );
-    const pageStart = css.lastIndexOf("\n.machine-monitor-dashboard {");
+    const pageStart = css.lastIndexOf("\n.host-monitor-dashboard {");
     assert.notEqual(pageStart, -1);
     const sidebarCss = css.slice(0, pageStart);
 
@@ -411,7 +411,7 @@ describe("Host Monitor sidebar threshold colors", () => {
       new URL("../app.css", import.meta.url),
       "utf8",
     );
-    const pageStart = css.lastIndexOf("\n.machine-monitor-dashboard {");
+    const pageStart = css.lastIndexOf("\n.host-monitor-dashboard {");
     assert.notEqual(pageStart, -1);
     const sidebarCss = css.slice(0, pageStart);
 

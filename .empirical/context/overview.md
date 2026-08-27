@@ -44,6 +44,6 @@
   `.empirical/capabilities/taskboard-distribution/spec.md`.
 - Usage Tracker behavior: `plugins/usage-tracker/README.md` and its manifest.
 - Host Monitor behavior and privacy boundary:
-  `plugins/machine-monitor/README.md`, its manifest, `contract.ts`, `server.ts`,
+  `plugins/host-monitor/README.md`, its manifest, `contract.ts`, `server.ts`,
   `host.ts`, and `app.tsx`.
 - Hosted verification: `.github/workflows/ci.yml`.

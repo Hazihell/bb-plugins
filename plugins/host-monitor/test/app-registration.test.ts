@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import type {
   JsonValue,
@@ -43,13 +43,40 @@ test("keeps the installed plugin identity while presenting Host Monitor", () => 
   const manifest = JSON.parse(
     readFileSync(new URL("../package.json", import.meta.url), "utf8"),
   ) as {
+    homepage: string;
+    keywords: string[];
     name: string;
+    repository: { directory: string };
     bb: { name: string };
   };
 
-  assert.equal(manifest.name, "bb-plugin-machine-monitor");
-  assert.equal(manifest.name.replace(/^bb-plugin-/u, ""), "machine-monitor");
+  assert.equal(manifest.name, "bb-plugin-host-monitor");
+  assert.equal(manifest.name.replace(/^bb-plugin-/u, ""), "host-monitor");
   assert.equal(manifest.bb.name, "Host Monitor");
+  assert.match(manifest.homepage, /\/plugins\/host-monitor#readme$/u);
+  assert.equal(manifest.repository.directory, "plugins/host-monitor");
+  assert.deepEqual(manifest.keywords, [...new Set(manifest.keywords)]);
+});
+
+test("keeps the retired compound identity out of active plugin text", () => {
+  const pluginRoot = new URL("..", import.meta.url);
+  const retiredIdentity = ["machine", "monitor"].join("-");
+  const textExtensions = /\.(?:css|d\.ts|json|md|mjs|ts|tsx)$/u;
+  const pending = [pluginRoot];
+
+  while (pending.length > 0) {
+    const directory = pending.pop();
+    assert.ok(directory);
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name === "dist" || entry.name === "node_modules") continue;
+      const child = new URL(`${entry.name}${entry.isDirectory() ? "/" : ""}`, directory);
+      if (entry.isDirectory()) {
+        pending.push(child);
+      } else if (textExtensions.test(entry.name)) {
+        assert.doesNotMatch(readFileSync(child, "utf8"), new RegExp(retiredIdentity, "u"));
+      }
+    }
+  }
 });
 
 test("keeps threshold color hooks on percentages without rendering a legend or coloring counts", () => {
@@ -57,10 +84,10 @@ test("keeps threshold color hooks on percentages without rendering a legend or c
   const accessoryStart = source.indexOf("function FleetSidebarAccessory()");
   const accessoryEnd = source.indexOf("function FilterPill(", accessoryStart);
 
-  assert.match(source, /machine-monitor-metric-ruler__percentage/u);
-  assert.match(source, /machine-monitor-host-card__metric-value/u);
-  assert.match(source, /machine-monitor-telemetry-gauge__percentage/u);
-  assert.doesNotMatch(source, /ThresholdLegend|machine-monitor-threshold-legend/u);
+  assert.match(source, /host-monitor-metric-ruler__percentage/u);
+  assert.match(source, /host-monitor-host-card__metric-value/u);
+  assert.match(source, /host-monitor-telemetry-gauge__percentage/u);
+  assert.doesNotMatch(source, /ThresholdLegend|host-monitor-threshold-legend/u);
   assert.notEqual(accessoryStart, -1);
   assert.notEqual(accessoryEnd, -1);
   const accessorySource = source.slice(accessoryStart, accessoryEnd);
@@ -75,10 +102,10 @@ test("marks download red and upload blue across network readings", () => {
   const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
   const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
 
-  assert.match(source, /machine-monitor-network-rate__arrow/u);
-  assert.match(source, /machine-monitor-network-rate__value/u);
-  assert.match(source, /machine-monitor-host-card__network-rate/u);
-  assert.match(source, /machine-monitor-network-detail/u);
+  assert.match(source, /host-monitor-network-rate__arrow/u);
+  assert.match(source, /host-monitor-network-rate__value/u);
+  assert.match(source, /host-monitor-host-card__network-rate/u);
+  assert.match(source, /host-monitor-network-detail/u);
   assert.match(source, /data-network-direction="down"/u);
   assert.match(source, /data-network-direction="up"/u);
   assert.match(
@@ -123,15 +150,15 @@ test("keeps the redesigned host cards flat, private, and keyboard-native", () =>
   assert.match(cardSource, />Upload<\/span>/u);
   assert.match(cardSource, /data-network-direction="down"/u);
   assert.match(cardSource, /data-network-direction="up"/u);
-  assert.match(skeletonSource, /machine-monitor-card-skeleton__metadata/u);
-  assert.match(skeletonSource, /machine-monitor-card-skeleton__metric/u);
-  assert.match(skeletonSource, /machine-monitor-card-skeleton__network/u);
+  assert.match(skeletonSource, /host-monitor-card-skeleton__metadata/u);
+  assert.match(skeletonSource, /host-monitor-card-skeleton__metric/u);
+  assert.match(skeletonSource, /host-monitor-card-skeleton__network/u);
   assert.match(css, /minmax\(min\(100%, 20rem\), 1fr\)/u);
-  assert.match(css, /\.machine-monitor-host-card__status\[data-connected="false"\]/u);
-  assert.match(css, /\.machine-monitor-host-card__network-lane/u);
-  assert.match(css, /\.machine-monitor-host-card__network-direction/u);
-  assert.match(css, /\.machine-monitor-host-card__metric-detail/u);
-  assert.match(css, /\.machine-monitor-host-card\[aria-current="true"\]/u);
+  assert.match(css, /\.host-monitor-host-card__status\[data-connected="false"\]/u);
+  assert.match(css, /\.host-monitor-host-card__network-lane/u);
+  assert.match(css, /\.host-monitor-host-card__network-direction/u);
+  assert.match(css, /\.host-monitor-host-card__metric-detail/u);
+  assert.match(css, /\.host-monitor-host-card\[aria-current="true"\]/u);
 });
 
 test("registers the Host Monitor sidebar surfaces and targeted inspector", async () => {
@@ -329,7 +356,7 @@ test("keeps process inspection on demand, target-bound, and privacy-safe", () =>
   assert.match(processesSource, /filterProcessRows\(sortedRows, processQuery\)/u);
   assert.match(processesSource, /aria-keyshortcuts="Escape"/u);
   assert.match(processesSource, /ProcessSummaryStrip/u);
-  assert.match(processesSource, /machine-monitor-process-surface/u);
+  assert.match(processesSource, /host-monitor-process-surface/u);
   assert.match(
     source,
     /<th aria-label=\{`\$\{row\.name\}, PID \$\{row\.pid\}`\} scope="row">/u,
@@ -344,7 +371,7 @@ test("keeps process sorting responsive and accessible", () => {
 
   assert.match(source, /function ProcessTableSortHeader/u);
   assert.match(source, /aria-sort=\{active \? direction : undefined\}/u);
-  assert.match(source, /className="machine-monitor-process-column-sort"/u);
+  assert.match(source, /className="host-monitor-process-column-sort"/u);
   assert.match(source, /onClick=\{\(\) => onSort\("name"\)\}/u);
   assert.match(source, /onClick=\{\(\) => onSort\("cpu"\)\}/u);
   assert.match(source, /onClick=\{\(\) => onSort\("memory"\)\}/u);
@@ -355,9 +382,9 @@ test("keeps process sorting responsive and accessible", () => {
   assert.equal([...source.matchAll(/<ProcessSortButton /gu)].length, 3);
   assert.match(
     css,
-    /@container \(min-width: 32rem\)\s*\{\s*\.machine-monitor-process-sort-group\s*\{\s*display:\s*none;/u,
+    /@container \(min-width: 32rem\)\s*\{\s*\.host-monitor-process-sort-group\s*\{\s*display:\s*none;/u,
   );
-  assert.match(css, /\.machine-monitor-process-column-sort:focus-visible/u);
+  assert.match(css, /\.host-monitor-process-column-sort:focus-visible/u);
 });
 
 test("stamps portaled process confirmations with the plugin overlay scope", async () => {

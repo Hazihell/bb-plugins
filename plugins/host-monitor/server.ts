@@ -75,7 +75,7 @@ function nextCpuHighStreak(
     : 0;
 }
 
-export default async function machineMonitorPlugin(
+export default async function hostMonitorPlugin(
   bb: BbPluginApi,
 ): Promise<void> {
   const settings = bb.settings.define({
