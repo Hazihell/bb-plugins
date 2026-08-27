@@ -1,6 +1,7 @@
 export const PROVIDER_IDS = ["codex", "claudeCode", "cursor"] as const;
 
 export type ProviderId = (typeof PROVIDER_IDS)[number];
+export type RawProviderId = ProviderId | "claude-code" | "acp-cursor";
 export type ProviderStatus =
   | "ok"
   | "not_installed"
@@ -39,11 +40,9 @@ export type RawProviderUsage =
       accountEmail?: string | null;
     };
 
-export interface RawUsageResponse {
-  codex: RawProviderUsage;
-  claudeCode: RawProviderUsage;
-  cursor: RawProviderUsage;
-}
+export type RawUsageResponse = Partial<
+  Record<RawProviderId, RawProviderUsage>
+>;
 
 export interface UsageWindow {
   label: string;
@@ -74,14 +73,30 @@ export interface UsageSnapshot {
 
 interface ProviderDefinition {
   id: ProviderId;
+  wireIds: readonly RawProviderId[];
   name: string;
   loginCommand: string;
 }
 
 const PROVIDERS: readonly ProviderDefinition[] = [
-  { id: "codex", name: "Codex", loginCommand: "codex login" },
-  { id: "claudeCode", name: "Claude Code", loginCommand: "claude" },
-  { id: "cursor", name: "Cursor", loginCommand: "cursor-agent login" },
+  {
+    id: "codex",
+    wireIds: ["codex"],
+    name: "Codex",
+    loginCommand: "codex login",
+  },
+  {
+    id: "claudeCode",
+    wireIds: ["claude-code", "claudeCode"],
+    name: "Claude Code",
+    loginCommand: "claude",
+  },
+  {
+    id: "cursor",
+    wireIds: ["acp-cursor", "cursor"],
+    name: "Cursor",
+    loginCommand: "cursor-agent login",
+  },
 ];
 
 export const REQUEST_ERROR_MESSAGE =
@@ -119,8 +134,20 @@ function statusMessage(
 
 function normalizeProvider(
   definition: ProviderDefinition,
-  usage: RawProviderUsage,
+  usage: RawProviderUsage | undefined,
 ): ProviderUsage {
+  if (usage === undefined) {
+    return {
+      id: definition.id,
+      name: definition.name,
+      status: "error",
+      accountEmail: null,
+      planLabel: null,
+      message: `${definition.name} usage was not reported by bb.`,
+      windows: [],
+    };
+  }
+
   if (usage.status !== "ok") {
     return {
       id: definition.id,
@@ -162,6 +189,17 @@ function normalizeProvider(
   };
 }
 
+function providerUsage(
+  response: RawUsageResponse,
+  definition: ProviderDefinition,
+): RawProviderUsage | undefined {
+  for (const wireId of definition.wireIds) {
+    const usage = response[wireId];
+    if (usage !== undefined) return usage;
+  }
+  return undefined;
+}
+
 export function normalizeUsage(
   response: RawUsageResponse,
   host: UsageSnapshot["host"],
@@ -171,7 +209,7 @@ export function normalizeUsage(
     fetchedAt: fetchedAt.toISOString(),
     host,
     providers: PROVIDERS.map((provider) =>
-      normalizeProvider(provider, response[provider.id]),
+      normalizeProvider(provider, providerUsage(response, provider)),
     ),
   };
 }

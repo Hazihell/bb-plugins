@@ -1,14 +1,11 @@
-<!-- empirical-sdd:managed-context-v2 -->
 # Repository Knowledge Index
 
-Generated from bounded repository metadata.
+Curated repository knowledge for the `bb-plugins` multi-plugin workspace.
 
-- Repository: bb-plugins
-- Source fingerprint: sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356
-- Included files: 148
-- Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, ., .github, .windsurf, demos, plugins
-- Manifests: package.json, plugins/host-monitor/package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
-- Primary docs: README.md, plugins/host-monitor/README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md
+The root owns orchestration and one lockfile; Taskboard, Usage Tracker, and Host
+Monitor remain independent private plugin packages under `plugins/`. Usage
+Tracker preserves stable frontend/provider IDs while adapting current and legacy
+BB usage response keys, and its expanded card is the complete usage-window view.
 
 ## Topics
 
@@ -17,5 +14,6 @@ Generated from bounded repository metadata.
 - [Commands](commands.md)
 - [Conventions](conventions.md)
 
-Freshness and source dependencies are recorded in [manifest.json](manifest.json).
-This is a compact file-backed context set, not an embedding or vector database.
+Source dependencies, page digests, and freshness are recorded in
+[manifest.json](manifest.json). This is a compact file-backed context set, not
+an embedding or vector database.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.28.0",
-  "sourceDigest": "sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356",
+  "sourceDigest": "sha256:5bda6dacd96f1f8ce3387d1b0011314333d424c0365bd0c9477c1bcf57db5893",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -665,8 +665,8 @@
     },
     {
       "path": "plugins/usage-tracker/app.css",
-      "size": 8023,
-      "digest": "sha256:cfe02754495dab749372a4560942a3c25faad57f6a544a9ea0c5bee7445733a9"
+      "size": 8425,
+      "digest": "sha256:5012f4426a8389d7391e8662882da3ddd0b685c12ec425edc2fc328fd2f71052"
     },
     {
       "path": "plugins/usage-tracker/app.tsx",
@@ -705,18 +705,18 @@
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-strip.ts",
-      "size": 18625,
-      "digest": "sha256:2c09e3ebb4114edb1a8c9d7b27bc0145c267f68d9dd0b7a22926e32d5f5bd109"
+      "size": 22457,
+      "digest": "sha256:f5087070f21bd028ac0b1a6d4aadc4baff656c31896ba9b135a5d5901fb125f9"
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-usage.ts",
-      "size": 5873,
-      "digest": "sha256:bed287af0be9ad854a1c055ec343d2c1ca75e505930a56eeb7594ebae9ccbe7e"
+      "size": 7097,
+      "digest": "sha256:592f768310cc29ff92666784b41be2513a99ff1d05a4c54c020587a59c901dc7"
     },
     {
       "path": "plugins/usage-tracker/lib/usage.ts",
-      "size": 6008,
-      "digest": "sha256:af875fb62affc52e3ce4df29ee9466a9a1b73cafad55402628df56060e198b62"
+      "size": 6791,
+      "digest": "sha256:9d5ce285b7bb34df5d0053a31f4fd384ce21390060acba1ba64dd09dc727226c"
     },
     {
       "path": "plugins/usage-tracker/package.json",
@@ -730,8 +730,8 @@
     },
     {
       "path": "plugins/usage-tracker/test/usage.test.ts",
-      "size": 14922,
-      "digest": "sha256:1e2e114082731791ddc7c418df0c8f4441cb8bcf80bf1afa04cc4d99d8347bee"
+      "size": 21810,
+      "digest": "sha256:627edda7a8be74de72d8404abf0c0f925440151b722f9a5c67be9ce90a0acc23"
     },
     {
       "path": "plugins/usage-tracker/tsconfig.json",
@@ -748,7 +748,7 @@
     {
       "path": ".empirical/context/index.md",
       "generator": "empirical-0.28.0",
-      "managed": true,
+      "managed": false,
       "dependencies": [
         ".agents/skills/empirical/SKILL.md",
         ".bb/plugins.json",
@@ -899,8 +899,8 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:39bf82cfb79281c7cd39673e1e2b1d273437ec05975c07221ef349b26c58b356",
-      "digest": "sha256:2b4a9b9ca0f4c33a55fd2d188816549e1b10611c406a12313079ccc7f93956a4",
+      "sourceDigest": "sha256:5bda6dacd96f1f8ce3387d1b0011314333d424c0365bd0c9477c1bcf57db5893",
+      "digest": "sha256:10082cd6b7a30aaa42f0ae037b0a59f8aa211cf8f0f34f233f78132307c899e9",
       "freshness": "fresh"
     },
     {
@@ -968,5 +968,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:931bdafb71718a1260d85e5a58667881cd9c60ceb7c37cdca3658acb8424841d"
+  "digest": "sha256:8528c9aece7857e25092df2887c942ecf82b7894303b4b885221fe5ae88f979d"
 }

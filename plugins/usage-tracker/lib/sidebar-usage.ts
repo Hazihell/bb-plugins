@@ -10,6 +10,11 @@ export interface SidebarUsageWindows {
   weekly: UsageWindow | null;
 }
 
+export interface SidebarUsageDetailRow {
+  label: string;
+  window: UsageWindow | null;
+}
+
 export type SidebarUsagePrimaryFallback =
   | "none"
   | "current-alternative"
@@ -51,6 +56,23 @@ export function sidebarUsageWindows(
     weekly:
       provider.windows.find((window) => isWeeklyLabel(window.label)) ?? null,
   };
+}
+
+export function sidebarUsageDetailRows(
+  provider: ProviderUsage,
+): SidebarUsageDetailRow[] {
+  const pair = sidebarUsageWindows(provider);
+  const selected = new Set<UsageWindow>();
+  if (pair.fiveHour !== null) selected.add(pair.fiveHour);
+  if (pair.weekly !== null) selected.add(pair.weekly);
+
+  return [
+    { label: "5-hour limit", window: pair.fiveHour },
+    { label: "Weekly limit", window: pair.weekly },
+    ...provider.windows
+      .filter((window) => !selected.has(window))
+      .map((window) => ({ label: window.label, window })),
+  ];
 }
 
 export function sidebarUsageSummary(provider: ProviderUsage): string {
@@ -137,9 +159,10 @@ export function sidebarUsagePrimaryAccessibleText(
   providerName: string,
   compactLimit: CompactLimitOption,
   selection: SidebarUsagePrimarySelection,
+  expanded = false,
 ): string {
   const prefix = `${providerName} compact usage: ${compactLimit} configured`;
-  const action = "Open five-hour and weekly details.";
+  const action = `${expanded ? "Close" : "Open"} ${providerName} usage details.`;
   if (selection.window === null || selection.actualKind === null) {
     return `${prefix}; no usage window is available. ${action}`;
   }
@@ -182,12 +205,27 @@ export function mergeLastKnownWindows(
   const currentPair = sidebarUsageWindows(current);
   const previousPair = sidebarUsageWindows(previous);
   const windows = [...current.windows];
+  const handledPrevious = new Set<UsageWindow>();
 
-  if (currentPair.fiveHour === null && previousPair.fiveHour !== null) {
-    windows.unshift(previousPair.fiveHour);
+  if (previousPair.fiveHour !== null) {
+    handledPrevious.add(previousPair.fiveHour);
+    if (currentPair.fiveHour === null) {
+      windows.unshift(previousPair.fiveHour);
+    }
   }
-  if (currentPair.weekly === null && previousPair.weekly !== null) {
-    windows.push(previousPair.weekly);
+  if (previousPair.weekly !== null) {
+    const alreadyHandled = handledPrevious.has(previousPair.weekly);
+    handledPrevious.add(previousPair.weekly);
+    if (currentPair.weekly === null && !alreadyHandled) {
+      windows.push(previousPair.weekly);
+    }
+  }
+
+  const currentLabels = new Set(windows.map((window) => window.label));
+  for (const window of previous.windows) {
+    if (handledPrevious.has(window) || currentLabels.has(window.label)) continue;
+    windows.push(window);
+    currentLabels.add(window.label);
   }
 
   return { ...current, windows };
