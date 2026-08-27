@@ -70,7 +70,7 @@ Install the tracking Git release directly from this monorepo:
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
 ```
 
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
 is merged and live, the equivalent shorthand is:
 
 ```sh
@@ -100,10 +100,10 @@ bb plugin remove taskboard
 Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
 ```
 
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
 is updated and live, the equivalent shorthand is:
 
 ```sh
@@ -112,10 +112,11 @@ bb plugin install usage-tracker
 
 Usage Tracker mounts in BB's native sidebar footer beside the existing utility
 icons. Each provider gets a compact progress bar and current usage reading.
-Select Codex or Claude Code to expand its five-hour and weekly limits, reset
-times, and session status without leaving the current thread. There is no
-separate plugin page to manage. The **Compact limit** setting chooses whether
-the collapsed percentage and bar prefer weekly or five-hour usage.
+Select Codex or Claude Code to expand its five-hour, weekly, and any additional
+provider-defined limits, reset times, and session status without leaving the
+current thread. There is no separate plugin page to manage. The **Compact
+limit** setting chooses whether the collapsed percentage and bar prefer weekly
+or five-hour usage.
 
 The strip refreshes automatically every five minutes, refreshes when a stale BB
 window becomes active again, and includes a manual refresh control. If a
