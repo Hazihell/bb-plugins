@@ -8,6 +8,12 @@ Taskboard also uses the third-party dependencies declared in
 `plugins/taskboard/package.json`. Their copyright and license notices remain
 available in their respective packages and repositories.
 
+Host Monitor includes the Hugeicons Free Icons `ComputerTerminal01` glyph in
+its icon and logo assets and bundles Zod for server/host RPC validation. Both
+projects are distributed under the MIT License. Full attribution and license
+text are included in
+`plugins/machine-monitor/THIRD_PARTY_NOTICES.md`.
+
 Usage Tracker includes provider brand-mark geometry adapted from BB's provider
 icon components and the Hugeicons Free Icons `BarChart` glyph in its assets.
 Both source projects distribute that material under the MIT License. Provider

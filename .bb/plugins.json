@@ -4,6 +4,10 @@
   "name": "mateocerquetella-bb-plugins",
   "plugins": [
     {
+      "name": "machine-monitor",
+      "source": "./plugins/machine-monitor"
+    },
+    {
       "name": "taskboard",
       "source": "./plugins/taskboard"
     },

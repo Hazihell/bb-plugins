@@ -8,6 +8,9 @@
   remembered and named project views, mentions, CLI access, and agent handoff.
 - Usage Tracker places Codex and Claude Code quota windows in BB's sidebar
   footer and lets the user choose the weekly or five-hour compact reading.
+- Host Monitor presents live CPU, RAM, disk, network, load, uptime, connection,
+  and sample-health data for every enrolled BB host, with guarded on-demand
+  process inspection and termination.
 
 ## Boundaries
 
@@ -22,9 +25,9 @@
 - Taskboard's current browse state stays versioned and device-local; named
   project presets store validated snapshots in the plugin database and apply
   explicitly through that same browse store.
-- Taskboard and Usage Tracker are private/non-publishable workspaces. They
-  release through immutable plugin-specific Git tags plus the BB Community
-  marketplace.
+- Taskboard, Usage Tracker, and Host Monitor are private/non-publishable
+  workspaces. They release through immutable plugin-specific Git tags plus the
+  BB Community marketplace.
 - Generated `dist/` and `node_modules/` are build/install products, not authored
   source and are not committed.
 - Empirical tracker integration is explicitly disabled in this checkout, so
@@ -40,4 +43,7 @@
 - Taskboard distribution contract:
   `.empirical/capabilities/taskboard-distribution/spec.md`.
 - Usage Tracker behavior: `plugins/usage-tracker/README.md` and its manifest.
+- Host Monitor behavior and privacy boundary:
+  `plugins/machine-monitor/README.md`, its manifest, `contract.ts`, `server.ts`,
+  `host.ts`, and `app.tsx`.
 - Hosted verification: `.github/workflows/ci.yml`.
