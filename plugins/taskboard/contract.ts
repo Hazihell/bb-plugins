@@ -15,6 +15,7 @@ import {
   filterPresetOrderSchema,
   filterPresetProjectIdSchema,
   filterPresetSchema,
+  filterPresetSummarySchema,
   filterPresetStateSchema
 } from './filter-presets.js';
 export {
@@ -43,12 +44,17 @@ export {
   filterPresetOrderSchema,
   filterPresetProjectIdSchema,
   filterPresetSchema,
+  filterPresetSummary,
+  filterPresetSummarySchema,
   filterPresetStateSchema,
   normalizePresetName,
   resolvePresetOrder,
   serializeFilterPresetState
 } from './filter-presets.js';
-export type { FilterPreset } from './filter-presets.js';
+export type {
+  FilterPreset,
+  FilterPresetSummary
+} from './filter-presets.js';
 export {
   bbProjectIdSchema,
   jiraBaseUrlSchema,
@@ -494,7 +500,7 @@ export const taskboardRpcContract = defineRpcContract({
       .strict(),
     output: z
       .object({
-        preset: filterPresetSchema,
+        preset: filterPresetSummarySchema,
         presets: z.array(filterPresetSchema).max(FILTER_PRESET_LIMIT)
       })
       .strict()

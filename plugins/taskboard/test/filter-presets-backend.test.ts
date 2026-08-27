@@ -12,6 +12,7 @@ import {
 import {
   FILTER_PRESET_PROJECT_STATE_BYTES_MAX,
   FILTER_PRESET_STATE_JSON_MAX_LENGTH,
+  filterPresetSummary,
   serializeFilterPresetState
 } from '../filter-presets.ts';
 
@@ -444,6 +445,15 @@ test('keeps maximum aggregate preset JSON compact and under the CLI cap', () => 
   assert.ok(outputBytes > 700_000);
   assert.ok(outputBytes <= PLUGIN_CLI_OUTPUT_MAX_BYTES);
   assert.equal(output.includes('\n'), false);
+  const saveOutput = formatFilterPresetCliJson({
+    preset: filterPresetSummary(presets[0]!),
+    presets
+  });
+  assert.ok(
+    new TextEncoder().encode(saveOutput).byteLength <=
+      PLUGIN_CLI_OUTPUT_MAX_BYTES
+  );
+  assert.equal('state' in filterPresetSummary(presets[0]!), false);
   assert.throws(() =>
     formatFilterPresetCliJson({
       value: 'x'.repeat(PLUGIN_CLI_OUTPUT_MAX_BYTES + 1)

@@ -336,6 +336,27 @@ export const filterPresetSchema = z
   .strict();
 export type FilterPreset = z.infer<typeof filterPresetSchema>;
 
+export const filterPresetSummarySchema = filterPresetSchema
+  .pick({
+    id: true,
+    projectId: true,
+    name: true,
+    position: true
+  })
+  .strict();
+export type FilterPresetSummary = z.infer<typeof filterPresetSummarySchema>;
+
+export function filterPresetSummary(
+  preset: FilterPreset
+): FilterPresetSummary {
+  return filterPresetSummarySchema.parse({
+    id: preset.id,
+    projectId: preset.projectId,
+    name: preset.name,
+    position: preset.position
+  });
+}
+
 const filterPresetOrderInputSchema = z.unknown().superRefine(
   (input, context) => {
     if (Array.isArray(input) && input.length > FILTER_PRESET_LIMIT) {

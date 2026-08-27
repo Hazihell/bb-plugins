@@ -10,6 +10,7 @@ import {
   escapeExternalInlineText,
   escapeExternalJsonOutput,
   filterPresetStateSchema,
+  filterPresetSummary,
   formatWorkItemContext,
   issueDraftRecordSchema,
   normalizePresetName,
@@ -2017,12 +2018,16 @@ export default async function plugin(bb: BbPluginApi) {
     },
     async saveFilterPreset(input) {
       await assertProjectExists(input.projectId);
-      return saveFilterPresetLinearized({
+      const result = await saveFilterPresetLinearized({
         projectId: input.projectId,
         ...(input.id ? { id: input.id } : {}),
         name: input.name,
         state: input.state
       });
+      return {
+        preset: filterPresetSummary(result.preset),
+        presets: result.presets
+      };
     },
     async deleteFilterPreset(input) {
       await assertProjectExists(input.projectId);
@@ -2305,6 +2310,12 @@ export default async function plugin(bb: BbPluginApi) {
             await assertSelectedSourceAfterMutations(project.id, source);
           }
           if (!args.cached) await syncAll(project.id, source, true);
+          // Sync may wait behind a project reconfiguration. Recheck the
+          // preset's provider at the read boundary so old-provider facets can
+          // never filter a freshly switched provider's items.
+          if (preset) {
+            await assertPresetProviderIsCurrent(project.id, preset);
+          }
           const items = store.list({
             projectId: project.id,
             ...(source ? { source } : {}),
