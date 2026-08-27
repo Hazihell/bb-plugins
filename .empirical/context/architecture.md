@@ -2,7 +2,7 @@
 
 ## Components and ownership
 
-- The root npm workspace fans build, typecheck, test, and check scripts into all
+- The root workspace fans build, typecheck, test, and check scripts into all
   leaf plugins while keeping one lockfile and dependency installation.
 - `plugins/taskboard/server.ts` is the backend composition root. It wires typed
   RPC handlers, project-scoped configuration and credentials, the local cache,
@@ -17,6 +17,9 @@
   `sources/` contains the GitHub, Linear, and Jira adapters behind one interface.
 - `plugins/usage-tracker` is independent and owns its own server, app, provider
   usage model, tests, and assets.
+- Both plugin manifests remain workspace/build manifests but are private.
+  BB resolves releases from the monorepo's plugin-specific Git tags and the
+  corresponding `plugins/taskboard` or `plugins/usage-tracker` subdirectory.
 
 ## Data and control flow
 

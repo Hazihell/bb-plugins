@@ -8,7 +8,11 @@ Commands below are verified from workspace and plugin manifests.
   or dependency/lockfile change.
 - `bb plugin install ./plugins/taskboard` — register the local Taskboard path in
   BB for live verification.
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/`
+  — install the released Taskboard Git range directly.
 - `bb plugin install ./plugins/usage-tracker` — register Usage Tracker locally.
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/`
+  — install the released Usage Tracker Git range directly.
 
 ## Run, test, and build
 
@@ -21,7 +25,7 @@ Commands below are verified from workspace and plugin manifests.
 - `npm run typecheck --workspace bb-plugin-taskboard` and
   `npm test --workspace bb-plugin-taskboard` — focused Taskboard iteration.
 - `npm run check --workspace bb-plugin-taskboard` — Taskboard SDK-type check,
-  typecheck, tests, build, and packed-output verification.
+  typecheck, tests, build, and build-metadata verification.
 - `npm run types:refresh --workspace bb-plugin-taskboard` followed by
   `npm install` — deliberate SDK declaration pin refresh when the minimum BB
   release changes.

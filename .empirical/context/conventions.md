@@ -3,7 +3,7 @@
 ## Code and structure
 
 - New independently installable plugins live at `plugins/<id>` and must be
-  added to the root npm workspaces, `.bb/plugins.json`, and README catalog.
+  added to the root workspaces, `.bb/plugins.json`, and README catalog.
 - Keep plugin IDs, package names, CLI commands, realtime channels, persisted
   keys, schemas, tests, and documentation aligned.
 - Manifest `bb.server` and `bb.app` entries point to source files. Never repoint

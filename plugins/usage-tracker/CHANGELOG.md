@@ -6,8 +6,8 @@ All notable changes to Usage Tracker are documented here.
 
 ### Changed
 
-- Migrated development types to the published `@get-bb/plugin-sdk` package
-  and raised the minimum BB version to 0.38.
+- Migrated development types to the pinned `@get-bb/plugin-sdk` development
+  dependency and raised the minimum BB version to 0.38.
 
 ## 0.1.1 - 2026-08-12
 

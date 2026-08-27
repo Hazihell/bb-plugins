@@ -4,9 +4,9 @@
 Generated from bounded repository metadata.
 
 - Repository: bb-plugins-taskboard-dev
-- Source fingerprint: sha256:7eec076fe90c5cbc57984cfab992ac000553c42d3a1d7cc5242ae43e45775857
-- Included files: 95
-- Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, .github, ., .windsurf, demos, plugins
+- Source fingerprint: sha256:ff6a92e5f69bcf805c3c47999eac4debf8e23d0aac79020c98063858c6f4107a
+- Included files: 96
+- Roots: .agents, .bb, .claude, .codex, .cursor, .gemini, ., .github, .windsurf, demos, plugins
 - Manifests: package.json, plugins/taskboard/package.json, plugins/usage-tracker/package.json
 - Primary docs: README.md, plugins/taskboard/README.md, plugins/usage-tracker/README.md
 

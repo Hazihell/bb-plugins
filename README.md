@@ -10,8 +10,6 @@
 
 <p align="center">
   <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
-  <a href="https://www.npmjs.com/package/bb-plugin-taskboard"><img src="https://img.shields.io/npm/v/bb-plugin-taskboard?style=flat-square&label=Taskboard" alt="Taskboard npm version" /></a>
-  <a href="https://www.npmjs.com/package/bb-plugin-usage-tracker"><img src="https://img.shields.io/npm/v/bb-plugin-usage-tracker?style=flat-square&label=Usage%20Tracker" alt="Usage Tracker npm version" /></a>
   <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
 </p>
@@ -22,15 +20,22 @@
 
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
-| <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | `bb plugin install npm:bb-plugin-taskboard` | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
-| <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | `bb plugin install npm:bb-plugin-usage-tracker` | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
+| <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
+| <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 
 ## Taskboard quick start
 
-Install the public package:
+Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install npm:bb-plugin-taskboard
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
+```
+
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+is merged and live, the equivalent shorthand is:
+
+```sh
+bb plugin install taskboard
 ```
 
 Then open **Taskboard → Manage**, choose a BB project, and select exactly one
@@ -51,10 +56,17 @@ bb plugin remove taskboard
 
 ## Usage Tracker quick start
 
-Install the public package:
+Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install npm:bb-plugin-usage-tracker
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+```
+
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/126)
+is updated and live, the equivalent shorthand is:
+
+```sh
+bb plugin install usage-tracker
 ```
 
 Usage Tracker mounts in BB's native sidebar footer beside the existing utility
@@ -111,8 +123,8 @@ bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin usage-tracker
 ```
 
-Each released plugin still gets its own npm package for one-command installs
-and marketplace updates.
+Taskboard and Usage Tracker release through immutable plugin-specific Git tags
+and the BB Community marketplace.
 
 ## Develop
 
@@ -125,8 +137,7 @@ npm run check
 
 New plugins belong in `plugins/<id>` with their own `package.json`, source,
 tests, pinned `@get-bb/plugin-sdk` development dependency, and README. Add each
-directory to `.bb/plugins.json`; the root npm workspace picks it up
-automatically.
+directory to `.bb/plugins.json`; the root workspace picks it up automatically.
 
 ## License
 
