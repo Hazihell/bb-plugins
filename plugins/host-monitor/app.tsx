@@ -6,10 +6,12 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type ReactElement,
   type ReactNode,
   type RefObject,
 } from "react";
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import { toast } from "sonner";
 import {
   definePluginApp,
@@ -464,7 +466,7 @@ function formatDate(timestamp: number): string {
   });
 }
 
-function HealthBadge({
+function HealthStatus({
   machine,
   showIndicator = true,
 }: {
@@ -474,16 +476,54 @@ function HealthBadge({
   const presentation = machineBadgePresentation(machine);
   return (
     <span
-      className="host-monitor-health-badge"
+      aria-label={`${presentation.label}. ${presentation.reason}`}
+      className="host-monitor-health-status"
+      data-connected={machine.host.status === "connected" ? "true" : "false"}
       data-tone={presentation.tone}
     >
       {presentation.busy ? (
         <Spinner className="size-2.5" />
       ) : showIndicator ? (
-        <span aria-hidden="true" className="size-1.5 rounded-full bg-current opacity-70" />
+        <span aria-hidden="true" className="host-monitor-health-status__indicator" />
       ) : null}
       {presentation.label}
     </span>
+  );
+}
+
+function MachineExplanationTooltip({
+  children,
+  machine,
+}: {
+  children: ReactElement;
+  machine: MachineRow;
+}) {
+  const presentation = machineBadgePresentation(machine);
+  const scopeProps = usePortalScopeProps();
+  return (
+    <Tooltip.Root>
+      <Tooltip.Trigger asChild>{children}</Tooltip.Trigger>
+      <Tooltip.Portal>
+        <Tooltip.Content
+          {...scopeProps}
+          align="end"
+          className="host-monitor-status-tooltip"
+          collisionPadding={8}
+          side="bottom"
+          sideOffset={6}
+        >
+          <span
+            className="host-monitor-status-tooltip__state"
+            data-tone={presentation.tone}
+          >
+            {presentation.label}
+          </span>
+          <span className="host-monitor-status-tooltip__reason">
+            {presentation.reason}
+          </span>
+        </Tooltip.Content>
+      </Tooltip.Portal>
+    </Tooltip.Root>
   );
 }
 
@@ -632,6 +672,7 @@ function MachineIdentity({ machine }: { machine: MachineRow }) {
 }
 
 function CardMachineIdentity({ machine }: { machine: MachineRow }) {
+  const statusTone = machineBadgePresentation(machine).tone;
   const description = machineDescription(machine);
 
   return (
@@ -640,6 +681,7 @@ function CardMachineIdentity({ machine }: { machine: MachineRow }) {
         aria-hidden="true"
         className="host-monitor-host-card__status"
         data-connected={machine.host.status === "connected" ? "true" : "false"}
+        data-tone={statusTone}
       />
       <span className="host-monitor-host-card__identity-copy">
         <span className="host-monitor-host-card__name">
@@ -841,13 +883,12 @@ function FleetSidebarAccessory() {
   );
 }
 
-function FilterPill({ active, count, label, onClick }: { active: boolean; count: number; label: string; onClick(): void }) {
+function FilterTab({ active, count, label, onClick }: { active: boolean; count: number; label: string; onClick(): void }) {
   return (
     <button
+      aria-controls="host-monitor-fleet-results"
       aria-pressed={active}
-      className={`inline-flex h-7 cursor-pointer items-center gap-1.5 rounded-full border px-2.5 text-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
-        active ? "border-foreground/20 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground"
-      }`}
+      className="host-monitor-filter-tab"
       onClick={onClick}
       type="button"
     >
@@ -1018,16 +1059,18 @@ function FleetCardGrid({
         const sampleLabel = cardSampleLabel(machine);
         return (
           <li key={machine.host.id} className="min-w-0">
-            <button
-              aria-current={selected ? "true" : undefined}
-              className="host-monitor-host-card"
-              onClick={() => onInspect(machine)}
-              type="button"
-            >
+            <MachineExplanationTooltip machine={machine}>
+              <button
+                aria-current={selected ? "true" : undefined}
+                className="host-monitor-host-card"
+                data-tone={machineBadgePresentation(machine).tone}
+                onClick={() => onInspect(machine)}
+                type="button"
+              >
               <span className="host-monitor-host-card__header">
                 <CardMachineIdentity machine={machine} />
                 <span className="host-monitor-host-card__header-actions">
-                  <HealthBadge machine={machine} showIndicator={false} />
+                  <HealthStatus machine={machine} showIndicator={false} />
                   <span className="host-monitor-host-card__details">
                     <ChevronIcon />
                   </span>
@@ -1099,7 +1142,8 @@ function FleetCardGrid({
                   </span>
                 </span>
               </span>
-            </button>
+              </button>
+            </MachineExplanationTooltip>
           </li>
         );
       })}
@@ -1126,7 +1170,12 @@ function DesktopFleetTable({ machines, onInspect, selectedHostId, showIpAddresse
           {machines.map((machine) => {
             const selected = selectedHostId === machine.host.id;
             return (
-              <tr key={machine.host.id} className={`border-t border-border transition-colors hover:bg-accent/40 ${selected ? "bg-accent/50" : ""}`}>
+              <MachineExplanationTooltip key={machine.host.id} machine={machine}>
+                <tr
+                  className={`host-monitor-desktop-fleet__row border-t border-border transition-colors hover:bg-accent/40 focus-visible:bg-accent/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${selected ? "bg-accent/50" : ""}`}
+                  data-tone={machineBadgePresentation(machine).tone}
+                  tabIndex={0}
+                >
                 <td className="px-4 py-3">
                   <button aria-current={selected ? "true" : undefined} className="block w-full cursor-pointer text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" onClick={() => onInspect(machine)} type="button">
                     <MachineIdentity machine={machine} />
@@ -1143,14 +1192,15 @@ function DesktopFleetTable({ machines, onInspect, selectedHostId, showIpAddresse
                 <td className="px-3 py-3"><NetworkRateValue machine={machine} /></td>
                 <td className="px-3 py-3">
                   <span className="flex min-w-0 flex-col items-start gap-1">
-                    <HealthBadge machine={machine} />
+                    <HealthStatus machine={machine} />
                     <span className="block max-w-full truncate text-[11px] text-muted-foreground" title={machineSampleLabel(machine)}>{machineSampleLabel(machine)}</span>
                   </span>
                 </td>
                 <td className="px-3 py-3 text-right">
                   <button aria-label={`View ${machine.host.name} details`} className="inline-flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring" onClick={() => onInspect(machine)} type="button"><ChevronIcon /></button>
                 </td>
-              </tr>
+                </tr>
+              </MachineExplanationTooltip>
             );
           })}
         </tbody>
@@ -1165,11 +1215,16 @@ function CompactFleetList({ machines, onInspect, selectedHostId, showIpAddresses
       {machines.map((machine) => {
         const selected = selectedHostId === machine.host.id;
         return (
-          <li key={machine.host.id} className="border-b border-border last:border-b-0">
-            <button aria-current={selected ? "true" : undefined} className={`w-full cursor-pointer p-3 text-left transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${selected ? "bg-accent/50" : ""}`} onClick={() => onInspect(machine)} type="button">
+          <li
+            className="host-monitor-compact-fleet__row border-b border-border last:border-b-0"
+            data-tone={machineBadgePresentation(machine).tone}
+            key={machine.host.id}
+          >
+            <MachineExplanationTooltip machine={machine}>
+              <button aria-current={selected ? "true" : undefined} className={`w-full cursor-pointer p-3 text-left transition-colors hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring ${selected ? "bg-accent/50" : ""}`} onClick={() => onInspect(machine)} type="button">
               <span className="flex items-start justify-between gap-3">
                 <MachineIdentity machine={machine} />
-                <span className="flex shrink-0 items-center gap-1.5"><HealthBadge machine={machine} /><ChevronIcon /></span>
+                <span className="flex shrink-0 items-center gap-1.5"><HealthStatus machine={machine} showIndicator={false} /><ChevronIcon /></span>
               </span>
               <IpAddressValue
                 className="mt-1 pl-[1.125rem]"
@@ -1190,7 +1245,8 @@ function CompactFleetList({ machines, onInspect, selectedHostId, showIpAddresses
                 </span>
                 <NetworkRateValue machine={machine} />
               </span>
-            </button>
+              </button>
+            </MachineExplanationTooltip>
           </li>
         );
       })}
@@ -1274,11 +1330,12 @@ function FleetMatrix() {
           <ErrorNotice hasLastKnown rpc={rpc} />
         ) : null}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-1.5" aria-label="Host filter">
-            <FilterPill active={filter === "all"} count={counts.total} label="All" onClick={() => setFilter("all")} />
-            <FilterPill active={filter === "attention"} count={counts.attention} label="Attention" onClick={() => setFilter("attention")} />
-            <FilterPill active={filter === "offline"} count={counts.offline} label="Offline" onClick={() => setFilter("offline")} />
-          </div>
+          <fieldset aria-label="Host filter" className="host-monitor-filters">
+            <legend className="sr-only">Host filter</legend>
+            <FilterTab active={filter === "all"} count={counts.total} label="All" onClick={() => setFilter("all")} />
+            <FilterTab active={filter === "attention"} count={counts.attention} label="Attention" onClick={() => setFilter("attention")} />
+            <FilterTab active={filter === "offline"} count={counts.offline} label="Offline" onClick={() => setFilter("offline")} />
+          </fieldset>
           <div className="flex flex-wrap items-center justify-end gap-3">
             <p className="text-xs text-muted-foreground">{counts.connected} connected · select a host for details</p>
             <IpAddressVisibilityToggle
@@ -1288,7 +1345,8 @@ function FleetMatrix() {
             <FleetViewToggle mode={viewMode} onChange={selectViewMode} />
           </div>
         </div>
-        <div id="host-monitor-fleet-results">
+        <Tooltip.Provider delayDuration={250} skipDelayDuration={100}>
+          <div id="host-monitor-fleet-results">
           {state.dashboard === null ? (
             state.error !== null && state.requestKind === null ? (
               <ErrorNotice hasLastKnown={false} rpc={rpc} />
@@ -1325,7 +1383,8 @@ function FleetMatrix() {
               />
             </>
           )}
-        </div>
+          </div>
+        </Tooltip.Provider>
       </div>
     </main>
   );
@@ -2524,7 +2583,7 @@ function MachineInspector() {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="truncate text-sm font-semibold text-foreground">{machine.host.name}</h2>
-            <HealthBadge machine={machine} />
+            <HealthStatus machine={machine} />
           </div>
           <p className="mt-1 truncate text-xs text-muted-foreground">{snapshot ? `${snapshot.system.osName} · ${snapshot.system.arch}` : machine.host.status === "connected" ? "Connected · waiting for telemetry" : "Disconnected · no live telemetry"}</p>
         </div>
@@ -2556,7 +2615,9 @@ function MachineInspector() {
           role="alert"
         >
           <AlertIcon className="mt-0.5 size-3.5 shrink-0" />
-          <span className="min-w-0 flex-1">{machine.alert.message}</span>
+          <span className="min-w-0 flex-1">
+            {machineBadgePresentation(machine).reason}
+          </span>
           {machine.alert.metric === "cpu" || machine.alert.metric === "memory" ? (
             <button
               className="host-monitor-threshold-alert__action"
@@ -2568,7 +2629,11 @@ function MachineInspector() {
           ) : null}
         </div>
       ) : null}
-      {machine.error !== null ? <p className="text-xs text-destructive">{machine.error}</p> : null}
+      {machine.error !== null ? (
+        <p className="text-xs text-destructive">
+          The latest host refresh failed. Last-known telemetry may be shown.
+        </p>
+      ) : null}
 
       {snapshot === null ? (
         <InspectorEmpty message={machine.sampleState === "offline" ? `This host is offline. Last seen ${formatRelativeTime(machine.host.lastSeenAt)}.` : "Waiting for the first telemetry sample."} />
@@ -2646,7 +2711,7 @@ export default definePluginApp((app) => {
       {
         ...PROCESSES_TAB,
         title: "Processes",
-        icon: "Activity",
+        icon: "ChartColumn",
         component: ProcessesPanel,
         layout: "flush",
       },

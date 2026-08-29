@@ -1,10 +1,37 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  machineRowSchema,
   networkSnapshotSchema,
   processListResultSchema,
   processRowSchema,
 } from "../contract.ts";
+
+test("bounds every host-status explanation source", () => {
+  const base = {
+    host: {
+      id: "host-alpha",
+      name: "Alpha",
+      status: "connected",
+      lastSeenAt: null,
+    },
+    snapshot: null,
+    sampleState: "error",
+    health: "unavailable",
+    error: null,
+    alert: null,
+  } as const;
+  assert.deepEqual(machineRowSchema.parse(base), base);
+  assert.throws(() =>
+    machineRowSchema.parse({ ...base, error: "e".repeat(241) }),
+  );
+  assert.throws(() =>
+    machineRowSchema.parse({
+      ...base,
+      alert: { metric: "disk", message: "a".repeat(241) },
+    }),
+  );
+});
 
 test("network snapshot accepts only a canonical primary IP or null", () => {
   const throughput = {

@@ -6,7 +6,9 @@ import {
   clampHostMonitorFloatingPosition,
   hostMonitorDragThresholdExceeded,
   hostMonitorFloatingDropPosition,
+  hostMonitorSidebarHealthLabel,
   hostMonitorSidebarMetricTones,
+  hostMonitorSidebarMachineTone,
   hostMonitorSidebarPreferencesRpcRequest,
   hostMonitorSidebarRefreshDelay,
   hostMonitorSidebarRpcRequest,
@@ -54,6 +56,131 @@ function dashboard(machines: MachineRow[]): Dashboard {
 }
 
 describe("Host Monitor sidebar summary", () => {
+  it("derives a safe semantic tone for every host state", () => {
+    assert.equal(hostMonitorSidebarMachineTone(machine("healthy")), "healthy");
+    assert.equal(
+      hostMonitorSidebarMachineTone(machine("attention", { health: "attention" })),
+      "attention",
+    );
+    assert.equal(
+      hostMonitorSidebarHealthLabel(machine("attention", { health: "attention" })),
+      "Needs attention",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(machine("critical", { health: "critical" })),
+      "critical",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("stale", { health: "critical", sampleState: "stale" }),
+      ),
+      "attention",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("failed", { health: "critical", sampleState: "error" }),
+      ),
+      "attention",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("sampling", { health: "critical", sampleState: "sampling" }),
+      ),
+      "loading",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("unavailable", { health: "unavailable", sampleState: "fresh" }),
+      ),
+      "loading",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("offline-health", { health: "offline", sampleState: "fresh" }),
+      ),
+      "offline",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone(
+        machine("disconnected-critical", {
+          status: "disconnected",
+          health: "critical",
+          sampleState: "fresh",
+        }),
+      ),
+      "offline",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone({
+        ...machine("unexpected"),
+        health: "future-state",
+      } as unknown as MachineRow),
+      "loading",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone({
+        ...machine("unexpected-sample", { health: "critical" }),
+        sampleState: "future-state",
+      } as unknown as MachineRow),
+      "loading",
+    );
+    assert.equal(
+      hostMonitorSidebarMachineTone({
+        ...machine("unexpected-status", { health: "critical" }),
+        host: {
+          ...machine("unexpected-status").host,
+          status: "future-state",
+        },
+      } as unknown as MachineRow),
+      "loading",
+    );
+    assert.equal(
+      hostMonitorSidebarHealthLabel(
+        machine("disconnected-stale-label", {
+          status: "disconnected",
+          health: "critical",
+          sampleState: "stale",
+        }),
+      ),
+      "Offline",
+    );
+    assert.equal(
+      hostMonitorSidebarHealthLabel({
+        ...machine("unexpected-health-label"),
+        health: "future-state",
+      } as unknown as MachineRow),
+      "Unavailable",
+    );
+    assert.equal(
+      hostMonitorSidebarHealthLabel({
+        ...machine("unexpected-sample-label", { health: "critical" }),
+        sampleState: "future-state",
+      } as unknown as MachineRow),
+      "Unavailable",
+    );
+    assert.equal(
+      hostMonitorSidebarHealthLabel({
+        ...machine("unexpected-status-label", { health: "critical" }),
+        host: {
+          ...machine("unexpected-status-label").host,
+          status: "future-state",
+        },
+      } as unknown as MachineRow),
+      "Unavailable",
+    );
+    for (const unexpectedSampleState of [null, 7, "FRESH", undefined]) {
+      const unexpectedSample = {
+        ...machine("malformed-sample", { health: "critical" }),
+        sampleState: unexpectedSampleState,
+      } as unknown as MachineRow;
+      assert.equal(hostMonitorSidebarMachineTone(unexpectedSample), "loading");
+      assert.equal(
+        hostMonitorSidebarHealthLabel(unexpectedSample),
+        "Unavailable",
+      );
+    }
+  });
+
   it("distinguishes null loading, error, and idle-empty states", () => {
     assert.deepEqual(hostMonitorSidebarSummary(null, true, false), {
       counts: { total: 0, connected: 0, offline: 0, attention: 0 },
@@ -98,7 +225,11 @@ describe("Host Monitor sidebar summary", () => {
     const summary = hostMonitorSidebarSummary(
       dashboard([
         machine("alpha"),
-        machine("bravo", { status: "disconnected" }),
+        machine("bravo", {
+          status: "disconnected",
+          health: "critical",
+          sampleState: "stale",
+        }),
       ]),
       false,
       false,
@@ -378,10 +509,6 @@ describe("Host Monitor sidebar threshold colors", () => {
 
     assert.match(
       sidebarCss,
-      /\[data-host-monitor-trigger\]\[data-host-monitor-status="error"\]::after/u,
-    );
-    assert.match(
-      sidebarCss,
       /data-host-monitor-threshold-colors="true"[^{}]*host-monitor-sidebar__compact-metric-value\[data-tone="attention"\]/u,
     );
     assert.match(
@@ -403,6 +530,138 @@ describe("Host Monitor sidebar threshold colors", () => {
     assert.doesNotMatch(
       sidebarCss,
       /data-host-monitor-threshold-colors="false"[^{}]*data-tone/u,
+    );
+  });
+
+  it("does not draw a notification dot on the movable sidebar trigger", () => {
+    const css = readFileSync(
+      new URL("../app.css", import.meta.url),
+      "utf8",
+    );
+    const source = readFileSync(
+      new URL("../lib/sidebar-host-monitor.ts", import.meta.url),
+      "utf8",
+    );
+
+    assert.doesNotMatch(
+      css,
+      /\[data-host-monitor-trigger\][^{]*::after/u,
+    );
+    assert.doesNotMatch(
+      css,
+      /\[data-host-monitor-trigger\]\[data-host-monitor-status=[^\]]+\][^{}]*\[data-plugin-icon-asset\]/u,
+    );
+    assert.match(source, /trigger\.setAttribute\(\s*"aria-label"/u);
+    assert.match(source, /trigger\.title =/u);
+  });
+
+  it("renders a flat fleet summary and quiet semantic host rows", () => {
+    const css = readFileSync(
+      new URL("../app.css", import.meta.url),
+      "utf8",
+    );
+    const source = readFileSync(
+      new URL("../lib/sidebar-host-monitor.ts", import.meta.url),
+      "utf8",
+    );
+    const pageStart = css.lastIndexOf("\n.host-monitor-dashboard {");
+    assert.notEqual(pageStart, -1);
+    const sidebarCss = css.slice(0, pageStart);
+
+    assert.equal(
+      [...source.matchAll(/row\.dataset\.tone = hostMonitorSidebarMachineTone\(machine\);/gu)].length,
+      2,
+    );
+    assert.match(source, /dot\.setAttribute\("aria-hidden", "true"\)/u);
+    assert.match(source, /\? "Connected" : "Disconnected"/u);
+    assert.match(source, /machineBadgePresentation\(machine\)\.tone/u);
+    assert.match(source, /machineBadgePresentation\(machine\)\.label/u);
+    assert.match(source, /const summary = element\("dl", "host-monitor-sidebar__summary"\)/u);
+    assert.match(source, /summary\.setAttribute\("aria-label", "Fleet summary"\)/u);
+    assert.match(
+      source,
+      /state\.append\(\s*element\(\s*"strong",\s*undefined,\s*hostMonitorSidebarHealthLabel\(machine\),?\s*\),\s*element\([\s\S]*?\? "Connected" : "Disconnected"/u,
+    );
+
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host\[data-tone="healthy"\][^{}]*\.host-monitor-sidebar__host-status\s*\{[^{}]*var\(--host-monitor-normal\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host\[data-tone="attention"\][^{}]*\.host-monitor-sidebar__host-status\s*\{[^{}]*var\(--host-monitor-attention\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host\[data-tone="critical"\][^{}]*\.host-monitor-sidebar__host-status\s*\{[^{}]*var\(--host-monitor-critical\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host\[data-tone="offline"\][^{}]*\.host-monitor-sidebar__host-status,[^{}]*\.host-monitor-sidebar__host\[data-tone="loading"\][^{}]*\.host-monitor-sidebar__host-status\s*\{[^{}]*var\(--host-monitor-muted\)/u,
+    );
+    assert.doesNotMatch(
+      sidebarCss,
+      /\.host-monitor-sidebar__host[^{}]*\[data-tone="(?:healthy|attention|critical|offline|loading)"\][^{}]*::before/u,
+    );
+    assert.match(source, /row\.tabIndex = 0/u);
+    assert.match(source, /row\.dataset\.hostMonitorHostId = machine\.host\.id/u);
+    assert.doesNotMatch(source, /row\.setAttribute\("role", "group"\)/u);
+    assert.match(source, /row\.setAttribute\("aria-describedby", explanation\.id\)/u);
+    assert.doesNotMatch(source, /row\.title = presentation\.reason/u);
+    assert.match(source, /if \(text !== undefined\) node\.textContent = text/u);
+    assert.doesNotMatch(source, /\.innerHTML\s*=/u);
+    assert.equal(
+      [...source.matchAll(/attachHostExplanation\(row, machine\)/gu)].length,
+      2,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host:hover,[\s\S]*?\.host-monitor-sidebar__host:focus-visible\s*\{[^{}]*background:/u,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host-explanation\s*\{[^{}]*width:\s*1px[^{}]*height:\s*1px[^{}]*clip-path:\s*inset\(50%\)/u,
+    );
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__host-tooltip\s*\{[^{}]*position:\s*fixed[^{}]*max-width:[^{}]*background:\s*var\(--popover, var\(--card\)\)/u,
+    );
+    assert.doesNotMatch(
+      sidebarCss,
+      /\.host-monitor-sidebar__host:last-child[^{}]*\.host-monitor-sidebar__host-explanation/u,
+    );
+    assert.match(source, /const hostTooltip = element\("div", "host-monitor-sidebar__host-tooltip"\)/u);
+    assert.match(source, /for \(const orphan of document\.querySelectorAll<HTMLElement>\([\s\S]*?host-monitor-sidebar__host-tooltip[\s\S]*?orphan\.remove\(\)/u);
+    assert.match(source, /document\.body\.append\(surface, ghost, hostTooltip\)/u);
+    assert.match(source, /function showHostTooltip\(row: HTMLLIElement\)/u);
+    assert.match(source, /below \+ tooltipRect\.height <= viewportBottom - 8/u);
+    assert.match(source, /rowRect\.top - tooltipRect\.height - 6/u);
+    assert.match(source, /surface\.addEventListener\(\s*"pointerover"/u);
+    assert.match(source, /surface\.addEventListener\(\s*"focusin"/u);
+    assert.match(source, /let focusedHostRow: HTMLLIElement \| null = null/u);
+    assert.match(source, /let hoveredHostRow: HTMLLIElement \| null = null/u);
+    assert.match(source, /function updateHostTooltipActivation\(\)/u);
+    assert.match(source, /hoveredHostRow\?\.isConnected === true/u);
+    assert.match(source, /focusedHostRow\?\.isConnected === true/u);
+    assert.match(source, /if \(hoveredHostRow === row\) hoveredHostRow = null/u);
+    assert.match(source, /if \(focusedHostRow === row\) focusedHostRow = null/u);
+    assert.match(source, /hostTooltip\.remove\(\)/u);
+    assert.match(source, /SURFACE_FOCUS_SELECTOR/u);
+    assert.match(source, /querySelectorAll<HTMLElement>\(SURFACE_FOCUS_SELECTOR\)/u);
+    assert.match(source, /const activeHostId =/u);
+    assert.match(source, /const restoreHostId = explicitFocusKey === null \? activeHostId : null/u);
+    assert.match(source, /row\.dataset\.hostMonitorHostId === restoreHostId/u);
+    assert.match(
+      sidebarCss,
+      /\.host-monitor-sidebar__summary\s*\{[^{}]*display:\s*flex/u,
+    );
+    assert.doesNotMatch(
+      sidebarCss,
+      /\.host-monitor-sidebar__summary\s*\{[^{}]*grid-template-columns/u,
+    );
+    assert.doesNotMatch(
+      sidebarCss,
+      /\.host-monitor-sidebar__summary-cell\s*\+[^{}]*\{[^{}]*border-left/u,
     );
   });
 
@@ -543,7 +802,11 @@ describe("Host Monitor floating metric privacy", () => {
       ].length,
       2,
     );
-    assert.doesNotMatch(source, /row\.dataset\.tone/u);
+    assert.equal(
+      [...source.matchAll(/row\.dataset\.tone = hostMonitorSidebarMachineTone\(machine\)/gu)]
+        .length,
+      2,
+    );
     assert.doesNotMatch(source, /headingSummary\.dataset\.tone/u);
     assert.doesNotMatch(source, /metric\.dataset\.tone/u);
     assert.doesNotMatch(

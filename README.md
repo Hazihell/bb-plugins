@@ -29,7 +29,7 @@
 Install the immutable Host Monitor Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/host-monitor --tag-prefix host-monitor/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/host-monitor --tag-prefix host-monitor/
 ```
 
 Host Monitor requires BB 0.40 or later; the collection's other plugins retain

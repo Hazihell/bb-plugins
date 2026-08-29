@@ -344,11 +344,11 @@ export const machineRowSchema = z
     snapshot: machineSnapshotSchema.nullable(),
     sampleState: z.enum(["fresh", "stale", "sampling", "error", "offline"]),
     health: healthSchema,
-    error: z.string().nullable(),
+    error: z.string().max(240).nullable(),
     alert: z
       .object({
         metric: z.enum(["cpu", "memory", "disk"]),
-        message: z.string().min(1),
+        message: z.string().min(1).max(240),
       })
       .strict()
       .nullable(),

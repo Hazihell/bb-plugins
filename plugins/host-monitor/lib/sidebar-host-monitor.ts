@@ -1,4 +1,8 @@
 import type { Dashboard, MachineRow } from "../contract.ts";
+import {
+  fleetCounts,
+  machineBadgePresentation,
+} from "./fleet-presentation.ts";
 import { networkRateSummary } from "./network-presentation.ts";
 import {
   thresholdToneAccessibleLabel,
@@ -12,6 +16,8 @@ import {
 } from "./thresholds.ts";
 
 const SURFACE_ID = "host-monitor-sidebar-popover";
+const SURFACE_FOCUS_SELECTOR =
+  '[data-host-monitor-focus], .host-monitor-sidebar__host[tabindex="0"]';
 const TOGGLE_EVENT = "host-monitor:toggle-popover";
 const NAV_EVENT = "host-monitor:navigate";
 const NAV_ITEMS_SELECTOR = '[data-testid="plugin-nav-sidebar-items"]';
@@ -32,6 +38,7 @@ const FLOATING_POSITION_CACHE_KEY =
 const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
 
 let nextFloatingZIndex = 70;
+let nextStatusExplanationId = 0;
 
 export type HostMonitorSidebarRequestKind = "dashboard" | "refresh";
 export type HostMonitorSurfaceMode = "closed" | "popover" | "floating";
@@ -447,26 +454,7 @@ function cacheFloatingPosition(position: HostMonitorFloatingPosition): void {
 }
 
 function countsFor(dashboard: Dashboard | null): HostMonitorCounts {
-  const machines = dashboard?.machines ?? [];
-  const connected = machines.filter(
-    (machine) => machine.host.status === "connected",
-  ).length;
-  return {
-    total: machines.length,
-    connected,
-    offline: machines.length - connected,
-    attention: machines.filter(
-      (machine) => {
-        if (machine.sampleState === "sampling") return false;
-        return (
-          machine.health === "attention" ||
-          machine.health === "critical" ||
-          machine.sampleState === "stale" ||
-          machine.sampleState === "error"
-        );
-      },
-    ).length,
-  };
+  return fleetCounts(dashboard);
 }
 
 function triggerStatus(
@@ -478,7 +466,11 @@ function triggerStatus(
   if (dashboard === null) return isLoading ? "loading" : "empty";
   const counts = countsFor(dashboard);
   if (counts.total === 0) return "empty";
-  if (dashboard.machines.some((machine) => machineTone(machine) === "critical")) {
+  if (
+    dashboard.machines.some(
+      (machine) => hostMonitorSidebarMachineTone(machine) === "critical",
+    )
+  ) {
     return "critical";
   }
   if (counts.attention > 0) return "attention";
@@ -499,8 +491,9 @@ function triggerLabel(
   }
   const counts = countsFor(dashboard);
   const critical =
-    dashboard?.machines.filter((machine) => machineTone(machine) === "critical")
-      .length ?? 0;
+    dashboard?.machines.filter(
+      (machine) => hostMonitorSidebarMachineTone(machine) === "critical",
+    ).length ?? 0;
   const attentionOnly = Math.max(0, counts.attention - critical);
   const severity = `${
     critical > 0
@@ -534,32 +527,32 @@ export function hostMonitorSidebarSummary(
   };
 }
 
-function machineTone(machine: MachineRow): HostMonitorTriggerStatus {
-  if (machine.host.status === "disconnected") return "offline";
-  if (machine.sampleState === "sampling") return "loading";
-  if (
-    machine.sampleState === "stale" ||
-    machine.sampleState === "error"
-  ) {
-    return "attention";
-  }
-  if (machine.health === "critical") return "critical";
-  if (machine.health === "attention") return "attention";
-  return "healthy";
+export function hostMonitorSidebarMachineTone(
+  machine: MachineRow,
+): HostMonitorTriggerStatus {
+  const tone = machineBadgePresentation(machine).tone;
+  return tone === "unavailable" ? "loading" : tone;
 }
 
-function healthLabel(machine: MachineRow): string {
-  if (machine.sampleState === "sampling") return "Sampling";
-  if (machine.sampleState === "stale") return "Stale reading";
-  if (machine.sampleState === "error") return "Last known";
-  const labels: Record<MachineRow["health"], string> = {
-    healthy: "Healthy",
-    attention: "Attention",
-    critical: "Critical",
-    offline: "Offline",
-    unavailable: "Unavailable",
-  };
-  return labels[machine.health];
+export function hostMonitorSidebarHealthLabel(machine: MachineRow): string {
+  return machineBadgePresentation(machine).label;
+}
+
+function attachHostExplanation(
+  row: HTMLLIElement,
+  machine: MachineRow,
+): void {
+  const presentation = machineBadgePresentation(machine);
+  const explanation = element(
+    "span",
+    "host-monitor-sidebar__host-explanation",
+    presentation.reason,
+  );
+  explanation.id = `host-monitor-sidebar-explanation-${++nextStatusExplanationId}`;
+  row.tabIndex = 0;
+  row.dataset.hostMonitorHostId = machine.host.id;
+  row.setAttribute("aria-describedby", explanation.id);
+  row.append(explanation);
 }
 
 function formatPercent(value: number | null): string {
@@ -594,6 +587,7 @@ function compactHostRow(
   thresholds: HealthThresholds,
 ): HTMLLIElement {
   const row = element("li", "host-monitor-sidebar__host");
+  row.dataset.tone = hostMonitorSidebarMachineTone(machine);
   const dot = element("span", "host-monitor-sidebar__host-status");
   dot.setAttribute("aria-hidden", "true");
   const identity = element("span", "host-monitor-sidebar__host-identity");
@@ -632,11 +626,16 @@ function compactHostRow(
     element(
       "strong",
       undefined,
+      hostMonitorSidebarHealthLabel(machine),
+    ),
+    element(
+      "span",
+      undefined,
       machine.host.status === "connected" ? "Connected" : "Disconnected",
     ),
-    element("span", undefined, healthLabel(machine)),
   );
   row.append(dot, identity, state);
+  attachHostExplanation(row, machine);
   return row;
 }
 
@@ -678,6 +677,7 @@ function floatingHostRow(
     "li",
     "host-monitor-sidebar__host host-monitor-sidebar__host--floating",
   );
+  row.dataset.tone = hostMonitorSidebarMachineTone(machine);
   const top = element("div", "host-monitor-sidebar__host-top");
   const identity = element("span", "host-monitor-sidebar__host-name");
   const dot = element("span", "host-monitor-sidebar__host-status");
@@ -685,7 +685,11 @@ function floatingHostRow(
   identity.append(dot, element("strong", undefined, machine.host.name));
   top.append(
     identity,
-    element("span", "host-monitor-sidebar__health", healthLabel(machine)),
+    element(
+      "span",
+      "host-monitor-sidebar__health",
+      hostMonitorSidebarHealthLabel(machine),
+    ),
   );
 
   const snapshot = machine.snapshot;
@@ -723,14 +727,15 @@ function floatingHostRow(
     ),
   );
   row.append(top, metrics);
+  attachHostExplanation(row, machine);
   return row;
 }
 
 function summaryCell(label: string, value: string): HTMLDivElement {
   const cell = element("div", "host-monitor-sidebar__summary-cell");
   cell.append(
-    element("strong", undefined, value),
-    element("span", undefined, label),
+    element("dt", "host-monitor-sidebar__summary-label", label),
+    element("dd", "host-monitor-sidebar__summary-value", value),
   );
   return cell;
 }
@@ -781,10 +786,11 @@ function dashboardBody(
 ): DocumentFragment {
   const fragment = document.createDocumentFragment();
   const counts = countsFor(dashboard);
-  const summary = element("div", "host-monitor-sidebar__summary");
+  const summary = element("dl", "host-monitor-sidebar__summary");
+  summary.setAttribute("aria-label", "Fleet summary");
   summary.append(
     summaryCell("Connected", `${counts.connected}/${counts.total}`),
-    summaryCell("Attention", String(counts.attention)),
+    summaryCell("Need attention", String(counts.attention)),
     summaryCell("Offline", String(counts.offline)),
   );
   fragment.append(summary);
@@ -799,7 +805,9 @@ function dashboardBody(
     empty: 6,
   };
   const ordered = [...dashboard.machines].sort(
-    (left, right) => rank[machineTone(left)] - rank[machineTone(right)],
+    (left, right) =>
+      rank[hostMonitorSidebarMachineTone(left)] -
+      rank[hostMonitorSidebarMachineTone(right)],
   );
   const visible = mode === "floating" ? ordered : ordered.slice(0, 5);
   for (const machine of visible) {
@@ -917,6 +925,11 @@ export function mountHostMonitorSidebar(
   pluginId: string,
   signal: AbortSignal,
 ): () => void {
+  for (const orphan of document.querySelectorAll<HTMLElement>(
+    ".host-monitor-sidebar__host-tooltip",
+  )) {
+    orphan.remove();
+  }
   let trigger: HTMLButtonElement | null = null;
   let dashboard: Dashboard | null = null;
   let lastError: string | null = null;
@@ -937,6 +950,9 @@ export function mountHostMonitorSidebar(
   let floatingPosition = cachedFloatingPosition();
   let pendingDropPoint: HostMonitorPoint | null = null;
   let drag: DragGesture | null = null;
+  let focusedHostRow: HTMLLIElement | null = null;
+  let hostTooltipRow: HTMLLIElement | null = null;
+  let hoveredHostRow: HTMLLIElement | null = null;
   let suppressPointerClick = false;
   const lifecycleController = new AbortController();
   const lifecycleSignal = AbortSignal.any([
@@ -965,7 +981,13 @@ export function mountHostMonitorSidebar(
     element("strong", undefined, "Host Monitor"),
     element("span", undefined, "Drop to float"),
   );
-  document.body.append(surface, ghost);
+  const hostTooltip = element("div", "host-monitor-sidebar__host-tooltip");
+  hostTooltip.hidden = true;
+  hostTooltip.setAttribute("aria-hidden", "true");
+  hostTooltip.setAttribute("data-bb-portaled-overlay", "");
+  hostTooltip.setAttribute("data-bb-plugin-root", "");
+  hostTooltip.setAttribute("data-bb-plugin", pluginId);
+  document.body.append(surface, ghost, hostTooltip);
 
   function currentViewport(): HostMonitorViewport {
     const visual = window.visualViewport;
@@ -977,6 +999,68 @@ export function mountHostMonitorSidebar(
           width: visual.width,
           height: visual.height,
         };
+  }
+
+  function hostRowForTarget(target: EventTarget | null): HTMLLIElement | null {
+    if (!(target instanceof Element)) return null;
+    const row = target.closest<HTMLLIElement>(".host-monitor-sidebar__host");
+    return row !== null && surface.contains(row) ? row : null;
+  }
+
+  function hideHostTooltip(): void {
+    hostTooltipRow = null;
+    hostTooltip.hidden = true;
+    hostTooltip.replaceChildren();
+  }
+
+  function resetHostTooltipActivation(): void {
+    focusedHostRow = null;
+    hoveredHostRow = null;
+    hideHostTooltip();
+  }
+
+  function showHostTooltip(row: HTMLLIElement): void {
+    const explanation = row.querySelector<HTMLElement>(
+      ".host-monitor-sidebar__host-explanation",
+    );
+    const reason = explanation?.textContent?.trim() ?? "";
+    if (reason.length === 0) {
+      hideHostTooltip();
+      return;
+    }
+    hostTooltipRow = row;
+    hostTooltip.textContent = reason;
+    hostTooltip.hidden = false;
+    hostTooltip.style.removeProperty("left");
+    hostTooltip.style.removeProperty("top");
+    const viewport = currentViewport();
+    const rowRect = row.getBoundingClientRect();
+    const tooltipRect = hostTooltip.getBoundingClientRect();
+    const viewportRight = viewport.left + viewport.width;
+    const viewportBottom = viewport.top + viewport.height;
+    const left = Math.min(
+      Math.max(viewport.left + 8, rowRect.right - tooltipRect.width),
+      Math.max(viewport.left + 8, viewportRight - tooltipRect.width - 8),
+    );
+    const below = rowRect.bottom + 6;
+    const above = rowRect.top - tooltipRect.height - 6;
+    const top =
+      below + tooltipRect.height <= viewportBottom - 8
+        ? below
+        : Math.max(viewport.top + 8, above);
+    hostTooltip.style.left = `${left}px`;
+    hostTooltip.style.top = `${top}px`;
+  }
+
+  function updateHostTooltipActivation(): void {
+    const row =
+      hoveredHostRow?.isConnected === true
+        ? hoveredHostRow
+        : focusedHostRow?.isConnected === true
+          ? focusedHostRow
+          : null;
+    if (row === null) hideHostTooltip();
+    else showHostTooltip(row);
   }
 
   function measuredFloatingSize(): HostMonitorFloatingSize {
@@ -1122,6 +1206,7 @@ export function mountHostMonitorSidebar(
 
   function render(): void {
     updateTrigger();
+    resetHostTooltipActivation();
     if (surfaceMode === "closed") {
       surface.dataset.mode = "closed";
       surface.hidden = true;
@@ -1132,6 +1217,10 @@ export function mountHostMonitorSidebar(
     const activeFocus =
       document.activeElement instanceof HTMLElement && hadFocus
         ? document.activeElement.dataset.hostMonitorFocus ?? null
+        : null;
+    const activeHostId =
+      document.activeElement instanceof HTMLElement && hadFocus
+        ? document.activeElement.dataset.hostMonitorHostId ?? null
         : null;
     surface.hidden = false;
     surface.dataset.mode = surfaceMode;
@@ -1256,7 +1345,9 @@ export function mountHostMonitorSidebar(
     surface.replaceChildren(header, content, footer);
     schedulePosition();
 
-    const focusKey = focusAfterRender ?? requestedFocus ?? activeFocus;
+    const explicitFocusKey = focusAfterRender ?? requestedFocus;
+    const focusKey = explicitFocusKey ?? activeFocus;
+    const restoreHostId = explicitFocusKey === null ? activeHostId : null;
     focusAfterRender = null;
     requestedFocus = null;
     if (focusKey !== null || hadFocus) {
@@ -1271,7 +1362,17 @@ export function mountHostMonitorSidebar(
         const fallback = surface.querySelector<HTMLElement>(
           '[data-host-monitor-focus="close"]',
         );
-        (requested ?? fallback)?.focus();
+        const requestedHost =
+          restoreHostId === null
+            ? null
+            : Array.from(
+                surface.querySelectorAll<HTMLElement>(
+                  ".host-monitor-sidebar__host[data-host-monitor-host-id]",
+                ),
+              ).find(
+                (row) => row.dataset.hostMonitorHostId === restoreHostId,
+              ) ?? null;
+        (requestedHost ?? requested ?? fallback)?.focus();
       });
     }
   }
@@ -1715,6 +1816,57 @@ export function mountHostMonitorSidebar(
   surface.addEventListener("pointerdown", handleSurfacePointerDown, {
     signal: lifecycleSignal,
   });
+  surface.addEventListener(
+    "pointerover",
+    (event) => {
+      const row = hostRowForTarget(event.target);
+      if (row !== null && row !== hostRowForTarget(event.relatedTarget)) {
+        hoveredHostRow = row;
+        updateHostTooltipActivation();
+      }
+    },
+    { signal: lifecycleSignal },
+  );
+  surface.addEventListener(
+    "pointerout",
+    (event) => {
+      const row = hostRowForTarget(event.target);
+      if (row !== null && row !== hostRowForTarget(event.relatedTarget)) {
+        if (hoveredHostRow === row) hoveredHostRow = null;
+        updateHostTooltipActivation();
+      }
+    },
+    { signal: lifecycleSignal },
+  );
+  surface.addEventListener(
+    "focusin",
+    (event) => {
+      const row = hostRowForTarget(event.target);
+      if (row !== null) {
+        focusedHostRow = row;
+        updateHostTooltipActivation();
+      }
+    },
+    { signal: lifecycleSignal },
+  );
+  surface.addEventListener(
+    "focusout",
+    (event) => {
+      const row = hostRowForTarget(event.target);
+      if (row !== null && row !== hostRowForTarget(event.relatedTarget)) {
+        if (focusedHostRow === row) focusedHostRow = null;
+        updateHostTooltipActivation();
+      }
+    },
+    { signal: lifecycleSignal },
+  );
+  surface.addEventListener("scroll", () => {
+    if (hostTooltipRow?.isConnected === true) showHostTooltip(hostTooltipRow);
+    else hideHostTooltip();
+  }, {
+    capture: true,
+    signal: lifecycleSignal,
+  });
   window.addEventListener("pointermove", handlePointerMove, {
     capture: true,
     signal: lifecycleSignal,
@@ -1776,7 +1928,7 @@ export function mountHostMonitorSidebar(
       }
       if (event.key === "Tab" && surfaceMode === "popover") {
         const controls = Array.from(
-          surface.querySelectorAll<HTMLElement>("[data-host-monitor-focus]"),
+          surface.querySelectorAll<HTMLElement>(SURFACE_FOCUS_SELECTOR),
         ).filter(
           (control) =>
             !(control instanceof HTMLButtonElement && control.disabled) &&
@@ -1842,7 +1994,9 @@ export function mountHostMonitorSidebar(
         record.target === surface ||
         surface.contains(record.target) ||
         record.target === ghost ||
-        ghost.contains(record.target),
+        ghost.contains(record.target) ||
+        record.target === hostTooltip ||
+        hostTooltip.contains(record.target),
     );
     if (!onlyOwnSurfaceChanged) scheduleSynchronize();
   });
@@ -1908,6 +2062,7 @@ export function mountHostMonitorSidebar(
     markedTriggers.clear();
     surface.remove();
     ghost.remove();
+    hostTooltip.remove();
     trigger = null;
   };
 }

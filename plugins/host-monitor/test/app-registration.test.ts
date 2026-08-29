@@ -43,16 +43,19 @@ test("keeps the installed plugin identity while presenting Host Monitor", () => 
   const manifest = JSON.parse(
     readFileSync(new URL("../package.json", import.meta.url), "utf8"),
   ) as {
+    description: string;
     homepage: string;
     keywords: string[];
     name: string;
     repository: { directory: string };
-    bb: { name: string };
+    bb: { description: string; name: string };
   };
 
   assert.equal(manifest.name, "bb-plugin-host-monitor");
   assert.equal(manifest.name.replace(/^bb-plugin-/u, ""), "host-monitor");
   assert.equal(manifest.bb.name, "Host Monitor");
+  assert.match(manifest.description, /guarded .*stop/iu);
+  assert.match(manifest.bb.description, /guarded .*stop/iu);
   assert.match(manifest.homepage, /\/plugins\/host-monitor#readme$/u);
   assert.equal(manifest.repository.directory, "plugins/host-monitor");
   assert.deepEqual(manifest.keywords, [...new Set(manifest.keywords)]);
@@ -82,7 +85,7 @@ test("keeps the retired compound identity out of active plugin text", () => {
 test("keeps threshold color hooks on percentages without rendering a legend or coloring counts", () => {
   const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
   const accessoryStart = source.indexOf("function FleetSidebarAccessory()");
-  const accessoryEnd = source.indexOf("function FilterPill(", accessoryStart);
+  const accessoryEnd = source.indexOf("function FilterTab(", accessoryStart);
 
   assert.match(source, /host-monitor-metric-ruler__percentage/u);
   assert.match(source, /host-monitor-host-card__metric-value/u);
@@ -118,6 +121,158 @@ test("marks download red and upload blue across network readings", () => {
   );
   assert.match(css, /--host-monitor-network-down:\s*var\(--destructive\)/u);
   assert.match(css, /--host-monitor-network-up:\s*var\(--timeline-accent\)/u);
+});
+
+test("uses quiet inline status and explanatory tooltips without colored cards", () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
+  const healthStatusStart = source.indexOf("function HealthStatus(");
+  const healthStatusEnd = source.indexOf("function MetricRuler(", healthStatusStart);
+  const cardIdentityStart = source.indexOf("function CardMachineIdentity(");
+  const cardIdentityEnd = source.indexOf("function IpAddressValue(", cardIdentityStart);
+
+  assert.notEqual(healthStatusStart, -1);
+  assert.notEqual(healthStatusEnd, -1);
+  assert.notEqual(cardIdentityStart, -1);
+  assert.notEqual(cardIdentityEnd, -1);
+  const healthStatusSource = source.slice(healthStatusStart, healthStatusEnd);
+  const cardIdentitySource = source.slice(cardIdentityStart, cardIdentityEnd);
+
+  assert.match(healthStatusSource, /data-connected=/u);
+  assert.match(healthStatusSource, /aria-label=\{`\$\{presentation\.label\}\. \$\{presentation\.reason\}`\}/u);
+  assert.match(healthStatusSource, /host-monitor-health-status__indicator/u);
+  assert.match(
+    healthStatusSource,
+    /<span aria-hidden="true" className="host-monitor-health-status__indicator" \/>/u,
+  );
+  assert.match(
+    cardIdentitySource,
+    /const statusTone = machineBadgePresentation\(machine\)\.tone;/u,
+  );
+  assert.match(cardIdentitySource, /data-tone=\{statusTone\}/u);
+
+  for (const tone of ["healthy", "attention", "critical"] as const) {
+    assert.match(
+      css,
+      new RegExp(
+        `host-monitor-health-status\\[data-connected="true"\\]\\[data-tone="${tone}"\\]`,
+        "u",
+      ),
+    );
+    assert.match(
+      css,
+      new RegExp(
+        `host-monitor-machine-identity__status\\[data-connected="true"\\]\\[data-tone="${tone}"\\]`,
+        "u",
+      ),
+    );
+    assert.match(
+      css,
+      new RegExp(
+        `host-monitor-host-card__status\\[data-connected="true"\\]\\[data-tone="${tone}"\\]`,
+        "u",
+      ),
+    );
+  }
+
+  assert.match(
+    css,
+    /\.host-monitor-health-status\s*\{[^{}]*border:\s*0[^{}]*background:\s*transparent[^{}]*padding:\s*0/u,
+  );
+  assert.match(
+    css,
+    /\.host-monitor-health-status\[data-connected="true"\]\[data-tone="critical"\]\s*\{[^{}]*var\(--host-monitor-critical-text\)/u,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.host-monitor-dashboard\s+\.host-monitor-health-status[^{}]*\{[^{}]*(?:border-color|background):/u,
+  );
+
+  assert.match(
+    css,
+    /host-monitor-health-status__indicator\s*\{[^{}]*background:\s*currentColor/u,
+  );
+  assert.match(
+    css,
+    /--host-monitor-attention-text:\s*color-mix\(\s*in srgb,\s*var\(--warning-text, var\(--warning\)\) 50%,\s*var\(--host-monitor-text, var\(--foreground\)\)/u,
+  );
+  assert.match(
+    css,
+    /--host-monitor-critical-text:\s*color-mix\(\s*in srgb,\s*var\(--destructive-text, var\(--destructive\)\) 50%,\s*var\(--host-monitor-text, var\(--foreground\)\)/u,
+  );
+  for (const [tone, token] of [
+    ["healthy", "normal"],
+    ["attention", "attention"],
+    ["critical", "critical"],
+  ] as const) {
+    assert.match(
+      css,
+      new RegExp(
+        `host-monitor-health-status\\[data-connected="true"\\]\\[data-tone="${tone}"\\][^{}]*host-monitor-health-status__indicator\\s*\\{[^{}]*background:\\s*var\\(--host-monitor-${token}\\)`,
+        "u",
+      ),
+    );
+  }
+  assert.match(
+    css,
+    /host-monitor-machine-identity__status\[data-connected="false"\]\s*\{[^{}]*muted-foreground/u,
+  );
+  assert.match(
+    css,
+    /host-monitor-host-card__status\[data-connected="false"\]\s*\{[^{}]*muted-foreground/u,
+  );
+  assert.doesNotMatch(
+    healthStatusSource,
+    /className="host-monitor-health-status"[^>]*data-tone[^>]*style=/u,
+  );
+  assert.match(source, /function MachineExplanationTooltip/u);
+  assert.match(source, /<Tooltip\.Trigger asChild>/u);
+  assert.match(source, /<Tooltip\.Portal>/u);
+  assert.match(source, /className="host-monitor-status-tooltip"/u);
+  assert.match(source, /<Tooltip\.Provider/u);
+  assert.match(source, /<MachineExplanationTooltip key=\{machine\.host\.id\} machine=\{machine\}>\s*<tr/u);
+  assert.match(source, /className=\{`host-monitor-desktop-fleet__row[^`]*focus-visible:bg-accent\/40/u);
+  assert.match(source, /data-tone=\{machineBadgePresentation\(machine\)\.tone\}\s*tabIndex=\{0\}/u);
+  assert.doesNotMatch(source, /dangerouslySetInnerHTML/u);
+  assert.doesNotMatch(source, /\{machine\.alert\.message\}/u);
+  assert.doesNotMatch(source, /\{machine\.error\}/u);
+  assert.match(source, /\{machineBadgePresentation\(machine\)\.reason\}/u);
+  assert.match(css, /\.host-monitor-status-tooltip\s*\{/u);
+  assert.match(
+    css,
+    /\.host-monitor-status-tooltip\s*\{[^{}]*--host-monitor-text:\s*var\(--popover-foreground, var\(--foreground\)\)/u,
+  );
+  assert.match(css, /background:\s*var\(--popover, var\(--card\)\)/u);
+});
+
+test("uses underline fleet filters and rail-free neutral host containers", () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
+  const css = readFileSync(new URL("../app.css", import.meta.url), "utf8");
+
+  assert.match(source, /function FilterTab/u);
+  assert.match(source, /aria-controls="host-monitor-fleet-results"/u);
+  assert.match(source, /<fieldset aria-label="Host filter"/u);
+  assert.match(source, /data-tone=\{machineBadgePresentation\(machine\)\.tone\}/u);
+  assert.match(
+    css,
+    /\.host-monitor-filter-tab\[aria-pressed="true"\]::after\s*\{[^{}]*background:\s*var\(--foreground\)/u,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.host-monitor-(?:host-card|compact-fleet__row)\[data-tone="(?:healthy|attention|critical|offline|unavailable)"\]::before/u,
+  );
+  assert.doesNotMatch(
+    css,
+    /\.host-monitor-desktop-fleet__row\[data-tone="(?:attention|critical)"\][^{}]*\{[^{}]*box-shadow/u,
+  );
+  assert.match(
+    css,
+    /\.host-monitor-host-card:hover\s*\{[^{}]*background:\s*color-mix\([^{}]*var\(--accent\)/u,
+  );
+  assert.match(
+    source,
+    /label="Attention" onClick=\{\(\) => setFilter\("attention"\)\}/u,
+  );
 });
 
 test("keeps the redesigned host cards flat, private, and keyboard-native", () => {
@@ -162,6 +317,7 @@ test("keeps the redesigned host cards flat, private, and keyboard-native", () =>
 });
 
 test("registers the Host Monitor sidebar surfaces and targeted inspector", async () => {
+  const source = readFileSync(new URL("../app.tsx", import.meta.url), "utf8");
   const registrations = await loadRegistrations();
 
   assert.equal(registrations.navPanels.length, 1);
@@ -236,10 +392,11 @@ test("registers the Host Monitor sidebar surfaces and targeted inspector", async
       panelId: "machines",
       id: "processes",
       title: "Processes",
-      icon: "Activity",
+      icon: "ChartColumn",
       layout: "flush",
     },
   );
+  assert.doesNotMatch(source, /icon:\s*"Activity"/u);
   assert.equal(typeof processesTab.component, "function");
   assert.ok(processesTab.experimental_target);
   const validateProcessesTarget = processesTab.experimental_target.validate;

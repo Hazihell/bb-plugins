@@ -1,8 +1,8 @@
 {
   "name": "bb-plugin-host-monitor",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
-  "description": "Live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.",
+  "description": "Live fleet health and guarded controls to stop eligible user processes across every host enrolled in bb.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
   "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/host-monitor#readme",
@@ -31,7 +31,7 @@
   },
   "bb": {
     "name": "Host Monitor",
-    "description": "Live resource health across every host enrolled in bb.",
+    "description": "Live fleet health with guarded controls to stop eligible user processes.",
     "branding": {
       "icon": "./assets/icon.svg",
       "logo": {

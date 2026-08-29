@@ -71,7 +71,7 @@ bb plugin install host-monitor
 ### Direct Git release
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 \
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 \
   --subdirectory plugins/host-monitor \
   --tag-prefix host-monitor/
 ```
