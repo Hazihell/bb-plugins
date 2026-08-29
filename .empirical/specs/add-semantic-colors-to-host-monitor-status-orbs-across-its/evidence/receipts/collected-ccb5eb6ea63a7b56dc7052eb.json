@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-ccb5eb6ea63a7b56dc7052eb",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "fresh-context review approved the exact committed base diff",
+  "passed": true,
+  "startedAt": "2026-08-29T01:43:26.941Z",
+  "completedAt": "2026-08-29T01:43:26.941Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:ce8014fa379bcf451c1ca2c09beb3539eb73ebe63e07dec37d6af9cd4a750d8f",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:a031f706d112a4fd03c61338601f3db3095c634525593070a158dd337e6ccc18",
+  "kind": "collected",
+  "collector": "empirical-review:fresh-context-isolated-reviewer",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/reviews/84859939b312fe6f9faea75a.json",
+      "mediaType": "application/json",
+      "bytes": 2213,
+      "digest": "sha256:15aa7cf81cdc0188cd57b2db91cb762a181c5a71c25a118781c1fdf4dd1dc3a3"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/reviews/84859939b312fe6f9faea75a.md",
+      "mediaType": "text/markdown",
+      "bytes": 1454,
+      "digest": "sha256:48349ae7822b51f3b453fd9988d70d27e233a86e661f77ed7886739af9389f87"
+    }
+  ]
+}

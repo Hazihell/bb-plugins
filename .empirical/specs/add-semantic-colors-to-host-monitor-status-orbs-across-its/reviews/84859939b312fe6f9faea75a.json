@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packetDigest": "sha256:42fe27f412c1dd5821c83805f9e19608cf45331e29a8ce196be2ecb523413ae4",
+  "mode": "fresh-context",
+  "baseRef": "main",
+  "baseCommit": "2d90bd3be0aab8a3641e368536bbe441150e6580",
+  "headCommit": "68a87da7e0bcd9867d0982670e99e5df7cc7181c",
+  "diffDigest": "sha256:9810f7a577f7fda73c876b5689c19b2111b1487b3ba9cdd6e233a8bdffc881e0",
+  "verdict": "APPROVED",
+  "reviewerActor": "fresh-context-isolated-reviewer",
+  "reviewerInvocationId": "fci-42fe27f4-7b3e-4d2a-9c18-68a87da7e0bc",
+  "reviewerLogin": null,
+  "body": "# Verdict: APPROVED\n\n- PASS AC-1: Compact and floating rows propagate safe semantic tones, including neutral unknown states and muted disconnected states.\n- PASS AC-2: Dashboard status indicators consistently reuse semantic presentation tones with disconnected precedence and restrained card halos.\n- PASS AC-A11Y-1: Visible textual status remains present, explanations are accessible, and decorative indicators are hidden from assistive technology.\n- PASS AC-3: The trigger notification dot remains removed while its dynamic label, title, click, and drag behavior are preserved.\n- PASS AC-4: Host Monitor release references are updated consistently to 0.1.2 without altering the unrelated plugin release versions.\n- PASS AC-5: Focused regressions cover semantic tones, disconnected precedence, safe fallbacks, accessible status text, and trigger-dot absence.\n- PASS AC-6: The committed change is internally consistent with the required focused and repository-wide verification coverage.\n- PASS AC-UI-1: The committed integration supplies the Host Monitor 0.1.2 semantic-orb UI behavior and corresponding real-BB visual evidence.\n\n## Security / correctness\n\nTone derivation fails safely for malformed or future values, disconnected state wins, and tooltip text is assigned without innerHTML.\n\n## Design / maintainability\n\nShared presentation helpers centralize status semantics, CSS uses theme tokens, and focused tests guard the cross-surface contract.",
+  "bodyDigest": "sha256:d532fdc77493bd9a51acc520c80a25863df377b7a7def52b14d2c36409dd0818",
+  "digest": "sha256:84859939b312fe6f9faea75a87703a4dbb509b63f4fc1b8eecf46f3efe3abe33"
+}
