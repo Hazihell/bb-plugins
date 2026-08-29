@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-28T15:35:42-03:00",
+  "surface": "real BB application at http://127.0.0.1:38886",
+  "installedPlugin": {
+    "id": "host-monitor",
+    "version": "0.1.2",
+    "source": "path:/home/dyaus/Developer/projects/MateoCerquetella/BB/bb-plugins-taskboard-pin-icon-integration/plugins/host-monitor",
+    "status": "running",
+    "statusDetail": null,
+    "machineSampler": "running"
+  },
+  "trigger": {
+    "expanded": true,
+    "accessibleLabel": "Host Monitor · 4 of 4 connected · 1 critical host · 2 need attention · Drag to open floating monitor",
+    "titleMatchesAccessibleLabel": true,
+    "pseudoElementContent": "none"
+  },
+  "compactPopoverRows": [
+    {
+      "tone": "critical",
+      "visibleState": "Connected Critical",
+      "dotAriaHidden": true,
+      "computedBackground": "rgb(210, 15, 57)"
+    },
+    {
+      "tone": "attention",
+      "visibleState": "Connected Attention",
+      "dotAriaHidden": true,
+      "computedBackground": "rgb(223, 142, 29)"
+    },
+    {
+      "tone": "attention",
+      "visibleState": "Connected Attention",
+      "dotAriaHidden": true,
+      "computedBackground": "rgb(223, 142, 29)"
+    },
+    {
+      "tone": "healthy",
+      "visibleState": "Connected Healthy",
+      "dotAriaHidden": true,
+      "computedBackground": "rgb(64, 160, 43)"
+    }
+  ],
+  "floatingMonitor": {
+    "rowCount": 4,
+    "tones": [
+      "critical",
+      "attention",
+      "attention",
+      "healthy"
+    ],
+    "computedBackgrounds": [
+      "rgb(210, 15, 57)",
+      "rgb(223, 142, 29)",
+      "rgb(223, 142, 29)",
+      "rgb(64, 160, 43)"
+    ],
+    "allDotsAriaHidden": true,
+    "visibleHealthLabelsPresent": true
+  },
+  "dashboard": {
+    "identityTones": [
+      "critical",
+      "attention",
+      "attention",
+      "healthy"
+    ],
+    "identityDotsAriaHidden": true,
+    "healthBadgeIndicatorsAriaHidden": true,
+    "badgeTextColorRemainedNeutral": "rgb(92, 95, 119)",
+    "cardHaloOpacity": 0.09
+  },
+  "screenshots": [
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-popover.png",
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-floating.png",
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-cards.png",
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-rows.png"
+  ],
+  "runtimeLimitation": "The live fleet had zero offline hosts. Disconnected, offline, loading, unavailable, and unexpected-state neutral fallbacks are covered by focused executable tests and fixed neutral CSS selectors; no host was deliberately disconnected for a screenshot."
+}

@@ -1,0 +1,30 @@
+{
+  "checkId": "qa-fresh-context",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "outcome": "passed",
+  "summary": "A fresh real-BB pass confirmed the final rail-free Host Monitor 0.1.2 UI: page cards/rows and compact/floating hosts have no tone-colored edge, background, border, or shadow; Critical and Needs attention retain readable semantic text and dots while Healthy text is neutral; page host buttons open neutral Radix explanations on hover/focus; compact rows remain native focusable list items with safe described explanations, neutral hover/focus feedback, a body-level viewport-positioned tooltip for any scrolled row, Tab-loop reachability, exact host focus restoration after refresh, and correct mixed hover/focus persistence. BB's global Host Monitor icon stayed neutral with no notification pseudo-element. Executable cases cover offline, disconnected, sampling, stale, failed-refresh, unavailable, malformed state/alert, malicious alert/error strings, and retained disconnected severity absent from the live fleet.",
+  "collector": "codex-browser-final-context",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

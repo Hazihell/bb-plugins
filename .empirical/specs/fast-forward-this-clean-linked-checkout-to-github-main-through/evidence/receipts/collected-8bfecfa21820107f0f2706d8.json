@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-8bfecfa21820107f0f2706d8",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-UI-1",
+    "AC-UI-2",
+    "AC-UI-3"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "Independent final review found the consolidated main-preserving diff integration-ready: all versions and Git-only contracts align, PR #20 behavior is byte-preserved, the two UI changes match accepted decisions, live installations are healthy, and no blocking finding remains. One low source-test-fidelity advisory is covered by real browser evidence.",
+  "passed": true,
+  "startedAt": "2026-08-28T17:17:40.660Z",
+  "completedAt": "2026-08-28T17:17:40.660Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "fast-forward-this-clean-linked-checkout-to-github-main-through",
+    "specRevision": 3,
+    "specDigest": "sha256:a05c035193038b598548df2366669eb7a95b3e2db1d635c4f7e58be869471907",
+    "treeDigest": "sha256:5960ec40656c656b6effffb4258dbb35deebde6496cf571e7a9da69d5dfbe185",
+    "policyDigest": "sha256:67f4c00cd7f9e81f1f33605e35feec4ab19b4034d254927c06940f9077ff6ffa"
+  },
+  "digest": "sha256:0203b146763aa91439eac0b69f334422925490bf6584a9b82d2450cb697a301e",
+  "kind": "collected",
+  "collector": "codex-review-agent",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/code-review.md",
+      "mediaType": "text/markdown",
+      "bytes": 7832,
+      "digest": "sha256:560859215dac15730e9217c074ebb9099c118ab79049b13862c52dded55105c5"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/security.md",
+      "mediaType": "text/markdown",
+      "bytes": 1387,
+      "digest": "sha256:f6bdbd1fb20775af07f749c2c15d407ee13a44d14951ea1091647ec7ef03b1b6"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/ui-ux.md",
+      "mediaType": "text/markdown",
+      "bytes": 4595,
+      "digest": "sha256:9fdd9e8acb31ee962e59755b11314ae91f80f39b6def99b2683c4b77b6bab6c6"
+    }
+  ]
+}

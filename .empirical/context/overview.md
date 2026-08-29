@@ -10,7 +10,11 @@
   footer and lets the user choose the weekly or five-hour compact reading.
 - Host Monitor presents live CPU, RAM, disk, network, load, uptime, connection,
   and sample-health data for every enrolled BB host, with guarded on-demand
-  process inspection and termination.
+  process inspection and termination. Its per-host orbs use consistent
+  success, warning, destructive, and muted status colors while visible
+  connectivity and freshness/health labels remain authoritative. Eligible
+  process stops are guarded by explicit confirmation and repeated identity,
+  ownership, ancestry, lifetime, and elevation checks.
 
 ## Boundaries
 
@@ -30,6 +34,13 @@
   BB Community marketplace.
 - Generated `dist/` and `node_modules/` are build/install products, not authored
   source and are not committed.
+- Host Monitor status-orb colors are independent of the numeric threshold-color
+  preference. Disconnected state overrides retained health severity, and the
+  movable sidebar trigger remains free of a notification dot. Status labels
+  are borderless inline content; host cards and rows never receive a semantic
+  rail or colored surface. Critical and Needs attention text remain emphasized,
+  Healthy text stays neutral, and each host exposes a safe hover/focus reason
+  without displaying raw refresh errors.
 - Empirical tracker integration is explicitly disabled in this checkout, so
   workflow state remains local-only with no provider requests.
 
@@ -45,5 +56,9 @@
 - Usage Tracker behavior: `plugins/usage-tracker/README.md` and its manifest.
 - Host Monitor behavior and privacy boundary:
   `plugins/host-monitor/README.md`, its manifest, `contract.ts`, `server.ts`,
-  `host.ts`, and `app.tsx`.
+  `host.ts`, `app.tsx`, `app.css`, `lib/sidebar-host-monitor.ts`, and
+  `lib/fleet-presentation.ts`.
+- Host Monitor presentation contracts:
+  `.empirical/capabilities/host-monitor-sidebar/spec.md` and
+  `.empirical/capabilities/host-monitor-fleet-presentation/spec.md`.
 - Hosted verification: `.github/workflows/ci.yml`.

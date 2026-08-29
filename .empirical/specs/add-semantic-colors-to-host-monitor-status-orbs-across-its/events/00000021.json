@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 21,
+  "previousDigest": "sha256:6b4cf2b303363697f2b81b42229ee699a38d4bb37fe7e8c1b3c5f53cc54d5ad4",
+  "actor": "human",
+  "type": "transition",
+  "summary": "Resumed workflow",
+  "createdAt": "2026-08-29T00:38:39.693Z",
+  "stateBeforeDigest": "sha256:c82356ab02cc79f569ca0591cd61bde234a41c076d5f6a0185c0703aac1f3dda",
+  "stateAfterDigest": "sha256:07bd6235017cb96546375da81200cb090b361b5b4df1d8f087cddf5e91734228",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 21,
+    "activeFeature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "request": "Add semantic colors to Host Monitor status orbs across its compact popover and relevant host rows: connected healthy green, attention yellow, critical red, and offline/disconnected muted gray, with loading/unknown remaining neutral. Preserve visible text and accessible state labels so color is never the only signal. Add focused regression coverage, bump Host Monitor from 0.1.1 to 0.1.2 across active manifest/lock/documentation/distribution contracts, run focused and root checks, keep the local watcher/install live, and verify the real BB UI with a screenshot. Do not commit, push, tag, publish, release, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 3,
+    "message": null,
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:421658998f344611dd7d08a365ecaf84bf9cb12184c50a9a120d980e2cd0b226",
+    "impactDigest": "sha256:3d51ae31f567ae8bd8e5bfba379b51f9a574084e86837839fe8f6e91db0a91e3",
+    "capabilityClaimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-29T00:38:39.693Z"
+  },
+  "digest": "sha256:5bdec52898229be839eaf06de358820aeb0d41d7d8dda5602adc604150202ff3"
+}

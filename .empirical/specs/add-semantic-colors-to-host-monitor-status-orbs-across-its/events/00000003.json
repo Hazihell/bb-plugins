@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:1fe708239435db01e7577f31ea33950afebd8bf6fcb81d3ac02247c08547fbc5",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed tone propagation from existing state derivation into compact/floating rows and all dashboard orb contexts, explicit offline/unavailable and disconnected precedence, semantic token selectors independent of numeric threshold preferences, text-first accessibility, focused regression coverage, Host Monitor 0.1.2 lifecycle, and full/live verification. Recorded three accepted decisions and incorporated the UI/UX advisory's restrained same-tone host-card halo recommendation.",
+  "createdAt": "2026-08-28T18:14:33.916Z",
+  "stateBeforeDigest": "sha256:311c17a850a4ed2ae29c4417f55a3c2cda40f2823d21122290b3197346110bf8",
+  "stateAfterDigest": "sha256:f0d87c872970c5940ea9b85171be02142cf99f23e979a1075ea37fdacef7f5f7",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "request": "Add semantic colors to Host Monitor status orbs across its compact popover and relevant host rows: connected healthy green, attention yellow, critical red, and offline/disconnected muted gray, with loading/unknown remaining neutral. Preserve visible text and accessible state labels so color is never the only signal. Add focused regression coverage, bump Host Monitor from 0.1.1 to 0.1.2 across active manifest/lock/documentation/distribution contracts, run focused and root checks, keep the local watcher/install live, and verify the real BB UI with a screenshot. Do not commit, push, tag, publish, release, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed tone propagation from existing state derivation into compact/floating rows and all dashboard orb contexts, explicit offline/unavailable and disconnected precedence, semantic token selectors independent of numeric threshold preferences, text-first accessibility, focused regression coverage, Host Monitor 0.1.2 lifecycle, and full/live verification. Recorded three accepted decisions and incorporated the UI/UX advisory's restrained same-tone host-card halo recommendation.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:421658998f344611dd7d08a365ecaf84bf9cb12184c50a9a120d980e2cd0b226",
+    "impactDigest": "sha256:3d51ae31f567ae8bd8e5bfba379b51f9a574084e86837839fe8f6e91db0a91e3",
+    "capabilityClaimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-28T18:14:33.916Z"
+  },
+  "digest": "sha256:5e4d695595272201cc786d8e7b43bf963c75e171daa7dfd302cf9bfc1e135af4"
+}

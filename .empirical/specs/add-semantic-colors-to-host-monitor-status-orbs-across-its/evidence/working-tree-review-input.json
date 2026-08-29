@@ -1,0 +1,31 @@
+{
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "Fresh independent code, security, and UI/UX reviews found the final D-008 Host Monitor working tree integration-ready with no remaining actionable findings. The reviewed result has rail-free neutral containers, Critical/Needs attention-only text emphasis, semantic dots, a closed bounded reason mapper with no raw alert/error exposure, normalized disconnected counts/filters, neutral Radix and body-level viewport tooltips, reachable/restored keyboard focus, correct mixed hover/focus persistence, a neutral dot-free global icon, ChartColumn reviewer fix, guarded-stop disclosure, and coherent Host Monitor 0.1.2 preparation. The report separately documents that committed-diff provenance remains unavailable until an authorized commit exists.",
+  "collector": "fresh-working-tree-review:rail-free-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/code-review.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/security.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/ui-ux.md",
+      "mediaType": "text/markdown"
+    }
+  ]
+}

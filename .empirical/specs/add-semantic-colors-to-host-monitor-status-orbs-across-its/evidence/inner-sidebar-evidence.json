@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-28T15:58:16-03:00",
+  "surface": "real BB Host Monitor page at http://127.0.0.1:38886",
+  "installedPlugin": {
+    "id": "host-monitor",
+    "version": "0.1.2",
+    "status": "running",
+    "machineSampler": "running"
+  },
+  "globalSidebarControl": {
+    "semanticIconTintApplied": false,
+    "computedIconColor": "rgb(92, 95, 119)",
+    "computedIconBackground": "rgb(92, 95, 119)",
+    "notificationPseudoElementContent": "none"
+  },
+  "visibleInnerSidebarChips": [
+    {
+      "label": "Critical",
+      "tone": "critical",
+      "connected": true,
+      "computedTextColor": "rgb(92, 95, 119)",
+      "computedBackground": "color(srgb 0.823529 0.0588235 0.223529 / 0.1)",
+      "semanticBorderMix": true
+    },
+    {
+      "label": "Attention",
+      "tone": "attention",
+      "connected": true,
+      "computedTextColor": "rgb(92, 95, 119)",
+      "computedBackground": "color(srgb 0.87451 0.556863 0.113725 / 0.1)",
+      "semanticBorderMix": true
+    },
+    {
+      "label": "Attention",
+      "tone": "attention",
+      "connected": true,
+      "computedTextColor": "rgb(92, 95, 119)",
+      "computedBackground": "color(srgb 0.87451 0.556863 0.113725 / 0.1)",
+      "semanticBorderMix": true
+    },
+    {
+      "label": "Healthy",
+      "tone": "healthy",
+      "connected": true,
+      "computedTextColor": "rgb(92, 95, 119)",
+      "computedBackground": "color(srgb 0.25098 0.627451 0.168627 / 0.1)",
+      "semanticBorderMix": true
+    }
+  ],
+  "accessibility": {
+    "chipLabelsRemainVisible": true,
+    "decorativeIndicatorsRemainAriaHidden": true,
+    "unexpectedStatusSampleAndHealthFallbackLabel": "Unavailable",
+    "disconnectedPrecedenceLabel": "Offline"
+  },
+  "screenshot": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-colored-inner-sidebar-chips.png",
+  "runtimeLimitation": "The live fleet had no offline host. Muted disconnected/offline/unavailable/unknown chip behavior is covered by executable helper and CSS regression tests; no host was disconnected for visual evidence."
+}

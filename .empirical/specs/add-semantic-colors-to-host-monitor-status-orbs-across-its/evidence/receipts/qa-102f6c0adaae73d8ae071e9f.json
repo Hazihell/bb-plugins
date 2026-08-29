@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-102f6c0adaae73d8ae071e9f",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "human"
+  ],
+  "summary": "A corrected fresh real-BB pass confirmed semantic border/background treatment on Critical, Attention, and Healthy chips in the Host Monitor page's inner fleet sidebar, with neutral readable chip words. BB's permanent Host Monitor icon stayed at the muted theme color, its notification pseudo-element remained absent, and the installed Host Monitor 0.1.2 sampler remained running. Compact/floating/page orbs retained their semantic mapping and every malformed status/sample/health path now fails to visible Unavailable or Offline copy rather than success.",
+  "passed": true,
+  "startedAt": "2026-08-28T19:04:29.850Z",
+  "completedAt": "2026-08-28T19:04:29.850Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:70d5fa04cf0143bc2c41d3d6adad251a6bfaa8a8d96e4090f3b829f7e1073cd0",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e",
+    "workflowRevision": 10,
+    "gitCommit": "203f910676d6ba9d1f1da1d58affc8f9d307645e"
+  },
+  "digest": "sha256:51b5e8e1abc6d550aca9b5c89810d7a787ca2c1cb35721134088bd3e7bbb4ab6",
+  "kind": "qa",
+  "matrixDigest": "sha256:0d3a004abf1886f41f7acb768e2766971da7b19e452a56f11e98926371c6de12",
+  "check": {
+    "id": "qa-fresh-context",
+    "kind": "fresh-context"
+  },
+  "coveredChecks": [
+    "fresh-context"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "A corrected fresh real-BB pass confirmed semantic border/background treatment on Critical, Attention, and Healthy chips in the Host Monitor page's inner fleet sidebar, with neutral readable chip words. BB's permanent Host Monitor icon stayed at the muted theme color, its notification pseudo-element remained absent, and the installed Host Monitor 0.1.2 sampler remained running. Compact/floating/page orbs retained their semantic mapping and every malformed status/sample/health path now fails to visible Unavailable or Offline copy rather than success.",
+      "startedAt": "2026-08-28T19:04:29.850Z",
+      "completedAt": "2026-08-28T19:04:29.850Z",
+      "durationMs": 0,
+      "collector": "codex-browser-final-context",
+      "command": null,
+      "result": null,
+      "cleanStart": false,
+      "sourceTreeBefore": "sha256:70d5fa04cf0143bc2c41d3d6adad251a6bfaa8a8d96e4090f3b829f7e1073cd0",
+      "sourceTreeAfter": "sha256:70d5fa04cf0143bc2c41d3d6adad251a6bfaa8a8d96e4090f3b829f7e1073cd0",
+      "artifacts": [
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-colored-inner-sidebar-chips.png",
+          "mediaType": "image/png",
+          "bytes": 77749,
+          "digest": "sha256:3ce2dc04deda8edeff9f9ecbd36ecbe227153ccffc8f6ed58dfa2b4a4f485ff9"
+        },
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/inner-sidebar-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 2113,
+          "digest": "sha256:f4c6f2aa61f352ef3accc7f671b00df6b2f98ef114dc27260107559f457d3713"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}

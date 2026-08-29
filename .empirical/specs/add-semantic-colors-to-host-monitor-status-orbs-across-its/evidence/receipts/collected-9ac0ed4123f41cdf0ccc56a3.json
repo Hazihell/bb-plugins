@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-9ac0ed4123f41cdf0ccc56a3",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Real BB verification of installed Host Monitor 0.1.2 covered compact popover and floating rows, dashboard identities, host cards, and health-badge indicators. Computed critical/attention/healthy backgrounds matched BB semantic tokens, labels remained visible and neutral, decorative dots remained aria-hidden, card halos stayed restrained, the sampler was running, and the movable trigger retained accessible fleet text with no pseudo-element notification dot. Four screenshots capture the exercised layouts; the live fleet's zero-offline limitation is documented and neutral fallbacks are executable-test covered.",
+  "passed": true,
+  "startedAt": "2026-08-28T18:40:32.885Z",
+  "completedAt": "2026-08-28T18:40:32.885Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:f7a5eff351061b384bbae021ea1360f722c94139cc5fd3156cc60a7a9e009c6d",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:7328613570721029a654732d51cc656351375a24ead11e35c4dfa8fc8bd40800",
+  "kind": "collected",
+  "collector": "codex-browser",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/browser-evidence.json",
+      "mediaType": "application/json",
+      "bytes": 2835,
+      "digest": "sha256:a20b5e296bdb630e14de5bce91775846f1d3bc411a1d89721d36d7672c1b83d0"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-cards.png",
+      "mediaType": "image/png",
+      "bytes": 79872,
+      "digest": "sha256:c627ae60cc581b2b3dc087d52955c4ffe5910bf526db672b44960bb13cf36b1e"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-floating.png",
+      "mediaType": "image/png",
+      "bytes": 87899,
+      "digest": "sha256:1fd36e48653a69f5dd14ac842de567c3d5af026e223a84752bb66b4343dc68f9"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-popover.png",
+      "mediaType": "image/png",
+      "bytes": 102114,
+      "digest": "sha256:772bc706a148ef080c05c1a9ec958538e1e5c6320620517290a47d48526bd187"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-rows.png",
+      "mediaType": "image/png",
+      "bytes": 78939,
+      "digest": "sha256:102de4bd0434fe660a96221ef9dd40b2d8d5aa17adcd39555c0a5044a60e94c9"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/verification.md",
+      "mediaType": "text/markdown",
+      "bytes": 4957,
+      "digest": "sha256:e4cbd9eb060c11d71e70d6ac1700381f9434d24fead8d588c11762cf768ed3af"
+    }
+  ]
+}

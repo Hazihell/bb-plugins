@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "classification": "behavioral",
+  "capabilities": [
+    "host-monitor-sidebar",
+    "plugin-git-distribution",
+    "taskboard-distribution",
+    "taskboard-right-panel",
+    "usage-tracker-distribution"
+  ],
+  "surfaces": [
+    "workflow"
+  ],
+  "regressionRationale": null,
+  "digest": "sha256:00c6b5bbcaf663931ab7976ed64494430f3f46538a751c5f49dc7165bba88d40"
+}

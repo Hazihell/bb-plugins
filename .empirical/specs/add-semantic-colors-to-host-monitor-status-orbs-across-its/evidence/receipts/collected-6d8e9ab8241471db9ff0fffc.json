@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-6d8e9ab8241471db9ff0fffc",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "A fresh independent read-only review found the no-pill Host Monitor working tree integration-ready after one accessibility correction: semantic text now mixes toward the active foreground while raw orbs and rails retain severity color. Borderless status, underline filters, action-only rails, the semantic compact summary, safe state precedence, the neutral dot-free global icon, ChartColumn reviewer fix, guarded-stop disclosure, and Host Monitor 0.1.2 are coherent. The report separately documents that formal committed-diff provenance remains unavailable until an authorized commit exists.",
+  "passed": true,
+  "startedAt": "2026-08-28T23:04:56.677Z",
+  "completedAt": "2026-08-28T23:04:56.677Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:a26cae2fcf5e8aa4cac370e2dd770ef3f45c89f01c99863f22ab44009b6bfb8f",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:25b4365dfd35acc3169149da38acaff6269f62e08c64f6e28e6038d21789197e",
+  "kind": "collected",
+  "collector": "fresh-working-tree-review:no-pill-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/code-review.md",
+      "mediaType": "text/markdown",
+      "bytes": 4811,
+      "digest": "sha256:212c05ffb40b8abe301725f9ef892138ea887bfce5156deb46ad0f999b38aac5"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/security.md",
+      "mediaType": "text/markdown",
+      "bytes": 5453,
+      "digest": "sha256:4078b5c604dd7642494b8cbd9580aa2942902826b1f11aa86a3f08b3edb97f14"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/ui-ux.md",
+      "mediaType": "text/markdown",
+      "bytes": 5457,
+      "digest": "sha256:a85af8e4113b0d90c9c411bad2890beb1ce12144d93043c51d4806a5eb6a09b4"
+    }
+  ]
+}

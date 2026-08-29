@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-96bc5ff304e15e99f39a225b",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "A fresh read-only reviewer found the corrected Host Monitor working tree integration-ready with no code defects: inner-dashboard chips have narrowly scoped semantic surfaces and neutral words, the global icon is neutral/dot-free, disconnected and malformed states fail neutral with visible labels, accessibility signals remain intact, and Host Monitor remains 0.1.2. The report separately documents that formal committed-diff provenance is unavailable until an authorized commit exists.",
+  "passed": true,
+  "startedAt": "2026-08-28T19:10:19.865Z",
+  "completedAt": "2026-08-28T19:10:19.865Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:70d5fa04cf0143bc2c41d3d6adad251a6bfaa8a8d96e4090f3b829f7e1073cd0",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:4ab3c23dc94d24cde8a36c6eef64b2466f29027afa7586192130d38420990e23",
+  "kind": "collected",
+  "collector": "fresh-working-tree-review:chip-final-review",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/code-review.md",
+      "mediaType": "text/markdown",
+      "bytes": 4526,
+      "digest": "sha256:4605d0ed1e46b63992af58bd8b01f336aae3a522f9aa3f7bce3bd044921c363f"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/security.md",
+      "mediaType": "text/markdown",
+      "bytes": 4074,
+      "digest": "sha256:fe0d8320131681f3e8bd4bf3d67451b10c0912e0ed7879fe56a11955b3bc3d6a"
+    }
+  ]
+}

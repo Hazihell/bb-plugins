@@ -8,13 +8,13 @@ Commands below are verified from workspace and plugin manifests.
   or dependency/lockfile change.
 - `bb plugin install ./plugins/taskboard` — register the local Taskboard path in
   BB for live verification.
-- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/`
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/`
   — install the released Taskboard Git range directly.
 - `bb plugin install ./plugins/usage-tracker` — register Usage Tracker locally.
-- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/`
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.4 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/`
   — install the released Usage Tracker Git range directly.
 - `bb plugin install ./plugins/host-monitor` — register Host Monitor locally.
-- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/host-monitor --tag-prefix host-monitor/`
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/host-monitor --tag-prefix host-monitor/`
   — install the released Host Monitor Git range directly.
 
 ## Run, test, and build
@@ -31,6 +31,12 @@ Commands below are verified from workspace and plugin manifests.
   typecheck, tests, build, and build-metadata verification.
 - `npm run dev --workspace bb-plugin-host-monitor` — Host Monitor
   watch/build/reload loop after local-path installation.
+- `npm run typecheck --workspace bb-plugin-host-monitor` and
+  `npm test --workspace bb-plugin-host-monitor` — focused Host Monitor
+  iteration; the test suite covers semantic orb mapping, neutral fallbacks,
+  accessible privacy-safe state explanations, rail-free neutral host
+  containers, hover/focus tooltip behavior, no-pill status/filter presentation,
+  valid fixed-tab registration, and the dot-free trigger.
 - `npm run check --workspace bb-plugin-host-monitor` — Host Monitor SDK-type
   check, typecheck, complete Node/TSX test suite, and BB build.
 - `npm run types:refresh --workspace bb-plugin-taskboard` followed by
@@ -48,7 +54,14 @@ Commands below are verified from workspace and plugin manifests.
 - UI/runtime changes also require the active plugin dev loop and a real BB
   surface exercise. A successful build alone does not verify layout, focus,
   overlays, responsive behavior, or reload state.
+- After a local manifest version bump, `bb plugin install ./plugins/host-monitor`
+  refreshes BB's same-path inventory and server metadata; the watcher continues
+  to rebuild/reload subsequent source changes.
 - Plugin build/type scripts clear `BB_CLI` so they use the workspace-pinned BB
   toolchain rather than whichever application launched the agent.
 - Do not publish, push, or reload unrelated live plugin installations without
   explicit user authorization.
+- Marketplace PR preparation is validated against current
+  `get-bb/marketplace:main` with `npm ci`, `npm run build`, and
+  `npm run check`. A passing local validation does not authorize pushing its
+  branch, commenting on the PR, or publishing the required plugin tag.

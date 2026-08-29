@@ -67,7 +67,7 @@ bb plugin remove host-monitor
 Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
@@ -100,7 +100,7 @@ bb plugin remove taskboard
 Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.4 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)

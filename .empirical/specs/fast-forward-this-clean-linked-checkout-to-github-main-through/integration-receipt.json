@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "feature": "fast-forward-this-clean-linked-checkout-to-github-main-through",
+  "claimId": "fast-forward-this-clean-linked-checkout-to-github-main-through-6c9b9308abd6",
+  "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+  "baseCommit": "203f910676d6ba9d1f1da1d58affc8f9d307645e",
+  "baseTree": "a55ab264c8165320aa0848c6f014b3d068f2f208",
+  "featureTree": "sha256:5960ec40656c656b6effffb4258dbb35deebde6496cf571e7a9da69d5dfbe185",
+  "targetCommit": "203f910676d6ba9d1f1da1d58affc8f9d307645e",
+  "targetTree": "a55ab264c8165320aa0848c6f014b3d068f2f208",
+  "capabilityBaseDigests": {
+    "host-monitor-sidebar": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "plugin-git-distribution": "sha256:3162bdff02d2fe0a15f9e68d016f38edef23e7e77a9eac3889ee8c37d5bbac9c",
+    "taskboard-distribution": "sha256:b318f7452a3513ae1d75d630c775103562159894c81b9c2e3a6ffeaa195fe4a6",
+    "taskboard-right-panel": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "usage-tracker-distribution": "sha256:1abf98e1d06367f02d1943f7975c08e7e095b0a1ef9afb1fd132ff151e44f131"
+  },
+  "deltaDigest": "sha256:a0754ee89c5fc8e3ef69fe8b4f8b5d125287a0b71a32363705461361e3954a27",
+  "resultDigests": {
+    "host-monitor-sidebar": "sha256:d0b884f2f25e23e2c4746fcecc8ae70326920e5b5d8762703aa46e24e8f3fc97",
+    "plugin-git-distribution": "sha256:f8da51255c53124ab1c06151967d73ccb935baf8ae1dedf539a9dd2df4b87243",
+    "taskboard-distribution": "sha256:dd982e0000e922613b64244b8bbaffac4e55b0a61735194ed791935adff544eb",
+    "taskboard-right-panel": "sha256:bb8d28816b9817c6820422d527f2ee0060f195bae8c5e7f214a319204cc453cc",
+    "usage-tracker-distribution": "sha256:4582b45d303648122eee52047b3cb75105a613970ec197995d0b9aae408b2cb0"
+  },
+  "verificationReceiptDigests": [
+    "sha256:dec17a30b7c6c0a28a02c914162f2eb37a62aecf88a3e63806ea8db26b55d966"
+  ],
+  "integratedAt": "2026-08-28T17:29:00.910Z",
+  "digest": "sha256:7b188ca95781a2c78ee0d17871f0d54342218ec4ef39e74f825ba0acb33249fc"
+}

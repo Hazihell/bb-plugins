@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-972e305a8b2b6d17b3de3991",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "human"
+  ],
+  "summary": "A fresh real-BB pass confirmed the final rail-free Host Monitor 0.1.2 UI: page cards/rows and compact/floating hosts have no tone-colored edge, background, border, or shadow; Critical and Needs attention retain readable semantic text and dots while Healthy text is neutral; page host buttons open neutral Radix explanations on hover/focus; compact rows remain native focusable list items with safe described explanations, neutral hover/focus feedback, a body-level viewport-positioned tooltip for any scrolled row, Tab-loop reachability, exact host focus restoration after refresh, and correct mixed hover/focus persistence. BB's global Host Monitor icon stayed neutral with no notification pseudo-element. Executable cases cover offline, disconnected, sampling, stale, failed-refresh, unavailable, malformed state/alert, malicious alert/error strings, and retained disconnected severity absent from the live fleet.",
+  "passed": true,
+  "startedAt": "2026-08-29T01:24:57.025Z",
+  "completedAt": "2026-08-29T01:24:57.025Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:ce8014fa379bcf451c1ca2c09beb3539eb73ebe63e07dec37d6af9cd4a750d8f",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e",
+    "workflowRevision": 23,
+    "gitCommit": "203f910676d6ba9d1f1da1d58affc8f9d307645e"
+  },
+  "digest": "sha256:6d1d421dcd19c5aa4dcd248fc226baf83d936fe6346dcc7ff8c5dc7969ba4699",
+  "kind": "qa",
+  "matrixDigest": "sha256:0d3a004abf1886f41f7acb768e2766971da7b19e452a56f11e98926371c6de12",
+  "check": {
+    "id": "qa-fresh-context",
+    "kind": "fresh-context"
+  },
+  "coveredChecks": [
+    "fresh-context"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "A fresh real-BB pass confirmed the final rail-free Host Monitor 0.1.2 UI: page cards/rows and compact/floating hosts have no tone-colored edge, background, border, or shadow; Critical and Needs attention retain readable semantic text and dots while Healthy text is neutral; page host buttons open neutral Radix explanations on hover/focus; compact rows remain native focusable list items with safe described explanations, neutral hover/focus feedback, a body-level viewport-positioned tooltip for any scrolled row, Tab-loop reachability, exact host focus restoration after refresh, and correct mixed hover/focus persistence. BB's global Host Monitor icon stayed neutral with no notification pseudo-element. Executable cases cover offline, disconnected, sampling, stale, failed-refresh, unavailable, malformed state/alert, malicious alert/error strings, and retained disconnected severity absent from the live fleet.",
+      "startedAt": "2026-08-29T01:24:57.025Z",
+      "completedAt": "2026-08-29T01:24:57.025Z",
+      "durationMs": 0,
+      "collector": "codex-browser-final-context",
+      "command": null,
+      "result": null,
+      "cleanStart": false,
+      "sourceTreeBefore": "sha256:ce8014fa379bcf451c1ca2c09beb3539eb73ebe63e07dec37d6af9cd4a750d8f",
+      "sourceTreeAfter": "sha256:ce8014fa379bcf451c1ca2c09beb3539eb73ebe63e07dec37d6af9cd4a750d8f",
+      "artifacts": [
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+          "mediaType": "image/png",
+          "bytes": 71710,
+          "digest": "sha256:12bad9468fc711f00c57309867125beec928a64f473f24248457ea26ebbda5d7"
+        },
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+          "mediaType": "image/png",
+          "bytes": 96901,
+          "digest": "sha256:8d6f13aeb60981d6bcce4e0d9822a4ce6a6103fa1145f23d06e214c57af4e0a3"
+        },
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 3394,
+          "digest": "sha256:531dd975897164d3d4accde4695e963b5f90ccd9059f9d06ff7fb6b5bab80b13"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}

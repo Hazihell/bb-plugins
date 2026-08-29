@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-8dc5118aca028997e25e451c",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "Fresh independent code, security, and UI/UX reviews found the final D-008 Host Monitor working tree integration-ready with no remaining actionable findings. The reviewed result has rail-free neutral containers, Critical/Needs attention-only text emphasis, semantic dots, a closed bounded reason mapper with no raw alert/error exposure, normalized disconnected counts/filters, neutral Radix and body-level viewport tooltips, reachable/restored keyboard focus, correct mixed hover/focus persistence, a neutral dot-free global icon, ChartColumn reviewer fix, guarded-stop disclosure, and coherent Host Monitor 0.1.2 preparation. The report separately documents that committed-diff provenance remains unavailable until an authorized commit exists.",
+  "passed": true,
+  "startedAt": "2026-08-29T01:25:44.080Z",
+  "completedAt": "2026-08-29T01:25:44.080Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:ce8014fa379bcf451c1ca2c09beb3539eb73ebe63e07dec37d6af9cd4a750d8f",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:47515664ddd22019f012bdaf393d7790497bcb0e2437ff370e38efa91cb4935f",
+  "kind": "collected",
+  "collector": "fresh-working-tree-review:rail-free-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/code-review.md",
+      "mediaType": "text/markdown",
+      "bytes": 2350,
+      "digest": "sha256:7a963b5fee39faf31210dd67d4a70b62a7e91813b3ed329e4835cd7fd0d26d5a"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/security.md",
+      "mediaType": "text/markdown",
+      "bytes": 1286,
+      "digest": "sha256:12d6bf70bba86b85aa5babb01696f84a95e8acde4dc480bb236308b3dfeb872a"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/consults/ui-ux.md",
+      "mediaType": "text/markdown",
+      "bytes": 2820,
+      "digest": "sha256:bc69a2a1f753f93b94b40e1f73a22418176777d1c7b3456f352dfcbed780eba2"
+    }
+  ]
+}

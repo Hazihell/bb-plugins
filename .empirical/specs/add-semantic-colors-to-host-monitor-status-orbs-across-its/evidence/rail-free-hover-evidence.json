@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-28T22:20:00-03:00",
+  "surface": "real BB Host Monitor page and compact popover at http://127.0.0.1:38886",
+  "installedPlugin": {
+    "id": "host-monitor",
+    "version": "0.1.2",
+    "source": "path:/home/dyaus/Developer/projects/MateoCerquetella/BB/bb-plugins-taskboard-pin-icon-integration/plugins/host-monitor",
+    "status": "running",
+    "statusDetail": null,
+    "service": "machine-sampler: running",
+    "liveAppSdk": "0.4.23"
+  },
+  "globalControl": {
+    "computedColor": "rgb(92, 95, 119)",
+    "notificationPseudoElementContent": "none"
+  },
+  "pageCards": {
+    "tonesObserved": ["critical", "attention", "healthy"],
+    "everySeverityPseudoElementContent": "none",
+    "everySeverityPseudoElementBackground": "transparent",
+    "sharedNeutralBackground": "rgb(239, 241, 245)",
+    "sharedNeutralBorder": "oklch(0.884634 0.0109597 279.352)",
+    "critical": {
+      "label": "Critical",
+      "textColor": "color(srgb 0.560784 0.184314 0.317647)",
+      "orb": "rgb(210, 15, 57)",
+      "reasonExample": "Disk usage is high at 94%, above the critical threshold."
+    },
+    "attention": {
+      "label": "Needs attention",
+      "textColor": "color(srgb 0.509804 0.380392 0.22549)",
+      "orb": "rgb(223, 142, 29)",
+      "reasonExample": "Memory pressure is high — 5.6 GB available."
+    },
+    "tooltip": {
+      "openedBy": "the existing host-card trigger after the Radix hover delay",
+      "state": "delayed-open",
+      "surface": "neutral BB popover/card tokens",
+      "visibleCopy": "Critical — Disk usage is high at 94%, above the critical threshold."
+    }
+  },
+  "compactSidebar": {
+    "everyRowPseudoElementContent": "none",
+    "everyIdleRowBackground": "transparent",
+    "rowsRemainFocusableListItems": true,
+    "everyRowHasAriaDescribedBy": true,
+    "duplicateNativeTitlePresent": false,
+    "healthyTextIsNeutral": true,
+    "semanticOrbsRemain": true,
+    "focusedExplanation": {
+      "opacity": 1,
+      "visibleCopy": "Disk usage is high at 94%, above the critical threshold.",
+      "background": "neutral BB hover/popover tokens",
+      "bodyLevelViewportPositioning": true,
+      "collisionSafeForAnyScrolledRow": true
+    },
+    "keyboardAndMixedInput": {
+      "tabLoopReachedFirstHost": true,
+      "focusedHostRestoredAfterRefresh": true,
+      "focusSurvivedPointerLeave": true,
+      "hoverSurvivedFocusLeave": true,
+      "stableFocusIdentityUsesExactHostId": true
+    }
+  },
+  "privacy": {
+    "freshAttentionAndCritical": "Use only a closed metric/severity mapper plus a validated bounded percentage; raw alert messages are ignored.",
+    "otherStates": "Use fixed offline, unavailable, sampling, stale, failed-refresh, and healthy copy.",
+    "rawAlertOrMachineErrorDisplayed": false,
+    "malformedRuntimeStatesFailNeutral": true
+  },
+  "screenshots": [
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png"
+  ],
+  "runtimeLimitation": "The live fleet had no offline host during capture. Offline, disconnected, sampling, stale, failed-refresh, unavailable, malformed-alert, and malformed-runtime explanation paths remain covered by executable tests."
+}

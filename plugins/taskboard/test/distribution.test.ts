@@ -11,6 +11,12 @@ const usageManifest = JSON.parse(
     'utf8'
   )
 );
+const hostMonitorManifest = JSON.parse(
+  await readFile(
+    new URL('../../host-monitor/package.json', import.meta.url),
+    'utf8'
+  )
+);
 const rootManifest = JSON.parse(
   await readFile(new URL('../../../package.json', import.meta.url), 'utf8')
 );
@@ -20,6 +26,10 @@ const taskboardReadme = await readFile(
 );
 const usageReadme = await readFile(
   new URL('../../usage-tracker/README.md', import.meta.url),
+  'utf8'
+);
+const hostMonitorReadme = await readFile(
+  new URL('../../host-monitor/README.md', import.meta.url),
   'utf8'
 );
 const usageChangelog = await readFile(
@@ -58,9 +68,15 @@ const activeContext = await Promise.all([
 ]);
 
 const directGitInstall =
-  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/';
+  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/';
+const hostMonitorGitInstall =
+  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/host-monitor --tag-prefix host-monitor/';
 const usageGitInstall =
-  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/';
+  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.4 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/';
+
+function normalizedCommandText(value: string): string {
+  return value.replace(/\\\s*\n\s*/gu, ' ').replace(/\s+/gu, ' ');
+}
 
 test('keeps Taskboard private and Git-buildable without npm publication hooks', () => {
   assert.equal(rootManifest.private, true);
@@ -68,7 +84,7 @@ test('keeps Taskboard private and Git-buildable without npm publication hooks', 
     assert.equal(typeof rootManifest.scripts[script], 'string');
   }
   assert.equal(taskboardManifest.name, 'bb-plugin-taskboard');
-  assert.equal(taskboardManifest.version, '0.3.1');
+  assert.equal(taskboardManifest.version, '0.3.2');
   assert.equal(taskboardManifest.private, true);
   assert.equal('publishConfig' in taskboardManifest, false);
   assert.equal('files' in taskboardManifest, false);
@@ -109,7 +125,7 @@ test('documents only BB Community and direct Git installation for Taskboard', ()
 test('keeps Usage Tracker private and documents its Git release too', async () => {
   assert.equal(usageManifest.private, true);
   assert.equal(usageManifest.name, 'bb-plugin-usage-tracker');
-  assert.equal(usageManifest.version, '0.1.3');
+  assert.equal(usageManifest.version, '0.1.4');
   assert.equal('publishConfig' in usageManifest, false);
   assert.equal('files' in usageManifest, false);
   assert.equal('prepack' in usageManifest.scripts, false);
@@ -138,6 +154,28 @@ test('keeps Usage Tracker private and documents its Git release too', async () =
   assert.match(rootGitignore, /^\.npm-publish\.env$/mu);
 });
 
+test('keeps Host Monitor private and documents its renamed Git release', () => {
+  assert.equal(hostMonitorManifest.private, true);
+  assert.equal(hostMonitorManifest.name, 'bb-plugin-host-monitor');
+  assert.equal(hostMonitorManifest.version, '0.1.2');
+  assert.equal('publishConfig' in hostMonitorManifest, false);
+  assert.ok(Array.isArray(hostMonitorManifest.files));
+  for (const path of [
+    'dist/host.js',
+    'dist/host.meta.json',
+    'host.ts',
+    'server.ts',
+    'LICENSE',
+  ]) {
+    assert.ok(hostMonitorManifest.files.includes(path));
+  }
+  assert.equal('prepack' in hostMonitorManifest.scripts, false);
+  for (const readme of [rootReadme, hostMonitorReadme]) {
+    assert.ok(normalizedCommandText(readme).includes(hostMonitorGitInstall));
+    assert.doesNotMatch(readme, /npm:bb-plugin-host-monitor/u);
+  }
+});
+
 test('has no active registry publication automation or credential path', () => {
   assert.doesNotMatch(
     ciWorkflow,
@@ -162,6 +200,20 @@ test('has no active registry publication automation or credential path', () => {
     for (const script of Object.values(manifest.scripts)) {
       assert.doesNotMatch(String(script), /npm\s+(?:publish|unpublish)/iu);
     }
+  }
+  assert.equal('publishConfig' in hostMonitorManifest, false);
+  for (const hook of [
+    'prepublish',
+    'prepublishOnly',
+    'publish',
+    'postpublish',
+    'prepack',
+    'postpack',
+  ]) {
+    assert.equal(hook in hostMonitorManifest.scripts, false);
+  }
+  for (const script of Object.values(hostMonitorManifest.scripts)) {
+    assert.doesNotMatch(String(script), /npm\s+(?:publish|unpublish)/iu);
   }
 });
 

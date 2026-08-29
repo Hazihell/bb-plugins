@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-7b3b208089e2e49b8de9e871",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Corrected real-BB evidence shows colored Critical/Attention/Healthy chip surfaces in the Host Monitor page's inner fleet sidebar, neutral readable chip words, a neutral permanent Host Monitor icon, no trigger notification pseudo-element, and a running local Host Monitor 0.1.2 installation. The screenshot and computed-style JSON capture the exact requested boundary; executable tests cover offline and malformed states absent from the live fleet.",
+  "passed": true,
+  "startedAt": "2026-08-28T19:05:15.207Z",
+  "completedAt": "2026-08-28T19:05:15.207Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:70d5fa04cf0143bc2c41d3d6adad251a6bfaa8a8d96e4090f3b829f7e1073cd0",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:2cdea7e1ef1db37d5347d7c2a136d73493d5a0696eed63c924427d3c5d4d4acc",
+  "kind": "collected",
+  "collector": "codex-browser-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-colored-inner-sidebar-chips.png",
+      "mediaType": "image/png",
+      "bytes": 77749,
+      "digest": "sha256:3ce2dc04deda8edeff9f9ecbd36ecbe227153ccffc8f6ed58dfa2b4a4f485ff9"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/inner-sidebar-evidence.json",
+      "mediaType": "application/json",
+      "bytes": 2113,
+      "digest": "sha256:f4c6f2aa61f352ef3accc7f671b00df6b2f98ef114dc27260107559f457d3713"
+    }
+  ]
+}

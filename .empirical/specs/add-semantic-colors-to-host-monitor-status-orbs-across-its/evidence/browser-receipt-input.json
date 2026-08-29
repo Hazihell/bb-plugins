@@ -1,0 +1,42 @@
+{
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Real BB verification of installed Host Monitor 0.1.2 covered compact popover and floating rows, dashboard identities, host cards, and health-badge indicators. Computed critical/attention/healthy backgrounds matched BB semantic tokens, labels remained visible and neutral, decorative dots remained aria-hidden, card halos stayed restrained, the sampler was running, and the movable trigger retained accessible fleet text with no pseudo-element notification dot. Four screenshots capture the exercised layouts; the live fleet's zero-offline limitation is documented and neutral fallbacks are executable-test covered.",
+  "collector": "codex-browser",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/browser-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/verification.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-popover.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-floating.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-cards.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-rows.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

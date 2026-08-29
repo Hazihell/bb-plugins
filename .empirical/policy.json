@@ -23,6 +23,16 @@
         "evidenceKinds": [
           "test"
         ],
+        "checks": [
+          "unit",
+          "integration",
+          "adapter-contract",
+          "fault-injection",
+          "package-consumer",
+          "clean-clone",
+          "end-to-end",
+          "cross-platform"
+        ],
         "criteria": [
           "AC-1",
           "AC-2",
@@ -35,6 +45,7 @@
           "AC-UI-4",
           "AC-UI-5",
           "AC-6",
+          "AC-A11Y-1",
           "AC-7",
           "AC-MKT-1",
           "AC-MKT-2",

@@ -25,7 +25,13 @@
   thresholds, and host-targeted process orchestration. `host.ts` collects a
   strict privacy-bounded telemetry/process projection on an enrolled machine;
   `app.tsx` owns the dashboard, sidebar summary, floating monitor, inspector,
-  settings, and guarded process-confirmation UI.
+  settings, and guarded process-confirmation UI. `lib/fleet-presentation.ts`
+  derives the shared status tone, visible label, and safe explanation;
+  `lib/sidebar-host-monitor.ts` reuses that presentation for compact/floating
+  rows, and `app.css` maps it onto BB's semantic status tokens through inline
+  labels and small orbs. All host containers remain neutral and expose their
+  explanation through hover and keyboard focus. The Processes fixed tab uses
+  the registry-backed `ChartColumn` icon.
 - All three plugin manifests remain workspace/build manifests but are private.
   BB resolves releases from the monorepo's plugin-specific Git tags and the
   corresponding plugin subdirectory.
@@ -56,6 +62,20 @@
    the last good reading when a target becomes stale, fails, or disconnects.
    Process lists are fetched only for the explicitly opened host and stop
    actions require a fresh one-use confirmation plus host-side revalidation.
+9. Host Monitor derives status presentation from connection, sampling
+   freshness, and health. Disconnected/offline wins over retained severity;
+   sampling and fresh unavailable states stay neutral; stale/error is
+   attention; only connected fresh health can render green, yellow, or red on
+   its orb. Containers never inherit the status color. Fresh resource alerts
+   use a closed mapper over validated metric/severity/percentage fields; other
+   states use fixed safe reason copy. Raw alert/error strings never reach the
+   explanation or inspector. Decorative orbs remain
+   `aria-hidden` while visible labels and accessible descriptions carry meaning.
+10. Host Monitor's process list is on-demand and host-targeted. A stop request
+    re-collects and revalidates the opaque process identity, ownership,
+    ancestry, lifetime, and elevation state around one 60-second one-use
+    confirmation; system, self/ancestor, elevated, and other/unknown-owner
+    processes remain protected.
 
 ## External dependencies
 
@@ -70,3 +90,11 @@
 - Host Monitor deliberately carries BB 0.40 / SDK 0.4.21 tooling in its own
   workspace while the older plugins retain their compatible BB 0.38 / SDK
   0.4.6 toolchains.
+- Host status orbs reuse BB's `--success`, `--warning`, `--destructive`, and
+  muted foreground tokens; no extra color dependency or parallel state model
+  is introduced.
+- Host-page explanations use the existing Radix Tooltip dependency and reapply
+  the plugin portal scope. The plain-DOM compact/floating monitor keeps a
+  visually hidden per-row accessible description and positions one body-level
+  neutral tooltip against the viewport, avoiding scrollport clipping and a
+  second presentation or telemetry model.

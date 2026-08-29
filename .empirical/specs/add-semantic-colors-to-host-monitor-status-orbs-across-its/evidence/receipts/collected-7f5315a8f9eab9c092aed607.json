@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-7f5315a8f9eab9c092aed607",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Final real-BB evidence shows the no-pill Host Monitor 0.1.2 UI: borderless inline status words with semantic orbs, underline filters, attention/critical-only rails, a flat semantic fleet summary, health-first compact rows, a neutral permanent Host Monitor icon, and no trigger notification pseudo-element. The page and compact-popover screenshots plus computed-style JSON capture the rendered result; executable tests cover offline and malformed states absent from the live fleet.",
+  "passed": true,
+  "startedAt": "2026-08-28T23:03:32.580Z",
+  "completedAt": "2026-08-28T23:03:32.580Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:a26cae2fcf5e8aa4cac370e2dd770ef3f45c89f01c99863f22ab44009b6bfb8f",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:6887c244fd251dbb1fb0063a44d8cfdf867d6f9bfcff93ba6c1706aeb3f7f0bf",
+  "kind": "collected",
+  "collector": "codex-browser-no-pill-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-inline-status-page.png",
+      "mediaType": "image/png",
+      "bytes": 61281,
+      "digest": "sha256:eefd08c48428e2f21ab5b8a501d3a4f3ea38bbfc5aea9db43d9d9ee0bb78fd94"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-inline-status-popover.png",
+      "mediaType": "image/png",
+      "bytes": 87354,
+      "digest": "sha256:20bafb7d9d4c6ec40f8451095a8c7558b20c3fb6f371f192c3a5a81e338c0763"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/no-pill-browser-evidence.json",
+      "mediaType": "application/json",
+      "bytes": 3931,
+      "digest": "sha256:0801016354a22cd5e73068be8897ad5ada9aba87f0b0abf8c5a8d08d7effb724"
+    }
+  ]
+}

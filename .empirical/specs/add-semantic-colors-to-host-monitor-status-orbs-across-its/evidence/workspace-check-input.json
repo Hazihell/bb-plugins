@@ -1,0 +1,37 @@
+{
+  "checkId": "qa-unit",
+  "commandId": "workspace-check",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "summary": "Run the repository-authorized root workspace check against the final Host Monitor 0.1.2 source tree. The suite covers SDK contracts, typechecks, semantic-state and unexpected-state fallbacks, integration/failure/cross-platform host behavior, private Git distribution, all plugin tests, and production server/app/host builds. Attached real-BB artifacts cover the rendered end-to-end status-orb result.",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/browser-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-popover.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-floating.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-cards.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-rows.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

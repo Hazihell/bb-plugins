@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 8,
+  "previousDigest": "sha256:5cb580dd520bda34fd5c65945db35a1f8f7ce23456cb1ee18969275699ad4e20",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "User clarified during review that semantic critical/attention/healthy/offline state must also be visible on the permanent Host Monitor sidebar control, not only inside the popover/floating surfaces and Host Monitor page. Preserve the removed notification dot by tinting the existing sidebar icon rather than restoring a badge. Prior review scope is obsolete and must return to implementation.",
+  "createdAt": "2026-08-28T18:46:58.651Z",
+  "stateBeforeDigest": "sha256:39104cb549d8a267caaa1e0caa6d5effa7c4066286a2b8117b641e841af56aa6",
+  "stateAfterDigest": "sha256:e8eafa9cc57372137d931b8e50af6361caced4a638cbc73710aeb640b7c2708b",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 8,
+    "activeFeature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "request": "Add semantic colors to Host Monitor status orbs across its compact popover and relevant host rows: connected healthy green, attention yellow, critical red, and offline/disconnected muted gray, with loading/unknown remaining neutral. Preserve visible text and accessible state labels so color is never the only signal. Add focused regression coverage, bump Host Monitor from 0.1.1 to 0.1.2 across active manifest/lock/documentation/distribution contracts, run focused and root checks, keep the local watcher/install live, and verify the real BB UI with a screenshot. Do not commit, push, tag, publish, release, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "User clarified during review that semantic critical/attention/healthy/offline state must also be visible on the permanent Host Monitor sidebar control, not only inside the popover/floating surfaces and Host Monitor page. Preserve the removed notification dot by tinting the existing sidebar icon rather than restoring a badge. Prior review scope is obsolete and must return to implementation.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:421658998f344611dd7d08a365ecaf84bf9cb12184c50a9a120d980e2cd0b226",
+    "impactDigest": "sha256:3d51ae31f567ae8bd8e5bfba379b51f9a574084e86837839fe8f6e91db0a91e3",
+    "capabilityClaimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-28T18:46:58.651Z"
+  },
+  "digest": "sha256:3f5ecf6798d73006b2ae602367b27a1420e3fd79353b653d08ad88285a0c56a2"
+}

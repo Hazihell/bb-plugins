@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-2ad502a81b293465308bf67f",
+  "criteria": [
+    "AC-4",
+    "AC-5",
+    "AC-UI-1",
+    "AC-UI-2",
+    "AC-UI-3"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Real BB verification covered the Taskboard ticket pin/open transition, Host Monitor's dot-free non-normal trigger and working popover, and Usage Tracker's configured compact reading, full details, refresh, Escape/focus return, fallback behavior, restored preference, and live RPC data from the consolidated bumped installations.",
+  "passed": true,
+  "startedAt": "2026-08-28T17:03:43.864Z",
+  "completedAt": "2026-08-28T17:03:43.864Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "fast-forward-this-clean-linked-checkout-to-github-main-through",
+    "specRevision": 3,
+    "specDigest": "sha256:a05c035193038b598548df2366669eb7a95b3e2db1d635c4f7e58be869471907",
+    "treeDigest": "sha256:5960ec40656c656b6effffb4258dbb35deebde6496cf571e7a9da69d5dfbe185",
+    "policyDigest": "sha256:67f4c00cd7f9e81f1f33605e35feec4ab19b4034d254927c06940f9077ff6ffa"
+  },
+  "digest": "sha256:4fc89e2c9881014f44b6ea8fbb303e1b717b95e7bbe41257385ef6fa7f77d0e8",
+  "kind": "collected",
+  "collector": "codex",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/host-monitor-0.1.1-dot-free-popover.png",
+      "mediaType": "image/png",
+      "bytes": 89580,
+      "digest": "sha256:7f1a3b6055b9d2908684b0cbf295ec53975ebc5556e242ed88860bd2345a45b9"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/taskboard-0.3.2-ticket-panel.png",
+      "mediaType": "image/png",
+      "bytes": 57518,
+      "digest": "sha256:37f2713a550450de69c467249e19ef92118ef1e94e800ccb785470ff2525c2ab"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/usage-tracker-0.1.4-expanded.png",
+      "mediaType": "image/png",
+      "bytes": 72116,
+      "digest": "sha256:a03a724490b726a8fdc0abf972d47e1816c1d6ede1207eb36fc391f30f253ac6"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/verification.md",
+      "mediaType": "text/markdown",
+      "bytes": 4768,
+      "digest": "sha256:b8c736264b4709e22b63733dd1d8e72f7d00e0dfa041e6590a2fa4205c740c65"
+    }
+  ]
+}

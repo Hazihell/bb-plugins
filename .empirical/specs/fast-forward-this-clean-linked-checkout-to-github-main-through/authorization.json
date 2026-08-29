@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "mode": "yolo",
+  "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+  "feature": "fast-forward-this-clean-linked-checkout-to-github-main-through",
+  "requestDigest": "sha256:67079375951233ad9d82d93f0180973816c1eb0888a1caccbdb077403b597dd5",
+  "ceiling": "integrated",
+  "targetBranch": null,
+  "allowExternalAgent": false,
+  "createdAt": "2026-08-28T16:14:10.506Z",
+  "expiresAt": null,
+  "digest": "sha256:da13052c974196c8e66e6151a9c4c5165fe28d837912d30a7499723d3859ea27"
+}

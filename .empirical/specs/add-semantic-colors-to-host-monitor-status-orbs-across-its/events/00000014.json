@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 14,
+  "previousDigest": "sha256:5a564f1fc95bb57d0f83c9b82e795583527c62ab0c0886df8b010a89ca220038",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "User rejected the chip treatment during review and requested a more polished inner fleet-sidebar and compact popover UI, while preserving a neutral global Host Monitor icon and no notification dot. User also supplied marketplace PR #128 review feedback requiring the Processes fixed-tab icon to change from invalid Activity to valid Cpu/ChartColumn and the marketplace entry description to disclose carefully guarded process-stop actions. Route back to implementation; prepare and validate 0.1.2 locally, update the existing marketplace PR branch description if authorized by the request, but do not publish/tag/release without separate exact release approval.",
+  "createdAt": "2026-08-28T22:27:25.272Z",
+  "stateBeforeDigest": "sha256:a9e706ffe5326c5150a42561bc63c605a4587173b7a649d272e9cdee3641168d",
+  "stateAfterDigest": "sha256:688486133a9f8eb0114914b728e403c026426fd9a77b118753dff8cb29e636a1",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 14,
+    "activeFeature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "request": "Add semantic colors to Host Monitor status orbs across its compact popover and relevant host rows: connected healthy green, attention yellow, critical red, and offline/disconnected muted gray, with loading/unknown remaining neutral. Preserve visible text and accessible state labels so color is never the only signal. Add focused regression coverage, bump Host Monitor from 0.1.1 to 0.1.2 across active manifest/lock/documentation/distribution contracts, run focused and root checks, keep the local watcher/install live, and verify the real BB UI with a screenshot. Do not commit, push, tag, publish, release, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 2,
+    "message": "User rejected the chip treatment during review and requested a more polished inner fleet-sidebar and compact popover UI, while preserving a neutral global Host Monitor icon and no notification dot. User also supplied marketplace PR #128 review feedback requiring the Processes fixed-tab icon to change from invalid Activity to valid Cpu/ChartColumn and the marketplace entry description to disclose carefully guarded process-stop actions. Route back to implementation; prepare and validate 0.1.2 locally, update the existing marketplace PR branch description if authorized by the request, but do not publish/tag/release without separate exact release approval.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:421658998f344611dd7d08a365ecaf84bf9cb12184c50a9a120d980e2cd0b226",
+    "impactDigest": "sha256:3d51ae31f567ae8bd8e5bfba379b51f9a574084e86837839fe8f6e91db0a91e3",
+    "capabilityClaimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-28T22:27:25.272Z"
+  },
+  "digest": "sha256:487b1dc8e0f52edc089f15e617602e605c965a181225a68224315256277a3d61"
+}

@@ -12,16 +12,17 @@ provenance for the plugin-specific Git tag namespace.
 Every Usage Tracker release SHALL bind one reviewed commit with matching active
 manifest, lockfile, changelog, documentation, distribution tests, and build
 metadata to one new annotated `usage-tracker/vX.Y.Z` tag and one GitHub Release.
-Existing tags SHALL never move, and Usage Tracker SHALL remain a private,
-non-publishable npm workspace distributed from Git.
+Existing tags SHALL never move, Usage Tracker SHALL remain a private,
+non-publishable npm workspace distributed from Git, and preparation SHALL stop
+before remote mutation unless exact authorization is supplied.
 
-#### Scenario: Prepare Usage Tracker 0.1.3
+#### Scenario: Prepare Usage Tracker 0.1.4 locally
 
-- **WHEN** the merged provider/window fixes and compact-limit feature are ready
-  for release
-- **THEN** one reviewed local commit carries every active `0.1.3` reference
-- **AND** the proposed tag is `usage-tracker/v0.1.3`
-- **AND** no remote release mutation occurs before exact approval
+- **WHEN** the complete merged provider/window behavior is prepared as `0.1.4`
+- **THEN** every active Usage Tracker version reference and artifact reports
+  `0.1.4`
+- **AND** the proposed future tag is `usage-tracker/v0.1.4`
+- **AND** no tag or GitHub Release is created during preparation.
 
 ### Requirement: Usage Tracker marketplace Git provenance
 

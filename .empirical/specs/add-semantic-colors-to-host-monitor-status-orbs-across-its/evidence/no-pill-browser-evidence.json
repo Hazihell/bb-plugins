@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-08-28T19:57:50-03:00",
+  "surface": "real BB Host Monitor page and compact popover at http://127.0.0.1:38886",
+  "installedPlugin": {
+    "id": "host-monitor",
+    "version": "0.1.2",
+    "source": "path:/home/dyaus/Developer/projects/MateoCerquetella/BB/bb-plugins-taskboard-pin-icon-integration/plugins/host-monitor",
+    "status": "running",
+    "statusDetail": null
+  },
+  "globalControl": {
+    "status": "critical",
+    "computedIconColor": "rgb(92, 95, 119)",
+    "notificationPseudoElementContent": "none",
+    "accessibleLabel": "Host Monitor · 4 of 4 connected · 1 critical host · 3 need attention · Drag to open floating monitor"
+  },
+  "page": {
+    "filtersAreBorderless": true,
+    "filtersHaveTransparentBackground": true,
+    "everyFilterControls": true,
+    "selectedFilterUsesUnderline": true,
+    "visibleStatuses": [
+      { "label": "Critical", "tone": "critical", "border": "none", "background": "transparent", "color": "color(srgb 0.560784 0.184314 0.317647)", "contrast": 6.9, "indicator": "rgb(210, 15, 57)" },
+      { "label": "Attention", "tone": "attention", "border": "none", "background": "transparent", "color": "color(srgb 0.509804 0.380392 0.22549)", "contrast": 4.99, "indicator": "rgb(223, 142, 29)" },
+      { "label": "Attention", "tone": "attention", "border": "none", "background": "transparent", "color": "color(srgb 0.509804 0.380392 0.22549)", "contrast": 4.99, "indicator": "rgb(223, 142, 29)" },
+      { "label": "Attention", "tone": "attention", "border": "none", "background": "transparent", "color": "color(srgb 0.509804 0.380392 0.22549)", "contrast": 4.99, "indicator": "rgb(223, 142, 29)" }
+    ],
+    "attentionAndCriticalRowsHaveTwoPixelRail": true,
+    "healthyRowsHaveNoRail": true,
+    "semanticTextKeepsRawIndicatorColor": true
+  },
+  "popover": {
+    "mode": "popover",
+    "summaryTag": "DL",
+    "summaryAccessibleLabel": "Fleet summary",
+    "summaryText": "4/4 Connected · 4 Attention · 0 Offline",
+    "hostStatusOrder": "health then connectivity",
+    "rows": [
+      { "tone": "critical", "visibleStatus": "Critical Connected", "rail": "rgb(210, 15, 57)", "orb": "rgb(210, 15, 57)", "textColor": "color(srgb 0.560784 0.184314 0.317647)", "textContrast": 6.9 },
+      { "tone": "attention", "visibleStatus": "Attention Connected", "rail": "rgb(223, 142, 29)", "orb": "rgb(223, 142, 29)", "textColor": "color(srgb 0.509804 0.380392 0.22549)", "textContrast": 4.99 },
+      { "tone": "attention", "visibleStatus": "Attention Connected", "rail": "rgb(223, 142, 29)", "orb": "rgb(223, 142, 29)", "textColor": "color(srgb 0.509804 0.380392 0.22549)", "textContrast": 4.99 },
+      { "tone": "attention", "visibleStatus": "Attention Connected", "rail": "rgb(223, 142, 29)", "orb": "rgb(223, 142, 29)", "textColor": "color(srgb 0.509804 0.380392 0.22549)", "textContrast": 4.99 }
+    ]
+  },
+  "accessibilityContrast": {
+    "method": "WCAG relative luminance over BB surface tokens; dark values use an isolated in-page Host Monitor fixture without changing the user's theme",
+    "minimumRequired": 4.5,
+    "light": {
+      "surface": "#eff1f5",
+      "healthy": 4.62,
+      "attention": 4.99,
+      "critical": 6.9
+    },
+    "darkReference": {
+      "surface": "#1e1e2e",
+      "healthy": 11.11,
+      "attention": 12.05,
+      "critical": 8.83
+    }
+  },
+  "screenshots": [
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-inline-status-page.png",
+    ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-inline-status-popover.png"
+  ],
+  "runtimeLimitation": "The live fleet had no offline host and health can change between captures. Offline, disconnected, unavailable, loading, healthy-rail absence, and malformed-state fallbacks remain covered by executable tests and isolated computed-style checks."
+}

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 11,
+  "previousDigest": "sha256:fbf6ff4ad02168889446bf4629f20a74e58f264fa483cf71401dc1e4b57e093a",
+  "actor": "empirical-integrate",
+  "type": "compaction-boundary",
+  "summary": "Compacted through journal event 10",
+  "createdAt": "2026-08-28T17:29:00.959Z",
+  "stateBeforeDigest": "sha256:ca345c553ffdd7cda98d8b27bc9147e1e522219624f0f2d469e4fb90fb3e4057",
+  "stateAfterDigest": "sha256:ca345c553ffdd7cda98d8b27bc9147e1e522219624f0f2d469e4fb90fb3e4057",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 10,
+    "activeFeature": "fast-forward-this-clean-linked-checkout-to-github-main-through",
+    "request": "Fast-forward this clean linked checkout to GitHub main through PR #21; preserve and reapply the verified local Taskboard ticket-icon change, Host Monitor notification-dot removal, and Usage Tracker missing-provider safety improvement on top of the complete merged PR #20/#21 implementation. Bump Taskboard 0.3.1 to 0.3.2, Host Monitor 0.1.0 to 0.1.1, and Usage Tracker 0.1.3 to 0.1.4 everywhere the repository's Git-release contracts require, including the lockfile and changelogs/release-facing docs/tests. Run the full repository checks, install all three local paths from this checkout, keep the dev loop running, and live-test the relevant UI/RPC behavior. Stop at integrated; do not commit, push, tag, publish, create GitHub releases, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "done",
+    "status": "done",
+    "repairAttempts": 0,
+    "message": "Integrated capability changes: host-monitor-sidebar, plugin-git-distribution, taskboard-distribution, taskboard-right-panel, usage-tracker-distribution",
+    "implementationActor": "agent",
+    "specDigest": "sha256:a05c035193038b598548df2366669eb7a95b3e2db1d635c4f7e58be869471907",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:d2df2745de1552ba25fa566f2934df35764326df66b971c1186d200361322a76",
+    "impactDigest": "sha256:00c6b5bbcaf663931ab7976ed64494430f3f46538a751c5f49dc7165bba88d40",
+    "capabilityClaimId": "fast-forward-this-clean-linked-checkout-to-github-main-through-6c9b9308abd6",
+    "authorizationDigest": "sha256:da13052c974196c8e66e6151a9c4c5165fe28d837912d30a7499723d3859ea27",
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "executed-1cfc1e4de7d1bda2b12609ca",
+      "collected-2ad502a81b293465308bf67f",
+      "collected-8bfecfa21820107f0f2706d8"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": true,
+      "delivered": false,
+      "published": false,
+      "highest": "integrated",
+      "reasons": {
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-28T17:29:00.942Z"
+  },
+  "digest": "sha256:deb06e017f3077bf5b9254983f1d43219ed73aa37878d454d439fe049e21a924"
+}

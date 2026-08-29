@@ -1,0 +1,17 @@
+{
+  "commandId": "workspace-check",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-UI-1",
+    "AC-UI-2",
+    "AC-UI-3",
+    "AC-4",
+    "AC-5"
+  ],
+  "evidenceKinds": [
+    "test"
+  ],
+  "summary": "Run the repository-authorized root workspace check against the consolidated final tree, including all SDK checks, typechecks, 111 Taskboard tests, 146 Host Monitor tests, 23 Usage Tracker tests, production server/app/host builds, and Taskboard metadata verification."
+}

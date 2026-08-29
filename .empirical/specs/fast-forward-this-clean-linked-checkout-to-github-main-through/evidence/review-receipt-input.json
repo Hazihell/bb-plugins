@@ -1,0 +1,31 @@
+{
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-UI-1",
+    "AC-UI-2",
+    "AC-UI-3",
+    "AC-4",
+    "AC-5"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "Independent final review found the consolidated main-preserving diff integration-ready: all versions and Git-only contracts align, PR #20 behavior is byte-preserved, the two UI changes match accepted decisions, live installations are healthy, and no blocking finding remains. One low source-test-fidelity advisory is covered by real browser evidence.",
+  "collector": "codex-review-agent",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/code-review.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/ui-ux.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/consults/security.md",
+      "mediaType": "text/markdown"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 15,
+  "previousDigest": "sha256:487b1dc8e0f52edc089f15e617602e605c965a181225a68224315256277a3d61",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Replaced the rejected chip UI with borderless inline HealthStatus, underline fleet filters, attention/critical-only rails, a flat semantic popover summary, and health-primary/connectivity-secondary compact rows while preserving the neutral dot-free global icon. Changed the invalid Processes fixed-tab icon from Activity to BB 0.40-verified ChartColumn, updated plugin manifest descriptions to disclose guarded controls that stop eligible processes, and prepared the same disclosure in marketplace PR #128's local branch. Focused Host Monitor tests passed 151/151 with typecheck and direct lint; real BB light-theme page/popover screenshots look correct; a detached current-main marketplace validation passed npm ci/build/check with 88 entries. No commit, push, tag, release, PR edit/comment, or other remote mutation occurred.",
+  "createdAt": "2026-08-28T22:47:08.649Z",
+  "stateBeforeDigest": "sha256:688486133a9f8eb0114914b728e403c026426fd9a77b118753dff8cb29e636a1",
+  "stateAfterDigest": "sha256:64c0f579f43ed70e19566dcfe01c8c52e16459e84ee1d65c2c16db4a16d6f9ef",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 15,
+    "activeFeature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "request": "Add semantic colors to Host Monitor status orbs across its compact popover and relevant host rows: connected healthy green, attention yellow, critical red, and offline/disconnected muted gray, with loading/unknown remaining neutral. Preserve visible text and accessible state labels so color is never the only signal. Add focused regression coverage, bump Host Monitor from 0.1.1 to 0.1.2 across active manifest/lock/documentation/distribution contracts, run focused and root checks, keep the local watcher/install live, and verify the real BB UI with a screenshot. Do not commit, push, tag, publish, release, or update the marketplace.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 2,
+    "message": "Replaced the rejected chip UI with borderless inline HealthStatus, underline fleet filters, attention/critical-only rails, a flat semantic popover summary, and health-primary/connectivity-secondary compact rows while preserving the neutral dot-free global icon. Changed the invalid Processes fixed-tab icon from Activity to BB 0.40-verified ChartColumn, updated plugin manifest descriptions to disclose guarded controls that stop eligible processes, and prepared the same disclosure in marketplace PR #128's local branch. Focused Host Monitor tests passed 151/151 with typecheck and direct lint; real BB light-theme page/popover screenshots look correct; a detached current-main marketplace validation passed npm ci/build/check with 88 entries. No commit, push, tag, release, PR edit/comment, or other remote mutation occurred.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:421658998f344611dd7d08a365ecaf84bf9cb12184c50a9a120d980e2cd0b226",
+    "impactDigest": "sha256:3d51ae31f567ae8bd8e5bfba379b51f9a574084e86837839fe8f6e91db0a91e3",
+    "capabilityClaimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-28T22:47:08.649Z"
+  },
+  "digest": "sha256:945317f638a459a71d325929af6dc95a7fd3efca98c06e73d56b8530fa257233"
+}

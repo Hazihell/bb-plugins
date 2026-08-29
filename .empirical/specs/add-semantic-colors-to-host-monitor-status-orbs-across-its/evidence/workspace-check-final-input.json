@@ -1,0 +1,29 @@
+{
+  "checkId": "qa-unit",
+  "commandId": "workspace-check",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "summary": "Run the repository-authorized root workspace check against the final rail-free Host Monitor 0.1.2 tree. It covers SDK contracts, typechecks, the complete Host Monitor suite including safe state explanations, raw-error and markup sentinel exclusion, malformed runtime normalization, rail-negative CSS contracts, integration/failure/cross-platform behavior, private Git distribution, all workspace suites, and production builds. Attached real-BB evidence proves neutral cards/rows, Critical and Needs attention emphasis, working hover/focus explanations, and a neutral notification-dot-free global icon.",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

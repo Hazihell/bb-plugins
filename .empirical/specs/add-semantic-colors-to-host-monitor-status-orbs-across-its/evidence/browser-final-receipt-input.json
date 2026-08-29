@@ -1,0 +1,30 @@
+{
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Final real-BB evidence shows the rail-free Host Monitor 0.1.2 UI: every page card/row and compact/floating host stays on neutral BB surfaces with no semantic edge; Critical and Needs attention keep semantic dots and words while Healthy text is neutral; page Radix tooltips and compact focus/hover explanations expose safe concrete reasons; the global icon remains neutral and notification-dot free. Two screenshots and computed-style JSON capture the requested card and compact-sidebar result; executable tests cover absent live states and raw-error/markup exclusion.",
+  "collector": "codex-browser-rail-free-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

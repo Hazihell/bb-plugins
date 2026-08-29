@@ -4,6 +4,14 @@ All notable changes to Usage Tracker are documented here.
 
 ## Unreleased
 
+## 0.1.4 - 2026-08-28
+
+### Changed
+
+- Consolidated the next Git patch release on the complete merged provider-key,
+  compact-limit, additional-window, and provider-local failure behavior, with
+  matching manifest, lockfile, documentation, tests, and BB build metadata.
+
 ## 0.1.3 - 2026-08-27
 
 ### Added

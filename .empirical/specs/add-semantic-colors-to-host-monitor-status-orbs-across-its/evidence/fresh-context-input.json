@@ -1,0 +1,38 @@
+{
+  "checkId": "qa-fresh-context",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "outcome": "passed",
+  "summary": "A fresh real-BB browser pass confirmed the installed Host Monitor 0.1.2 path, running sampler, semantic critical/attention/healthy colors in compact, floating, row, card, and badge contexts, neutral badge text, aria-hidden decorative dots, restrained card halos, visible state labels, and the continued absence of a trigger pseudo-element. The live fleet had no offline host, so the executable fallback cases remain the evidence for disconnected/offline/loading/unavailable/unknown states.",
+  "collector": "codex-browser-fresh-context",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/browser-evidence.json",
+      "mediaType": "application/json"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-popover.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-floating.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-cards.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-semantic-orbs-rows.png",
+      "mediaType": "image/png"
+    }
+  ]
+}

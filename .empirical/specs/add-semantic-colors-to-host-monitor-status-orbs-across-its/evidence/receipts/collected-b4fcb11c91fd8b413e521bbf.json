@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-b4fcb11c91fd8b413e521bbf",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Final real-BB evidence shows the rail-free Host Monitor 0.1.2 UI: every page card/row and compact/floating host stays on neutral BB surfaces with no semantic edge; Critical and Needs attention keep semantic dots and words while Healthy text is neutral; page Radix tooltips and compact focus/hover explanations expose safe concrete reasons; the global icon remains neutral and notification-dot free. Two screenshots and computed-style JSON capture the requested card and compact-sidebar result; executable tests cover absent live states and raw-error/markup exclusion.",
+  "passed": true,
+  "startedAt": "2026-08-29T01:04:12.507Z",
+  "completedAt": "2026-08-29T01:04:12.507Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:8fc6ccad5867f51e9ee7dd98b6d73680852e691179ea28bb450c85e5ea81c0af",
+    "policyDigest": "sha256:dbca6acf3bf8bb16cf2b221033f06dc3f4fccb1a2a21d36e2949dd8dc8fa235e"
+  },
+  "digest": "sha256:9abb3611f8bb8acd6f4a6f99403b7650e11e05a09b16e414e171abbcb013688f",
+  "kind": "collected",
+  "collector": "codex-browser-rail-free-final",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+      "mediaType": "image/png",
+      "bytes": 70459,
+      "digest": "sha256:03f8ea354d2d9f69bb0b0b4d2819064a476615356548c1cac6e5a17d19626ccc"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+      "mediaType": "image/png",
+      "bytes": 93200,
+      "digest": "sha256:2f8d9728fc2b45f06f0c70f4fe7b70ec99f88c34811bf735018e46d8c3d44104"
+    },
+    {
+      "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+      "mediaType": "application/json",
+      "bytes": 3015,
+      "digest": "sha256:063eeb32e8466cc4b3540ec6c4d96579ae9ee327b5c43c5b35f539835b7bd4b7"
+    }
+  ]
+}

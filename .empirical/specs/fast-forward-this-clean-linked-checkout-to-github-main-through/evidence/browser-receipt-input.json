@@ -1,0 +1,33 @@
+{
+  "criteria": [
+    "AC-UI-1",
+    "AC-UI-2",
+    "AC-UI-3",
+    "AC-4",
+    "AC-5"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Real BB verification covered the Taskboard ticket pin/open transition, Host Monitor's dot-free non-normal trigger and working popover, and Usage Tracker's configured compact reading, full details, refresh, Escape/focus return, fallback behavior, restored preference, and live RPC data from the consolidated bumped installations.",
+  "collector": "codex",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/verification.md",
+      "mediaType": "text/markdown"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/taskboard-0.3.2-ticket-panel.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/host-monitor-0.1.1-dot-free-popover.png",
+      "mediaType": "image/png"
+    },
+    {
+      "path": ".empirical/specs/fast-forward-this-clean-linked-checkout-to-github-main-through/evidence/usage-tracker-0.1.4-expanded.png",
+      "mediaType": "image/png"
+    }
+  ]
+}
