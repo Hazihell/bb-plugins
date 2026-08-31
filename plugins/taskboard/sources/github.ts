@@ -1,4 +1,6 @@
 import { execFile } from 'node:child_process';
+import { constants as fsConstants } from 'node:fs';
+import { access, realpath } from 'node:fs/promises';
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import { z } from 'zod';
 import { CREATE_OUTCOME_UNCERTAIN_MARKER } from '../contract.js';
@@ -9,6 +11,11 @@ import type {
   WorkSourceAdapter
 } from './types.js';
 import { withoutComments } from './types.js';
+import {
+  buildGithubCliDiscoveryEnvironment,
+  buildGithubCliEnvironment,
+  githubCliCandidatePaths
+} from './github-environment.js';
 
 const githubItemSchema = z
   .object({
@@ -123,13 +130,18 @@ let resolvedGhPath: string | null = null;
 function runFile(
   file: string,
   args: string[],
-  timeoutMs = 20_000
+  timeoutMs = 20_000,
+  environment: NodeJS.ProcessEnv = buildGithubCliEnvironment()
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     execFile(
       file,
       args,
-      { timeout: timeoutMs, maxBuffer: 16 * 1024 * 1024 },
+      {
+        timeout: timeoutMs,
+        maxBuffer: 16 * 1024 * 1024,
+        env: environment
+      },
       (error, stdout, stderr) => {
         if (error) {
           reject(new Error(stderr.trim() || error.message));
@@ -143,17 +155,23 @@ function runFile(
 
 async function resolveGhPath(): Promise<string> {
   if (resolvedGhPath !== null) return resolvedGhPath;
-  for (const candidate of [
-    'gh',
-    '/opt/homebrew/bin/gh',
-    '/usr/local/bin/gh'
-  ]) {
+  for (const candidate of githubCliCandidatePaths()) {
     try {
-      await runFile(candidate, ['--version'], 5_000);
-      resolvedGhPath = candidate;
-      return candidate;
+      await access(
+        candidate,
+        process.platform === 'win32' ? fsConstants.F_OK : fsConstants.X_OK
+      );
+      const absoluteCandidate = await realpath(candidate);
+      await runFile(
+        absoluteCandidate,
+        ['--version'],
+        5_000,
+        buildGithubCliDiscoveryEnvironment()
+      );
+      resolvedGhPath = absoluteCandidate;
+      return absoluteCandidate;
     } catch {
-      // Try the next common GitHub CLI location.
+      // Try the next absolute candidate.
     }
   }
   throw new Error('GitHub CLI is not available');

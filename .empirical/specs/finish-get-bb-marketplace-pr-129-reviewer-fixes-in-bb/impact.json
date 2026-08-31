@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "classification": "behavioral",
+  "capabilities": [
+    "board-capture",
+    "plugin-git-distribution",
+    "taskboard-distribution",
+    "taskboard-github-cli"
+  ],
+  "surfaces": [
+    "workflow"
+  ],
+  "regressionRationale": null,
+  "digest": "sha256:6b8bb32ec0352472d6357076c19542b98b7a0008f881aa3c1bc5a43202415725"
+}

@@ -6,8 +6,9 @@
   leaf plugins while keeping one lockfile and dependency installation.
 - `plugins/taskboard/server.ts` is the backend composition root. It wires typed
   RPC handlers, project-scoped configuration and credentials, the local cache,
-  provider adapters, background sync, mentions, CLI commands, and hidden helper
-  threads used for issue drafting.
+  provider adapters, background sync, mentions, and CLI commands. It starts no
+  issue-drafting agent; the sync service invokes one retry-safe compatibility
+  cleanup for hidden Taskboard-owned helper threads left by older releases.
 - `plugins/taskboard/app.tsx` owns the BB frontend registrations and Taskboard
   UI: nav panel, full/right-panel boards, project management, List/Kanban,
   detail, composer creation, pending credential interaction, and realtime
@@ -15,6 +16,10 @@
 - `plugins/taskboard/contract.ts` and companion schemas define the strict JSON
   wire model. `store.ts` owns append-only SQLite migrations and cached work.
   `sources/` contains the GitHub, Linear, and Jira adapters behind one interface.
+- `issue-prefill.ts` deterministically converts a composer prompt into editable
+  title/description form state. `legacy-issue-draft-cleanup.ts` owns the narrow
+  old-helper shutdown/key cleanup boundary. `sources/github-environment.ts`
+  constructs the explicit environment for every GitHub CLI process.
 - `browse-preferences.ts` owns the observable device-local current view;
   `filter-presets.ts` validates complete named snapshots while `store.ts` owns
   their project-scoped SQLite CRUD/order and `server.ts` exposes RPC/CLI plus
@@ -49,9 +54,10 @@
 4. Linear/Jira secrets are stored outside RPC-visible configuration in
    owner-only project credential files. The authenticated pending-interaction
    form is the human credential entry surface.
-5. Issue creation loads provider-native metadata, sends one validated create
-   request, caches the returned item, and inserts a Taskboard mention into the
-   BB composer. The external provider is never written before confirmation.
+5. Composer capture prefills the visible form from the original prompt without
+   executing it or starting a model. Issue creation loads provider-native
+   metadata, sends one validated create request only after confirmation, caches
+   the returned item, and inserts a Taskboard mention into the BB composer.
 6. A background service refreshes configured projects; the external tracker
    remains authoritative when cache and live state differ.
 7. Named presets never auto-apply. UI application provider-checks a preset,
@@ -80,13 +86,21 @@
 ## External dependencies
 
 - BB and the exact `@get-bb/plugin-sdk` version provide the host, RPC, UI,
-  storage, agent, CLI, and testing contracts.
+  storage, CLI, and testing contracts. Taskboard keeps the SDK in production
+  dependencies because its shared app RPC contract executes a root SDK helper
+  during managed Git builds after `--omit=dev`.
 - Taskboard uses Zod for runtime validation, better-sqlite3 through BB storage,
   BB-vendored UI source, Radix overlay primitives, Sonner, and Hugeicons.
-- GitHub access reuses BB's official GitHub integration and the `gh` CLI;
-  Linear and Jira use project-isolated API credentials.
-- Runtime imports belong in leaf `dependencies`; types, test harnesses, and
-  pinned build tooling belong in `devDependencies`.
+- GitHub access reuses BB's official GitHub integration and the `gh` CLI. The
+  CLI is resolved to an access-checked canonical absolute path; relative and
+  current-workspace PATH entries are rejected and version discovery gets no
+  credentials. The authenticated child environment is an explicit allowlist
+  for GitHub auth/config,
+  executable/system lookup, HTTP routing/trust, credential-store roots, and
+  temp storage. Linear and Jira use project-isolated API credentials.
+- Runtime/build imports needed after production-only installation belong in
+  leaf `dependencies`; type-only imports, test harnesses, and pinned build
+  tooling belong in `devDependencies`.
 - Host Monitor deliberately carries BB 0.40 / SDK 0.4.21 tooling in its own
   workspace while the older plugins retain their compatible BB 0.38 / SDK
   0.4.6 toolchains.

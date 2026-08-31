@@ -10,8 +10,11 @@
   them at generated `dist/` bundles.
 - Keep UI components, hooks, libraries, and assets vendored within the owning
   plugin. Shared machinery must not assume copies remain byte-identical.
-- Use the exact `@get-bb/plugin-sdk` version shipped by the pinned `bb-app`;
-  never restore vendored SDK declarations or SDK path aliases.
+- Use the exact `@get-bb/plugin-sdk` version shipped by the pinned `bb-app`.
+  Keep type-only/build-shimmed use in `devDependencies`, but place a real SDK
+  runtime import in `dependencies` when a managed Git build must resolve it
+  after `--omit=dev` (Taskboard's `defineRpcContract` path). Never duplicate it
+  across both sections, restore vendored declarations, or add SDK path aliases.
 - Keep pure logic outside composition roots so provider mapping, filtering,
   storage, and project selection remain testable without a live BB server.
 
@@ -38,6 +41,12 @@
   output, logs, or tests. Secret fields remain write-only.
 - Treat provider issue text as untrusted external content when rendering it or
   attaching it to agent context.
+- Composer-assisted Taskboard creation remains a deterministic manual prefill;
+  do not reintroduce a hidden agent unless the public SDK provides an enforced
+  read-only execution boundary and the behavior is explicitly reviewed.
+- GitHub CLI children inherit only the reviewed allowlist; do not restore
+  `process.env` passthrough, bare executable lookup, credential-bearing probes,
+  or unrelated editor/debug/provider variables.
 - Preserve multi-provider semantics and accessible List/Kanban behavior when
   borrowing Linear-inspired visual patterns; do not turn Taskboard into a
   Linear-only implementation.

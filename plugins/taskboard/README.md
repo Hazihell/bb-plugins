@@ -54,7 +54,9 @@ task to an agent without rebuilding context by hand.
   assignee, status, priority, labels, due date, milestone, and issue type fields
   appear when supported. Taskboard remembers the last successfully used
   assignee for that exact project and destination. Assisted creations attach a
-  Taskboard mention so the thread continues with live issue context.
+  Taskboard mention so the thread continues with live issue context. The prompt
+  is copied into the editable review form; Taskboard does not execute it or
+  start an agent.
 - **Agent handoff** — prefill a BB prompt from any task or attach one with the
   Taskboard mention result.
 - **CLI automation** — browse cached/live work, inspect transitions, move
@@ -71,7 +73,7 @@ Taskboard is a full-trust BB plugin. Review the source, then install its trackin
 Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.3 --subdirectory plugins/taskboard --tag-prefix taskboard/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
@@ -155,19 +157,16 @@ repositories, Linear uses the configured team, and Jira infers project keys
 from simple `project = KEY` or `project in (...)` JQL scopes (with a project-key
 field when the scope cannot be inferred).
 
-The icon opens a review modal immediately while a hidden, read-only helper uses
-the BB project's repository context to turn the rough prompt into a natural
-title and a standalone description with requested changes and acceptance
-criteria. Provider metadata can load for the review form, but no issue is
-created or mutated until you click **Create issue**. If the helper cannot produce a draft, the original
-prompt remains editable as a visible fallback. You can also choose **Use
-original prompt** immediately instead of waiting, then retry the
-repository-aware draft from the same modal.
+The icon opens the review modal immediately. Taskboard derives the editable
+title from the first non-empty prompt line and keeps the complete trimmed prompt
+as the description. It does not run the prompt, inspect the repository, start
+an agent, or spend model usage. Provider metadata can load for the review form,
+but no issue is created or mutated until you click **Create issue**.
 
 From a project board, choose **New issue** to open the same validated provider
 form with a blank editable title and description. Direct capture skips the
-repository drafting helper. It loads provider metadata for review but never
-creates or mutates an issue until you confirm creation.
+composer prefill. It loads provider metadata for review but never creates or
+mutates an issue until you confirm creation.
 
 ![Live task detail](https://raw.githubusercontent.com/MateoCerquetella/bb-plugins/main/docs/media/task-detail.png)
 
@@ -226,10 +225,15 @@ npm run dev --workspace bb-plugin-taskboard
 
 `components/ui/` is vendored BB component source pinned by `components.json`.
 Add another component with `npx shadcn add @bb/<component>`. The exact
-`@get-bb/plugin-sdk` development dependency makes the source typecheck without
-a BB checkout. Run `npm run types:refresh` and then `npm install` when updating
-the minimum BB version. The script deliberately uses this workspace's pinned
-BB toolchain even when run from inside a live BB agent environment.
+`@get-bb/plugin-sdk` production dependency is required because the app's RPC
+contract executes `defineRpcContract` while a managed Git install builds after
+omitting development dependencies. When updating the minimum BB version, bump
+the exact SDK and `bb-app` pins together, run `npm install`, then typecheck and
+build. Taskboard launches `gh` with a deliberate environment limited to GitHub
+authentication/configuration, executable and system lookup, proxies,
+certificate stores, credential-store roots, and temporary storage. It resolves
+and token-free probes an absolute GitHub CLI first; relative/current-workspace
+PATH candidates never receive credentials.
 
 ## License
 

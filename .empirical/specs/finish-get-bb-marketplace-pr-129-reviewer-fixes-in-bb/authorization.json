@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "mode": "yolo",
+  "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+  "feature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
+  "requestDigest": "sha256:efdeebe8208d92bb3bee44375ced6cce1ad3130388fb77c7086092659acbdc83",
+  "ceiling": "integrated",
+  "targetBranch": "chore/taskboard-pin-icon-integration",
+  "allowExternalAgent": false,
+  "createdAt": "2026-08-31T13:52:39.684Z",
+  "expiresAt": null,
+  "digest": "sha256:a259c3a860ab99d15399259fcbd1960307960f4eb21ec191e22ec0ce5a2dce41"
+}

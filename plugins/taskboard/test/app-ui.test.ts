@@ -3,6 +3,11 @@ import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
 const app = await readFile(new URL('../app.tsx', import.meta.url), 'utf8');
+const contract = await readFile(
+  new URL('../contract.ts', import.meta.url),
+  'utf8'
+);
+const server = await readFile(new URL('../server.ts', import.meta.url), 'utf8');
 
 test('uses the Taskboard icon for the thread-header pin action', () => {
   const headerAction = app.match(
@@ -187,7 +192,18 @@ test('supports direct and composer-assisted creation through one dialog', () => 
     rememberIndex < createCallIndex,
     'The create RPC must be wrapped by the success-bound persistence helper'
   );
-  assert.match(app, /!assisted \|\|\s*!draftRequestId/u);
+  assert.match(app, /issuePrefillFromPrompt\(initialPrompt\)/u);
+  assert.match(app, /setTitle\(prefill\.title\)/u);
+  assert.match(app, /setDescription\(prefill\.description\)/u);
+  assert.match(app, /projectId: string;\s*prompt: string;/u);
+  assert.match(app, /projectId=\{draftSession\.projectId\}/u);
+  assert.match(app, /Using your composer prompt/u);
+  assert.match(app, /does not run the prompt or create anything until you confirm/u);
+  assert.doesNotMatch(app, /startIssueDraft|getIssueDraft|cancelIssueDraft/u);
+  assert.doesNotMatch(app, /A model is reading|Drafted with repository context/u);
+  assert.doesNotMatch(contract, /startIssueDraft|getIssueDraft|cancelIssueDraft/u);
+  assert.doesNotMatch(server, /threads\.spawn|permissionMode:\s*'auto'/u);
+  assert.doesNotMatch(server, /thread\.idle|thread\.failed/u);
   assert.match(app, /context\.projectName.*sourceName\(context\.source\).*New issue/su);
   assert.match(app, /Couldn&apos;t load creation options/u);
   assert.match(app, /role="alert"/u);

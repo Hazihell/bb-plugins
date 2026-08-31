@@ -72,7 +72,6 @@ import type {
   CreateIssueContext,
   CreateIssueMetadata,
   CreateIssueOption,
-  IssueDraftRecord,
   SecretMutation,
   TrackerProject,
   WorkItem,
@@ -82,6 +81,7 @@ import type {
   WorkStatusOption,
   TaskboardRpcContract
 } from './contract.js';
+import { issuePrefillFromPrompt } from './issue-prefill.js';
 import {
   CREATE_OUTCOME_UNCERTAIN_MARKER,
   FILTER_PRESET_NAME_MAX_LENGTH,
@@ -451,15 +451,6 @@ interface CreatedIssueResult {
   };
 }
 
-function titleFromPrompt(prompt: string): string {
-  const firstLine = prompt
-    .split(/\r?\n/u)
-    .map(line => line.trim())
-    .find(Boolean);
-  if (!firstLine) return '';
-  return firstLine.replace(/^#{1,6}\s+/u, '').slice(0, 120);
-}
-
 function createOptionLabel(
   options: readonly CreateIssueOption[],
   value: string | null,
@@ -595,16 +586,13 @@ type CreateIssueDialogProps = {
   | { mode: 'direct' }
   | {
       mode: 'composer-assisted';
-      draftRequestId: string;
       initialPrompt: string;
-      onRegenerate: () => void;
     }
 );
 
 function CreateIssueDialog(props: CreateIssueDialogProps) {
   const { projectId, open, onOpenChange, onCreated } = props;
   const assisted = props.mode === 'composer-assisted';
-  const draftRequestId = assisted ? props.draftRequestId : null;
   const initialPrompt = assisted ? props.initialPrompt : '';
   const rpc = useRpc<TaskboardRpcContract>();
   const navigate = useBbNavigate();
@@ -632,21 +620,19 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
   const [labelIds, setLabelIds] = useState<string[]>([]);
   const [dueDate, setDueDate] = useState('');
   const [milestoneId, setMilestoneId] = useState<string | null>(null);
-  const [draftStatus, setDraftStatus] = useState<
-    IssueDraftRecord['status'] | 'idle' | 'manual'
-  >('idle');
-  const [draftError, setDraftError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createOutcomeUncertain, setCreateOutcomeUncertain] = useState(false);
-  const draftRevisionRef = useRef(0);
 
   useEffect(() => {
     if (!open) return;
+    const prefill = assisted
+      ? issuePrefillFromPrompt(initialPrompt)
+      : { title: '', description: '' };
     setContext(undefined);
     setContextError(null);
-    setTitle('');
-    setDescription('');
+    setTitle(prefill.title);
+    setDescription(prefill.description);
     setDestinationId('');
     setIssueType('');
     setMetadata(undefined);
@@ -660,8 +646,6 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
     setLabelIds([]);
     setDueDate('');
     setMilestoneId(null);
-    setDraftStatus(assisted ? 'idle' : 'manual');
-    setDraftError(null);
     setCreating(false);
     setCreateError(null);
     setCreateOutcomeUncertain(false);
@@ -684,7 +668,7 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
     return () => {
       active = false;
     };
-  }, [assisted, draftRequestId, initialPrompt, open, projectId, rpc]);
+  }, [assisted, initialPrompt, open, projectId, rpc]);
 
   useEffect(() => {
     setMetadata(undefined);
@@ -774,95 +758,8 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
     rpc
   ]);
 
-  useEffect(() => {
-    if (
-      !assisted ||
-      !draftRequestId ||
-      !open ||
-      !projectId ||
-      context?.available !== true
-    ) {
-      return;
-    }
-    const revision = ++draftRevisionRef.current;
-    let active = true;
-    const isActive = () =>
-      active && draftRevisionRef.current === revision;
-    const useFallback = (error: unknown) => {
-      if (!isActive()) return;
-      setTitle(titleFromPrompt(initialPrompt));
-      setDescription(initialPrompt.trim());
-      setDraftStatus('failed');
-      setDraftError(describeError(error));
-    };
-
-    setDraftStatus('running');
-    setDraftError(null);
-    void (async () => {
-      try {
-        await rpc.call('startIssueDraft', {
-          requestId: draftRequestId,
-          projectId,
-          prompt: initialPrompt
-        });
-        while (isActive()) {
-          const { draft } = await rpc.call('getIssueDraft', {
-            requestId: draftRequestId
-          });
-          if (!isActive()) return;
-          if (draft === null) {
-            throw new Error('The issue draft is no longer available.');
-          }
-          if (draft.status === 'complete') {
-            setTitle(draft.title);
-            setDescription(draft.description);
-            setDraftStatus('complete');
-            return;
-          }
-          if (draft.status === 'failed') {
-            throw new Error(draft.error);
-          }
-          await new Promise(resolve => setTimeout(resolve, 700));
-        }
-      } catch (error) {
-        useFallback(error);
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
-  }, [
-    assisted,
-    context?.available,
-    draftRequestId,
-    initialPrompt,
-    open,
-    projectId,
-    rpc
-  ]);
-
-  const discardDraft = () => {
-    if (!draftRequestId) return;
-    void rpc
-      .call('cancelIssueDraft', { requestId: draftRequestId })
-      .catch(() => undefined);
-  };
-
   const closeDialog = () => {
-    draftRevisionRef.current += 1;
-    discardDraft();
     onOpenChange(false);
-  };
-
-  const useOriginalPrompt = () => {
-    if (!assisted) return;
-    draftRevisionRef.current += 1;
-    discardDraft();
-    setTitle(titleFromPrompt(initialPrompt));
-    setDescription(initialPrompt.trim());
-    setDraftStatus('manual');
-    setDraftError(null);
   };
 
   const currentMetadataScope =
@@ -924,7 +821,6 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
       if (result.warnings.length > 0) {
         toast.warning(result.warnings.join(' '));
       }
-      discardDraft();
       onOpenChange(false);
     } catch (error) {
       const message = describeError(error);
@@ -945,7 +841,6 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
     loadedConnectorRevision !== null &&
     currentMetadataScope !== null &&
     loadedMetadataScope === currentMetadataScope &&
-    (!assisted || !['idle', 'running'].includes(draftStatus)) &&
     title.trim() !== '' &&
     destinationId.trim() !== '' &&
     (context.source !== 'jira' || issueType.trim() !== '');
@@ -977,13 +872,7 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
                 ? `Finish setting up ${sourceName(context.source)} for this project.`
                 : !assisted
                   ? `Create an issue directly in the tracker configured for ${context.projectName}.`
-                : draftStatus === 'complete'
-                  ? `Drafted from your prompt and the ${context.projectName} repository.`
-                  : draftStatus === 'manual'
-                    ? 'The original prompt is ready for review.'
-                  : draftStatus === 'failed'
-                    ? 'The original prompt is ready as an editable fallback.'
-                    : `Reading ${context.projectName} and structuring the ticket…`}
+                  : 'Review and edit your composer prompt before creating the issue.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -1080,116 +969,26 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
               ) : null}
             </div>
 
-            {assisted &&
-            (draftStatus === 'idle' || draftStatus === 'running') ? (
-              <div
-                className="grid gap-3 rounded-lg border border-border bg-surface-recessed-solid p-3"
-                role="status"
-                aria-live="polite"
-              >
-                <div className="flex items-start gap-2.5">
-                  <Icon
-                    name="Loading"
-                    className="mt-0.5 size-4 shrink-0 animate-spin text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium">
-                      Structuring your issue
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      A model is reading relevant repository context and turning
-                      the prompt into a title, description, and acceptance criteria.
-                    </p>
-                  </div>
-                </div>
-                <Skeleton className="h-9 w-full" />
-                <Skeleton className="h-32 w-full" />
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={useOriginalPrompt}
-                  >
-                    Use original prompt
-                  </Button>
+            {assisted ? (
+              <div className="flex items-start gap-2.5 rounded-lg border border-border bg-surface-recessed-solid p-3">
+                <Icon
+                  name="ListTodo"
+                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    Using your composer prompt
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Review and edit the title and description below. Taskboard
+                    does not run the prompt or create anything until you confirm.
+                  </p>
                 </div>
               </div>
-            ) : (
-              <>
-                {assisted ? (
-                  <div
-                    className={cn(
-                      'flex items-start gap-2.5 rounded-lg border p-3',
-                      draftStatus === 'failed'
-                        ? 'border-destructive/30 bg-destructive/5'
-                        : 'border-border bg-surface-recessed-solid'
-                    )}
-                  >
-                    <Icon
-                      name={
-                        draftStatus === 'failed'
-                          ? 'AlertCircle'
-                          : draftStatus === 'manual'
-                            ? 'ListTodo'
-                            : 'AiContentGenerator01'
-                      }
-                      className={cn(
-                        'mt-0.5 size-4 shrink-0',
-                        draftStatus === 'failed'
-                          ? 'text-destructive'
-                          : 'text-muted-foreground'
-                      )}
-                      aria-hidden="true"
-                    />
-                    <div className="space-y-0.5">
-                      <p className="text-sm font-medium">
-                        {draftStatus === 'failed'
-                          ? 'Repository-aware draft unavailable'
-                          : draftStatus === 'manual'
-                            ? 'Using the original prompt'
-                            : 'Drafted with repository context'}
-                      </p>
-                      <p
-                        className={cn(
-                          'text-xs',
-                          draftStatus === 'failed'
-                            ? 'text-destructive'
-                            : 'text-muted-foreground'
-                        )}
-                      >
-                        {draftStatus === 'failed'
-                          ? `${draftError ?? 'The drafting model failed.'} Review the original prompt below before creating.`
-                          : draftStatus === 'manual'
-                            ? 'Review and edit the prompt below before creating the issue.'
-                            : 'Review and edit the generated ticket before it is created.'}
-                      </p>
-                      {draftStatus === 'failed' || draftStatus === 'manual' ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          className="mt-1 -ml-2"
-                          disabled={creating}
-                          onClick={() => {
-                            if (props.mode === 'composer-assisted') {
-                              props.onRegenerate();
-                            }
-                          }}
-                        >
-                          <Icon
-                            name="ArrowReloadHorizontal"
-                            className="size-3.5"
-                          />
-                          Try repository draft again
-                        </Button>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
+            ) : null}
 
-                <div className="grid gap-1.5">
+            <div className="grid gap-1.5">
                   <label
                     htmlFor={`${formId}-title`}
                     className="text-xs font-semibold"
@@ -1350,8 +1149,6 @@ function CreateIssueDialog(props: CreateIssueDialogProps) {
                     </div>
                   ) : null}
                 </div>
-              </>
-            )}
 
             {createError ? (
               <p role="alert" className="text-sm text-destructive">
@@ -1449,7 +1246,7 @@ function ComposerCreateIssueAction() {
   const { projectId: contextProjectId } = useBbContext();
   const [open, setOpen] = useState(false);
   const [draftSession, setDraftSession] = useState<{
-    requestId: string;
+    projectId: string;
     prompt: string;
   } | null>(null);
   const projectId =
@@ -1491,7 +1288,7 @@ function ComposerCreateIssueAction() {
                     return;
                   }
                   setDraftSession({
-                    requestId: globalThis.crypto.randomUUID(),
+                    projectId,
                     prompt: view.draft.text
                   });
                   setOpen(true);
@@ -1506,21 +1303,10 @@ function ComposerCreateIssueAction() {
         {draftSession ? (
           <CreateIssueDialog
             mode="composer-assisted"
-            projectId={projectId}
+            projectId={draftSession.projectId}
             open={open}
             onOpenChange={setOpen}
-            draftRequestId={draftSession.requestId}
             initialPrompt={draftSession.prompt}
-            onRegenerate={() => {
-              setDraftSession(current =>
-                current
-                  ? {
-                      ...current,
-                      requestId: globalThis.crypto.randomUUID()
-                    }
-                  : current
-              );
-            }}
             onCreated={result => {
               composer.insertMention(result.mention);
               composer.focus();

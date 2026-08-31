@@ -8,7 +8,7 @@ Commands below are verified from workspace and plugin manifests.
   or dependency/lockfile change.
 - `bb plugin install ./plugins/taskboard` — register the local Taskboard path in
   BB for live verification.
-- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/`
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.3 --subdirectory plugins/taskboard --tag-prefix taskboard/`
   — install the released Taskboard Git range directly.
 - `bb plugin install ./plugins/usage-tracker` — register Usage Tracker locally.
 - `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.4 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/`
@@ -27,8 +27,10 @@ Commands below are verified from workspace and plugin manifests.
   loop after the local path is installed.
 - `npm run typecheck --workspace bb-plugin-taskboard` and
   `npm test --workspace bb-plugin-taskboard` — focused Taskboard iteration.
-- `npm run check --workspace bb-plugin-taskboard` — Taskboard SDK-type check,
-  typecheck, tests, build, and build-metadata verification.
+- `npm run check --workspace bb-plugin-taskboard` — Taskboard typecheck, tests,
+  build, and build-metadata verification. Distribution tests enforce its exact
+  production SDK dependency because `bb plugin types` currently assumes the
+  SDK is development-only.
 - `npm run dev --workspace bb-plugin-host-monitor` — Host Monitor
   watch/build/reload loop after local-path installation.
 - `npm run typecheck --workspace bb-plugin-host-monitor` and
@@ -39,9 +41,6 @@ Commands below are verified from workspace and plugin manifests.
   valid fixed-tab registration, and the dot-free trigger.
 - `npm run check --workspace bb-plugin-host-monitor` — Host Monitor SDK-type
   check, typecheck, complete Node/TSX test suite, and BB build.
-- `npm run types:refresh --workspace bb-plugin-taskboard` followed by
-  `npm install` — deliberate SDK declaration pin refresh when the minimum BB
-  release changes.
 - `bb taskboard presets list|save|rename|delete` — manage named presets for the
   current or explicitly selected BB project.
 - `bb taskboard list --preset <name>` — apply a named preset to CLI listing;

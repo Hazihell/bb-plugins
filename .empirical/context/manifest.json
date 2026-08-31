@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:a9bdbff645d0606975c5edc482078054c82a6a57c2fa9c7f715cd6fc2898f8bc",
+  "sourceDigest": "sha256:02dd44e0c897acf3baab9ef7cd08e8265c9da1dbf24d10874147a4e3a0b6f550",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -60,8 +60,8 @@
     },
     {
       "path": "AGENTS.md",
-      "size": 2720,
-      "digest": "sha256:e907e06cfe05924c9b90bde87636696bf8d16f4c5d0527f10b62d64b05b48544"
+      "size": 3004,
+      "digest": "sha256:5e312f86899bc74fb298c9367246853e8764bda3e9a7cf459556c1d3114f4170"
     },
     {
       "path": "CLAUDE.md",
@@ -80,8 +80,8 @@
     },
     {
       "path": "README.md",
-      "size": 7510,
-      "digest": "sha256:de245ae95d0e29cb7e97dad82ca91c97b53836d482d830dea653aaea44c37d1c"
+      "size": 7553,
+      "digest": "sha256:0341126be5fb83071193d222ecfac554788352698a3521fd4095840e5695ae76"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -95,8 +95,8 @@
     },
     {
       "path": "package-lock.json",
-      "size": 277983,
-      "digest": "sha256:2c2571cc1d467db6723e119ee4175464bb3daa9689fa0e139a5cb9817972ad8c"
+      "size": 278316,
+      "digest": "sha256:8110603d0c0d0b82a4e29658382cd46a0cdae09d78c0466ddc02d6b463bfd9fb"
     },
     {
       "path": "package.json",
@@ -355,8 +355,8 @@
     },
     {
       "path": "plugins/taskboard/README.md",
-      "size": 11791,
-      "digest": "sha256:fcc130d929803f787c1365397793d02b245391ed4ae347be35be8b2fcc6361e1"
+      "size": 12040,
+      "digest": "sha256:4442ceb89046ec4390e5073dd3c3290e618b88d5168f2bfb3e5e6dd8462d89dc"
     },
     {
       "path": "plugins/taskboard/THIRD_PARTY_NOTICES.md",
@@ -370,8 +370,8 @@
     },
     {
       "path": "plugins/taskboard/app.tsx",
-      "size": 246180,
-      "digest": "sha256:2116acb5e9ab2e2961263e66556b959521af8f8df66a61c6629337afbb27189d"
+      "size": 238737,
+      "digest": "sha256:6029441e95ada495e6191beb5dfb5462619e4219983ef4a746676ea0ff3d6306"
     },
     {
       "path": "plugins/taskboard/assets/icon.svg",
@@ -495,8 +495,8 @@
     },
     {
       "path": "plugins/taskboard/contract.ts",
-      "size": 18552,
-      "digest": "sha256:c284a8cab0d839baf35698b13943c029f305d38206f4e9fce8f8b61e1cd0c1f4"
+      "size": 16712,
+      "digest": "sha256:9385246862b7c0c1b3bda2b3f21d97d3505bab1a3efd8476509859655c8fa491"
     },
     {
       "path": "plugins/taskboard/create-issue.ts",
@@ -514,9 +514,14 @@
       "digest": "sha256:505daff1cfcc8aa86195dbb00db274feee4ed47cc75f50ed90f10b6de049ea9c"
     },
     {
-      "path": "plugins/taskboard/issue-draft.ts",
-      "size": 3175,
-      "digest": "sha256:b25c1dd0d169026a42313dcdc7589bd3db4c5a7d2646bcb42d7e2a22c63ce774"
+      "path": "plugins/taskboard/issue-prefill.ts",
+      "size": 405,
+      "digest": "sha256:f3b012ed54b2c248f526ad8ca7bbd3ede165a75e4236d90fd9d7fca231f2bec6"
+    },
+    {
+      "path": "plugins/taskboard/legacy-issue-draft-cleanup.ts",
+      "size": 2350,
+      "digest": "sha256:88f6fd838eae1edd534b90a7d1123545259391238dd493076bbe86c382a703b2"
     },
     {
       "path": "plugins/taskboard/lib/portal-scope.ts",
@@ -530,8 +535,8 @@
     },
     {
       "path": "plugins/taskboard/package.json",
-      "size": 2292,
-      "digest": "sha256:12ac7a3dd113d215d1bed33fb5b93bce9b04f73b8f8729af1c988a217eea7cce"
+      "size": 2151,
+      "digest": "sha256:91a90d7b942922deba346960ece0e8d7163f5fcd675af2f46e54aec346b043cc"
     },
     {
       "path": "plugins/taskboard/project-selection.ts",
@@ -545,13 +550,18 @@
     },
     {
       "path": "plugins/taskboard/server.ts",
-      "size": 93686,
-      "digest": "sha256:2d5cd743428680e5843b31cd3ed7356edce927ae31bf5de16393b43455fc3af2"
+      "size": 82839,
+      "digest": "sha256:96b1dc1a7efd6cc58abebfbbc40b8754a0147c83158bc15e4aa4d655db8f2979"
+    },
+    {
+      "path": "plugins/taskboard/sources/github-environment.ts",
+      "size": 4795,
+      "digest": "sha256:8120f525675a5b50187545523dc80bf1ac73240ce570f8c22991afebedb0ccaf"
     },
     {
       "path": "plugins/taskboard/sources/github.ts",
-      "size": 17116,
-      "digest": "sha256:b187d990a7ad8b4fe3791ae4158b49d1501d307951ae0566d77c23b1f95ef6ac"
+      "size": 17703,
+      "digest": "sha256:6a7c6ef287d3f8c243df791ccd8fb288af92d64cc0881ea9569131afc2022345"
     },
     {
       "path": "plugins/taskboard/sources/jira-scope.ts",
@@ -580,8 +590,8 @@
     },
     {
       "path": "plugins/taskboard/test/app-ui.test.ts",
-      "size": 9670,
-      "digest": "sha256:0103a560c93f186a24c8ef7d6ac1c2fd2c121c37fe41a053bd0d5351d34385ba"
+      "size": 10612,
+      "digest": "sha256:ebe8862297f6660164e50021d03824f34eb6f34dd6d509a0eba04205db1e9c3f"
     },
     {
       "path": "plugins/taskboard/test/browse-preferences.test.ts",
@@ -605,8 +615,8 @@
     },
     {
       "path": "plugins/taskboard/test/distribution.test.ts",
-      "size": 8560,
-      "digest": "sha256:a77c32f211052e1f4e66a91cb6c511a702f549b3c9805a587d116c693003a83e"
+      "size": 9384,
+      "digest": "sha256:8dfae9d2f699c41c131d770584c9475d4501f4a0a7d5558d4ca1669d951d13e4"
     },
     {
       "path": "plugins/taskboard/test/filter-presets-backend.test.ts",
@@ -619,9 +629,19 @@
       "digest": "sha256:acfd2867b81df3b3991f2395c01925cebde79d46800202303a1eb7e768442d38"
     },
     {
-      "path": "plugins/taskboard/test/issue-draft.test.ts",
-      "size": 1787,
-      "digest": "sha256:0b074d4310021579148eb67518c7f1a41b736eaecea84df894f6aa06cd5e6caa"
+      "path": "plugins/taskboard/test/github-environment.test.ts",
+      "size": 6235,
+      "digest": "sha256:83b87fa77e948dff32ed4064fd1cfa7a97a0e3b8a493a53e30338e7b5a6dfb38"
+    },
+    {
+      "path": "plugins/taskboard/test/issue-prefill.test.ts",
+      "size": 939,
+      "digest": "sha256:9b15b203d1032bdb10007a46316d9646e543ff032442f5cc2151616dbd475d40"
+    },
+    {
+      "path": "plugins/taskboard/test/legacy-issue-draft-cleanup.test.ts",
+      "size": 3623,
+      "digest": "sha256:6b0caf3ed363524f4ea453b29043a49d8f273ba34637fabf7a5006e3a381e98c"
     },
     {
       "path": "plugins/taskboard/test/project-selection.test.ts",
@@ -857,13 +877,15 @@
         "plugins/taskboard/create-issue.ts",
         "plugins/taskboard/filter-presets.ts",
         "plugins/taskboard/hooks/useBrowserDimmingModal.ts",
-        "plugins/taskboard/issue-draft.ts",
+        "plugins/taskboard/issue-prefill.ts",
+        "plugins/taskboard/legacy-issue-draft-cleanup.ts",
         "plugins/taskboard/lib/portal-scope.ts",
         "plugins/taskboard/lib/utils.ts",
         "plugins/taskboard/package.json",
         "plugins/taskboard/project-selection.ts",
         "plugins/taskboard/scripts/verify-build.mjs",
         "plugins/taskboard/server.ts",
+        "plugins/taskboard/sources/github-environment.ts",
         "plugins/taskboard/sources/github.ts",
         "plugins/taskboard/sources/jira-scope.ts",
         "plugins/taskboard/sources/jira.ts",
@@ -878,7 +900,9 @@
         "plugins/taskboard/test/distribution.test.ts",
         "plugins/taskboard/test/filter-presets-backend.test.ts",
         "plugins/taskboard/test/filter-presets.test.ts",
-        "plugins/taskboard/test/issue-draft.test.ts",
+        "plugins/taskboard/test/github-environment.test.ts",
+        "plugins/taskboard/test/issue-prefill.test.ts",
+        "plugins/taskboard/test/legacy-issue-draft-cleanup.test.ts",
         "plugins/taskboard/test/project-selection.test.ts",
         "plugins/taskboard/test/source-types.test.ts",
         "plugins/taskboard/test/theme-css.test.ts",
@@ -905,8 +929,8 @@
         "plugins/usage-tracker/types/css-modules.d.ts",
         "scripts/ci.mjs"
       ],
-      "sourceDigest": "sha256:a9bdbff645d0606975c5edc482078054c82a6a57c2fa9c7f715cd6fc2898f8bc",
-      "digest": "sha256:7ec7a337ec3117a2034e8233da3f05b3923ac6d77d065dc76e9c15e3f4cef181",
+      "sourceDigest": "sha256:02dd44e0c897acf3baab9ef7cd08e8265c9da1dbf24d10874147a4e3a0b6f550",
+      "digest": "sha256:6950a366168c7f0c89cb8e52d0ae4ec598e0b5ac89347b809d6d5507c8cabc5d",
       "freshness": "fresh"
     },
     {
@@ -925,8 +949,8 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:c9a2526e9286eb07d1eef26c4482fb095016f9b17fe9c2382240e89f640d5484",
-      "digest": "sha256:a87049abc365def11695f17c43c043f8b7b445c32d4d77cf1966451b933ce646",
+      "sourceDigest": "sha256:aa0dca92c094d369b4bf49b7c37f7a0daf09f648842850ce7c655af4bc9d81f6",
+      "digest": "sha256:744ee39dc31c920fac7f3d95863cc2319d82352398263ffae4e34b92e7af75fe",
       "freshness": "fresh"
     },
     {
@@ -939,8 +963,8 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:4152b3597d79bb7b19505a3fc0fa77c5f77607de0adb276e89060cea637162cd",
-      "digest": "sha256:02d0a54536fc6ffd5766f5cb2e88e0d6da209f85a953bf1719d74c6948478b89",
+      "sourceDigest": "sha256:67118629f89ccc34bfb56b665487cbcc8662c1e0a629a55c7f7147e2a780db75",
+      "digest": "sha256:2b8ac2117f7434012843473efd06599ff2061dec1725c7d32d495be466982cb9",
       "freshness": "fresh"
     },
     {
@@ -955,8 +979,8 @@
         "plugins/usage-tracker/package.json",
         "scripts/ci.mjs"
       ],
-      "sourceDigest": "sha256:02ca100a1d214fe331871401924e256fa9f4d6b5bb052e31470bccd8477a46d6",
-      "digest": "sha256:803e100390b63871149774bcfbbcf5f2f7dd93decb5e4276ba755a8c2a9986a5",
+      "sourceDigest": "sha256:821e2441235c7ce8d7e36014625f933277bb0bce3d5227eda38e3d050a0abf75",
+      "digest": "sha256:fa5666e40976c34140e63a049887af0cfed1fd8ea4070b3be82a0f18c0d015b4",
       "freshness": "fresh"
     },
     {
@@ -969,11 +993,11 @@
         "plugins/taskboard/tsconfig.json",
         "plugins/usage-tracker/tsconfig.json"
       ],
-      "sourceDigest": "sha256:3732be7227d5ce6599f02316f1c9428f0989cffef2158688489394d79aae6569",
-      "digest": "sha256:67f3ba9e7092d5d59000796c1ee7a2536323e455f8279948025c70651c0c11ca",
+      "sourceDigest": "sha256:093a7fab2f30cb967a8d105d6c4af53494620ebc19c51e03e978763fbd9e49e1",
+      "digest": "sha256:47f0a8b1a73eb1c1e57c1c3818adf98d1a85e8870a3c1685844acf09c2821f34",
       "freshness": "fresh"
     }
   ],
   "truncated": false,
-  "digest": "sha256:705edc1567c419c15aace11d99355e4d961c8f63fb46d5e3e13df703adc6b82b"
+  "digest": "sha256:9eae7df9bdf23c1b954025c77d077d68efd3a4cf5d27c1609fa7544029a60d0d"
 }

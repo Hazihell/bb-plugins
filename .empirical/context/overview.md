@@ -6,6 +6,9 @@
 - Taskboard gives each BB project one GitHub, Linear, or Jira-backed List/Kanban
   board with cached browsing, live detail, status changes, issue creation,
   remembered and named project views, mentions, CLI access, and agent handoff.
+  Composer issue capture copies the prompt into an editable review form and
+  never starts an agent or model; provider mutation remains explicitly
+  confirmed.
 - Usage Tracker places Codex and Claude Code quota windows in BB's sidebar
   footer and lets the user choose the weekly or five-hour compact reading.
 - Host Monitor presents live CPU, RAM, disk, network, load, uptime, connection,
@@ -29,6 +32,11 @@
 - Taskboard's current browse state stays versioned and device-local; named
   project presets store validated snapshots in the plugin database and apply
   explicitly through that same browse store.
+- Taskboard's GitHub CLI subprocesses receive only fixed non-interactive locale
+  controls plus explicit GitHub auth/config, executable/system, proxy/CA,
+  credential-store, and temp variables; unrelated server secrets are excluded.
+  The executable is absolute/canonical and token-free probed after rejecting
+  relative or current-workspace search candidates.
 - Taskboard, Usage Tracker, and Host Monitor are private/non-publishable
   workspaces. They release through immutable plugin-specific Git tags plus the
   BB Community marketplace.
@@ -50,7 +58,8 @@
 - Workspace rules: `AGENTS.md`.
 - Taskboard behavior and package contract: `plugins/taskboard/README.md`,
   `plugins/taskboard/package.json`, `plugins/taskboard/server.ts`, and
-  `plugins/taskboard/app.tsx`.
+  `plugins/taskboard/app.tsx`, plus `issue-prefill.ts`,
+  `legacy-issue-draft-cleanup.ts`, and `sources/github-environment.ts`.
 - Taskboard distribution contract:
   `.empirical/capabilities/taskboard-distribution/spec.md`.
 - Usage Tracker behavior: `plugins/usage-tracker/README.md` and its manifest.

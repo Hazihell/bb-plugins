@@ -20,6 +20,9 @@ const hostMonitorManifest = JSON.parse(
 const rootManifest = JSON.parse(
   await readFile(new URL('../../../package.json', import.meta.url), 'utf8')
 );
+const rootLock = JSON.parse(
+  await readFile(new URL('../../../package-lock.json', import.meta.url), 'utf8')
+);
 const taskboardReadme = await readFile(
   new URL('../README.md', import.meta.url),
   'utf8'
@@ -68,7 +71,7 @@ const activeContext = await Promise.all([
 ]);
 
 const directGitInstall =
-  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/';
+  'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.3 --subdirectory plugins/taskboard --tag-prefix taskboard/';
 const hostMonitorGitInstall =
   'bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/host-monitor --tag-prefix host-monitor/';
 const usageGitInstall =
@@ -84,7 +87,7 @@ test('keeps Taskboard private and Git-buildable without npm publication hooks', 
     assert.equal(typeof rootManifest.scripts[script], 'string');
   }
   assert.equal(taskboardManifest.name, 'bb-plugin-taskboard');
-  assert.equal(taskboardManifest.version, '0.3.2');
+  assert.equal(taskboardManifest.version, '0.3.3');
   assert.equal(taskboardManifest.private, true);
   assert.equal('publishConfig' in taskboardManifest, false);
   assert.equal('files' in taskboardManifest, false);
@@ -95,6 +98,23 @@ test('keeps Taskboard private and Git-buildable without npm publication hooks', 
     assert.equal(typeof taskboardManifest.scripts[script], 'string');
   }
   assert.ok(Object.keys(taskboardManifest.dependencies).length > 0);
+  assert.equal(
+    taskboardManifest.dependencies['@get-bb/plugin-sdk'],
+    '0.4.6'
+  );
+  assert.equal(
+    '@get-bb/plugin-sdk' in taskboardManifest.devDependencies,
+    false
+  );
+  assert.equal('types:check' in taskboardManifest.scripts, false);
+  assert.equal('types:refresh' in taskboardManifest.scripts, false);
+
+  const lockedTaskboard = rootLock.packages['plugins/taskboard'];
+  const lockedSdk = rootLock.packages['node_modules/@get-bb/plugin-sdk'];
+  assert.equal(lockedTaskboard.version, '0.3.3');
+  assert.equal(lockedTaskboard.dependencies['@get-bb/plugin-sdk'], '0.4.6');
+  assert.equal('@get-bb/plugin-sdk' in lockedTaskboard.devDependencies, false);
+  assert.equal(lockedSdk.dev, undefined);
 });
 
 test('documents only BB Community and direct Git installation for Taskboard', () => {

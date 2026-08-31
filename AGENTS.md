@@ -39,8 +39,12 @@ README.
 - Do not commit generated `dist/` or `node_modules/` directories.
 - Store shared screenshots and repository media under `docs/media/`.
 - Use the exact `@get-bb/plugin-sdk` version shipped by the pinned `bb-app`
-  release in each plugin's `devDependencies`; do not restore vendored SDK
-  declarations or SDK path aliases.
+  release. Keep it in `devDependencies` when source imports are type-only or
+  build-shimmed. Put it in `dependencies` when a managed Git install must
+  resolve a real SDK runtime value while building after `--omit=dev` (Taskboard
+  imports `defineRpcContract` through its app contract). Do not duplicate it
+  across both sections, restore vendored SDK declarations, or add SDK path
+  aliases.
 
 ## Verification
 

@@ -67,7 +67,7 @@ bb plugin remove host-monitor
 Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.2 --subdirectory plugins/taskboard --tag-prefix taskboard/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.3 --subdirectory plugins/taskboard --tag-prefix taskboard/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
@@ -182,8 +182,9 @@ npm run check
 ```
 
 New plugins belong in `plugins/<id>` with their own `package.json`, source,
-tests, pinned `@get-bb/plugin-sdk` development dependency, and README. Add each
-directory to `.bb/plugins.json`; the root workspace picks it up automatically.
+tests, an exact `@get-bb/plugin-sdk` dependency in the section required by its
+runtime/build imports, and README. Add each directory to `.bb/plugins.json`;
+the root workspace picks it up automatically.
 
 ## Contributors
 

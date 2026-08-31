@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-08-31T11:44:27-03:00",
+  "url": "http://127.0.0.1:38886/",
+  "pluginVersion": "0.3.3",
+  "project": "freebee",
+  "provider": "linear",
+  "prompt": "## Verify Taskboard manual issue prefill\n\nKeep this complete description editable.",
+  "observed": {
+    "title": "Verify Taskboard manual issue prefill",
+    "description": "## Verify Taskboard manual issue prefill\n\nKeep this complete description editable.",
+    "removedModelLoadingCopyPresent": false,
+    "createButtonEnabled": true,
+    "trackerMutationPerformed": false
+  },
+  "screenshot": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/taskboard-0.3.3-manual-prefill.png"
+}
