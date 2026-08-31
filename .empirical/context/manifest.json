@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:164b14235861f74fa1870212272515cf5e2c451438683eee446c0101a05f439e",
+  "sourceDigest": "sha256:f543a20b72a06a32f417f17ebf6152bff15b41e2d32f4c25a3a6717ede921e13",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -10,8 +10,8 @@
     },
     {
       "path": ".bb/plugins.json",
-      "size": 395,
-      "digest": "sha256:9fe5375a41bb0dd2a951a4f8a45886b6b8c85a5ab5c77bb6385ac27fdc3dade6"
+      "size": 505,
+      "digest": "sha256:dd1a79a9b50d18ad1e8ff49a7a23db6e0c02a1a978092cc88b33937dfe6ab654"
     },
     {
       "path": ".claude/skills/empirical/SKILL.md",
@@ -65,8 +65,8 @@
     },
     {
       "path": "README.md",
-      "size": 7510,
-      "digest": "sha256:859ea09c0f0edcf4508fa0ebcc0a2d82b4b3e118f9a865d6374025715c52b91b"
+      "size": 7824,
+      "digest": "sha256:c9f9196aa640fb1904be3111edb8d26af685260a87317a25a010cf729390789b"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -79,9 +79,14 @@
       "digest": "sha256:302543880cb7398b21695ec2873aeab6bcc297014e6a96677e9595f7c161dc0d"
     },
     {
+      "path": "docs/marketplace-machine-model-preferences.json",
+      "size": 661,
+      "digest": "sha256:f7c2048220ca6be58015142ad40002ef0089556c6edc86fc1e2cf9701c9292f6"
+    },
+    {
       "path": "package-lock.json",
-      "size": 277983,
-      "digest": "sha256:3311020f14876a9ac65da1b62ec1146d9f9fb7dadca4e8d9f699caa58f298ea1"
+      "size": 282915,
+      "digest": "sha256:2a028d89377ce0e4e5946592ccee96fd8a01744da787062df6a87be6e7130538"
     },
     {
       "path": "package.json",
@@ -332,6 +337,46 @@
       "path": "plugins/host-monitor/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
+    },
+    {
+      "path": "plugins/machine-model-preferences/README.md",
+      "size": 816,
+      "digest": "sha256:eb2294365e7be901bf2ce002135c461fdd67f41e7d8328187c841af8bbb53955"
+    },
+    {
+      "path": "plugins/machine-model-preferences/app.tsx",
+      "size": 1342,
+      "digest": "sha256:e708d3ab8fcbdcf625db3011bc4fd59f9823b83427b5b0f80c6d4ce93d071a55"
+    },
+    {
+      "path": "plugins/machine-model-preferences/assets/icon.svg",
+      "size": 260,
+      "digest": "sha256:16cfc7bf22d8d2ed78efbec61ff5c136fb0fffd75be763170501fa7602dd1347"
+    },
+    {
+      "path": "plugins/machine-model-preferences/lib/preferences.ts",
+      "size": 2168,
+      "digest": "sha256:0bb4ae3bfbc50d68c46467ca88cdf153e9766d73d3f65b055b7eaa166e9a34eb"
+    },
+    {
+      "path": "plugins/machine-model-preferences/package.json",
+      "size": 1818,
+      "digest": "sha256:3b8ab60462a4ca42cd328f04bb60a21b1b4fdebcfe265b41d310931d36116db1"
+    },
+    {
+      "path": "plugins/machine-model-preferences/server.ts",
+      "size": 107,
+      "digest": "sha256:e172744c193a756087835ab1d72cee0f6f6a3808e5c31726b83ce9a4ca2cc35f"
+    },
+    {
+      "path": "plugins/machine-model-preferences/test/preferences.test.ts",
+      "size": 1298,
+      "digest": "sha256:0e6bceb52a7efba6eb7109cc1ac8fe04050283a2a30669c94b90be2bf00eb194"
+    },
+    {
+      "path": "plugins/machine-model-preferences/tsconfig.json",
+      "size": 275,
+      "digest": "sha256:c38c603a6e7fc22cc8ced06fbff8ee36622049872149e1ae503240d0fd9042f1"
     },
     {
       "path": "plugins/taskboard/LICENSE",
@@ -750,6 +795,7 @@
         "README.md",
         "THIRD_PARTY_NOTICES.md",
         "demos/taskboard-create-issue.html",
+        "docs/marketplace-machine-model-preferences.json",
         "package-lock.json",
         "package.json",
         "plugins/host-monitor/LICENSE",
@@ -801,6 +847,14 @@
         "plugins/host-monitor/test/thresholds.test.ts",
         "plugins/host-monitor/tsconfig.json",
         "plugins/host-monitor/types/css-modules.d.ts",
+        "plugins/machine-model-preferences/README.md",
+        "plugins/machine-model-preferences/app.tsx",
+        "plugins/machine-model-preferences/assets/icon.svg",
+        "plugins/machine-model-preferences/lib/preferences.ts",
+        "plugins/machine-model-preferences/package.json",
+        "plugins/machine-model-preferences/server.ts",
+        "plugins/machine-model-preferences/test/preferences.test.ts",
+        "plugins/machine-model-preferences/tsconfig.json",
         "plugins/taskboard/LICENSE",
         "plugins/taskboard/README.md",
         "plugins/taskboard/THIRD_PARTY_NOTICES.md",
@@ -881,7 +935,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:164b14235861f74fa1870212272515cf5e2c451438683eee446c0101a05f439e",
+      "sourceDigest": "sha256:f543a20b72a06a32f417f17ebf6152bff15b41e2d32f4c25a3a6717ede921e13",
       "digest": "sha256:10082cd6b7a30aaa42f0ae037b0a59f8aa211cf8f0f34f233f78132307c899e9",
       "freshness": "fresh"
     },
@@ -894,6 +948,8 @@
         "package.json",
         "plugins/host-monitor/README.md",
         "plugins/host-monitor/package.json",
+        "plugins/machine-model-preferences/README.md",
+        "plugins/machine-model-preferences/package.json",
         "plugins/taskboard/README.md",
         "plugins/taskboard/package.json",
         "plugins/taskboard/project-selection.ts",
@@ -901,7 +957,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:da882cfe4c5a632e8087e73177839a2fbc3d420e951e0cc19e913929a40bb7f5",
+      "sourceDigest": "sha256:316689d780ae636696edf5db3426bb337eebaacb5fbb7fe24a6d4bc6974a9fc0",
       "digest": "sha256:67162c51b3ff088759f391b657e163a87f044470f114b6cd8b172b17ef05c00f",
       "freshness": "fresh"
     },
@@ -912,10 +968,11 @@
       "dependencies": [
         "package.json",
         "plugins/host-monitor/package.json",
+        "plugins/machine-model-preferences/package.json",
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:39bf58c5a8b212fb3e9845fc722c07a6241a967970a316519847008ca570ae4b",
+      "sourceDigest": "sha256:5ae3b9e613ebff3731d3d21b979c4bd3d7aa4f8545b2c844ba6c4b0c42f0bef8",
       "digest": "sha256:a4a57ffee4400c9ea75cfff5dc430a8998edde1ea57b51498d87f5b1acda74ce",
       "freshness": "fresh"
     },
@@ -927,10 +984,11 @@
         ".github/workflows/ci.yml",
         "package.json",
         "plugins/host-monitor/package.json",
+        "plugins/machine-model-preferences/package.json",
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:05f742df5bb9e15d3d5bf359eda438bc9eb66d48f0465be1af213b086dc4f31b",
+      "sourceDigest": "sha256:ffb7c427c94d98fa84b4f338d871dc35dbf5087ddc1eac8c004aed52758bbe53",
       "digest": "sha256:725594a7a297df9c291124b48fa7bf836e609bc105f70a4c3ce9b30db32d5808",
       "freshness": "fresh"
     },
@@ -941,14 +999,15 @@
       "dependencies": [
         "AGENTS.md",
         "plugins/host-monitor/tsconfig.json",
+        "plugins/machine-model-preferences/tsconfig.json",
         "plugins/taskboard/tsconfig.json",
         "plugins/usage-tracker/tsconfig.json"
       ],
-      "sourceDigest": "sha256:3732be7227d5ce6599f02316f1c9428f0989cffef2158688489394d79aae6569",
+      "sourceDigest": "sha256:63dcba54b598c99ea6ee232f410f72f9ae6292087e169c4532a1aa3e10b4df52",
       "digest": "sha256:67f3ba9e7092d5d59000796c1ee7a2536323e455f8279948025c70651c0c11ca",
       "freshness": "fresh"
     }
   ],
   "truncated": false,
-  "digest": "sha256:ae9588b3c9b0ce3bde74642a1b5c3c27132a596aa282a75581c2cb88b60ba88a"
+  "digest": "sha256:c5a6702b8a4e36f384a2a5dee6f986d963f766e5f13d69d1b9c3b966bd83ba0a"
 }

@@ -1,0 +1,9 @@
+{
+  "id": "machine-model-preferences",
+  "displayName": "Machine Model Preferences",
+  "description": "Stores provider, model, and reasoning selections separately for each BB host and provider.",
+  "icon": { "url": "./icons/machine-model-preferences-16cfc7bf.svg" },
+  "tags": ["preferences", "machines", "models", "providers", "reasoning"],
+  "author": { "name": "Mateo Cerquetella", "github": "MateoCerquetella", "url": "https://github.com/MateoCerquetella" },
+  "source": { "git": { "url": "https://github.com/MateoCerquetella/bb-plugins.git", "subdir": "plugins/machine-model-preferences", "range": "^0.1.0", "tagPrefix": "machine-model-preferences/" } }
+}

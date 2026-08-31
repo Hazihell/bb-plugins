@@ -1,0 +1,6 @@
+import { definePluginApp } from '@get-bb/plugin-sdk/app';
+import { useEffect, useState } from 'react';
+import { clearPreferences, listPreferences, type Preference } from './lib/preferences.js';
+
+function Settings() { const [items,setItems]=useState<Preference[]>([]); useEffect(()=>setItems(listPreferences()),[]); return <div style={{display:'grid',gap:12}}><p>Plugin-managed provider, model, and reasoning defaults. These are ready for host integrations; BB’s built-in picker will use them once native support lands.</p>{items.length ? <table><thead><tr><th>Host</th><th>Provider</th><th>Model</th><th>Reasoning</th></tr></thead><tbody>{items.map(item=><tr key={`${item.hostId}:${item.providerId}`}><td>{item.hostId}</td><td>{item.providerId}</td><td>{item.model}</td><td>{item.reasoningLevel}</td></tr>)}</tbody></table> : <p>No saved selections.</p>}<button type="button" onClick={()=>{clearPreferences();setItems([])}} disabled={!items.length}>Clear saved selections</button><p><a href="https://github.com/get-bb/bb/pull/1964" target="_blank" rel="noreferrer">Upstream native integration: BB PR #1964</a></p></div>; }
+export default definePluginApp(app => { app.slots.settingsSection({id:'machine-model-preferences',title:'Machine model preferences',description:'Review defaults saved per host and provider.',component:Settings}); });
