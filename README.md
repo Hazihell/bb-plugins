@@ -21,7 +21,7 @@
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
 | <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
-| <img src="./plugins/machine-model-preferences/assets/icon.svg" width="28" height="28" alt="" /> | [Machine Model Preferences](./plugins/machine-model-preferences) | [Git release](#machine-model-preferences-quick-start) | Stores provider, model, and reasoning defaults separately for each BB host and provider. |
+| <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider, model, and reasoning defaults separately for each BB host and provider. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 | <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 

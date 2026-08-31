@@ -1,6 +1,6 @@
 export type ReasoningLevel = 'none' | 'low' | 'medium' | 'high' | 'xhigh' | 'max' | 'ultra';
 export interface Preference { hostId: string; providerId: string; model: string; reasoningLevel: ReasoningLevel; }
-const PREFIX = 'bb.machine-model-preferences.v1';
+const PREFIX = 'bb.save-my-model.v1';
 const valid = new Set<ReasoningLevel>(['none','low','medium','high','xhigh','max','ultra']);
 function storage(): Storage | null { return typeof window === 'undefined' ? null : window.localStorage; }
 function key(hostId: string, providerId: string) { return `${PREFIX}:${encodeURIComponent(hostId.trim())}:${encodeURIComponent(providerId.trim())}`; }

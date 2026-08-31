@@ -1,10 +1,10 @@
-# Machine Model Preferences
+# Save My Model
 
-![Illustrative machine-scoped preferences panel](../../docs/media/machine-model-preferences-preview.png)
+![Illustrative Save My Model settings panel](../../docs/media/save-my-model-preview.png)
 
 _Illustrative UI preview; the installed settings section uses BB's native theme._
 
-Machine Model Preferences stores provider, model, and reasoning selections in
+Save My Model stores provider, model, and reasoning selections in
 browser localStorage with host/provider-scoped keys. Its settings section lists
 and clears saved values. Reused environments are intentionally not persisted.
 
@@ -16,5 +16,5 @@ provides the durable preference contract for the upstream native integration.
 Install from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/machine-model-preferences --tag-prefix machine-model-preferences/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
 ```

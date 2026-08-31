@@ -4,8 +4,8 @@
   "name": "mateocerquetella-bb-plugins",
   "plugins": [
     {
-      "name": "machine-model-preferences",
-      "source": "./plugins/machine-model-preferences"
+      "name": "save-my-model",
+      "source": "./plugins/save-my-model"
     },
     {
       "name": "host-monitor",
