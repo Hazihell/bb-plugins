@@ -4,9 +4,9 @@
 Generated from bounded repository metadata.
 
 - Repository: bb-plugins
-- Source fingerprint: sha256:94d2542ac54bb5047bd2927e55696c921bdd60d2f851c917acf722ac7a4758e0
-- Included files: 513
-- Roots: .agents, .codex, .cursor, .gemini, .github, ., .windsurf, demos, plugins, scripts
+- Source fingerprint: sha256:20ee910b823b48c1924e03548a68296a3f895d2f4387e90a875efe5bcd30f906
+- Included files: 514
+- Roots: .agents, .claude, .codex, .cursor, .gemini, .github, ., .windsurf, demos, plugins, scripts
 - Manifests: package.json, plugins/action-topbar/package.json, plugins/agent-proxy/package.json, plugins/agentation/package.json, plugins/amp/package.json, plugins/dotfiles/package.json, plugins/gh-stack/package.json, plugins/host-monitor/package.json, plugins/monokai/package.json, plugins/notify/package.json, plugins/pr-walkthrough/package.json, plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/package.json, plugins/t3sidebar/package.json, plugins/usage-tracker/package.json
 - Primary docs: README.md, plugins/action-topbar/README.md, plugins/agent-proxy/README.md, plugins/agentation/README.md, plugins/amp/README.md, plugins/dotfiles/README.md, plugins/gh-stack/README.md, plugins/host-monitor/README.md, plugins/monokai/README.md, plugins/notify/README.md, plugins/pr-walkthrough/README.md, plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/src/app/fonts/README.md, plugins/t3sidebar/README.md, plugins/usage-tracker/README.md
 
