@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-5157554c73c2d566174e093b",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-MKT-1",
+    "AC-MKT-2",
+    "AC-REMOTE-1"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "fresh-context review approved the exact committed base diff",
+  "passed": true,
+  "startedAt": "2026-08-31T16:19:20.881Z",
+  "completedAt": "2026-08-31T16:19:20.881Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
+    "specRevision": 3,
+    "specDigest": "sha256:e480be6a78bdcc5d4f98d111b3fd477a73cf58c21ad994ddba93e7e72eed2f4e",
+    "treeDigest": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+    "policyDigest": "sha256:21e242370689ceb417549a793781cf9a9ab56a982eb4671954b3ff1f657741d2"
+  },
+  "digest": "sha256:08ed64962d0f98baa25ca6f15c86d8c695e6fc9f4605448f812e979603ab4170",
+  "kind": "collected",
+  "collector": "empirical-review:fresh-context-isolated-reviewer",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/reviews/3cd2830d7d6c8e4265817e49.json",
+      "mediaType": "application/json",
+      "bytes": 4011,
+      "digest": "sha256:527ca4d958495ff465e3ecd61f4c328630c091921e5e83b6ca73a0be409cfbaf"
+    },
+    {
+      "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/reviews/3cd2830d7d6c8e4265817e49.md",
+      "mediaType": "text/markdown",
+      "bytes": 3266,
+      "digest": "sha256:430e850ecfc895c0e348d85b65d62976954eb783a967d325a99768f5d3e2b382"
+    }
+  ]
+}
