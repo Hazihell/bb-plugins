@@ -18,7 +18,8 @@
   `sources/` contains the GitHub, Linear, and Jira adapters behind one interface.
 - `issue-prefill.ts` deterministically converts a composer prompt into editable
   title/description form state. `legacy-issue-draft-cleanup.ts` owns the narrow
-  old-helper shutdown/key cleanup boundary. `sources/github-environment.ts`
+  recorded-id plus ownership/title/visibility-gated old-helper shutdown/key
+  cleanup boundary. `sources/github-environment.ts`
   constructs the explicit environment for every GitHub CLI process.
 - `browse-preferences.ts` owns the observable device-local current view;
   `filter-presets.ts` validates complete named snapshots while `store.ts` owns
@@ -93,8 +94,9 @@
   BB-vendored UI source, Radix overlay primitives, Sonner, and Hugeicons.
 - GitHub access reuses BB's official GitHub integration and the `gh` CLI. The
   CLI is resolved to an access-checked canonical absolute path; relative and
-  current-workspace PATH entries are rejected and version discovery gets no
-  credentials. The authenticated child environment is an explicit allowlist
+  current-workspace PATH entries plus external symlinks back into the canonical
+  workspace are rejected, and version discovery gets no credentials. The
+  authenticated child environment is an explicit allowlist
   for GitHub auth/config,
   executable/system lookup, HTTP routing/trust, credential-store roots, and
   temp storage. Linear and Jira use project-isolated API credentials.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:02dd44e0c897acf3baab9ef7cd08e8265c9da1dbf24d10874147a4e3a0b6f550",
+  "sourceDigest": "sha256:7e9f2c803ae33190374c33f2e2a0c2152b64c2c2fdd050b1340d4708c7909269",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -520,8 +520,8 @@
     },
     {
       "path": "plugins/taskboard/legacy-issue-draft-cleanup.ts",
-      "size": 2350,
-      "digest": "sha256:88f6fd838eae1edd534b90a7d1123545259391238dd493076bbe86c382a703b2"
+      "size": 3518,
+      "digest": "sha256:4c574a47f93a7cb442ea460c4d4073ea4a1b9d18ddb76719e56c441f90649a62"
     },
     {
       "path": "plugins/taskboard/lib/portal-scope.ts",
@@ -555,13 +555,13 @@
     },
     {
       "path": "plugins/taskboard/sources/github-environment.ts",
-      "size": 4795,
-      "digest": "sha256:8120f525675a5b50187545523dc80bf1ac73240ce570f8c22991afebedb0ccaf"
+      "size": 5471,
+      "digest": "sha256:53e17de23bcf5fe0d6fd324951daf8934b7e32435c04ddf0bcd44d3e5c14fc4a"
     },
     {
       "path": "plugins/taskboard/sources/github.ts",
-      "size": 17703,
-      "digest": "sha256:6a7c6ef287d3f8c243df791ccd8fb288af92d64cc0881ea9569131afc2022345"
+      "size": 18228,
+      "digest": "sha256:d6678037285808121574a29bd7b4d9fd5ed34c608cbf42f1ef2df0f310eb8b5d"
     },
     {
       "path": "plugins/taskboard/sources/jira-scope.ts",
@@ -630,8 +630,8 @@
     },
     {
       "path": "plugins/taskboard/test/github-environment.test.ts",
-      "size": 6235,
-      "digest": "sha256:83b87fa77e948dff32ed4064fd1cfa7a97a0e3b8a493a53e30338e7b5a6dfb38"
+      "size": 7896,
+      "digest": "sha256:50c7c0a3f686a5879b8e6f5a61b0073c077e403602eece5ba069e6d74351b821"
     },
     {
       "path": "plugins/taskboard/test/issue-prefill.test.ts",
@@ -640,8 +640,8 @@
     },
     {
       "path": "plugins/taskboard/test/legacy-issue-draft-cleanup.test.ts",
-      "size": 3623,
-      "digest": "sha256:6b0caf3ed363524f4ea453b29043a49d8f273ba34637fabf7a5006e3a381e98c"
+      "size": 6804,
+      "digest": "sha256:fbccbab260ff148f391c2cd8f7c9a5868ff19b269d44ff0fc871986f8866c24f"
     },
     {
       "path": "plugins/taskboard/test/project-selection.test.ts",
@@ -929,7 +929,7 @@
         "plugins/usage-tracker/types/css-modules.d.ts",
         "scripts/ci.mjs"
       ],
-      "sourceDigest": "sha256:02dd44e0c897acf3baab9ef7cd08e8265c9da1dbf24d10874147a4e3a0b6f550",
+      "sourceDigest": "sha256:7e9f2c803ae33190374c33f2e2a0c2152b64c2c2fdd050b1340d4708c7909269",
       "digest": "sha256:6950a366168c7f0c89cb8e52d0ae4ec598e0b5ac89347b809d6d5507c8cabc5d",
       "freshness": "fresh"
     },
@@ -964,7 +964,7 @@
         "plugins/usage-tracker/package.json"
       ],
       "sourceDigest": "sha256:67118629f89ccc34bfb56b665487cbcc8662c1e0a629a55c7f7147e2a780db75",
-      "digest": "sha256:2b8ac2117f7434012843473efd06599ff2061dec1725c7d32d495be466982cb9",
+      "digest": "sha256:0cb408d4201882ce18220c557897fb20d7f9f62047c9a9cc1a31d4427bbd521b",
       "freshness": "fresh"
     },
     {
@@ -999,5 +999,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:9eae7df9bdf23c1b954025c77d077d68efd3a4cf5d27c1609fa7544029a60d0d"
+  "digest": "sha256:32595f19c6bb2fae192a55adf855117f59a70b9d65e43f8ed0c35941efccdce0"
 }

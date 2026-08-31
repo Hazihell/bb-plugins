@@ -1,9 +1,20 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  realpath,
+  rm,
+  symlink,
+  writeFile
+} from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import {
   buildGithubCliDiscoveryEnvironment,
   buildGithubCliEnvironment,
+  githubCliCanonicalPathAllowed,
   githubCliCandidatePaths
 } from '../sources/github-environment.ts';
 
@@ -182,6 +193,57 @@ test('rejects current-directory Windows gh.exe shadowing', () => {
 test('resolves and probes only absolute GitHub CLI candidates', () => {
   assert.match(githubSource, /for \(const candidate of githubCliCandidatePaths\(\)\)/u);
   assert.match(githubSource, /const absoluteCandidate = await realpath\(candidate\)/u);
+  assert.match(githubSource, /githubCliCanonicalPathAllowed\(/u);
   assert.match(githubSource, /buildGithubCliDiscoveryEnvironment\(\)/u);
   assert.doesNotMatch(githubSource, /for \(const candidate of \[\s*'gh'/u);
+});
+
+test('rejects an external symlink that canonicalizes into the workspace', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'taskboard-gh-shadow-'));
+  try {
+    const workspace = join(root, 'workspace');
+    const external = join(root, 'external');
+    const workspaceGh = join(workspace, 'gh');
+    const shadowGh = join(external, 'gh');
+    await mkdir(workspace, { recursive: true });
+    await mkdir(external, { recursive: true });
+    await writeFile(workspaceGh, '#!/bin/sh\nexit 0\n');
+    try {
+      await symlink(workspaceGh, shadowGh);
+    } catch (error) {
+      if (
+        process.platform === 'win32' &&
+        error instanceof Error &&
+        'code' in error &&
+        (error.code === 'EPERM' || error.code === 'EACCES')
+      ) {
+        t.skip('Windows symlink creation is unavailable on this host');
+        return;
+      }
+      throw error;
+    }
+
+    const canonicalWorkspace = await realpath(workspace);
+    const canonicalShadow = await realpath(shadowGh);
+    assert.equal(
+      githubCliCanonicalPathAllowed(
+        canonicalShadow,
+        canonicalWorkspace,
+        null,
+        process.platform
+      ),
+      false
+    );
+    assert.equal(
+      githubCliCanonicalPathAllowed(
+        canonicalShadow,
+        canonicalWorkspace,
+        canonicalShadow,
+        process.platform
+      ),
+      true
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 });

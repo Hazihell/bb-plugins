@@ -125,3 +125,40 @@ Source assertions require candidate resolution, `realpath`, and the token-free
 probe. POSIX and Windows tests reject relative/current-workspace shadow paths,
 verify every candidate is absolute, and preserve fixed/system discovery keys
 without auth/config/PATH values.
+
+## D-004: Limit legacy cleanup to recorded helper identities
+
+Status: Accepted
+
+### Evidence
+
+Scanning every hidden Taskboard thread by title could stop an unrelated thread
+that happens to use the retired helper title. Deleting keys after a recorded
+thread fails ownership/title validation would discard retry evidence while
+leaving a possible old helper alive.
+
+### Options
+
+1. Continue global title-based cleanup.
+2. Derive candidate ids from valid legacy request/thread-index state, intersect
+   them with Taskboard-owned listings, require the existing title/visibility
+   guard, and retain all keys on a live mismatch or stop failure.
+
+### Chosen approach
+
+Choose option 2. No valid recorded candidate means no thread listing or stop.
+Corrupt records without a candidate are cleared safely. A recorded but
+unverified live thread aborts cleanup and retains state for diagnosis/retry.
+
+### Trade-offs and risks
+
+An old helper spawned in the narrow pre-index crash window cannot be identified
+without scanning by title and may remain archived/idle. Avoiding an unrelated
+thread stop is the stronger safety property; valid request or thread-index
+records still cover ordinary old helpers.
+
+### Verification
+
+Tests cover valid active/archived recorded helpers, retry after stop failure,
+an unrecorded exact-title thread, a recorded mismatched thread, and a corrupt
+record with no thread targeting.

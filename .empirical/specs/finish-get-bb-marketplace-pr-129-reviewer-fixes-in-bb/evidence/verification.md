@@ -24,10 +24,11 @@
 ## Automated source verification
 
 - Focused Taskboard typecheck passed.
-- All 120 Taskboard tests passed, including prompt prefill, no active agent/RPC
+- All 124 Taskboard tests passed, including prompt prefill, no active agent/RPC
   path, legacy helper cleanup/retry, strict POSIX and Windows `gh` environment,
-  cwd-shadow rejection/token-free discovery, SDK production placement,
-  versions, and existing provider/create behavior.
+  cwd/symlink-shadow rejection and token-free discovery, recorded-only legacy
+  targeting/mismatch handling, SDK production placement, versions, and
+  existing provider/create behavior.
 - Taskboard production build and `scripts/verify-build.mjs` passed with
   `taskboard@0.3.3`.
 - Root `npm run check` passed for Host Monitor, Taskboard, and Usage Tracker.

@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { constants as fsConstants } from 'node:fs';
 import { access, realpath } from 'node:fs/promises';
+import path from 'node:path';
 import type { BbPluginApi } from '@get-bb/plugin-sdk';
 import { z } from 'zod';
 import { CREATE_OUTCOME_UNCERTAIN_MARKER } from '../contract.js';
@@ -14,6 +15,7 @@ import { withoutComments } from './types.js';
 import {
   buildGithubCliDiscoveryEnvironment,
   buildGithubCliEnvironment,
+  githubCliCanonicalPathAllowed,
   githubCliCandidatePaths
 } from './github-environment.js';
 
@@ -155,6 +157,11 @@ function runFile(
 
 async function resolveGhPath(): Promise<string> {
   if (resolvedGhPath !== null) return resolvedGhPath;
+  const canonicalCwd = await realpath(process.cwd()).catch(() => process.cwd());
+  const configuredPath = process.env.GH_PATH;
+  const canonicalConfiguredPath = configuredPath && path.isAbsolute(configuredPath)
+    ? await realpath(configuredPath).catch(() => null)
+    : null;
   for (const candidate of githubCliCandidatePaths()) {
     try {
       await access(
@@ -162,6 +169,15 @@ async function resolveGhPath(): Promise<string> {
         process.platform === 'win32' ? fsConstants.F_OK : fsConstants.X_OK
       );
       const absoluteCandidate = await realpath(candidate);
+      if (
+        !githubCliCanonicalPathAllowed(
+          absoluteCandidate,
+          canonicalCwd,
+          canonicalConfiguredPath
+        )
+      ) {
+        continue;
+      }
       await runFile(
         absoluteCandidate,
         ['--version'],

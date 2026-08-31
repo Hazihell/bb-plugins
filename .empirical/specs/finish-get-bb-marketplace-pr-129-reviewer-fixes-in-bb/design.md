@@ -41,12 +41,15 @@ Taskboard removes new issue-draft worker creation entirely.
 - Legacy draft RPC schemas and parsing/prompt machinery are removed from the
   active source closure.
 
-Activation retains one bounded compatibility cleanup. It scans only the old
-Taskboard draft key prefixes, validates stored record shape, fetches the
-recorded thread, and archives/stops it only when the live thread is hidden,
-owned by Taskboard, and carries the old helper title. Invalid or unrelated
-thread identities are never stopped. Old request/thread/cancellation keys are
-then deleted idempotently so later reloads do no work.
+Activation retains one bounded compatibility cleanup. It derives candidate ids
+only from valid running legacy request records and old thread-index keys; an
+unrecorded exact-title thread is never targeted. It intersects those ids with
+Taskboard-owned thread listings and archives/stops a candidate only when the
+live thread is hidden, owned by Taskboard, and carries the old helper title. A
+recorded live mismatch aborts without deleting retry state. Corrupt records
+with no valid helper id are cleared without targeting a thread. Old
+request/thread/cancellation keys are deleted only after every verified helper
+stop succeeds.
 
 ## Deliberate GitHub CLI environment
 
@@ -54,9 +57,11 @@ Before forwarding any authenticated environment, Taskboard resolves `gh` to an
 absolute executable. An explicit absolute `GH_PATH`, fixed OS install
 locations, and absolute PATH directories are candidates; empty/relative PATH
 entries and the current workspace or its descendants are rejected. Each
-candidate is access-checked, canonicalized with `realpath`, and probed using a
-separate token-free environment. Taskboard never passes bare `gh` to
-`execFile`.
+candidate is access-checked and canonicalized with `realpath`; non-operator
+candidates are then checked again against the canonical workspace so an
+external symlink/junction cannot point back into repository-controlled code.
+Accepted candidates are probed using a separate token-free environment.
+Taskboard never passes bare `gh` to `execFile`.
 
 The authenticated environment builder starts with fixed `LANG`/`LC_ALL`,
 `GH_PROMPT_DISABLED`, and `GH_NO_UPDATE_NOTIFIER`, then copies values only from

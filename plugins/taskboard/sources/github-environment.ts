@@ -111,6 +111,27 @@ function pathInside(
   );
 }
 
+export function githubCliCanonicalPathAllowed(
+  canonicalCandidate: string,
+  canonicalCwd: string,
+  canonicalOperatorPath: string | null,
+  platform: NodeJS.Platform = process.platform
+): boolean {
+  const pathApi = platform === 'win32' ? path.win32 : path.posix;
+  const normalizeIdentity = (value: string) => {
+    const normalized = pathApi.normalize(value);
+    return platform === 'win32' ? normalized.toLowerCase() : normalized;
+  };
+  if (
+    canonicalOperatorPath !== null &&
+    normalizeIdentity(canonicalCandidate) ===
+      normalizeIdentity(canonicalOperatorPath)
+  ) {
+    return true;
+  }
+  return !pathInside(canonicalCandidate, canonicalCwd, pathApi);
+}
+
 export function githubCliCandidatePaths(
   source: NodeJS.ProcessEnv = process.env,
   platform: NodeJS.Platform = process.platform,
