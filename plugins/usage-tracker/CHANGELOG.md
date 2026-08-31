@@ -4,6 +4,23 @@ All notable changes to Usage Tracker are documented here.
 
 ## Unreleased
 
+## 0.1.5 - 2026-08-31
+
+### Fixed
+
+- Keep the sidebar footer strip on one row at narrow widths, let compact
+  progress rails yield before provider marks and readings, and keep refresh
+  available from the responsive details card.
+- Size and stack the details card from the live sidebar footer so its content
+  remains visible when the sidebar is resized to its minimum width.
+
+## 0.1.4 - 2026-08-28
+
+### Changed
+
+- Consolidated the Git patch release on the merged provider-key,
+  compact-limit, additional-window, and provider-local failure behavior.
+
 ## 0.1.3 - 2026-08-27
 
 ### Added
