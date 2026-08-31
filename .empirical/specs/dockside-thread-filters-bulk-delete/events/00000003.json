@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:c4d84cf28d4db064aebc6969b78c9fa8a8137ddabdee4512bdb50d2a5dcc4548",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed the in-sidebar preset filter, family selection state, guarded preview-token-confirm deletion RPC, separate per-project native + action, pure modules, concurrency handling, and verification plan; recorded an advisory UI/UX pass and incorporated its compact-layout, protected-reason, identity-preview, and recovery recommendations.",
+  "createdAt": "2026-08-31T20:39:00.828Z",
+  "stateBeforeDigest": "sha256:cc076b19cc852247eae5dac34e4ac2ec1c776d44fc47e69ae401ed42e3cfa921",
+  "stateAfterDigest": "sha256:a2cdb1e0e20371a446bbdf22ad08cdfd9f338f6d65aae72486ff31132972019f",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "dockside-thread-filters-bulk-delete",
+    "request": "Add an Orca-style thread filter and multi-select deletion mode to Dockside's project-first sidebar. Put compact filter and selection controls in the Projects header; preserve project grouping, inline child-agent hierarchy, and working/unread styling; allow selecting eligible inactive threads, selecting all currently filtered eligible threads, showing the selected count, cancelling selection, and deleting through an explicit destructive confirmation that accounts for child threads. Active/running or user-blocked threads must not be silently deleted, and partial failures must remain visible and recoverable.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed the in-sidebar preset filter, family selection state, guarded preview-token-confirm deletion RPC, separate per-project native + action, pure modules, concurrency handling, and verification plan; recorded an advisory UI/UX pass and incorporated its compact-layout, protected-reason, identity-preview, and recovery recommendations.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:d12319e04cc824313f37ccb03393f403d9bd21857125de58f13331ec9162af22",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:8646449abf2a6e865278743c083be527818784431db0aba98e9d84e6faebc404",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-thread-filters-bulk-delete-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-31T20:39:00.828Z"
+  },
+  "digest": "sha256:2048cda10575f77fe23d0fbec5735356b1b80e7fc8371c4dbf0b5ca0c5bc7028"
+}

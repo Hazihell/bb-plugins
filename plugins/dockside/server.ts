@@ -7,11 +7,19 @@
 // see `lib/warm-start.ts` for the browser-side copy of the same rows, which is
 // the one part it does not take.
 import { defineRpcContract, type BbPluginApi } from "@bb/plugin-sdk";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 // Relative, not the `@/` alias the frontend uses: bb loads this file directly
 // as a path source, so nothing rewrites tsconfig paths for it.
 import { parseArchivedThreadIds } from "./lib/lifecycle.ts";
 import { isWithinSettledWindow } from "./lib/settled-threads.ts";
+import {
+  createBulkDeleteCoordinator,
+  MAX_BULK_DELETE_ROOTS,
+  MAX_BULK_DELETE_THREADS,
+  type BulkDeleteFamilySnapshot,
+  type BulkDeleteThreadSnapshot,
+} from "./lib/bulk-delete.ts";
 
 const migrations = [
   `CREATE TABLE IF NOT EXISTS thread_lifecycle (
@@ -43,8 +51,62 @@ interface LifecycleDbRow {
   archived_thread_ids: string | null;
 }
 
+interface AuthoritativeThreadRow {
+  id: string;
+  projectId: string;
+  title: string | null;
+  titleFallback: string | null;
+  parentThreadId: string | null;
+  status: "active" | "error" | "idle" | "starting" | "stopping";
+  hasPendingInteraction: boolean;
+  pinnedAt: number | null;
+  lastReadAt: number | null;
+  latestAttentionAt: number;
+  deletedAt: number | null;
+  activity: {
+    activeWorkflowCount: number;
+    activeBackgroundAgentCount: number;
+    activeBackgroundCommandCount: number;
+    activePlanModeCount: number;
+    activeGoalCount: number;
+  };
+  runtime: {
+    displayStatus:
+      | "active"
+      | "error"
+      | "host-reconnecting"
+      | "idle"
+      | "provisioning"
+      | "starting"
+      | "stopping"
+      | "waiting-for-host";
+  };
+}
+
 
 const threadIdSchema = z.object({ threadId: z.string().trim().min(1) });
+const bulkDeleteSkipReasonSchema = z.enum([
+  "missing",
+  "current",
+  "working",
+  "waiting",
+  "unread",
+  "pinned",
+  "overlap",
+  "scope-changed",
+]);
+const bulkDeleteSkippedRootSchema = z.object({
+  id: z.string(),
+  reason: bulkDeleteSkipReasonSchema,
+  message: z.string(),
+});
+const selectedThreadIdsSchema = z
+  .array(z.string().trim().min(1))
+  .min(1)
+  .max(MAX_BULK_DELETE_ROOTS)
+  .refine((ids) => new Set(ids).size === ids.length, {
+    message: "A root thread can be selected only once.",
+  });
 
 export const docksideRpcContract = defineRpcContract({
   listProviders: {
@@ -109,6 +171,37 @@ export const docksideRpcContract = defineRpcContract({
           lastReadAt: z.number().nullable(),
           latestAttentionAt: z.number(),
         }),
+      ),
+    }),
+  },
+  previewBulkDelete: {
+    input: z.object({
+      threadIds: selectedThreadIdsSchema,
+      protectedThreadId: z.string().trim().min(1).nullable(),
+    }),
+    output: z.object({
+      token: z.string().nullable(),
+      expiresAt: z.number().int().positive().nullable(),
+      included: z.array(
+        z.object({
+          id: z.string(),
+          title: z.string(),
+          childCount: z.number().int().nonnegative(),
+        }),
+      ),
+      skipped: z.array(bulkDeleteSkippedRootSchema),
+      rootCount: z.number().int().nonnegative(),
+      childCount: z.number().int().nonnegative(),
+      totalThreadCount: z.number().int().nonnegative(),
+    }),
+  },
+  confirmBulkDelete: {
+    input: z.object({ token: z.string().trim().min(1).max(200) }),
+    output: z.object({
+      deleted: z.array(z.string()),
+      skipped: z.array(bulkDeleteSkippedRootSchema),
+      failed: z.array(
+        z.object({ id: z.string(), message: z.string().max(240) }),
       ),
     }),
   },
@@ -267,6 +360,125 @@ export default function plugin(bb: BbPluginApi) {
     return collected;
   };
 
+  const BULK_PAGE_SIZE = 200;
+  const BULK_PAGE_LIMIT = 25;
+
+  const listThreadRows = async (filters: {
+    archived: boolean;
+    projectId?: string;
+    parentThreadId?: string;
+  }): Promise<AuthoritativeThreadRow[]> => {
+    const collected: AuthoritativeThreadRow[] = [];
+    for (let page = 0; page < BULK_PAGE_LIMIT; page++) {
+      const rows = await bb.sdk.threads.list({
+        ...filters,
+        includeHidden: true,
+        limit: BULK_PAGE_SIZE,
+        offset: page * BULK_PAGE_SIZE,
+      });
+      collected.push(...rows);
+      if (rows.length < BULK_PAGE_SIZE) return collected;
+    }
+    throw new RangeError("Thread list is too large to validate safely.");
+  };
+
+  const listBothArchiveStates = async (filters: {
+    projectId?: string;
+    parentThreadId?: string;
+  }): Promise<AuthoritativeThreadRow[]> => {
+    const [active, archived] = await Promise.all([
+      listThreadRows({ ...filters, archived: false }),
+      listThreadRows({ ...filters, archived: true }),
+    ]);
+    const byId = new Map<string, AuthoritativeThreadRow>();
+    for (const thread of [...active, ...archived]) byId.set(thread.id, thread);
+    return [...byId.values()];
+  };
+
+  const toBulkSnapshot = (
+    thread: AuthoritativeThreadRow,
+  ): BulkDeleteThreadSnapshot => ({
+    id: thread.id,
+    title:
+      thread.title?.trim() ||
+      thread.titleFallback?.trim() ||
+      "Untitled thread",
+    parentThreadId: thread.parentThreadId,
+    status: thread.runtime.displayStatus,
+    hasPendingInteraction: thread.hasPendingInteraction,
+    isPinned: thread.pinnedAt !== null,
+    isUnread: thread.latestAttentionAt > (thread.lastReadAt ?? 0),
+    activity: {
+      workflows: thread.activity.activeWorkflowCount,
+      backgroundAgents: thread.activity.activeBackgroundAgentCount,
+      backgroundCommands: thread.activity.activeBackgroundCommandCount,
+      planMode: thread.activity.activePlanModeCount,
+      goals: thread.activity.activeGoalCount,
+    },
+  });
+
+  const readBulkFamily = async (
+    rootId: string,
+  ): Promise<BulkDeleteFamilySnapshot | null> => {
+    let detail;
+    try {
+      detail = await bb.sdk.threads.get({ threadId: rootId });
+    } catch {
+      return null;
+    }
+    if (detail.deletedAt !== null) return null;
+
+    const projectRows = await listBothArchiveStates({
+      projectId: detail.projectId,
+    });
+    const root = projectRows.find((thread) => thread.id === rootId);
+    if (root === undefined || root.deletedAt !== null) return null;
+
+    const descendants: AuthoritativeThreadRow[] = [];
+    const visited = new Set([rootId]);
+    const parents = [rootId];
+    while (parents.length > 0) {
+      const parentThreadId = parents.shift();
+      if (parentThreadId === undefined) break;
+      const children = await listBothArchiveStates({ parentThreadId });
+      for (const child of children) {
+        if (child.deletedAt !== null || visited.has(child.id)) continue;
+        visited.add(child.id);
+        descendants.push(child);
+        parents.push(child.id);
+        if (descendants.length > MAX_BULK_DELETE_THREADS) {
+          throw new RangeError(
+            `A selected family exceeds ${MAX_BULK_DELETE_THREADS} threads.`,
+          );
+        }
+      }
+    }
+
+    // childSummary is the deletion service's own count. If our paged walk
+    // found fewer rows, fail closed instead of presenting a smaller cascade.
+    const summary = await bb.sdk.threads.childSummary({ threadId: rootId });
+    if (summary.nonDeletedChildCount > descendants.length) {
+      throw new Error("Could not enumerate every child thread safely.");
+    }
+
+    return {
+      root: toBulkSnapshot(root),
+      descendants: descendants.map(toBulkSnapshot),
+    };
+  };
+
+  const bulkDelete = createBulkDeleteCoordinator({
+    readFamily: readBulkFamily,
+    async deleteRoot(threadId, childThreadsConfirmed) {
+      await bb.sdk.threads.delete({ threadId, childThreadsConfirmed });
+    },
+    now: () => Date.now(),
+    createToken: () => randomUUID(),
+    reportFailure(threadId, error) {
+      bb.log.warn(`bulk delete failed for thread ${threadId}: ${String(error)}`);
+    },
+  });
+
   bb.rpc.register(docksideRpcContract, {
     // A custom ACP provider already carries its own brand mark, so the sidebar
     // reads it from the host rather than hard-coding a second glyph per agent.
@@ -347,6 +559,12 @@ export default function plugin(bb: BbPluginApi) {
             latestAttentionAt: thread.latestAttentionAt,
           })),
       };
+    },
+    async previewBulkDelete({ threadIds, protectedThreadId }) {
+      return bulkDelete.preview(threadIds, protectedThreadId);
+    },
+    async confirmBulkDelete({ token }) {
+      return bulkDelete.confirm(token);
     },
     async settle({ threadId }) {
       // Settling clears any snooze: they are two answers to the same

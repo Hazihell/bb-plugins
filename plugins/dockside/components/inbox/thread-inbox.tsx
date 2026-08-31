@@ -2,14 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import {
   experimental_useProviders as useProviders,
   experimental_useSidebarThreads as useSidebarThreads,
+  useRpc,
   type PluginSidebarThread,
   type PluginThreadListProps,
 } from "@bb/plugin-sdk/app";
+import type { docksideRpcContract } from "@/server";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import { ProjectGroup } from "@/components/inbox/project-group";
 import type { ProviderGlyphInfo } from "@/components/inbox/provider-glyph";
 import { SlimRow } from "@/components/inbox/slim-row";
+import { FilterMenu } from "@/components/inbox/filter-menu";
+import {
+  BulkDeleteDialog,
+  type BulkDeletePreviewView,
+} from "@/components/inbox/bulk-delete-dialog";
 import { useLifecycle } from "@/hooks/use-lifecycle";
 import { useSettledThreads } from "@/hooks/use-settled-threads";
 import {
@@ -24,6 +31,13 @@ import {
   sortByCreatedAtDescending,
   visibleInboxThreads,
 } from "@/lib/inbox";
+import {
+  filterProjectThreadGroups,
+  includeSelectedFamilies,
+  pruneSelectedRootIds,
+  selectableRootIds,
+  type ThreadFilterPreset,
+} from "@/lib/thread-management";
 
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
 
@@ -38,6 +52,7 @@ export function ThreadInbox({
 }: PluginThreadListProps) {
   const { status, threads: hostThreads, projects } = useSidebarThreads();
   const { providers } = useProviders();
+  const rpc = useRpc<typeof docksideRpcContract>();
   const [nowMinute, setNowMinute] = useState(() =>
     Math.floor(Date.now() / 60_000),
   );
@@ -61,6 +76,19 @@ export function ThreadInbox({
   const lifecycle = useLifecycle(threads);
   const [showSnoozed, setShowSnoozed] = useState(false);
   const [showSettled, setShowSettled] = useState(false);
+  const [filterPreset, setFilterPreset] =
+    useState<ThreadFilterPreset>("all");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedRootIds, setSelectedRootIds] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [bulkPreview, setBulkPreview] =
+    useState<BulkDeletePreviewView | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkMessage, setBulkMessage] = useState<string | null>(null);
+  const [bulkOutcomes, setBulkOutcomes] = useState<
+    Array<{ id: string; message: string; failed: boolean }>
+  >([]);
 
   const providerInfoById = useMemo<
     ReadonlyMap<string, ProviderGlyphInfo>
@@ -78,7 +106,7 @@ export function ThreadInbox({
     [providers],
   );
 
-  const { projectGroups, snoozed, settled } = useMemo(() => {
+  const { unfilteredProjectGroups, projectGroups, snoozed, settled } = useMemo(() => {
     const visible = visibleInboxThreads(threads, lifecycle.parkedThreadIds);
     const active: PluginSidebarThread[] = [];
     const onSnoozeShelf: PluginSidebarThread[] = [];
@@ -91,11 +119,27 @@ export function ThreadInbox({
       else active.push(thread);
     }
 
+    const unfilteredProjectGroups = groupThreadsByProject(active, projects);
+    const filteredProjectGroups = filterProjectThreadGroups(
+      unfilteredProjectGroups,
+      filterPreset,
+      now,
+    );
+
+    const searchedProjectGroups = searchProjectThreadGroups(
+      filteredProjectGroups,
+      searchQuery,
+    );
+
     return {
-      projectGroups: searchProjectThreadGroups(
-        groupThreadsByProject(active, projects),
-        searchQuery,
-      ),
+      unfilteredProjectGroups,
+      projectGroups: selectionMode
+        ? includeSelectedFamilies(
+            searchedProjectGroups,
+            unfilteredProjectGroups,
+            selectedRootIds,
+          )
+        : searchedProjectGroups,
       snoozed: searchThreadsByTitle(
         [...onSnoozeShelf].sort(
           (left, right) =>
@@ -109,12 +153,35 @@ export function ThreadInbox({
         searchQuery,
       ),
     };
-  }, [lifecycle, projects, searchQuery, threads]);
+  }, [
+    filterPreset,
+    lifecycle,
+    now,
+    projects,
+    searchQuery,
+    selectedRootIds,
+    selectionMode,
+    threads,
+  ]);
+
+  useEffect(() => {
+    setSelectedRootIds((current) => {
+      const next = pruneSelectedRootIds(current, unfilteredProjectGroups);
+      return setsEqual(current, next) ? current : next;
+    });
+  }, [unfilteredProjectGroups]);
 
   // Lifecycle rows can arrive before the archived thread DTOs they name. Keep
   // the collapsed Settled count truthful during that one round trip.
   const pendingSettled = useMemo(() => {
-    if (!settledRowsPending || searchQuery.trim().length > 0) return 0;
+    if (
+      filterPreset !== "all" ||
+      selectionMode ||
+      !settledRowsPending ||
+      searchQuery.trim().length > 0
+    ) {
+      return 0;
+    }
     return pendingSettledCount(
       lifecycle.parkedRows.values(),
       new Set(threads.map((thread) => thread.id)),
@@ -122,8 +189,10 @@ export function ThreadInbox({
     );
   }, [
     lifecycle.parkedRows,
+    filterPreset,
     now,
     searchQuery,
+    selectionMode,
     settledRowsPending,
     threads,
   ]);
@@ -137,20 +206,259 @@ export function ThreadInbox({
       ),
     0,
   );
-  const visibleTotal =
-    activeVisibleCount + snoozed.length + settled.length + pendingSettled;
+  const showParkedShelves = filterPreset === "all" && !selectionMode;
+  const visibleTotal = showParkedShelves
+    ? activeVisibleCount + snoozed.length + settled.length + pendingSettled
+    : activeVisibleCount;
   const searching = searchQuery.trim().length > 0;
+  const selectableVisibleRootIds = useMemo(
+    () => selectableRootIds(projectGroups, activeThreadId),
+    [activeThreadId, projectGroups],
+  );
+  const visibleRootCount = projectGroups.reduce(
+    (total, group) => total + group.families.length,
+    0,
+  );
+  const rootTitleById = useMemo(
+    () =>
+      new Map(
+        unfilteredProjectGroups.flatMap((group) =>
+          group.families.map((family) => [
+            family.root.id,
+            family.root.title?.trim() ||
+              family.root.titleFallback?.trim() ||
+              "Untitled thread",
+          ] as const),
+        ),
+      ),
+    [unfilteredProjectGroups],
+  );
+
+  const toggleSelectedRoot = (threadId: string) => {
+    setBulkMessage(null);
+    setBulkOutcomes([]);
+    setSelectedRootIds((current) => {
+      const next = new Set(current);
+      if (next.has(threadId)) next.delete(threadId);
+      else next.add(threadId);
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    setBulkMessage(null);
+    setBulkOutcomes([]);
+    setSelectedRootIds((current) =>
+      new Set([...current, ...selectableVisibleRootIds]),
+    );
+  };
+
+  const cancelSelection = () => {
+    setSelectedRootIds(new Set());
+    setSelectionMode(false);
+    setBulkPreview(null);
+    setBulkMessage(null);
+    setBulkOutcomes([]);
+  };
+
+  const previewSelectedDeletion = async () => {
+    if (selectedRootIds.size === 0 || bulkBusy) return;
+    setBulkBusy(true);
+    setBulkMessage(null);
+    setBulkOutcomes([]);
+    try {
+      const preview = await rpc.call("previewBulkDelete", {
+        threadIds: [...selectedRootIds],
+        protectedThreadId: activeThreadId,
+      });
+      if (preview.token === null) {
+        setBulkMessage(
+          `${preview.skipped.length} selected ${preview.skipped.length === 1 ? "family is" : "families are"} protected. Nothing can be deleted.`,
+        );
+        setBulkOutcomes(
+          preview.skipped.map((entry) => ({
+            id: entry.id,
+            message: entry.message,
+            failed: false,
+          })),
+        );
+      } else {
+        setBulkPreview(preview);
+      }
+    } catch (error) {
+      setBulkMessage(errorMessage(error));
+    } finally {
+      setBulkBusy(false);
+    }
+  };
+
+  const confirmSelectedDeletion = async () => {
+    const preview = bulkPreview;
+    if (preview?.token == null || bulkBusy) return;
+    setBulkBusy(true);
+    try {
+      const result = await rpc.call("confirmBulkDelete", {
+        token: preview.token,
+      });
+      const remaining = new Set(selectedRootIds);
+      for (const threadId of result.deleted) remaining.delete(threadId);
+      setSelectedRootIds(remaining);
+      setBulkPreview(null);
+      const skippedCount = preview.skipped.length + result.skipped.length;
+      setBulkOutcomes([
+        ...preview.skipped.map((entry) => ({
+          id: entry.id,
+          message: entry.message,
+          failed: false,
+        })),
+        ...result.skipped.map((entry) => ({
+          id: entry.id,
+          message: entry.message,
+          failed: false,
+        })),
+        ...result.failed.map((entry) => ({
+          id: entry.id,
+          message: entry.message,
+          failed: true,
+        })),
+      ]);
+      const summary = [
+        result.deleted.length > 0
+          ? `Deleted ${result.deleted.length}.`
+          : "Deleted none.",
+        skippedCount > 0 ? `${skippedCount} protected.` : "",
+        result.failed.length > 0 ? `${result.failed.length} failed.` : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+      setBulkMessage(summary);
+      if (remaining.size === 0) setSelectionMode(false);
+    } catch (error) {
+      setBulkPreview(null);
+      setBulkMessage(errorMessage(error));
+      setBulkOutcomes([]);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-8 shrink-0 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
-        <Icon name="Folder" className="size-3.5" aria-hidden />
-        <span className="text-2xs font-semibold uppercase tracking-wider">
-          Projects
-        </span>
-        <span className="tabular-nums text-2xs text-muted-foreground/70">
-          {projectGroups.length}
-        </span>
+      <div className="shrink-0">
+        <div className="flex h-8 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
+          <Icon name="Folder" className="size-3.5" aria-hidden />
+          <span className="text-2xs font-semibold uppercase tracking-wider">
+            Projects
+          </span>
+          <span className="tabular-nums text-2xs text-muted-foreground/70">
+            {projectGroups.length}
+          </span>
+          <span className="ml-auto flex items-center gap-0.5">
+            {selectionMode ? null : (
+              <FilterMenu value={filterPreset} onChange={setFilterPreset} />
+            )}
+            <button
+              type="button"
+              aria-label={
+                selectionMode ? "Thread selection active" : "Select threads"
+              }
+              title={selectionMode ? "Thread selection active" : "Select threads"}
+              disabled={selectionMode}
+              onClick={() => {
+                setSelectionMode(true);
+                setBulkMessage(null);
+                setBulkOutcomes([]);
+              }}
+              className={cn(
+                "flex size-6 items-center justify-center rounded-md text-muted-foreground",
+                "hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50",
+                selectionMode && "bg-primary/10 text-primary",
+              )}
+            >
+              <Icon name="ListTodo" className="size-3.5" aria-hidden />
+            </button>
+          </span>
+        </div>
+
+        {selectionMode ? (
+          <div className="flex h-8 items-center gap-1 border-y border-sidebar-border/70 px-2 text-2xs">
+            <span className="min-w-0 flex-1 truncate font-medium text-foreground">
+              {selectedRootIds.size} selected
+            </span>
+            <button
+              type="button"
+              disabled={selectableVisibleRootIds.length === 0}
+              title={`${Math.max(0, visibleRootCount - selectableVisibleRootIds.length)} visible protected`}
+              onClick={selectAllVisible}
+              className="h-6 rounded px-1.5 font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
+            >
+              All
+            </button>
+            <button
+              type="button"
+              disabled={selectedRootIds.size === 0}
+              onClick={() => {
+                setSelectedRootIds(new Set());
+                setBulkMessage(null);
+                setBulkOutcomes([]);
+              }}
+              className="h-6 rounded px-1.5 font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              aria-label={`Delete ${selectedRootIds.size} selected thread families`}
+              title="Delete selected permanently"
+              disabled={selectedRootIds.size === 0 || bulkBusy}
+              onClick={() => void previewSelectedDeletion()}
+              className="flex size-6 items-center justify-center rounded text-destructive hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
+            >
+              <Icon
+                name={bulkBusy ? "Loading" : "Trash"}
+                className={cn("size-3.5", bulkBusy && "animate-spin")}
+                aria-hidden
+              />
+            </button>
+            <button
+              type="button"
+              aria-label="Cancel thread selection"
+              title="Cancel selection"
+              disabled={bulkBusy}
+              onClick={cancelSelection}
+              className="flex size-6 items-center justify-center rounded text-muted-foreground hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-40"
+            >
+              <Icon name="CircleX" className="size-3.5" aria-hidden />
+            </button>
+          </div>
+        ) : null}
+
+        {bulkMessage || bulkOutcomes.length > 0 ? (
+          <div className="border-b border-sidebar-border/70 px-2.5 py-1 text-2xs leading-snug text-muted-foreground">
+            {bulkMessage ? (
+              <output aria-live="polite">{bulkMessage}</output>
+            ) : null}
+            {bulkOutcomes.length > 0 ? (
+              <ul className="mt-0.5 space-y-0.5" aria-label="Bulk delete outcomes">
+                {bulkOutcomes.map((outcome) => (
+                  <li
+                    key={`${outcome.id}:${outcome.message}`}
+                    className={cn(
+                      "truncate",
+                      outcome.failed && "text-destructive",
+                    )}
+                    title={`${rootTitleById.get(outcome.id) ?? outcome.id}: ${outcome.message}`}
+                  >
+                    <span className="font-medium text-foreground/80">
+                      {rootTitleById.get(outcome.id) ?? outcome.id}
+                    </span>
+                    {`: ${outcome.message}`}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        ) : null}
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-2">
@@ -176,34 +484,49 @@ export function ThreadInbox({
                 lifecycle={lifecycle}
                 onNavigate={onNavigate}
                 now={now}
+                selectionMode={selectionMode}
+                selectedRootIds={selectedRootIds}
+                onToggleRoot={toggleSelectedRoot}
               />
             ))}
-            <ParkedShelf
-              label="Snoozed"
-              threads={snoozed}
-              expanded={showSnoozed}
-              onToggle={() => setShowSnoozed((open) => !open)}
-              shelf="snoozed"
-              activeThreadId={activeThreadId}
-              lifecycle={lifecycle}
-              onNavigate={onNavigate}
-              now={now}
-            />
-            <ParkedShelf
-              label="Settled"
-              threads={settled}
-              pendingCount={pendingSettled}
-              expanded={showSettled}
-              onToggle={() => setShowSettled((open) => !open)}
-              shelf="settled"
-              activeThreadId={activeThreadId}
-              lifecycle={lifecycle}
-              onNavigate={onNavigate}
-              now={now}
-            />
+            {showParkedShelves ? (
+              <>
+                <ParkedShelf
+                  label="Snoozed"
+                  threads={snoozed}
+                  expanded={showSnoozed}
+                  onToggle={() => setShowSnoozed((open) => !open)}
+                  shelf="snoozed"
+                  activeThreadId={activeThreadId}
+                  lifecycle={lifecycle}
+                  onNavigate={onNavigate}
+                  now={now}
+                />
+                <ParkedShelf
+                  label="Settled"
+                  threads={settled}
+                  pendingCount={pendingSettled}
+                  expanded={showSettled}
+                  onToggle={() => setShowSettled((open) => !open)}
+                  shelf="settled"
+                  activeThreadId={activeThreadId}
+                  lifecycle={lifecycle}
+                  onNavigate={onNavigate}
+                  now={now}
+                />
+              </>
+            ) : null}
           </>
         )}
       </div>
+
+      <BulkDeleteDialog
+        open={bulkPreview !== null}
+        preview={bulkPreview}
+        busy={bulkBusy}
+        onCancel={() => setBulkPreview(null)}
+        onConfirm={() => void confirmSelectedDeletion()}
+      />
     </div>
   );
 }
@@ -277,4 +600,23 @@ function ParkedShelf({
       ) : null}
     </section>
   );
+}
+
+function setsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>) {
+  if (left.size !== right.size) return false;
+  return [...left].every((value) => right.has(value));
+}
+
+function errorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) return error.message;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "error" in error &&
+    typeof error.error === "string" &&
+    error.error.trim()
+  ) {
+    return error.error;
+  }
+  return "Could not update the selected threads.";
 }

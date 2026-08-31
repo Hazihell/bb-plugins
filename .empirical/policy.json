@@ -9,7 +9,86 @@
       "screenshotForUi": true,
       "codeReview": true
     },
-    "commands": []
+    "commands": [
+      {
+        "id": "dockside-focused",
+        "argv": [
+          "bun",
+          "run",
+          "--filter",
+          "bb-plugin-dockside",
+          "test"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "fault-injection",
+          "unit"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-contract",
+        "argv": [
+          "bun",
+          "run",
+          "--filter",
+          "bb-plugin-dockside",
+          "typecheck"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "adapter-contract"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-system",
+        "argv": [
+          "node",
+          ".empirical/specs/dockside-thread-filters-bulk-delete/qa/system.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "browser",
+          "screenshot",
+          "test"
+        ],
+        "checks": [
+          "end-to-end"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "repo-full-ci",
+        "argv": [
+          "bun",
+          "run",
+          "ci"
+        ],
+        "cwd": ".",
+        "timeoutMs": 600000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "full-ci"
+        ],
+        "criteria": []
+      }
+    ]
   },
   "delivery": null,
   "preferredAgent": null

@@ -36,6 +36,10 @@ export function ThreadCard({
   onSettle,
   onSnooze,
   now,
+  selectionMode,
+  selected,
+  selectionDisabledReason,
+  onToggleSelected,
 }: {
   thread: PluginSidebarThread;
   childThreads: readonly PluginSidebarThread[];
@@ -50,6 +54,10 @@ export function ThreadCard({
   onSnooze: (snoozedUntil: number) => void;
   /** Quantized clock, shared by every row in one render. */
   now: number;
+  selectionMode: boolean;
+  selected: boolean;
+  selectionDisabledReason: string | null;
+  onToggleSelected: () => void;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -115,6 +123,30 @@ export function ThreadCard({
               }}
               className="absolute inset-0 cursor-pointer rounded-lg"
             />
+
+            {selectionMode ? (
+              <input
+                type="checkbox"
+                checked={selected}
+                aria-label={
+                  selectionDisabledReason === null
+                    ? `${selected ? "Deselect" : "Select"} ${threadDisplayTitle(thread)}`
+                    : `${threadDisplayTitle(thread)} cannot be selected: ${selectionDisabledReason}`
+                }
+                title={selectionDisabledReason ?? undefined}
+                disabled={selectionDisabledReason !== null}
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+                onChange={onToggleSelected}
+                className={cn(
+                  "relative z-10 mt-0.5 size-4 shrink-0 cursor-pointer rounded border accent-primary transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  selectionDisabledReason !== null &&
+                    "cursor-not-allowed opacity-35",
+                )}
+              />
+            ) : null}
 
             <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
 
@@ -182,12 +214,12 @@ export function ThreadCard({
               <span
                 className={cn(
                   "flex h-4 items-center justify-end",
-                  canPark && "group-hover/root:hidden",
+                  canPark && !selectionMode && "group-hover/root:hidden",
                 )}
               >
                 <ThreadStatusLabel thread={thread} now={now} />
               </span>
-              {canPark ? (
+              {canPark && !selectionMode ? (
                 <span className="hidden h-4 items-center gap-0.5 group-hover/root:flex">
                   <ParkButton
                     label="Snooze until tomorrow"

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 10,
+  "previousDigest": "sha256:52abb491262db9f790a80bf3ac168e9e6af12673ca7066e16c8d99fc4d982859",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Refreshed the 520-file repository knowledge after requested-change repairs; context is current with no stale, missing, invalid, or refinement-required paths.",
+  "createdAt": "2026-08-31T21:55:18.487Z",
+  "stateBeforeDigest": "sha256:0f5ea644d84f026355f19a1200bb3d7b0a8c678d2bdf334bc4759df06bd0f1dd",
+  "stateAfterDigest": "sha256:945288243426c9cc07d3f25218fb47104dd1c41e5d2dc1cc4bc86957e12f0e4d",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 10,
+    "activeFeature": "dockside-thread-filters-bulk-delete",
+    "request": "Add an Orca-style thread filter and multi-select deletion mode to Dockside's project-first sidebar. Put compact filter and selection controls in the Projects header; preserve project grouping, inline child-agent hierarchy, and working/unread styling; allow selecting eligible inactive threads, selecting all currently filtered eligible threads, showing the selected count, cancelling selection, and deleting through an explicit destructive confirmation that accounts for child threads. Active/running or user-blocked threads must not be silently deleted, and partial failures must remain visible and recoverable.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Refreshed the 520-file repository knowledge after requested-change repairs; context is current with no stale, missing, invalid, or refinement-required paths.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:d12319e04cc824313f37ccb03393f403d9bd21857125de58f13331ec9162af22",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:8646449abf2a6e865278743c083be527818784431db0aba98e9d84e6faebc404",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-thread-filters-bulk-delete-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-31T21:55:18.487Z"
+  },
+  "digest": "sha256:ba9e94577545dfbdec7420355b6542767ddf047e6f8c2665e04cd1ff77a2c448"
+}
