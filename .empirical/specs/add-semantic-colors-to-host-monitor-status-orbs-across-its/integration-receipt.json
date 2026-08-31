@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+  "claimId": "add-semantic-colors-to-host-monitor-status-orbs-across-its-6c9b9308abd6",
+  "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+  "baseCommit": "203f910676d6ba9d1f1da1d58affc8f9d307645e",
+  "baseTree": "a55ab264c8165320aa0848c6f014b3d068f2f208",
+  "featureTree": "sha256:5c8bf0801fb209643e6e33b2838cb75aa97422c6f7927e4e79572dbf275fced7",
+  "targetCommit": "2d90bd3be0aab8a3641e368536bbe441150e6580",
+  "targetTree": "d1413995333d1836cbf5e350de12314e6c84b8c3",
+  "capabilityBaseDigests": {
+    "host-monitor-fleet-presentation": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "host-monitor-sidebar": "sha256:d0b884f2f25e23e2c4746fcecc8ae70326920e5b5d8762703aa46e24e8f3fc97",
+    "plugin-git-distribution": "sha256:f8da51255c53124ab1c06151967d73ccb935baf8ae1dedf539a9dd2df4b87243"
+  },
+  "deltaDigest": "sha256:a4b5f311d939e74b8ec30ecf8d7241526847df06bf3df9c4c57c96e37f98e2e0",
+  "resultDigests": {
+    "host-monitor-fleet-presentation": "sha256:560ad245badcb3992ef31af954010ffc6f79e3e9c405f804f244299cc144d839",
+    "host-monitor-sidebar": "sha256:0eb4271a130a3a6accb2229f8150ecfc06b283e79bec54da0392f77265fd3418",
+    "plugin-git-distribution": "sha256:b42bec3993b49973c5fe8ec09d897efbec03e5993cb87fea40027204cdbdde62"
+  },
+  "verificationReceiptDigests": [
+    "sha256:11e855bfdacac0d2f38317aac75836f874ba407446996c963c55e16154b286ff",
+    "sha256:9b7161d9b6ab26ad67a559b0f2796fe4edb89ba80100ce816a3c247e8dc5c0ee"
+  ],
+  "integratedAt": "2026-08-31T13:51:05.016Z",
+  "digest": "sha256:4e7086be755440120b1b690e0dc4ef069db4deea2a996506c063bc40d448b45c"
+}

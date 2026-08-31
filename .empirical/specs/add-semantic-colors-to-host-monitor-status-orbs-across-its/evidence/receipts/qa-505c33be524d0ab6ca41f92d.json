@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-505c33be524d0ab6ca41f92d",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-6",
+    "AC-A11Y-1",
+    "AC-UI-1"
+  ],
+  "evidenceKinds": [
+    "test"
+  ],
+  "summary": "Run the exact Bun full-CI promotion entrypoint from the clean final Host Monitor 0.1.2 source revision before capability integration.",
+  "passed": true,
+  "startedAt": "2026-08-31T13:43:46.450Z",
+  "completedAt": "2026-08-31T13:44:05.422Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "add-semantic-colors-to-host-monitor-status-orbs-across-its",
+    "specRevision": 2,
+    "specDigest": "sha256:51293e0383cd40362e9fe98f8a6b3b730bd51f064424f71b328dd2c640a6444a",
+    "treeDigest": "sha256:5c8bf0801fb209643e6e33b2838cb75aa97422c6f7927e4e79572dbf275fced7",
+    "policyDigest": "sha256:32365541324cfe04c2c4d4f79d2260f46533de50b61fa6df7aca8542e7e1ddf8",
+    "workflowRevision": 27,
+    "gitCommit": "7b0ed3c8d149cdc876a007895fe1e0578e435891"
+  },
+  "digest": "sha256:82c5c676182cfbbb761b106facac87c30c343c0430304c3820289b8d93e436f4",
+  "kind": "qa",
+  "matrixDigest": "sha256:58baf388a512b2a50c4d3fcf9de4ff371636fa70c980f195fec656cbd29a990c",
+  "check": {
+    "id": "qa-full-ci",
+    "kind": "full-ci"
+  },
+  "coveredChecks": [
+    "full-ci"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "Run the exact Bun full-CI promotion entrypoint from the clean final Host Monitor 0.1.2 source revision before capability integration.",
+      "startedAt": "2026-08-31T13:43:46.450Z",
+      "completedAt": "2026-08-31T13:44:05.422Z",
+      "durationMs": 18972,
+      "collector": null,
+      "command": {
+        "argv": [
+          "bun",
+          "run",
+          "ci"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "environmentKeys": [
+          "NO_COLOR",
+          "PATH"
+        ]
+      },
+      "result": {
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "stdoutDigest": "sha256:9f19218c51224a056e74ed5da587adba17dede4e43c36b920fc6ce2c1e39b1b9",
+        "stderrDigest": "sha256:eb09481e747e56bb9c26eec2f965dba805659194279cd3effe2db9ee4381952c",
+        "stdoutTail": "ontext\n  ---\n  duration_ms: 0.232694\n  type: 'test'\n  ...\n# Subtest: never replaces an explicit Taskboard project selection with route context\nok 98 - never replaces an explicit Taskboard project selection with route context\n  ---\n  duration_ms: 0.18693\n  type: 'test'\n  ...\n# Subtest: writes project credentials atomically with owner-only permissions\nok 99 - writes project credentials atomically with owner-only permissions\n  ---\n  duration_ms: 13.250086\n  type: 'test'\n  ...\n# Subtest: deleting a missing credential is harmless\nok 100 - deleting a missing credential is harmless\n  ---\n  duration_ms: 1.244566\n  type: 'test'\n  ...\n# Subtest: cached summaries never retain provider comments\nok 101 - cached summaries never retain provider comments\n  ---\n  duration_ms: 0.944018\n  type: 'test'\n  ...\n# Subtest: provider creation results carry strict native assignee confirmation\nok 102 - provider creation results carry strict native assignee confirmation\n  ---\n  duration_ms: 0.13195\n  type: 'test'\n  ...\n# Subtest: metadata failures expose only a fixed server-safe message\nok 103 - metadata failures expose only a fixed server-safe message\n  ---\n  duration_ms: 3.147641\n  type: 'test'\n  ...\n# Subtest: finds Jira project keys from common configured JQL scopes\nok 104 - finds Jira project keys from common configured JQL scopes\n  ---\n  duration_ms: 1.056724\n  type: 'test'\n  ...\n# Subtest: binds issue creation to the tracker reviewed in the modal\nok 105 - binds issue creation to the tracker reviewed in the modal\n  ---\n  duration_ms: 0.442345\n  type: 'test'\n  ...\n# Subtest: refreshes authoritative provider data after successful issue creation\nok 106 - refreshes authoritative provider data after successful issue creation\n  ---\n  duration_ms: 0.260354\n  type: 'test'\n  ...\n# Subtest: refreshes authoritative provider data after ambiguous issue creation failure\nok 107 - refreshes authoritative provider data after ambiguous issue creation failure\n  ---\n  duration_ms: 0.288235\n  type: 'test'\n  ...\n# Subtest: keeps structural headers on neutral host theme surfaces\nok 108 - keeps structural headers on neutral host theme surfaces\n  ---\n  duration_ms: 3.939313\n  type: 'test'\n  ...\n# Subtest: uses restrained state glyph, focus, and conversation treatments\nok 109 - uses restrained state glyph, focus, and conversation treatments\n  ---\n  duration_ms: 0.314031\n  type: 'test'\n  ...\n# Subtest: keeps constrained filter values inside the vertical menu measure\nok 110 - keeps constrained filter values inside the vertical menu measure\n  ---\n  duration_ms: 0.197069\n  type: 'test'\n  ...\n# Subtest: keeps assignee avatars compact with six theme-safe identity tones\nok 111 - keeps assignee avatars compact with six theme-safe identity tones\n  ---\n  duration_ms: 0.28536\n  type: 'test'\n  ...\n1..111\n# tests 111\n# suites 0\n# pass 111\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 382.907045\n\n> bb-plugin-taskboard@0.3.2 build\n> env -u BB_CLI bb plugin build .\n\ndist/server.js\ndist/server.js.map\ndist/server.meta.json\ndist/app.js\ndist/app.css\ndist/app.meta.json\n\n> bb-plugin-taskboard@0.3.2 verify:build\n> node scripts/verify-build.mjs\n\nTaskboard build metadata is valid.\n\n> bb-plugin-usage-tracker@0.1.4 check\n> npm run types:check && npm run typecheck && npm test && npm run build\n\n\n> bb-plugin-usage-tracker@0.1.4 types:check\n> env -u BB_CLI bb plugin types --check .\n\nThis plugin uses the npm package @get-bb/plugin-sdk; pin is 0.4.6, host is 0.4.6.\nThe declarations are in node_modules/@get-bb/plugin-sdk/bundled-types/ — read them for exact signatures.\n\n> bb-plugin-usage-tracker@0.1.4 typecheck\n> tsc --noEmit\n\n\n> bb-plugin-usage-tracker@0.1.4 test\n> node --test --experimental-strip-types test/*.test.ts\n\nTAP version 13\n# Subtest: enables sidebar providers independently in display order\nok 1 - enables sidebar providers independently in display order\n  ---\n  duration_ms: 2.227376\n  type: 'test'\n  ...\n# Subtest: normalizes compact limit preferences to the weekly default\nok 2 - normalizes compact limit preferences to the weekly default\n  ---\n  duration_ms: 0.162797\n  type: 'test'\n  ...\n# Subtest: normalizes providers in stable order with every usage window\nok 3 - normalizes providers in stable order with every usage window\n  ---\n  duration_ms: 0.664029\n  type: 'test'\n  ...\n# Subtest: keeps current provider wire-key windows intact\nok 4 - keeps current provider wire-key windows intact\n  ---\n  duration_ms: 0.237773\n  type: 'test'\n  ...\n# Subtest: keeps healthy legacy provider windows intact\nok 5 - keeps healthy legacy provider windows intact\n  ---\n  duration_ms: 0.183915\n  type: 'test'\n  ...\n# Subtest: accepts legacy provider keys and normalizes explicit statuses\nok 6 - accepts legacy provider keys and normalizes explicit statuses\n  ---\n  duration_ms: 0.168316\n  type: 'test'\n  ...\n# Subtest: prefers current provider keys over legacy aliases\nok 7 - prefers current provider keys over legacy aliases\n  ---\n  duration_ms: 0.209842\n  type: 'test'\n  ...\n# Subtest: isolates an omitted provider response\nok 8 - isolates an omitted provider response\n  ---\n  duration_ms: 0.133974\n  type: 'test'\n  ...\n# Subtest: clamps progress geometry and rejects non-finite values\nok 9 - clamps progress geometry and rejects non-finite values\n  ---\n  duration_ms: 0.471107\n  type: 'test'\n  ...\n# Subtest: formats reset, update, percentage, and cost copy safely\nok 10 - formats reset, update, percentage, and cost copy safely\n  ---\n  duration_ms: 19.028857\n  type: 'test'\n  ...\n# Subtest: selects the configured compact usage window\nok 11 - selects the configured compact usage window\n  ---\n  duration_ms: 0.423582\n  type: 'test'\n  ...\n# Subtest: keeps additional provider windows in expanded details only\nok 12 - keeps additional provider windows in expanded details only\n  ---\n  duration_ms: 0.267457\n  type: 'test'\n  ...\n# Subtest: falls back when the configured compact window is unavailable\nok 13 - falls back when the configured compact window is unavailable\n  ---\n  duration_ms: 0.155723\n  type: 'test'\n  ...\n# Subtest: prefers a fresh alternative before merged last-known compact windows\nok 14 - prefers a fresh alternative before merged last-known compact windows\n  ---\n  duration_ms: 0.170641\n  type: 'test'\n  ...\n# Subtest: describes configured, actual, and fallback compact windows accessibly\nok 15 - describes configured, actual, and fallback compact windows accessibly\n  ---\n  duration_ms: 0.375364\n  type: 'test'\n  ...\n# Subtest: keeps last-known sidebar windows through partial and failed refreshes\nok 16 - keeps last-known sidebar windows through partial and failed refreshes\n  ---\n  duration_ms: 0.195706\n  type: 'test'\n  ...\n# Subtest: keeps additional last-known windows without stale duplicates\nok 17 - keeps additional last-known windows without stale duplicates\n  ---\n  duration_ms: 0.319321\n  type: 'test'\n  ...\n# Subtest: resolves the thread environment host\nok 18 - resolves the thread environment host\n  ---\n  duration_ms: 0.129646\n  type: 'test'\n  ...\n# Subtest: falls back when a thread has no environment or lookup fails\nok 19 - falls back when a thread has no environment or lookup fails\n  ---\n  duration_ms: 0.144654\n  type: 'test'\n  ...\n# Subtest: loads usage for the resolved host and tolerates missing host metadata\nok 20 - loads usage for the resolved host and tolerates missing host metadata\n  ---\n  duration_ms: 0.23623\n  type: 'test'\n  ...\n# Subtest: omits host override for primary-machine fallback\nok 21 - omits host override for primary-machine fallback\n  ---\n  duration_ms: 0.240438\n  type: 'test'\n  ...\n# Subtest: loads the primary machine directly for the sidebar strip\nok 22 - loads the primary machine directly for the sidebar strip\n  ---\n  duration_ms: 0.219039\n  type: 'test'\n  ...\n# Subtest: propagates thread and request-level usage failures\nok 23 - propagates thread and request-level usage failures\n  ---\n  duration_ms: 0.403625\n  type: 'test'\n  ...\n1..23\n# tests 23\n# suites 0\n# pass 23\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 111.734085\n\n> bb-plugin-usage-tracker@0.1.4 build\n> env -u BB_CLI bb plugin build .\n\ndist/server.js\ndist/server.js.map\ndist/server.meta.json\ndist/app.js\ndist/app.css\ndist/app.meta.json\n",
+        "stderrTail": "$ node scripts/ci.mjs\n",
+        "stdoutTruncated": false,
+        "stderrTruncated": false
+      },
+      "cleanStart": true,
+      "sourceTreeBefore": "sha256:5c8bf0801fb209643e6e33b2838cb75aa97422c6f7927e4e79572dbf275fced7",
+      "sourceTreeAfter": "sha256:5c8bf0801fb209643e6e33b2838cb75aa97422c6f7927e4e79572dbf275fced7",
+      "artifacts": [
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-card-explanation.png",
+          "mediaType": "image/png",
+          "bytes": 71710,
+          "digest": "sha256:12bad9468fc711f00c57309867125beec928a64f473f24248457ea26ebbda5d7"
+        },
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/host-monitor-0.1.2-rail-free-sidebar-explanation.png",
+          "mediaType": "image/png",
+          "bytes": 96901,
+          "digest": "sha256:8d6f13aeb60981d6bcce4e0d9822a4ce6a6103fa1145f23d06e214c57af4e0a3"
+        },
+        {
+          "path": ".empirical/specs/add-semantic-colors-to-host-monitor-status-orbs-across-its/evidence/rail-free-hover-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 3394,
+          "digest": "sha256:531dd975897164d3d4accde4695e963b5f90ccd9059f9d06ff7fb6b5bab80b13"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}

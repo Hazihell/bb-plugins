@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:5f56d09fb19f0fbd966ae7945859ed4b8e3ac290fc8ce85a59604d8fbb6f09dc",
+  "sourceDigest": "sha256:a9bdbff645d0606975c5edc482078054c82a6a57c2fa9c7f715cd6fc2898f8bc",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -100,8 +100,8 @@
     },
     {
       "path": "package.json",
-      "size": 440,
-      "digest": "sha256:ea7f7ffac59a15ec7fc3bcc40793a7b987a8d533682069d1d08ad31c058ce93c"
+      "size": 473,
+      "digest": "sha256:c35988eec1057284534b90341d828dcff85264f25c4e1b03ad86abb257948f8c"
     },
     {
       "path": "plugins/host-monitor/LICENSE",
@@ -742,6 +742,11 @@
       "path": "plugins/usage-tracker/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
+    },
+    {
+      "path": "scripts/ci.mjs",
+      "size": 260,
+      "digest": "sha256:0917c60b67c00fa19d0c7df07247509fc5a273e7d19ff8c857353ff79d2981b4"
     }
   ],
   "pages": [
@@ -897,9 +902,10 @@
         "plugins/usage-tracker/server.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
-        "plugins/usage-tracker/types/css-modules.d.ts"
+        "plugins/usage-tracker/types/css-modules.d.ts",
+        "scripts/ci.mjs"
       ],
-      "sourceDigest": "sha256:5f56d09fb19f0fbd966ae7945859ed4b8e3ac290fc8ce85a59604d8fbb6f09dc",
+      "sourceDigest": "sha256:a9bdbff645d0606975c5edc482078054c82a6a57c2fa9c7f715cd6fc2898f8bc",
       "digest": "sha256:7ec7a337ec3117a2034e8233da3f05b3923ac6d77d065dc76e9c15e3f4cef181",
       "freshness": "fresh"
     },
@@ -919,7 +925,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:03ae3340fb4bebe78452a0791b6ccc363414101d282dd4eeec049a5514f60639",
+      "sourceDigest": "sha256:c9a2526e9286eb07d1eef26c4482fb095016f9b17fe9c2382240e89f640d5484",
       "digest": "sha256:a87049abc365def11695f17c43c043f8b7b445c32d4d77cf1966451b933ce646",
       "freshness": "fresh"
     },
@@ -933,7 +939,7 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:f2b4e238b8fc193a9bda635d17a8d7622f25c7110cd67678efdbc8153c1c51df",
+      "sourceDigest": "sha256:4152b3597d79bb7b19505a3fc0fa77c5f77607de0adb276e89060cea637162cd",
       "digest": "sha256:02d0a54536fc6ffd5766f5cb2e88e0d6da209f85a953bf1719d74c6948478b89",
       "freshness": "fresh"
     },
@@ -946,9 +952,10 @@
         "package.json",
         "plugins/host-monitor/package.json",
         "plugins/taskboard/package.json",
-        "plugins/usage-tracker/package.json"
+        "plugins/usage-tracker/package.json",
+        "scripts/ci.mjs"
       ],
-      "sourceDigest": "sha256:da377fa22b5adea4f117c9df07f1ad147b2d249e2ac3ef13ec3389d1dffebe1d",
+      "sourceDigest": "sha256:02ca100a1d214fe331871401924e256fa9f4d6b5bb052e31470bccd8477a46d6",
       "digest": "sha256:803e100390b63871149774bcfbbcf5f2f7dd93decb5e4276ba755a8c2a9986a5",
       "freshness": "fresh"
     },
@@ -968,5 +975,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:61770deedf1e74e8c1dac705ad327479f83f8242c37aa4758a27a2dc5479eec3"
+  "digest": "sha256:705edc1567c419c15aace11d99355e4d961c8f63fb46d5e3e13df703adc6b82b"
 }
