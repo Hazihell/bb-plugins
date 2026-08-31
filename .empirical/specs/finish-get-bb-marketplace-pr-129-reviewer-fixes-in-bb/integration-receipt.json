@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "feature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
+  "claimId": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb-6c9b9308abd6",
+  "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+  "baseCommit": "9eb417a00e1be752ec52bb058cc1836aa2f6424a",
+  "baseTree": "d14977bbe117d48b1f1dd626d3c82306e0ba4569",
+  "featureTree": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+  "targetCommit": "2d90bd3be0aab8a3641e368536bbe441150e6580",
+  "targetTree": "d1413995333d1836cbf5e350de12314e6c84b8c3",
+  "capabilityBaseDigests": {
+    "board-capture": "sha256:26ab968fee5ad86fbf2ad47f78e89b234d6c28c151621235415cc74716938914",
+    "plugin-git-distribution": "sha256:b42bec3993b49973c5fe8ec09d897efbec03e5993cb87fea40027204cdbdde62",
+    "taskboard-distribution": "sha256:dd982e0000e922613b64244b8bbaffac4e55b0a61735194ed791935adff544eb",
+    "taskboard-github-cli": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deltaDigest": "sha256:197a8ea4fbbd28a07bb28f9f40f0ad3bbd20c80f2bf5345b2e874086735769ff",
+  "resultDigests": {
+    "board-capture": "sha256:001f4ba9c6d6ad81d47e2c65b93d32910545f5581d2712f1d32b9f504d97a012",
+    "plugin-git-distribution": "sha256:09e23924c487654731eb9db4622b9c3455d328da8c4a437ddd6223cb065b9996",
+    "taskboard-distribution": "sha256:9c1c1d0684f60bd0ee2d36ff0fa3923b30977f662bd67eb3ea55dc82cca49500",
+    "taskboard-github-cli": "sha256:c4e1194ca47072be5241dc65a8dafde90bbe564176c726650fff08f844cb1a8b"
+  },
+  "verificationReceiptDigests": [
+    "sha256:d29ce11cf011b62575562491064423ab77b0c730fa9dce8731e6808d64bbb387",
+    "sha256:e2352efa2274e16616511c64c823bc8bf4b442bc596e50f713a330d0f99fc919"
+  ],
+  "integratedAt": "2026-08-31T16:34:13.017Z",
+  "digest": "sha256:f03a8a5a272a6bb0b44db4cf325882d053fb2a7e14c8cd58c9525067ebae9fa0"
+}

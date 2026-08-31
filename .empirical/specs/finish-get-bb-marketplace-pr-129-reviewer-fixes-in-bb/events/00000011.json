@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
-  "sequence": 3,
-  "previousDigest": "sha256:35ef8ae8d5b5e183862d4c7e09308af7791458a9e770147cf33cd4507e1487bd",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Defined the Taskboard 0.3.3 production-install, manual capture, bounded gh environment, version coherence, Marketplace preparation, verification, and remote-approval contract with four capability deltas and an accepted safety decision.",
-  "createdAt": "2026-08-31T14:04:30.976Z",
-  "stateBeforeDigest": "sha256:4284d3d0ec8d32500468bab9341fe508c77d7a50983067d9224d738dab39aee0",
-  "stateAfterDigest": "sha256:1454628527658777407ac2d58fb8812b1a7f06ae4fc0a6737e075761e287ef9b",
+  "sequence": 11,
+  "previousDigest": "sha256:196a98a184cfdb915793314a947f1af457ed97b2f309e8efdb2743cfcb7f639a",
+  "actor": "empirical-integrate",
+  "type": "compaction-boundary",
+  "summary": "Compacted through journal event 10",
+  "createdAt": "2026-08-31T16:34:13.185Z",
+  "stateBeforeDigest": "sha256:27d92eb6c9afbb29252552cac605010bae920a35babe92ab100d43256fe647a3",
+  "stateAfterDigest": "sha256:27d92eb6c9afbb29252552cac605010bae920a35babe92ab100d43256fe647a3",
   "state": {
     "schemaVersion": 5,
-    "revision": 3,
+    "revision": 10,
     "activeFeature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
     "request": "Finish get-bb/marketplace PR #129 reviewer fixes. In bb-plugins, make Taskboard cleanly install and build from its Git subdirectory after production-only dependency installation; address the hidden issue-drafting agent's auto-approved permission risk instead of merely relabeling it; scrub the GitHub CLI child-process environment to the minimum deliberate variables needed; update tests and user-facing disclosure; bump Taskboard from 0.3.2 to 0.3.3 consistently without changing Usage Tracker 0.1.4 or Host Monitor 0.1.2; run focused, clean-install, root, and live reload verification. Then prepare the Marketplace PR #129 refresh with Taskboard range ^0.3.3, Usage Tracker ^0.1.4, the vendored Taskboard icon, accurate AI/model-usage disclosure, and current-main merge resolution. Stop before any new source push, tag, GitHub Release, Marketplace push, PR edit, or comment until the exact remote mutations are presented for approval.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "yolo",
-    "phase": "design",
-    "status": "waiting",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Defined the Taskboard 0.3.3 production-install, manual capture, bounded gh environment, version coherence, Marketplace preparation, verification, and remote-approval contract with four capability deltas and an accepted safety decision.",
-    "implementationActor": null,
+    "message": "Integrated capability changes: board-capture, plugin-git-distribution, taskboard-distribution, taskboard-github-cli",
+    "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:e480be6a78bdcc5d4f98d111b3fd477a73cf58c21ad994ddba93e7e72eed2f4e",
     "approvedSpecRevision": 3,
@@ -30,24 +30,26 @@
     "capabilityClaimId": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb-6c9b9308abd6",
     "authorizationDigest": "sha256:a259c3a860ab99d15399259fcbd1960307960f4eb21ec191e22ec0ce5a2dce41",
     "evidence": [],
-    "evidenceReceiptIds": [],
+    "evidenceReceiptIds": [
+      "qa-71dbc8dbd39d60c2a6454604",
+      "qa-1cf4c963cfda5c72bfd49b28",
+      "collected-5157554c73c2d566174e093b",
+      "qa-aed4bb2a179db940423a917c"
+    ],
     "legacyEvidenceCount": 0,
     "completion": {
-      "implemented": false,
-      "verified": false,
-      "integrated": false,
+      "implemented": true,
+      "verified": true,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "none",
+      "highest": "integrated",
       "reasons": {
-        "implemented": "implemented has not been proven by a durable receipt.",
-        "verified": "verified has not been proven by a durable receipt.",
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-08-31T14:04:30.976Z"
+    "updatedAt": "2026-08-31T16:34:13.133Z"
   },
-  "digest": "sha256:d5c0784c916baac3445febac72b285271e634698d8aad0058a80567e809ad9b4"
+  "digest": "sha256:5fadc4d7becccbc0376f0b6f31e2613ce6a4f866473d5a3d360a3e3460f90955"
 }

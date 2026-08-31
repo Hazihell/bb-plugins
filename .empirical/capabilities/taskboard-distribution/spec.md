@@ -9,29 +9,45 @@ Define reproducible, immutable Taskboard release and marketplace provenance.
 ### Requirement: Marketplace range alignment
 
 The BB Community Taskboard entry SHALL reference the public Git repository,
-plugin subdirectory, semver range, and Taskboard tag prefix that resolve the
-current immutable Git release while preserving listing identity.
+`plugins/taskboard` subdirectory, `^0.3.3` semver range, and `taskboard/` tag
+prefix that resolve the reviewed immutable Git release while preserving the
+listing identity and vendored icon.
 
-#### Scenario: Resolve the marketplace release
+#### Scenario: Resolve the corrected marketplace release
 
-- **WHEN** the marketplace validates Taskboard range `^0.3.0`
-- **THEN** it resolves `taskboard/v0.3.0` from the public repository
-- **AND** marketplace build and Git-source liveness checks pass without npm
+- **WHEN** the Marketplace validates Taskboard range `^0.3.3`
+- **THEN** it resolves `taskboard/v0.3.3` from the public repository
+- **AND** the entry contains no obsolete model-drafting claim
+- **AND** schema/build and direct Git-source liveness checks pass without npm.
 
 ### Requirement: Immutable Git release
 
 Every Taskboard release SHALL bind one reviewed Git commit whose active
-manifest, lockfile, changelog/release-facing documentation, distribution tests,
-and build metadata agree on the exact version to one immutable
+manifest, lockfile, release-facing documentation, distribution tests, and
+build metadata agree on the exact version to one immutable
 `taskboard/vX.Y.Z` annotated tag and one GitHub Release. A Taskboard workspace
-SHALL remain private/non-publishable and SHALL omit npm publication, packaging,
-and prepack configuration. Release preparation SHALL stop before remote
-mutation unless exact authorization is supplied.
+SHALL remain private/non-publishable and SHALL omit npm publication hooks.
+Release preparation SHALL stop before remote mutation unless the exact source
+commit, tag, release, destinations, and commands are approved.
 
-#### Scenario: Prepare Taskboard 0.3.2 locally
+#### Scenario: Prepare Taskboard 0.3.3 locally
 
-- **WHEN** the verified right-panel icon patch is prepared as `0.3.2`
+- **WHEN** the Marketplace reviewer fixes are prepared as `0.3.3`
 - **THEN** every active Taskboard version reference and artifact reports
-  `0.3.2`
-- **AND** the proposed future tag is `taskboard/v0.3.2`
-- **AND** no tag or GitHub Release is created during preparation.
+  `0.3.3`
+- **AND** the proposed future tag is `taskboard/v0.3.3`
+- **AND** no remote mutation occurs before exact approval.
+
+### Requirement: Production-only subdirectory build
+
+Every Taskboard Git release SHALL declare every package required to build its
+source after development dependencies are omitted, without relying on a
+workspace-root hoist or unpublished package.
+
+#### Scenario: Build an isolated Git subtree
+
+- **GIVEN** only the released `plugins/taskboard` source closure is present
+- **WHEN** npm installs with scripts, dev dependencies, and optional
+  dependencies omitted and BB builds the plugin
+- **THEN** the SDK runtime contract import and every other build import resolve
+- **AND** valid server and app artifacts are produced.

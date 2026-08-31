@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-aed4bb2a179db940423a917c",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-MKT-1",
+    "AC-MKT-2",
+    "AC-REMOTE-1"
+  ],
+  "evidenceKinds": [
+    "test"
+  ],
+  "summary": "Run the repository-authorized full CI from a clean committed Taskboard 0.3.3 source revision and bind it to immutable public release, exact Marketplace PR #129, security consultation, live browser/manual-prefill, and screenshot evidence.",
+  "passed": true,
+  "startedAt": "2026-08-31T16:31:13.911Z",
+  "completedAt": "2026-08-31T16:31:34.777Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
+    "specRevision": 3,
+    "specDigest": "sha256:e480be6a78bdcc5d4f98d111b3fd477a73cf58c21ad994ddba93e7e72eed2f4e",
+    "treeDigest": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+    "policyDigest": "sha256:21e242370689ceb417549a793781cf9a9ab56a982eb4671954b3ff1f657741d2",
+    "workflowRevision": 9,
+    "gitCommit": "31620e74ea29fa6c60ff4ad287e690797f953c88"
+  },
+  "digest": "sha256:ed7e38125499fdfaac888ac5f2a1fad9fa6d7d63f9705d8dd030a78a4fd56a79",
+  "kind": "qa",
+  "matrixDigest": "sha256:61f7d38261388318f1cbddc0d986fea24ef6bf20f8285635733cf194c648e48d",
+  "check": {
+    "id": "qa-full-ci",
+    "kind": "full-ci"
+  },
+  "coveredChecks": [
+    "full-ci"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "Run the repository-authorized full CI from a clean committed Taskboard 0.3.3 source revision and bind it to immutable public release, exact Marketplace PR #129, security consultation, live browser/manual-prefill, and screenshot evidence.",
+      "startedAt": "2026-08-31T16:31:13.911Z",
+      "completedAt": "2026-08-31T16:31:34.777Z",
+      "durationMs": 20866,
+      "collector": null,
+      "command": {
+        "argv": [
+          "bun",
+          "run",
+          "ci"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "environmentKeys": [
+          "NO_COLOR",
+          "PATH"
+        ]
+      },
+      "result": {
+        "exitCode": 0,
+        "signal": null,
+        "timedOut": false,
+        "stdoutDigest": "sha256:1f522c047625cc72f06ca671e2cb14a191554cb31c03415011a4c41a13b93911",
+        "stderrDigest": "sha256:eb09481e747e56bb9c26eec2f965dba805659194279cd3effe2db9ee4381952c",
+        "stdoutTail": "ext\n  ---\n  duration_ms: 0.213959\n  type: 'test'\n  ...\n# Subtest: never replaces an explicit Taskboard project selection with route context\nok 111 - never replaces an explicit Taskboard project selection with route context\n  ---\n  duration_ms: 0.191259\n  type: 'test'\n  ...\n# Subtest: writes project credentials atomically with owner-only permissions\nok 112 - writes project credentials atomically with owner-only permissions\n  ---\n  duration_ms: 9.117738\n  type: 'test'\n  ...\n# Subtest: deleting a missing credential is harmless\nok 113 - deleting a missing credential is harmless\n  ---\n  duration_ms: 1.053781\n  type: 'test'\n  ...\n# Subtest: cached summaries never retain provider comments\nok 114 - cached summaries never retain provider comments\n  ---\n  duration_ms: 1.563198\n  type: 'test'\n  ...\n# Subtest: provider creation results carry strict native assignee confirmation\nok 115 - provider creation results carry strict native assignee confirmation\n  ---\n  duration_ms: 0.211916\n  type: 'test'\n  ...\n# Subtest: metadata failures expose only a fixed server-safe message\nok 116 - metadata failures expose only a fixed server-safe message\n  ---\n  duration_ms: 0.350499\n  type: 'test'\n  ...\n# Subtest: finds Jira project keys from common configured JQL scopes\nok 117 - finds Jira project keys from common configured JQL scopes\n  ---\n  duration_ms: 0.852314\n  type: 'test'\n  ...\n# Subtest: binds issue creation to the tracker reviewed in the modal\nok 118 - binds issue creation to the tracker reviewed in the modal\n  ---\n  duration_ms: 0.560852\n  type: 'test'\n  ...\n# Subtest: refreshes authoritative provider data after successful issue creation\nok 119 - refreshes authoritative provider data after successful issue creation\n  ---\n  duration_ms: 0.334991\n  type: 'test'\n  ...\n# Subtest: refreshes authoritative provider data after ambiguous issue creation failure\nok 120 - refreshes authoritative provider data after ambiguous issue creation failure\n  ---\n  duration_ms: 0.341182\n  type: 'test'\n  ...\n# Subtest: keeps structural headers on neutral host theme surfaces\nok 121 - keeps structural headers on neutral host theme surfaces\n  ---\n  duration_ms: 0.96012\n  type: 'test'\n  ...\n# Subtest: uses restrained state glyph, focus, and conversation treatments\nok 122 - uses restrained state glyph, focus, and conversation treatments\n  ---\n  duration_ms: 0.288756\n  type: 'test'\n  ...\n# Subtest: keeps constrained filter values inside the vertical menu measure\nok 123 - keeps constrained filter values inside the vertical menu measure\n  ---\n  duration_ms: 0.190166\n  type: 'test'\n  ...\n# Subtest: keeps assignee avatars compact with six theme-safe identity tones\nok 124 - keeps assignee avatars compact with six theme-safe identity tones\n  ---\n  duration_ms: 0.329331\n  type: 'test'\n  ...\n1..124\n# tests 124\n# suites 0\n# pass 124\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 444.598397\n\n> bb-plugin-taskboard@0.3.3 build\n> env -u BB_CLI bb plugin build .\n\ndist/server.js\ndist/server.js.map\ndist/server.meta.json\ndist/app.js\ndist/app.css\ndist/app.meta.json\n\n> bb-plugin-taskboard@0.3.3 verify:build\n> node scripts/verify-build.mjs\n\nTaskboard build metadata is valid.\n\n> bb-plugin-usage-tracker@0.1.4 check\n> npm run types:check && npm run typecheck && npm test && npm run build\n\n\n> bb-plugin-usage-tracker@0.1.4 types:check\n> env -u BB_CLI bb plugin types --check .\n\nThis plugin uses the npm package @get-bb/plugin-sdk; pin is 0.4.6, host is 0.4.6.\nThe declarations are in node_modules/@get-bb/plugin-sdk/bundled-types/ — read them for exact signatures.\n\n> bb-plugin-usage-tracker@0.1.4 typecheck\n> tsc --noEmit\n\n\n> bb-plugin-usage-tracker@0.1.4 test\n> node --test --experimental-strip-types test/*.test.ts\n\nTAP version 13\n# Subtest: enables sidebar providers independently in display order\nok 1 - enables sidebar providers independently in display order\n  ---\n  duration_ms: 2.039477\n  type: 'test'\n  ...\n# Subtest: normalizes compact limit preferences to the weekly default\nok 2 - normalizes compact limit preferences to the weekly default\n  ---\n  duration_ms: 0.130448\n  type: 'test'\n  ...\n# Subtest: normalizes providers in stable order with every usage window\nok 3 - normalizes providers in stable order with every usage window\n  ---\n  duration_ms: 0.575208\n  type: 'test'\n  ...\n# Subtest: keeps current provider wire-key windows intact\nok 4 - keeps current provider wire-key windows intact\n  ---\n  duration_ms: 0.254774\n  type: 'test'\n  ...\n# Subtest: keeps healthy legacy provider windows intact\nok 5 - keeps healthy legacy provider windows intact\n  ---\n  duration_ms: 0.226893\n  type: 'test'\n  ...\n# Subtest: accepts legacy provider keys and normalizes explicit statuses\nok 6 - accepts legacy provider keys and normalizes explicit statuses\n  ---\n  duration_ms: 0.181981\n  type: 'test'\n  ...\n# Subtest: prefers current provider keys over legacy aliases\nok 7 - prefers current provider keys over legacy aliases\n  ---\n  duration_ms: 0.246991\n  type: 'test'\n  ...\n# Subtest: isolates an omitted provider response\nok 8 - isolates an omitted provider response\n  ---\n  duration_ms: 0.157317\n  type: 'test'\n  ...\n# Subtest: clamps progress geometry and rejects non-finite values\nok 9 - clamps progress geometry and rejects non-finite values\n  ---\n  duration_ms: 0.598481\n  type: 'test'\n  ...\n# Subtest: formats reset, update, percentage, and cost copy safely\nok 10 - formats reset, update, percentage, and cost copy safely\n  ---\n  duration_ms: 14.439196\n  type: 'test'\n  ...\n# Subtest: selects the configured compact usage window\nok 11 - selects the configured compact usage window\n  ---\n  duration_ms: 0.505992\n  type: 'test'\n  ...\n# Subtest: keeps additional provider windows in expanded details only\nok 12 - keeps additional provider windows in expanded details only\n  ---\n  duration_ms: 0.321606\n  type: 'test'\n  ...\n# Subtest: falls back when the configured compact window is unavailable\nok 13 - falls back when the configured compact window is unavailable\n  ---\n  duration_ms: 0.203391\n  type: 'test'\n  ...\n# Subtest: prefers a fresh alternative before merged last-known compact windows\nok 14 - prefers a fresh alternative before merged last-known compact windows\n  ---\n  duration_ms: 0.205054\n  type: 'test'\n  ...\n# Subtest: describes configured, actual, and fallback compact windows accessibly\nok 15 - describes configured, actual, and fallback compact windows accessibly\n  ---\n  duration_ms: 0.425956\n  type: 'test'\n  ...\n# Subtest: keeps last-known sidebar windows through partial and failed refreshes\nok 16 - keeps last-known sidebar windows through partial and failed refreshes\n  ---\n  duration_ms: 0.229439\n  type: 'test'\n  ...\n# Subtest: keeps additional last-known windows without stale duplicates\nok 17 - keeps additional last-known windows without stale duplicates\n  ---\n  duration_ms: 0.31308\n  type: 'test'\n  ...\n# Subtest: resolves the thread environment host\nok 18 - resolves the thread environment host\n  ---\n  duration_ms: 0.143422\n  type: 'test'\n  ...\n# Subtest: falls back when a thread has no environment or lookup fails\nok 19 - falls back when a thread has no environment or lookup fails\n  ---\n  duration_ms: 0.146848\n  type: 'test'\n  ...\n# Subtest: loads usage for the resolved host and tolerates missing host metadata\nok 20 - loads usage for the resolved host and tolerates missing host metadata\n  ---\n  duration_ms: 0.207318\n  type: 'test'\n  ...\n# Subtest: omits host override for primary-machine fallback\nok 21 - omits host override for primary-machine fallback\n  ---\n  duration_ms: 0.260766\n  type: 'test'\n  ...\n# Subtest: loads the primary machine directly for the sidebar strip\nok 22 - loads the primary machine directly for the sidebar strip\n  ---\n  duration_ms: 0.152088\n  type: 'test'\n  ...\n# Subtest: propagates thread and request-level usage failures\nok 23 - propagates thread and request-level usage failures\n  ---\n  duration_ms: 0.302381\n  type: 'test'\n  ...\n1..23\n# tests 23\n# suites 0\n# pass 23\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 130.246755\n\n> bb-plugin-usage-tracker@0.1.4 build\n> env -u BB_CLI bb plugin build .\n\ndist/server.js\ndist/server.js.map\ndist/server.meta.json\ndist/app.js\ndist/app.css\ndist/app.meta.json\n",
+        "stderrTail": "$ node scripts/ci.mjs\n",
+        "stdoutTruncated": false,
+        "stderrTruncated": false
+      },
+      "cleanStart": true,
+      "sourceTreeBefore": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+      "sourceTreeAfter": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+      "artifacts": [
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/consults/security.md",
+          "mediaType": "text/plain",
+          "bytes": 1014,
+          "digest": "sha256:898ce9b87cb83d09c8368be0e996e9ea6be117394ae398c26b8e58d77acd964a"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/manual-prefill-browser-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 714,
+          "digest": "sha256:09176eea9282150457ceb5cb6fb3263f406e1c23eb48f979129f8e2f6d212c20"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/marketplace-129-public-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 1539,
+          "digest": "sha256:8bc93c063f48acd09972a5827330e90fa0e34eb2881e23dc1f36a6487d4d3500"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/taskboard-0.3.3-manual-prefill.png",
+          "mediaType": "image/png",
+          "bytes": 141895,
+          "digest": "sha256:1ec99b89bfae96cf9d5384ae777b0f8b852a5349d8cfc0f2e6650a57f5edf312"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/verification.md",
+          "mediaType": "text/plain",
+          "bytes": 6453,
+          "digest": "sha256:733891fd1471ec21b437144bbaac387f8ba5c29d6c64dacb1038daa30abfd873"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/review-result.json",
+          "mediaType": "application/json",
+          "bytes": 392,
+          "digest": "sha256:435b80fa7072dc71e88a5c759e83e7ddb5fd720c1d309361a15bdd4036b577dc"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}
