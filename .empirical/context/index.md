@@ -4,7 +4,7 @@
 Generated from bounded repository metadata.
 
 - Repository: bb-plugins-dockside-thread-management
-- Source fingerprint: sha256:d755492a6427140653d9c12abc8ffc644fb1eb4db841dd22497f570cf7853bcc
+- Source fingerprint: sha256:a9f57516056303d8e5fd9263ae7c204efe517168ae3699635366db460e816fdf
 - Included files: 520
 - Roots: .agents, .claude, .codex, .cursor, .gemini, .github, ., .windsurf, demos, plugins, scripts
 - Manifests: package.json, plugins/action-topbar/package.json, plugins/agent-proxy/package.json, plugins/agentation/package.json, plugins/amp/package.json, plugins/dockside/package.json, plugins/dotfiles/package.json, plugins/gh-stack/package.json, plugins/host-monitor/package.json, plugins/monokai/package.json, plugins/notify/package.json, plugins/pr-walkthrough/package.json, plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/package.json, plugins/usage-tracker/package.json

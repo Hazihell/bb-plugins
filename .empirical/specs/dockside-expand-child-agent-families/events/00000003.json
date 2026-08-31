@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:4003683c46034a6b621f6cb6c95d31119aa37a9eb4aecc20b3ce745424ad3a40",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed a pure default-expansion resolver, chevron-plus-count child disclosure, removal of visual project aggregate status glyphs, preservation of row/connector behavior, and the real-BB-thread data boundary; recorded and incorporated a focused UI/UX advisory.",
+  "createdAt": "2026-08-31T22:26:24.392Z",
+  "stateBeforeDigest": "sha256:b95230a35b14b21ea1a3227cf29411d9eb27c137a7d2b2bda2085819682d9767",
+  "stateAfterDigest": "sha256:9927bf37db02e5b12981c58a01ba28b78f362eeaf90d05e3310d675ab5763a11",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "dockside-expand-child-agent-families",
+    "request": "Make Dockside mimic the reference agent tree by expanding every root thread family that has child-agent threads by default, including after those children finish, while retaining the user's explicit collapse/expand override and all existing working/unread/status/connector styling. Document that only real BB child threads with parentThreadId can render; provider-internal collaboration workers with no BB thread row are outside the plugin data surface.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed a pure default-expansion resolver, chevron-plus-count child disclosure, removal of visual project aggregate status glyphs, preservation of row/connector behavior, and the real-BB-thread data boundary; recorded and incorporated a focused UI/UX advisory.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:abbd39a87ef32ccb3365807c97720bd441c143d1d6787976244046e4341772ae",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:5d49a5ba5a2b629a5af75b5fb33a5b2d550c6ae4010656113b928989939c4394",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-expand-child-agent-families-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-31T22:26:24.392Z"
+  },
+  "digest": "sha256:8208cc0d04acf05b8771dc1a2d929ac22dbdd230c1b93fbc64903cd1391442c9"
+}

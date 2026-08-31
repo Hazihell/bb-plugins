@@ -48,6 +48,20 @@ export const BULK_PROTECTION_LABELS: Readonly<
   pinned: "Pinned",
 };
 
+export function resolveFamilyExpanded({
+  childCount,
+  forceExpanded,
+  override,
+}: {
+  childCount: number;
+  forceExpanded: boolean;
+  override: boolean | null;
+}): boolean {
+  if (childCount === 0) return false;
+  if (forceExpanded) return true;
+  return override ?? true;
+}
+
 export function familyMembers(
   family: ThreadFamily,
 ): readonly PluginSidebarThread[] {

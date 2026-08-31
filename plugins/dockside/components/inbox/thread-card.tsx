@@ -14,10 +14,8 @@ import {
 } from "@/components/inbox/provider-glyph";
 import { StatusGlyph } from "@/components/inbox/status-glyph";
 import { threadStatus } from "@/components/inbox/status-slot";
-import {
-  threadDisplayTitle,
-  threadIsWorking,
-} from "@/lib/inbox";
+import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
+import { resolveFamilyExpanded } from "@/lib/thread-management";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
@@ -76,10 +74,11 @@ export function ThreadCard({
       child.isUnread ||
       threadIsWorking(child),
   );
-  const defaultExpanded = familyIsActive || childNeedsAttention;
-  const expanded =
-    childThreads.length > 0 &&
-    (forceExpanded || (expandedOverride ?? defaultExpanded));
+  const expanded = resolveFamilyExpanded({
+    childCount: childThreads.length,
+    forceExpanded,
+    override: expandedOverride,
+  });
   const rootIsActive = thread.id === activeThreadId;
 
   return (
@@ -255,10 +254,6 @@ export function ThreadCard({
                     childNeedsAttention && "text-primary",
                   )}
                 >
-                  <span className="tabular-nums">
-                    {childThreads.length}{" "}
-                    {childThreads.length === 1 ? "agent" : "agents"}
-                  </span>
                   <Icon
                     name="ChevronDown"
                     className={cn(
@@ -267,6 +262,7 @@ export function ThreadCard({
                     )}
                     aria-hidden
                   />
+                  <span className="tabular-nums">{childThreads.length}</span>
                 </button>
               ) : null}
             </div>

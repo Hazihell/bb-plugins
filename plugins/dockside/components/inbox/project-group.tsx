@@ -49,9 +49,6 @@ export function ProjectGroup({
     ...family.children,
   ]);
   const expanded = forceExpanded || expandedByUser;
-  const working = threads.some(threadIsWorking);
-  const unread = threads.some((thread) => thread.isUnread);
-  const needsYou = threads.some((thread) => thread.hasPendingInteraction);
 
   return (
     <section aria-label={group.project.name} className="mt-1.5 first:mt-0">
@@ -75,20 +72,6 @@ export function ProjectGroup({
         </span>
         <span className="pointer-events-none relative shrink-0 tabular-nums text-2xs text-muted-foreground/70">
           {group.families.length}
-        </span>
-        <span
-          className="pointer-events-none relative flex shrink-0 items-center gap-1"
-          aria-hidden
-        >
-          {needsYou ? (
-            <span className="size-2 rounded-full bg-primary" />
-          ) : null}
-          {working ? (
-            <span className="size-2.5 animate-spin rounded-full border-2 border-primary border-r-transparent" />
-          ) : null}
-          {unread ? (
-            <span className="size-2 rounded-full border-2 border-primary" />
-          ) : null}
         </span>
         <button
           type="button"

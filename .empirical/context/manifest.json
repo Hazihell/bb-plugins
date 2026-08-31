@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:d755492a6427140653d9c12abc8ffc644fb1eb4db841dd22497f570cf7853bcc",
+  "sourceDigest": "sha256:a9f57516056303d8e5fd9263ae7c204efe517168ae3699635366db460e816fdf",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -970,8 +970,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/project-group.tsx",
-      "size": 6327,
-      "digest": "sha256:70a4d2d94d5aaadb591b548a8d82558d576a0e82aa46196bb0461b3766836ac7"
+      "size": 5614,
+      "digest": "sha256:b9e4011ff8f6f59fe22b8afff7f220b08a40d2af9278cb88d858b588ddded02b"
     },
     {
       "path": "plugins/dockside/components/inbox/provider-glyph.tsx",
@@ -1005,8 +1005,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 16953,
-      "digest": "sha256:0647a5aa9283b1edd1b72f9e8a74c0ffba3c08530a8345a59a5a5fad7cd695c9"
+      "size": 16859,
+      "digest": "sha256:e4981535e33266945b197c920054849b469461b7801de17c1ad4bb66f64f4ef6"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
@@ -1075,8 +1075,8 @@
     },
     {
       "path": "plugins/dockside/lib/thread-management.ts",
-      "size": 5596,
-      "digest": "sha256:ea736769fda25873f6ead7675f1f56a6a76c813b51e723355170bb55ab229995"
+      "size": 5876,
+      "digest": "sha256:06ec3a2f70adba7678bc387c85169edd945cced03ff59721948d4f9d1d95e081"
     },
     {
       "path": "plugins/dockside/lib/utils.ts",
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "plugins/dockside/test/thread-management.test.ts",
-      "size": 5935,
-      "digest": "sha256:fec5f1d4cff5654ff19d42f7389f63d0a63335e3dcce848d6029baa5ae0710c5"
+      "size": 6834,
+      "digest": "sha256:990aed9f6a1ba390ca5e788aa991242879ebfa0834b91b88a303d215d5bbd7c6"
     },
     {
       "path": "plugins/dockside/test/warm-start.test.ts",
@@ -3131,8 +3131,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:d755492a6427140653d9c12abc8ffc644fb1eb4db841dd22497f570cf7853bcc",
-      "digest": "sha256:642022aad20d026914ee8b96687ee7aac6587ba3510aac280b8c02bc2a7a3727",
+      "sourceDigest": "sha256:a9f57516056303d8e5fd9263ae7c204efe517168ae3699635366db460e816fdf",
+      "digest": "sha256:c926ad4a6df4b121da4ec20328018003b6129e272b3d39495282f06803c597b8",
       "freshness": "fresh"
     },
     {
@@ -3171,7 +3171,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:a0a36a2d1d3759560e13a4871cb56465bbfd187ee3ae2efeea243279dec3523d",
+      "sourceDigest": "sha256:5016e3058940bce64f6f4e39225a17982abc1edd92b605caad1a261db70c9d91",
       "digest": "sha256:4d1ac1c46f02d21bb2582e2f444d6a2c6f1f5e482225533564e5146a75bde943",
       "freshness": "fresh"
     },
@@ -3268,5 +3268,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:bf942a0aa95759d5dd34ff00851a67fcdd079d52c3412dccfe66d7f94c99c246"
+  "digest": "sha256:1cd9cae38d1bc1f6147e1e8b05fd9324b6144d495bba3cfb6de58722d92db7f9"
 }

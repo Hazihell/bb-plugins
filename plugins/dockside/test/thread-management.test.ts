@@ -13,6 +13,7 @@ import {
   filterProjectThreadGroups,
   includeSelectedFamilies,
   pruneSelectedRootIds,
+  resolveFamilyExpanded,
   selectableRootIds,
 } from "../lib/thread-management.ts";
 
@@ -206,6 +207,37 @@ describe("selection helpers", () => {
     assert.deepEqual(
       visible[0]?.families.map((family) => family.root.id),
       ["quiet", "selected"],
+    );
+  });
+});
+
+describe("resolveFamilyExpanded", () => {
+  it("keeps a family with no children closed", () => {
+    assert.equal(
+      resolveFamilyExpanded({ childCount: 0, forceExpanded: true, override: true }),
+      false,
+    );
+  });
+
+  it("opens a child family by default and while search forces it", () => {
+    assert.equal(
+      resolveFamilyExpanded({ childCount: 3, forceExpanded: false, override: null }),
+      true,
+    );
+    assert.equal(
+      resolveFamilyExpanded({ childCount: 3, forceExpanded: true, override: false }),
+      true,
+    );
+  });
+
+  it("respects explicit open and closed overrides", () => {
+    assert.equal(
+      resolveFamilyExpanded({ childCount: 3, forceExpanded: false, override: true }),
+      true,
+    );
+    assert.equal(
+      resolveFamilyExpanded({ childCount: 3, forceExpanded: false, override: false }),
+      false,
     );
   });
 });

@@ -55,7 +55,7 @@
         "id": "dockside-system",
         "argv": [
           "node",
-          ".empirical/specs/dockside-thread-filters-bulk-delete/qa/system.mjs"
+          ".empirical/specs/dockside-expand-child-agent-families/qa/system.mjs"
         ],
         "cwd": ".",
         "timeoutMs": 60000,
