@@ -10,7 +10,7 @@
 
 </div>
 
-<picture><img src="docs/media/hero.png" alt="bb running with these plugins enabled: the t3sidebar inbox, Agent Proxy and Agentation in the sidebar, an Amp Orb thread with an Oracle card, the GitHub Stack panel, and the bb Monokai palette throughout" width="100%" /></picture>
+<picture><img src="docs/media/hero.png" alt="bb running with these plugins enabled: the Dockside inbox, Agent Proxy and Agentation in the sidebar, an Amp Orb thread with an Oracle card, the GitHub Stack panel, and the bb Monokai palette throughout" width="100%" /></picture>
 
 ### Agent Providers
 
@@ -66,9 +66,9 @@
 <td>Real macOS notifications from bb itself when a thread finishes or fails, plus a <code>notify_user</code> agent tool.</td>
 </tr>
 <tr>
-<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/t3sidebar/assets/logo-dark.svg" /><img src="plugins/t3sidebar/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
-<td align="center"><a href="plugins/t3sidebar/"><b>t3sidebar</b></a></td>
-<td>A project-first thread list with stable ordering, clear working/unread states, and inline child agents. Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/dockside/assets/logo-dark.svg" /><img src="plugins/dockside/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/dockside/"><b>Dockside</b></a> ⚠️</td>
+<td>A project-first thread list with stable ordering, clear working/unread states, and inline child agents. <b>Not yet published to npm; install from source.</b> Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
 </tr>
 <tr>
 <td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/usage-tracker/assets/logo-dark.svg" /><img src="plugins/usage-tracker/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
@@ -95,7 +95,10 @@ One command per plugin:
 bb plugin install npm:bb-plugin-<id>
 ```
 
-`<id>` is the plugin's directory name — `action-topbar`, `agent-proxy`, `agentation`, `gh-stack`, `host-monitor`, `notify`, `amp`, `t3sidebar`, `usage-tracker`, or `monokai`. For example:
+This applies to published packages. Dockside is currently source-only: its npm
+name is intentionally not trusted until the maintainer controls that namespace.
+
+`<id>` is the plugin's directory name — `action-topbar`, `agent-proxy`, `agentation`, `gh-stack`, `host-monitor`, `notify`, `amp`, `dockside`, `usage-tracker`, or `monokai`. For example:
 
 ```sh
 bb plugin install npm:bb-plugin-notify

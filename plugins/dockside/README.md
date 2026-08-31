@@ -5,7 +5,7 @@
   <img src="assets/logo.svg" width="72" height="72" alt="" />
 </picture>
 
-# t3sidebar
+# Dockside
 
 **Stable projects, clear attention, inline agents.**
 
@@ -15,7 +15,7 @@
 
 </div>
 
-t3sidebar replaces the scrolling thread list in bb's left sidebar with a
+Dockside replaces the scrolling thread list in bb's left sidebar with a
 project-first inbox inspired by Orca's compact navigation.
 
 Projects keep bb's own order. Inside each project, root threads sort by creation
@@ -32,21 +32,19 @@ You clear the list with two email verbs: **snooze** a thread until a wake time, 
 
 ## Install
 
-**From npm** — one command:
+**Dockside is not published to npm yet.** The `bb-plugin-dockside` name is
+currently unclaimed, so do not install a bare npm package with that name. Until
+the maintainer controls the namespace, install only from this trusted source
+checkout.
 
-```sh
-bb plugin install npm:bb-plugin-t3sidebar
-```
-
-**From source** — clone the repo and install the plugin as a local path
-source. This is also how you install a change that is not released yet:
+**From source** — clone the repo and install the plugin as a local path source:
 
 ```sh
 git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter 'bb-plugin-t3sidebar' build
-bb plugin install ./plugins/t3sidebar
+bun run --filter 'bb-plugin-dockside' build
+bb plugin install ./plugins/dockside
 ```
 
 The source path needs Bun and the `bb` CLI. Note that
@@ -61,7 +59,7 @@ the manifest at the repository root, so it cannot see `plugins/<id>`.
 ## Usage
 
 Installing does not change your sidebar by itself. Open **Settings → Appearance →
-Sidebar** and choose **t3sidebar (projects)**.
+Sidebar** and choose **Dockside (projects)**.
 
 <picture><img src="docs/media/enable.png" alt="bb's Appearance settings where a sidebar replacement can be selected" width="100%" /></picture>
 
@@ -109,6 +107,21 @@ still gives a focused child a direct route back up.
 - Drag a card to a split pane, or Cmd/Ctrl-click to open one.
 - bb's search, its thread shortcuts, and modifier-click split-open all keep working.
 
+## Switching from t3sidebar
+
+Dockside is a new plugin identity, not an in-place release of t3sidebar. It
+uses a separate bb database and separate `dockside:v1:*` browser keys, so it
+starts with an empty Snoozed and Settled state. It does **not** migrate or
+delete the old plugin's parked threads.
+
+Keep t3sidebar installed but disabled until you no longer need its snoozed or
+settled rows. You can re-enable it temporarily to inspect that state. Removing
+the old plugin may remove its private database; Dockside never performs that
+removal for you.
+
+Sidebar selection is per client. Choose **Dockside (projects)** on each desktop,
+browser, or remote client where you want to use it.
+
 ## Configuration
 
 There is nothing to configure. The snooze presets assume a 09:00 morning, an 18:00
@@ -117,7 +130,7 @@ reaches back 24 hours. None of these are settings.
 
 ## Troubleshooting
 
-**My sidebar looks the same after installing.** Choose t3sidebar in Settings →
+**My sidebar looks the same after installing.** Choose Dockside in Settings →
 Appearance → Sidebar. Installing alone changes nothing.
 
 **A thread I settled is not on the Settled shelf.** The shelf only reaches back 24
@@ -133,9 +146,10 @@ archived and the thread leaves the sidebar until you unarchive it in bb yourself
 
 **Uninstalling left data behind.** The shelves live in the plugin's own database,
 which bb removes with the plugin — but a copy of them is cached in the browser's
-`localStorage` under `t3sidebar:v1:*` (thread ids and park timestamps, plus legacy
-provider metadata written by older versions). bb's uninstall does not clear web
-storage. Clear site data if that matters to you.
+`localStorage` under `dockside:v1:*` (thread ids, park timestamps, and legacy
+provider metadata). bb's uninstall does not clear web storage. Clear site data
+if that matters to you. The separate `t3sidebar:v1:*` keys belong to the old
+plugin and are not claimed by Dockside.
 
 ## Credits
 
@@ -156,8 +170,8 @@ Install from source as shown under [Install](#install), then check a change
 with:
 
 ```sh
-bun run --filter 'bb-plugin-t3sidebar' typecheck
-bun run --filter 'bb-plugin-t3sidebar' test
+bun run --filter 'bb-plugin-dockside' typecheck
+bun run --filter 'bb-plugin-dockside' test
 ```
 
 The test script needs Node 22.6+.

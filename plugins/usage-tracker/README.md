@@ -21,7 +21,7 @@ from the sidebar strip.
 
 The plugin uses bb's trusted `contentScripts` lifecycle and
 `system.usageLimits` data surface. It mounts only inside the host-owned sidebar
-footer, removes everything on reload/disable, and runs alongside t3sidebar.
+footer, removes everything on reload/disable, and runs alongside Dockside.
 
 ## Install
 

@@ -106,9 +106,9 @@ const customIcons = {
     name: "GitPullRequest",
     nodes: GitPullRequestIcon,
   },
-  // Upstream t3sidebar declares BB's named "PanelLeft" icon; Hugeicons ships
-  // the same glyph, so the fork keeps that identity through this pipeline.
-  t3sidebar: {
+  // Dockside's upstream t3sidebar declares BB's named "PanelLeft" icon;
+  // Hugeicons ships the same glyph, so the fork keeps that geometry.
+  dockside: {
     name: "PanelLeft",
     nodes: PanelLeftIcon,
   },

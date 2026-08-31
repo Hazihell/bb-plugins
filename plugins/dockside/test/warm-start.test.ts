@@ -293,9 +293,9 @@ describe("readWarmStartRows", () => {
 
   it("ignores an entry written under another version's key", () => {
     resetWarmStartMemoryForTests();
-    assert.equal(WARM_START_ROWS_KEY, "t3sidebar:v1:lifecycle-rows");
+    assert.equal(WARM_START_ROWS_KEY, "dockside:v1:lifecycle-rows");
     const store = storage({
-      "t3sidebar:v0:lifecycle-rows": encodeWarmStartRows([
+      "dockside:v0:lifecycle-rows": encodeWarmStartRows([
         row({ threadId: "a", settledAt: 500 }),
       ]),
     });
@@ -465,9 +465,9 @@ describe("readWarmStartProviders", () => {
 
   it("ignores an entry written under another version's key", () => {
     resetWarmStartMemoryForTests();
-    assert.equal(WARM_START_PROVIDERS_KEY, "t3sidebar:v1:providers");
+    assert.equal(WARM_START_PROVIDERS_KEY, "dockside:v1:providers");
     const store = storage({
-      "t3sidebar:v0:providers": encodeWarmStartProviders([provider]),
+      "dockside:v0:providers": encodeWarmStartProviders([provider]),
     });
     assert.equal(readWarmStartProviders(store), null);
   });

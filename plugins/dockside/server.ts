@@ -1,4 +1,4 @@
-// bb-plugin-t3sidebar backend — the settled / snoozed store.
+// bb-plugin-dockside backend — the settled / snoozed store.
 //
 // This state lives in the plugin's own SQLite database, never on bb's thread.
 // Putting it on the thread would mean a schema change, a wire change, and a
@@ -46,7 +46,7 @@ interface LifecycleDbRow {
 
 const threadIdSchema = z.object({ threadId: z.string().trim().min(1) });
 
-export const t3sidebarRpcContract = defineRpcContract({
+export const docksideRpcContract = defineRpcContract({
   listProviders: {
     input: z.object({}),
     output: z.object({
@@ -267,7 +267,7 @@ export default function plugin(bb: BbPluginApi) {
     return collected;
   };
 
-  bb.rpc.register(t3sidebarRpcContract, {
+  bb.rpc.register(docksideRpcContract, {
     // A custom ACP provider already carries its own brand mark, so the sidebar
     // reads it from the host rather than hard-coding a second glyph per agent.
     async listProviders() {

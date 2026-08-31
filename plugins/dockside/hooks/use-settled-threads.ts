@@ -5,7 +5,7 @@ import {
   useRpc,
 } from "@bb/plugin-sdk/app";
 import type { PluginSidebarThread } from "@bb/plugin-sdk";
-import type { t3sidebarRpcContract } from "@/server";
+import type { docksideRpcContract } from "@/server";
 import {
   isWithinSettledWindow,
   toSidebarThread,
@@ -62,7 +62,7 @@ export interface SettledThreadsApi {
  * does not. A second hook for the flag would issue a second read.
  */
 export function useSettledThreads(now: number): SettledThreadsApi {
-  const rpc = useRpc<typeof t3sidebarRpcContract>();
+  const rpc = useRpc<typeof docksideRpcContract>();
   const [rows, setRows] = useState<readonly SettledThreadRow[]>(EMPTY);
   const [rowsPending, setRowsPending] = useState(true);
 

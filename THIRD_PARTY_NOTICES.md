@@ -17,8 +17,8 @@ Four separate bodies of code arrive from bb, all under the MIT licence:
 
 | What | Where |
 |---|---|
-| The whole **t3sidebar** plugin, forked from `examples/plugins/t3sidebar` at commit `f13c2d35f96540012b305f3b555839b30e1b6163` (2026-08-07) | `plugins/t3sidebar/` |
-| Provider brand-mark **geometry**, lifted from bb's own icon components | `plugins/t3sidebar/lib/provider-marks.ts` and `plugins/usage-tracker/lib/provider-marks.ts` |
+| The whole **Dockside** plugin, forked from `examples/plugins/t3sidebar` at commit `f13c2d35f96540012b305f3b555839b30e1b6163` (2026-08-07) | `plugins/dockside/` |
+| Provider brand-mark **geometry**, lifted from bb's own icon components | `plugins/dockside/lib/provider-marks.ts` and `plugins/usage-tracker/lib/provider-marks.ts` |
 | Generated bb plugin SDK type declarations, emitted by `bb plugin new` from the pinned bb release | `plugins/*/types/bb-plugin-sdk.d.ts`, `plugins/*/types/bb-plugin-sdk-app.d.ts` |
 | shadcn/ui-derived components, vendored through bb's own plugin component registry and marked `/* shadcn/ui-derived */` | `plugins/*/components/ui/` |
 
@@ -70,7 +70,7 @@ user has chosen to install, which is nominative use.
 | Mark | Where | Owner |
 |---|---|---|
 | Amp | `plugins/amp/assets/*.svg` and `plugins/amp/src/amp-brand.ts`, used for plugin branding, rendered in the Orb banner, and written to `<bb data dir>/logos/amp.svg` when the plugin provisions its provider entry | Sourcegraph |
-| OpenAI, Claude, Cursor, Grok, opencode, Pi, oh-my-pi | `plugins/t3sidebar/lib/provider-marks.ts` and `plugins/usage-tracker/lib/provider-marks.ts` | their respective owners |
+| OpenAI, Claude, Cursor, Grok, opencode, Pi, oh-my-pi | `plugins/dockside/lib/provider-marks.ts` and `plugins/usage-tracker/lib/provider-marks.ts` | their respective owners |
 
 In bb provider chrome, a host-served logo always takes precedence over vendored
 geometry and is rendered as a muted silhouette. The Amp Orb banner uses the

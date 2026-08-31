@@ -1,22 +1,23 @@
 {
-  "name": "bb-plugin-t3sidebar",
+  "name": "bb-plugin-dockside",
   "version": "0.1.0",
   "description": "A project-first sidebar with stable threads and inline child agents.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
-  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/t3sidebar#readme",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/dockside#readme",
   "bugs": {
     "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
-    "directory": "plugins/t3sidebar"
+    "directory": "plugins/dockside"
   },
   "keywords": [
     "bb",
     "bb-plugin",
     "sidebar",
+    "dockside",
     "projects",
     "threads",
     "snooze"
@@ -30,7 +31,7 @@
     "bbPluginSdk": "^0.4.1"
   },
   "bb": {
-    "name": "t3sidebar",
+    "name": "Dockside",
     "description": "A project-first sidebar with stable threads and inline child agents.",
     "branding": {
       "icon": "./assets/icon.svg",

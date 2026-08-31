@@ -49,8 +49,8 @@ import type { ThreadLifecycleRow } from "@/lib/lifecycle";
 // the old entry instead of mis-reading data of the wrong shape; whoever writes
 // v2 should `removeItem` these two on its first successful write, because
 // nothing else on this origin ever will.
-export const WARM_START_ROWS_KEY = "t3sidebar:v1:lifecycle-rows";
-export const WARM_START_PROVIDERS_KEY = "t3sidebar:v1:providers";
+export const WARM_START_ROWS_KEY = "dockside:v1:lifecycle-rows";
+export const WARM_START_PROVIDERS_KEY = "dockside:v1:providers";
 
 /** The `Storage` methods this needs, so a test can hand it a stub. */
 export type WarmStartStorage = Pick<
@@ -370,7 +370,7 @@ export function writeWarmStartRows(
  * asked, and asking `window` for the real one would make a pure decode need a
  * DOM. `.invalid` is reserved by RFC 2606, so it can never name a real host.
  */
-const LOGO_URL_BASE = "https://t3sidebar.invalid";
+const LOGO_URL_BASE = "https://dockside.invalid";
 
 /**
  * A logo the host serves, and nothing else.
