@@ -1,26 +1,22 @@
 {
   "schemaVersion": 1,
-  "sequence": 2,
-  "previousDigest": "sha256:c857471c956d1fb555ba232cff24b824e56427007fe160fd4e9473bc16437cf9",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Specified Orca-style preset filtering, guarded root-family multi-selection and two-step bulk deletion, and per-project native + creation with project workspace resolution; recorded accepted safety, filter, and composer decisions plus the Dockside thread-management capability delta.",
-  "createdAt": "2026-08-31T20:34:19.330Z",
-  "stateBeforeDigest": "sha256:fcfa0e72f9f91c02ef7c54277a4aca5a28ce9ba30a6e26c41ab3fc95d30841a1",
-  "stateAfterDigest": "sha256:cc076b19cc852247eae5dac34e4ac2ec1c776d44fc47e69ae401ed42e3cfa921",
+  "feature": "dockside-thread-filters-bulk-delete",
+  "lastSequence": 13,
+  "lastEventDigest": "sha256:5d23af1066a664db5cb66bd24359a9862efb56058edc40ac02a04ba0d75209c6",
+  "stateDigest": "sha256:ac7e94edd0db36ed9c4871cb29040592e704ce2def172c7079177da98e700d91",
   "state": {
     "schemaVersion": 5,
-    "revision": 2,
+    "revision": 13,
     "activeFeature": "dockside-thread-filters-bulk-delete",
     "request": "Add an Orca-style thread filter and multi-select deletion mode to Dockside's project-first sidebar. Put compact filter and selection controls in the Projects header; preserve project grouping, inline child-agent hierarchy, and working/unread styling; allow selecting eligible inactive threads, selecting all currently filtered eligible threads, showing the selected count, cancelling selection, and deleting through an explicit destructive confirmation that accounts for child threads. Active/running or user-blocked threads must not be silently deleted, and partial failures must remain visible and recoverable.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "design",
-    "status": "waiting",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Specified Orca-style preset filtering, guarded root-family multi-selection and two-step bulk deletion, and per-project native + creation with project workspace resolution; recorded accepted safety, filter, and composer decisions plus the Dockside thread-management capability delta.",
-    "implementationActor": null,
+    "message": "Integrated capability changes: dockside-thread-management",
+    "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:d12319e04cc824313f37ccb03393f403d9bd21857125de58f13331ec9162af22",
     "approvedSpecRevision": 2,
@@ -30,24 +26,30 @@
     "capabilityClaimId": "dockside-thread-filters-bulk-delete-b40841a02be2",
     "authorizationDigest": null,
     "evidence": [],
-    "evidenceReceiptIds": [],
+    "evidenceReceiptIds": [
+      "qa-0cbefca6ab163d62243cd512",
+      "qa-a5103280a7566ed7a5452c67",
+      "qa-2ae2b34acd8332853dfd4f87",
+      "collected-e12b82b704040856d5f82fc1",
+      "qa-3246acde07abdd3b99de0361",
+      "collected-672e794f45852092fe657e1b",
+      "qa-b2cc23ffcda6db8b0f0168f8"
+    ],
     "legacyEvidenceCount": 0,
     "completion": {
-      "implemented": false,
-      "verified": false,
-      "integrated": false,
+      "implemented": true,
+      "verified": true,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "none",
+      "highest": "integrated",
       "reasons": {
-        "implemented": "implemented has not been proven by a durable receipt.",
-        "verified": "verified has not been proven by a durable receipt.",
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-08-31T20:34:19.330Z"
+    "updatedAt": "2026-08-31T22:11:45.362Z"
   },
-  "digest": "sha256:c4d84cf28d4db064aebc6969b78c9fa8a8137ddabdee4512bdb50d2a5dcc4548"
+  "compactedAt": "2026-08-31T22:11:45.392Z",
+  "digest": "sha256:af1ff551392397a3351946ccbad38b77d6ca0030e52eeead790d1ff7843a95f5"
 }

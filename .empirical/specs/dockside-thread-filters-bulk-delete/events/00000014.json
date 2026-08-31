@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "sequence": 7,
-  "previousDigest": "sha256:fc4ef1c195c2ae79688d9717d08369dac38a36b5dceb236161a091763339329c",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Verified all nine Dockside thread-management criteria with focused unit/fault tests, SDK/RPC typecheck, a safe live protected-preview system probe, four wide/compact Chromium screenshots, project-aware + navigation, and a fresh-context outcome pass. Security advisory findings are addressed; no real thread was deleted.",
-  "createdAt": "2026-08-31T21:24:40.957Z",
-  "stateBeforeDigest": "sha256:c2e08b5e0c1c4e776b1c3383f73c55f7488f264d5ef42d7074484c60bbbd4229",
-  "stateAfterDigest": "sha256:81b3242dd360833ac40fc5a62e8c602693888c8ee74e0b5fd81e5018025a46c8",
+  "sequence": 14,
+  "previousDigest": "sha256:5d23af1066a664db5cb66bd24359a9862efb56058edc40ac02a04ba0d75209c6",
+  "actor": "empirical-integrate",
+  "type": "compaction-boundary",
+  "summary": "Compacted through journal event 13",
+  "createdAt": "2026-08-31T22:11:45.392Z",
+  "stateBeforeDigest": "sha256:ac7e94edd0db36ed9c4871cb29040592e704ce2def172c7079177da98e700d91",
+  "stateAfterDigest": "sha256:ac7e94edd0db36ed9c4871cb29040592e704ce2def172c7079177da98e700d91",
   "state": {
     "schemaVersion": 5,
-    "revision": 7,
+    "revision": 13,
     "activeFeature": "dockside-thread-filters-bulk-delete",
     "request": "Add an Orca-style thread filter and multi-select deletion mode to Dockside's project-first sidebar. Put compact filter and selection controls in the Projects header; preserve project grouping, inline child-agent hierarchy, and working/unread styling; allow selecting eligible inactive threads, selecting all currently filtered eligible threads, showing the selected count, cancelling selection, and deleting through an explicit destructive confirmation that accounts for child threads. Active/running or user-blocked threads must not be silently deleted, and partial failures must remain visible and recoverable.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "review",
-    "status": "waiting",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Verified all nine Dockside thread-management criteria with focused unit/fault tests, SDK/RPC typecheck, a safe live protected-preview system probe, four wide/compact Chromium screenshots, project-aware + navigation, and a fresh-context outcome pass. Security advisory findings are addressed; no real thread was deleted.",
+    "message": "Integrated capability changes: dockside-thread-management",
     "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:d12319e04cc824313f37ccb03393f403d9bd21857125de58f13331ec9162af22",
@@ -31,27 +31,28 @@
     "authorizationDigest": null,
     "evidence": [],
     "evidenceReceiptIds": [
-      "qa-1c317d45ae546068413a873e",
-      "qa-6cfd54b388d1c8403bc0bf14",
-      "qa-634fb385b97db6ceb660d219",
-      "collected-fbc93d6d44d8ac9a7b67dbe0",
-      "qa-4c95f9e0b4fea8eed709f8ba"
+      "qa-0cbefca6ab163d62243cd512",
+      "qa-a5103280a7566ed7a5452c67",
+      "qa-2ae2b34acd8332853dfd4f87",
+      "collected-e12b82b704040856d5f82fc1",
+      "qa-3246acde07abdd3b99de0361",
+      "collected-672e794f45852092fe657e1b",
+      "qa-b2cc23ffcda6db8b0f0168f8"
     ],
     "legacyEvidenceCount": 0,
     "completion": {
       "implemented": true,
       "verified": true,
-      "integrated": false,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "verified",
+      "highest": "integrated",
       "reasons": {
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-08-31T21:24:40.957Z"
+    "updatedAt": "2026-08-31T22:11:45.362Z"
   },
-  "digest": "sha256:81c32a6b83c9325d3a87965215baa3e5188e4bc85d4a52d416fb4d6eb26292fa"
+  "digest": "sha256:769194889eb1fd343b27d0e5d39de122a8cf9b664f71014b1e3ba133cb878440"
 }
