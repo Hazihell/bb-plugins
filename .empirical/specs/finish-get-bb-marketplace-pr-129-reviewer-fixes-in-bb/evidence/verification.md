@@ -94,11 +94,30 @@ until trash is emptied.
 - `npm run check` reaches the existing unrelated Ports entry and fails because
   `https://github.com/ramaaudra/bb-plugin-ports.git` returns repository not
   found. No Taskboard or Usage Tracker liveness error is reported.
-- Public `usage-tracker/v0.1.4` is already immutable. Exact Taskboard `0.3.3`
-  public tag liveness and a clean full Marketplace check remain intentionally
-  pending the explicit source release approval.
+- Public annotated `taskboard/v0.3.3` peels to the reviewed release commit
+  `fb8c1073e78dedba177ba22ba6829938a6c0d300`; its GitHub Release is live at
+  `https://github.com/MateoCerquetella/bb-plugins/releases/tag/taskboard/v0.3.3`.
+  Public annotated `usage-tracker/v0.1.4` peels to `2d90bd3`.
+- After publication, Marketplace `npm run build` still composes 89 entries and
+  `npm run check` reports only the pre-existing Ports repository 404. It emits
+  no Taskboard or Usage Tracker liveness error.
+- PR #129 is live at head `8064575`, mergeable against current upstream
+  `e937f46`, with exactly the three intended additions. Its title/body now
+  describe the Git sources and reviewer fixes, and the re-review comment is
+  `https://github.com/get-bb/marketplace/pull/129#issuecomment-5480969400`.
 
-## Remote boundary
+## Approved remote delivery
 
-No source push, `taskboard/v0.3.3` tag, GitHub Release, Marketplace push, PR
-edit, comment, or re-review request has been performed for this feature.
+The user approved the exact authenticated commands naming account
+`MateoCerquetella`, release commit `fb8c1073`, tag `taskboard/v0.3.3`, source
+branch, Marketplace commit `8064575`, PR body, and re-review comment. After that
+approval only:
+
+- the source branch was fast-forward pushed;
+- the new annotated tag and GitHub Release were created without moving an
+  existing ref;
+- the Marketplace fork branch was fast-forward pushed;
+- PR #129's title/body were updated and one reviewer-ping comment was posted.
+
+No npm publication, force push, merge, tracker issue creation, or unapproved
+external mutation occurred.

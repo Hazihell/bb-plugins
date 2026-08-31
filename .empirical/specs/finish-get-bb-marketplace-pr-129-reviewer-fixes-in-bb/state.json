@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 8,
   "activeFeature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
   "request": "Finish get-bb/marketplace PR #129 reviewer fixes. In bb-plugins, make Taskboard cleanly install and build from its Git subdirectory after production-only dependency installation; address the hidden issue-drafting agent's auto-approved permission risk instead of merely relabeling it; scrub the GitHub CLI child-process environment to the minimum deliberate variables needed; update tests and user-facing disclosure; bump Taskboard from 0.3.2 to 0.3.3 consistently without changing Usage Tracker 0.1.4 or Host Monitor 0.1.2; run focused, clean-install, root, and live reload verification. Then prepare the Marketplace PR #129 refresh with Taskboard range ^0.3.3, Usage Tracker ^0.1.4, the vendored Taskboard icon, accurate AI/model-usage disclosure, and current-main merge resolution. Stop before any new source push, tag, GitHub Release, Marketplace push, PR edit, or comment until the exact remote mutations are presented for approval.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "yolo",
-  "phase": "verify",
+  "phase": "review",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Refreshed all five repository knowledge pages, replaced the retired hidden-agent and dev-only SDK descriptions with evidence-backed Taskboard 0.3.3 production-build, manual-prefill, legacy cleanup, and gh allowlist architecture, and confirmed every page is fresh, custom, complete, and free of refinement requirements.",
+  "message": "Verified published Taskboard 0.3.3 and Marketplace PR #129 across the complete automated matrix, 124 regressions, isolated production install/build, live BB browser evidence, exact public annotated refs, current-base three-file Marketplace diff, schema/build validation, precise unrelated Ports failure isolation, approved remote delivery, and advisory security consultation.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:e480be6a78bdcc5d4f98d111b3fd477a73cf58c21ad994ddba93e7e72eed2f4e",
@@ -20,21 +20,23 @@
   "capabilityClaimId": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb-6c9b9308abd6",
   "authorizationDigest": "sha256:a259c3a860ab99d15399259fcbd1960307960f4eb21ec191e22ec0ce5a2dce41",
   "evidence": [],
-  "evidenceReceiptIds": [],
+  "evidenceReceiptIds": [
+    "qa-71dbc8dbd39d60c2a6454604",
+    "qa-1cf4c963cfda5c72bfd49b28"
+  ],
   "legacyEvidenceCount": 0,
   "completion": {
     "implemented": true,
-    "verified": false,
+    "verified": true,
     "integrated": false,
     "delivered": false,
     "published": false,
-    "highest": "implemented",
+    "highest": "verified",
     "reasons": {
-      "verified": "verified has not been proven by a durable receipt.",
       "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-08-31T14:54:05.191Z"
+  "updatedAt": "2026-08-31T16:09:30.154Z"
 }

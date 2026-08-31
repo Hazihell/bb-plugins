@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-08-31T13:03:58-03:00",
+  "source": {
+    "repository": "https://github.com/MateoCerquetella/bb-plugins.git",
+    "releaseUrl": "https://github.com/MateoCerquetella/bb-plugins/releases/tag/taskboard/v0.3.3",
+    "taskboardTag": {
+      "name": "taskboard/v0.3.3",
+      "tagObject": "f6697243c634393b1befe3a8b0e79ae7dad89d0f",
+      "peeledCommit": "fb8c1073e78dedba177ba22ba6829938a6c0d300"
+    },
+    "usageTrackerTag": {
+      "name": "usage-tracker/v0.1.4",
+      "tagObject": "b576bd74196ee5f70a93a99e6d643cb491f3bbec",
+      "peeledCommit": "2d90bd3be0aab8a3641e368536bbe441150e6580"
+    }
+  },
+  "marketplace": {
+    "pullRequest": "https://github.com/get-bb/marketplace/pull/129",
+    "headCommit": "8064575c7edb2656ff4be815ed450324b083911d",
+    "baseCommit": "e937f462a47180aef8725c5e71af6898da5ccfdd",
+    "mergeable": true,
+    "files": [
+      "entries/taskboard.json",
+      "entries/usage-tracker.json",
+      "icons/taskboard-0b77950c.svg"
+    ],
+    "buildEntries": 89,
+    "directTaskboardTagLive": true,
+    "directUsageTrackerTagLive": true,
+    "repositoryWideLiveness": {
+      "passed": false,
+      "onlyFailure": "ports",
+      "reason": "https://github.com/ramaaudra/bb-plugin-ports.git returns repository not found"
+    },
+    "reviewComment": "https://github.com/get-bb/marketplace/pull/129#issuecomment-5480969400"
+  },
+  "remoteBoundary": {
+    "exactCommandsApproved": true,
+    "forcePush": false,
+    "npmPublished": false,
+    "pullRequestMerged": false
+  }
+}

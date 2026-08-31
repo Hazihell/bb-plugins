@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-1cf4c963cfda5c72bfd49b28",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-MKT-1",
+    "AC-MKT-2",
+    "AC-REMOTE-1"
+  ],
+  "evidenceKinds": [
+    "human"
+  ],
+  "summary": "A fresh real-BB and public-release pass confirmed Taskboard 0.3.3 manual editable prefill with no model execution, production-only buildability, recorded-only legacy cleanup, canonical token-free gh discovery with cwd/symlink shadow rejection, exact versions, immutable public tags, PR #129's exact three-file current-base diff, Marketplace schema/build success, precise unrelated Ports failure isolation, and approved-only remote delivery.",
+  "passed": true,
+  "startedAt": "2026-08-31T16:09:17.767Z",
+  "completedAt": "2026-08-31T16:09:17.767Z",
+  "provenance": {
+    "repositoryId": "sha256:f8da5183fda8733511f6cba0809d0dd294fa59b7a90511fee567dc8aa4f04edc",
+    "feature": "finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb",
+    "specRevision": 3,
+    "specDigest": "sha256:e480be6a78bdcc5d4f98d111b3fd477a73cf58c21ad994ddba93e7e72eed2f4e",
+    "treeDigest": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+    "policyDigest": "sha256:21e242370689ceb417549a793781cf9a9ab56a982eb4671954b3ff1f657741d2",
+    "workflowRevision": 7,
+    "gitCommit": "71d328eb0ecbea2fa553125f72d3f6c7876e2f28"
+  },
+  "digest": "sha256:7a3b0a759eb045b27e1739368060bb16cd95b86ec5d974251d9910027036d899",
+  "kind": "qa",
+  "matrixDigest": "sha256:61f7d38261388318f1cbddc0d986fea24ef6bf20f8285635733cf194c648e48d",
+  "check": {
+    "id": "qa-fresh-context",
+    "kind": "fresh-context"
+  },
+  "coveredChecks": [
+    "fresh-context"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "A fresh real-BB and public-release pass confirmed Taskboard 0.3.3 manual editable prefill with no model execution, production-only buildability, recorded-only legacy cleanup, canonical token-free gh discovery with cwd/symlink shadow rejection, exact versions, immutable public tags, PR #129's exact three-file current-base diff, Marketplace schema/build success, precise unrelated Ports failure isolation, and approved-only remote delivery.",
+      "startedAt": "2026-08-31T16:09:17.767Z",
+      "completedAt": "2026-08-31T16:09:17.767Z",
+      "durationMs": 0,
+      "collector": "codex-browser-public-release-context",
+      "command": null,
+      "result": null,
+      "cleanStart": false,
+      "sourceTreeBefore": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+      "sourceTreeAfter": "sha256:36331ab75a53dfac6de79f17e167633ab859285d0918e6fb341bcb3f7111990c",
+      "artifacts": [
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/consults/security.md",
+          "mediaType": "text/plain",
+          "bytes": 1014,
+          "digest": "sha256:898ce9b87cb83d09c8368be0e996e9ea6be117394ae398c26b8e58d77acd964a"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/manual-prefill-browser-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 714,
+          "digest": "sha256:09176eea9282150457ceb5cb6fb3263f406e1c23eb48f979129f8e2f6d212c20"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/marketplace-129-public-evidence.json",
+          "mediaType": "application/json",
+          "bytes": 1539,
+          "digest": "sha256:8bc93c063f48acd09972a5827330e90fa0e34eb2881e23dc1f36a6487d4d3500"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/taskboard-0.3.3-manual-prefill.png",
+          "mediaType": "image/png",
+          "bytes": 141895,
+          "digest": "sha256:1ec99b89bfae96cf9d5384ae777b0f8b852a5349d8cfc0f2e6650a57f5edf312"
+        },
+        {
+          "path": ".empirical/specs/finish-get-bb-marketplace-pr-129-reviewer-fixes-in-bb/evidence/verification.md",
+          "mediaType": "text/plain",
+          "bytes": 6453,
+          "digest": "sha256:733891fd1471ec21b437144bbaac387f8ba5c29d6c64dacb1038daa30abfd873"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}
