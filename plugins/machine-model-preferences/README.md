@@ -1,5 +1,9 @@
 # Machine Model Preferences
 
+![Illustrative machine-scoped preferences panel](../../docs/media/machine-model-preferences-preview.png)
+
+_Illustrative UI preview; the installed settings section uses BB's native theme._
+
 Machine Model Preferences stores provider, model, and reasoning selections in
 browser localStorage with host/provider-scoped keys. Its settings section lists
 and clears saved values. Reused environments are intentionally not persisted.
