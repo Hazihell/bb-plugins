@@ -21,6 +21,7 @@ import {
   sidebarUsageSummary,
   sidebarUsageWindows,
 } from "../lib/sidebar-usage.ts";
+import { enabledSidebarProviderIds } from "../lib/preferences.ts";
 
 function healthyResponse(): RawUsageResponse {
   return {
@@ -42,8 +43,8 @@ function healthyResponse(): RawUsageResponse {
         },
       ],
     },
-    claudeCode: { status: "expired" },
-    cursor: { status: "unauthenticated" },
+    "claude-code": { status: "expired" },
+    "acp-cursor": { status: "unauthenticated" },
   };
 }
 
@@ -73,6 +74,25 @@ function makeSdk(overrides: Partial<UsageSdk> = {}): UsageSdk {
   };
 }
 
+test("enables sidebar providers independently in display order", () => {
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: true }),
+    ["claudeCode", "codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: false }),
+    ["claudeCode"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: true }),
+    ["codex"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: false }),
+    [],
+  );
+});
+
 test("normalizes providers in stable order with every usage window", () => {
   const snapshot = normalizeUsage(
     healthyResponse(),
@@ -99,16 +119,31 @@ test("normalizes providers in stable order with every usage window", () => {
   assert.match(snapshot.providers[2]?.message ?? "", /cursor-agent login/);
 });
 
+test("ignores usage entries outside the tracked provider roster", () => {
+  const snapshot = normalizeUsage(
+    {
+      ...healthyResponse(),
+      anotherProvider: { status: "not_installed" },
+    },
+    { id: null, name: null },
+  );
+
+  assert.deepEqual(
+    snapshot.providers.map((provider) => provider.id),
+    ["codex", "claudeCode", "cursor"],
+  );
+});
+
 test("normalizes not-installed and provider-error states", () => {
   const response: RawUsageResponse = {
     codex: { status: "not_installed" },
-    claudeCode: {
+    "claude-code": {
       status: "error",
       message: "Provider timed out",
       planLabel: "Max",
       accountEmail: "account@example.com",
     },
-    cursor: { status: "expired" },
+    "acp-cursor": { status: "expired" },
   };
 
   const snapshot = normalizeUsage(response, { id: null, name: null });
@@ -126,6 +161,56 @@ test("normalizes not-installed and provider-error states", () => {
   assert.equal(providerStatusLabel("error"), "Unavailable");
 });
 
+test("accepts legacy provider aliases", () => {
+  const snapshot = normalizeUsage(
+    {
+      codex: { status: "not_installed" },
+      claudeCode: { status: "unauthenticated" },
+      cursor: { status: "expired" },
+    },
+    { id: null, name: null },
+  );
+
+  assert.equal(snapshot.providers[0]?.status, "not_installed");
+  assert.equal(snapshot.providers[1]?.status, "unauthenticated");
+  assert.equal(snapshot.providers[2]?.status, "expired");
+});
+
+test("prefers current wire keys over legacy aliases", () => {
+  const snapshot = normalizeUsage(
+    {
+      "claude-code": { status: "expired" },
+      claudeCode: { status: "not_installed" },
+      "acp-cursor": { status: "unauthenticated" },
+      cursor: { status: "not_installed" },
+    },
+    { id: null, name: null },
+  );
+
+  assert.equal(snapshot.providers[1]?.status, "expired");
+  assert.equal(snapshot.providers[2]?.status, "unauthenticated");
+});
+
+test("reports omitted providers as unavailable without throwing", () => {
+  const snapshot = normalizeUsage(
+    { codex: { status: "not_installed" } },
+    { id: null, name: null },
+  );
+
+  assert.equal(snapshot.providers[0]?.status, "not_installed");
+  assert.deepEqual(snapshot.providers[1], {
+    id: "claudeCode",
+    name: "Claude Code",
+    status: "error",
+    accountEmail: null,
+    planLabel: null,
+    message: "Claude Code usage was not reported by bb.",
+    windows: [],
+  });
+  assert.equal(snapshot.providers[2]?.status, "error");
+  assert.equal(providerStatusLabel(snapshot.providers[2]!.status), "Unavailable");
+});
+
 test("clamps progress geometry and rejects non-finite values", () => {
   assert.equal(clampPercent(-3), 0);
   assert.equal(clampPercent(45.5), 45.5);
@@ -133,8 +218,9 @@ test("clamps progress geometry and rejects non-finite values", () => {
   assert.throws(() => clampPercent(Number.NaN), /finite/);
 
   const response = healthyResponse();
-  if (response.codex.status !== "ok") assert.fail("codex fixture must be healthy");
-  response.codex.windows[0]!.usedPercent = Number.POSITIVE_INFINITY;
+  const codex = response.codex;
+  if (codex?.status !== "ok") assert.fail("codex fixture must be healthy");
+  codex.windows[0]!.usedPercent = Number.POSITIVE_INFINITY;
   assert.throws(
     () => normalizeUsage(response, { id: null, name: null }),
     /finite/,

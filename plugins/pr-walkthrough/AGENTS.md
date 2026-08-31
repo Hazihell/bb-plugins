@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository owns the `@smsunarto/bb-plugin-pr-walkthrough` bb plugin, the reusable `pr-walkthrough` skill it ships, and the neutral static review product. The product helps a human understand a pull request in a deliberate semantic order. It is an orientation and reading-progress tool, not an automated code-review verdict.
+This repository owns the `bb-plugin-pr-walkthrough` bb plugin, the reusable `pr-walkthrough` skill it ships, and the neutral static review product. The product helps a human understand a pull request in a deliberate semantic order. It is an orientation and reading-progress tool, not an automated code-review verdict.
 
 Keep the diff as the primary surface. Do not add findings, severities, approval recommendations, merge controls, fake discussion, or vendor-specific branding.
 
@@ -124,7 +124,7 @@ bun run --cwd skills/pr-walkthrough/assets/site-template check
 bun run skills/pr-walkthrough/scripts/validate-site-template.ts --site skills/pr-walkthrough/assets/site-template --built
 ```
 
-When editing the plugin (`server.ts`, `app.tsx`, manifest, vendored UI), start `bun run dev` from the repository root and use the live plugin as the primary feedback loop. Run the filtered `@smsunarto/bb-plugin-pr-walkthrough` typecheck for fast iteration. Before handoff, run the root verification required by the repository guide; add the filtered build when the manifest, frontend, dependencies, or build inputs changed. Run `bun install` only after dependency or lockfile changes. Use `bun run logs pr-walkthrough -f` only to diagnose runtime or reload behavior.
+When editing the plugin (`server.ts`, `app.tsx`, manifest, vendored UI), start `bun run dev` from the repository root and use the live plugin as the primary feedback loop. Run the filtered `bb-plugin-pr-walkthrough` typecheck for fast iteration. Before handoff, run the root verification required by the repository guide; add the filtered build when the manifest, frontend, dependencies, or build inputs changed. Run `bun install` only after dependency or lockfile changes. Use `bun run logs pr-walkthrough -f` only to diagnose runtime or reload behavior.
 
 Validate the skill package with the `skill-creator` `quick_validate.py` command when that tool is available. If its runtime lacks PyYAML, use a temporary validation environment rather than adding PyYAML to this product.
 

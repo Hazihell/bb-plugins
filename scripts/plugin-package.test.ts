@@ -16,8 +16,8 @@ const ROOT = join(import.meta.dir, "..");
 describe("derivePluginId", () => {
   test("a scope changes nothing about the id", () => {
     expect(derivePluginId("bb-plugin-notify")).toBe("notify");
-    expect(derivePluginId("@smsunarto/bb-plugin-notify")).toBe("notify");
-    expect(derivePluginId("@smsunarto/bb-plugin-gh-stack")).toBe("gh-stack");
+    expect(derivePluginId("@scope/bb-plugin-notify")).toBe("notify");
+    expect(derivePluginId("bb-plugin-gh-stack")).toBe("gh-stack");
   });
 
   test("normalizes the way bb does", () => {
@@ -31,15 +31,15 @@ describe("derivePluginId", () => {
 describe("isPluginPackageName", () => {
   test("matches the prefix after the scope, not before it", () => {
     expect(isPluginPackageName("bb-plugin-monokai")).toBe(true);
-    expect(isPluginPackageName("@smsunarto/bb-plugin-monokai")).toBe(true);
+    expect(isPluginPackageName("@scope/bb-plugin-monokai")).toBe(true);
     expect(isPluginPackageName("@bb-plugin-monokai/tool")).toBe(false);
     expect(isPluginPackageName("bb-plugins")).toBe(false);
     expect(isPluginPackageName(undefined)).toBe(false);
   });
 
   test("unscopedPackageName keeps an unscoped name whole", () => {
+    expect(unscopedPackageName("@scope/bb-plugin-monokai")).toBe("bb-plugin-monokai");
     expect(unscopedPackageName("bb-plugin-monokai")).toBe("bb-plugin-monokai");
-    expect(unscopedPackageName("@smsunarto/bb-plugin-monokai")).toBe("bb-plugin-monokai");
   });
 });
 
@@ -58,8 +58,8 @@ describe("the workspace", () => {
       expect(plugin.id).toBe(plugin.directory);
     });
 
-    test(`${plugin.directory} publishes under the @smsunarto scope`, () => {
-      expect(plugin.name).toBe(`@smsunarto/bb-plugin-${plugin.directory}`);
+    test(`${plugin.directory} uses the canonical unscoped package name`, () => {
+      expect(plugin.name).toBe(`bb-plugin-${plugin.directory}`);
     });
   }
 });

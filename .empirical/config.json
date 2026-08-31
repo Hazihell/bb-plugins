@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 5,
+  "profile": "complex",
+  "maxRepairAttempts": 2,
+  "evidence": {
+    "required": true,
+    "browserForUi": true,
+    "screenshotForUi": true,
+    "codeReview": true
+  },
+  "isolation": {
+    "mode": "ask",
+    "baseBranch": "main",
+    "worktreePath": "../{repo}-{feature}",
+    "branchPattern": "{type}/{feature}"
+  },
+  "decisions": {
+    "complexRecords": "required"
+  },
+  "interaction": {
+    "questions": "concise"
+  },
+  "review": {
+    "mode": "fresh-context",
+    "reviewerTokenEnv": "EMPIRICAL_REVIEWER_TOKEN"
+  },
+  "setupComplete": true,
+  "legacySource": null
+}

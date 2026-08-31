@@ -18,25 +18,12 @@ import {
 } from "@/lib/lifecycle";
 import { readWarmStartRows, writeWarmStartRows } from "@/lib/warm-start";
 import { useRetryingRead } from "@/hooks/use-retrying-read";
-
-/** Any live work at all, which blocks parking and wakes a parked thread. */
-export function isWorking(thread: PluginSidebarThread): boolean {
-  const { activity } = thread;
-  return (
-    activity.workflows > 0 ||
-    activity.backgroundAgents > 0 ||
-    activity.backgroundCommands > 0 ||
-    activity.planMode > 0 ||
-    activity.goals > 0 ||
-    thread.indicator === "runtime" ||
-    thread.indicator === "working-draft"
-  );
-}
+import { threadIsWorking } from "@/lib/inbox";
 
 function signalsFor(thread: PluginSidebarThread): ThreadActivitySignals {
   return {
     hasPendingInteraction: thread.hasPendingInteraction,
-    isWorking: isWorking(thread),
+    isWorking: threadIsWorking(thread),
     isUnread: thread.isUnread,
     latestAttentionAt: thread.latestAttentionAt,
   };

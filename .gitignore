@@ -1,5 +1,8 @@
 node_modules/
 dist/
+.worktrees/
+.snapshots/
+.clones/
 out/
 .next/
 __pycache__/

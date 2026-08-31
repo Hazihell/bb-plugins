@@ -28,7 +28,7 @@ test("renderInitialConfig produces the expected yaml", () => {
   assert.match(text, /auth-dir: \/data\/plugins\/agent-proxy\/core\/auth/);
   assert.match(text, /api-keys:\n\s+- local-key/);
   assert.match(text, /usage-statistics-enabled: true/);
-  assert.match(text, /Managed by @smsunarto\/bb-plugin-agent-proxy/);
+  assert.match(text, /Managed by bb-plugin-agent-proxy/);
 });
 
 test("surgical updates preserve core-owned edits", () => {

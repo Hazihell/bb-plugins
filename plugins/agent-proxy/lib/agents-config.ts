@@ -146,7 +146,7 @@ export const CODEX_ENV_KEY = "AGENT_PROXY_API_KEY";
     ~/.codex/config.toml, at the cost of not inheriting it. */
 export function renderCodexConfig(openAiBaseUrl: string): string {
   return [
-    "# Managed by @smsunarto/bb-plugin-agent-proxy. Use via:",
+    "# Managed by bb-plugin-agent-proxy. Use via:",
     `#   CODEX_HOME=<this dir> ${CODEX_ENV_KEY}=<local api key> codex`,
     'model_provider = "agent-proxy"',
     "",

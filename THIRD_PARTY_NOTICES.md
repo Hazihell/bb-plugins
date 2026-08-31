@@ -54,7 +54,8 @@ Source: <https://github.com/get-bb/bb>
 
 The free icon set is MIT licensed, Copyright (c) 2025 Hugeicons. It supplies
 the plugin icon and settings-logo artwork generated under `plugins/*/assets/`,
-including Usage Tracker's `BarChart` glyph.
+including Host Monitor's `ComputerTerminal01` and Usage Tracker's `BarChart`
+glyphs.
 
 Source: <https://github.com/hugeicons/hugeicons-react>
 
@@ -82,7 +83,7 @@ vendored Amp mark as an Amp-red status accent.
 `plugins/amp` depends on `@ampcode/sdk`, published by Sourcegraph under the **Amp
 Commercial License**, and bundles it into `dist/bridge.js`. That code is
 Sourcegraph's and stays under the Amp Commercial License, not MIT; the licence
-permits the redistribution `@smsunarto/bb-plugin-amp` performs.
+permits the redistribution `bb-plugin-amp` performs.
 
 `plugins/amp/vendor/ampcode-cli-stub` is a local, empty stand-in for
 `@ampcode/cli` written for this repository. It contains none of Sourcegraph's

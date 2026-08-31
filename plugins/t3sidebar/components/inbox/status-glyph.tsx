@@ -71,7 +71,7 @@ export function StatusGlyph({
         <Icon
           name="CircleQuestion"
           aria-label={aria}
-          className={cn(shared, "text-muted-foreground/75")}
+          className={cn(shared, "text-primary")}
         />
       );
     case "runtime":
@@ -79,7 +79,7 @@ export function StatusGlyph({
         <Icon
           name="Loading"
           aria-label={aria}
-          className={cn(shared, "animate-spin text-muted-foreground/50")}
+          className={cn(shared, "animate-spin text-primary")}
         />
       );
     case "workflow":
@@ -102,15 +102,14 @@ export function StatusGlyph({
         />
       );
     case "unread-success":
-      // The notification dot, in a box the size of every other glyph, the way
-      // bb centers its own trailing indicators. Right-aligned on its own, a
-      // 5px dot would sit ~4px off the column the icons share.
+      // A ring is legible beside the animated working spinner while staying
+      // quieter than a second filled status colour.
       return (
         <span
           aria-label={aria}
           className={cn("flex items-center justify-center", shared)}
         >
-          <span className="size-[5px] rounded-full bg-timeline-accent" />
+          <span className="size-2.5 rounded-full border-2 border-primary" />
         </span>
       );
     case "none":
@@ -133,7 +132,7 @@ function ShineIcon({
     <Icon
       name={name}
       aria-label={label}
-      className={cn("animate-shine-icon text-muted-foreground/50", className)}
+      className={cn("animate-shine-icon text-primary", className)}
     />
   );
 }

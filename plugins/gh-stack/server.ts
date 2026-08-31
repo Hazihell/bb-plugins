@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-gh-stack — stacked-PR visibility and actions for BB threads.
+// bb-plugin-gh-stack — stacked-PR visibility and actions for BB threads.
 //
 // Runs `gh stack` commands in a thread's workspace (server host):
 // view --json for the panel, plus sync / submit / init actions.

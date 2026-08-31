@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-pr-walkthrough — frontend entry.
+// bb-plugin-pr-walkthrough — frontend entry.
 //
 // Renders the compiled walkthrough natively inside bb:
 // - `::pr-walkthrough{path="..."}` message directive the skill emits after a

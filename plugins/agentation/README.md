@@ -46,17 +46,17 @@ per agent. The toolbar talks to bb's own origin, so annotating through
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-agentation
+bb plugin install npm:bb-plugin-agentation
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-agentation' build
+bun run --filter 'bb-plugin-agentation' build
 bb plugin install ./plugins/agentation
 ```
 
@@ -147,5 +147,5 @@ which rebuilds and reloads the plugin on every edit:
 
 ```sh
 bb plugin dev plugins/agentation
-bun run --filter '@smsunarto/bb-plugin-agentation' test
+bun run --filter 'bb-plugin-agentation' test
 ```

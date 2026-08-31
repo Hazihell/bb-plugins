@@ -1,23 +1,23 @@
 {
-  "name": "@smsunarto/bb-plugin-t3sidebar",
+  "name": "bb-plugin-t3sidebar",
   "version": "0.1.0",
-  "description": "An inbox-style sidebar: one flat list of cards that never re-orders.",
+  "description": "A project-first sidebar with stable threads and inline child agents.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/t3sidebar#readme",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/t3sidebar#readme",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/t3sidebar"
   },
   "keywords": [
     "bb",
     "bb-plugin",
     "sidebar",
-    "inbox",
+    "projects",
     "threads",
     "snooze"
   ],
@@ -31,7 +31,7 @@
   },
   "bb": {
     "name": "t3sidebar",
-    "description": "An inbox-style sidebar: one flat list of cards that never re-orders.",
+    "description": "A project-first sidebar with stable threads and inline child agents.",
     "branding": {
       "icon": "./assets/icon.svg",
       "logo": {

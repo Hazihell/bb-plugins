@@ -1,23 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  experimental_useProviders as useProviders,
   experimental_useSidebarThreads as useSidebarThreads,
-  useRpc,
   type PluginSidebarThread,
   type PluginThreadListProps,
 } from "@bb/plugin-sdk/app";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { ThreadCard } from "@/components/inbox/thread-card";
+import { ProjectGroup } from "@/components/inbox/project-group";
 import type { ProviderGlyphInfo } from "@/components/inbox/provider-glyph";
 import { SlimRow } from "@/components/inbox/slim-row";
-import type { t3sidebarRpcContract } from "@/server";
 import { useLifecycle } from "@/hooks/use-lifecycle";
 import { useSettledThreads } from "@/hooks/use-settled-threads";
 import {
@@ -26,27 +18,18 @@ import {
 } from "@/lib/settled-threads";
 import { TRAILING_GLYPH_BOX_CLASS } from "@/components/inbox/status-slot";
 import {
-  filterByProject,
-  hideChildrenOfVisibleParents,
-  partitionPinned,
+  groupThreadsByProject,
+  searchProjectThreadGroups,
   searchThreadsByTitle,
   sortByCreatedAtDescending,
   visibleInboxThreads,
 } from "@/lib/inbox";
-import {
-  readWarmStartProviders,
-  writeWarmStartProviders,
-} from "@/lib/warm-start";
 
-const ALL_PROJECTS = "__all__";
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
 
 /**
- * The sidebar's scrolling list: one flat, statically ordered stack of cards.
- *
- * The host owns the New-thread button and the search field above it, so this
- * ships neither. It filters by the `searchQuery` prop and keeps only the one
- * control the host has no equivalent for: the project scope picker.
+ * A project-first inbox. Project sections stay put; roots keep their creation
+ * order; active root/child families expand in place instead of jumping around.
  */
 export function ThreadInbox({
   activeThreadId,
@@ -54,10 +37,7 @@ export function ThreadInbox({
   searchQuery,
 }: PluginThreadListProps) {
   const { status, threads: hostThreads, projects } = useSidebarThreads();
-  const rpc = useRpc<typeof t3sidebarRpcContract>();
-  // One clock for every card in a render, quantized to the minute so the
-  // labels do not disagree and do not churn on unrelated re-renders. It is
-  // read first because the settled shelf's day-long window is cut against it.
+  const { providers } = useProviders();
   const [nowMinute, setNowMinute] = useState(() =>
     Math.floor(Date.now() / 60_000),
   );
@@ -69,9 +49,9 @@ export function ThreadInbox({
     return () => clearInterval(timer);
   }, []);
   const now = nowMinute * 60_000;
-  // The host reports no archived thread, and settling archives one. Everything
-  // below — the shelves, the un-settle rule, search, the project scope — reads
-  // this merged list so the settled shelf has rows to draw at all.
+
+  // Settling archives a thread in bb, so the host list alone cannot draw the
+  // settled shelf. Merge the plugin's bounded archived read back in first.
   const { threads: settledThreads, rowsPending: settledRowsPending } =
     useSettledThreads(now);
   const threads = useMemo(
@@ -79,109 +59,62 @@ export function ThreadInbox({
     [hostThreads, settledThreads],
   );
   const lifecycle = useLifecycle(threads);
-  // Seeded from the same cache the shelves use, and for the same reason: a
-  // remount would otherwise draw every glyph from a fallback and swap it a
-  // round trip later. Nothing gates on it — a fallback glyph is a different
-  // pixel, not a different layout.
-  const [providerInfoById, setProviderInfoById] = useState<
+  const [showSnoozed, setShowSnoozed] = useState(false);
+  const [showSettled, setShowSettled] = useState(false);
+
+  const providerInfoById = useMemo<
     ReadonlyMap<string, ProviderGlyphInfo>
   >(
     () =>
       new Map(
-        (readWarmStartProviders() ?? []).map((provider) => [
+        providers.map((provider) => [
           provider.id,
-          provider,
+          {
+            displayName: provider.displayName,
+            logoUrl: provider.logoUrl,
+          },
         ]),
       ),
-  );
-  const [scope, setScope] = useState<string>(ALL_PROJECTS);
-
-  useEffect(() => {
-    let cancelled = false;
-    const loadProviderInfo = async () => {
-      try {
-        const result = await rpc.call("listProviders", {});
-        if (!cancelled) {
-          setProviderInfoById(
-            new Map(
-              result.providers.map((provider) => [provider.id, provider]),
-            ),
-          );
-          writeWarmStartProviders(result.providers);
-        }
-      } catch {
-        // Provider metadata only improves the glyph. Keep the built-in and
-        // neutral fallbacks if the host cannot supply it.
-      }
-    };
-    void loadProviderInfo();
-    return () => {
-      cancelled = true;
-    };
-  }, [rpc]);
-  const [showSnoozed, setShowSnoozed] = useState(false);
-  const [showSettled, setShowSettled] = useState(false);
-
-  const projectNameById = useMemo(
-    () => new Map(projects.map((project) => [project.id, project.name])),
-    [projects],
+    [providers],
   );
 
-  const { pinned, inbox, snoozed, settled } = useMemo(() => {
-    const scoped = filterByProject(
-      // Settling archives the thread in bb, so the parked set is what keeps
-      // the settled shelf from filtering itself away.
-      visibleInboxThreads(threads, lifecycle.parkedThreadIds),
-      scope === ALL_PROJECTS ? null : scope,
-    );
-    // Children live in their parent's header chip instead of the flat list;
-    // an orphan whose parent is not on screen stays here.
-    const matched = searchThreadsByTitle(
-      hideChildrenOfVisibleParents(scoped),
-      searchQuery,
-    );
-    const active: typeof matched = [];
-    const onSnoozeShelf: typeof matched = [];
-    const onSettledShelf: typeof matched = [];
-    for (const thread of matched) {
+  const { projectGroups, snoozed, settled } = useMemo(() => {
+    const visible = visibleInboxThreads(threads, lifecycle.parkedThreadIds);
+    const active: PluginSidebarThread[] = [];
+    const onSnoozeShelf: PluginSidebarThread[] = [];
+    const onSettledShelf: PluginSidebarThread[] = [];
+
+    for (const thread of visible) {
       const shelf = lifecycle.shelfFor(thread);
       if (shelf === "snoozed") onSnoozeShelf.push(thread);
       else if (shelf === "settled") onSettledShelf.push(thread);
       else active.push(thread);
     }
-    const split = partitionPinned(active);
-    return {
-      pinned: sortByCreatedAtDescending(split.pinned),
-      inbox: sortByCreatedAtDescending(split.inbox),
-      // Soonest wake first: "what comes back next" is the shelf's question.
-      snoozed: [...onSnoozeShelf].sort(
-        (left, right) =>
-          (lifecycle.wakeAtFor(left) ?? 0) - (lifecycle.wakeAtFor(right) ?? 0),
-      ),
-      settled: sortByCreatedAtDescending(onSettledShelf),
-    };
-  }, [lifecycle, scope, searchQuery, threads]);
 
-  // The settled shelf's rows arrive on a second and slower read, while the
-  // lifecycle rows naming those same threads are already warm. Counting them is
-  // what lets the collapsed header draw itself on the first frame instead of
-  // popping in a round trip late — and, because the total below is what decides
-  // the empty state, it is also the only thing standing between a user whose
-  // threads are all settled and a "No threads yet" that is simply false.
-  //
-  // Only while that read still owes an answer. Once one has resolved, a row it
-  // did not bring back is a row it CANNOT bring back — a thread deleted while
-  // the plugin was stopped, or one sitting past the backend's archived-listing
-  // cap — and counting those past the round trip would leave a header standing
-  // over a list nothing will ever fill.
-  //
-  // A search or a project scope suppresses it. The count is global and knows
-  // neither a title nor a project, so drawing it under a filter would claim
-  // matches this frame cannot back up; falling to zero there leaves the filter
-  // behaving exactly as it did before.
+    return {
+      projectGroups: searchProjectThreadGroups(
+        groupThreadsByProject(active, projects),
+        searchQuery,
+      ),
+      snoozed: searchThreadsByTitle(
+        [...onSnoozeShelf].sort(
+          (left, right) =>
+            (lifecycle.wakeAtFor(left) ?? 0) -
+            (lifecycle.wakeAtFor(right) ?? 0),
+        ),
+        searchQuery,
+      ),
+      settled: searchThreadsByTitle(
+        sortByCreatedAtDescending(onSettledShelf),
+        searchQuery,
+      ),
+    };
+  }, [lifecycle, projects, searchQuery, threads]);
+
+  // Lifecycle rows can arrive before the archived thread DTOs they name. Keep
+  // the collapsed Settled count truthful during that one round trip.
   const pendingSettled = useMemo(() => {
-    if (!settledRowsPending) return 0;
-    if (searchQuery.trim().length > 0 || scope !== ALL_PROJECTS) return 0;
+    if (!settledRowsPending || searchQuery.trim().length > 0) return 0;
     return pendingSettledCount(
       lifecycle.parkedRows.values(),
       new Set(threads.map((thread) => thread.id)),
@@ -190,130 +123,61 @@ export function ThreadInbox({
   }, [
     lifecycle.parkedRows,
     now,
-    scope,
     searchQuery,
     settledRowsPending,
     threads,
   ]);
 
-  const shelvedTotal =
-    pinned.length +
-    inbox.length +
-    snoozed.length +
-    settled.length +
-    pendingSettled;
-
-  const scopeLabel =
-    scope === ALL_PROJECTS
-      ? "All projects"
-      : (projectNameById.get(scope) ?? "All projects");
+  const activeVisibleCount = projectGroups.reduce(
+    (total, group) =>
+      total +
+      group.families.reduce(
+        (groupTotal, family) => groupTotal + 1 + family.children.length,
+        0,
+      ),
+    0,
+  );
+  const visibleTotal =
+    activeVisibleCount + snoozed.length + settled.length + pendingSettled;
+  const searching = searchQuery.trim().length > 0;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {/* The one control the host has no equivalent for. Everything else in
-          the chrome above — New thread, search — is bb's and stays bb's. */}
-      <div className="flex shrink-0 items-center gap-1 px-2 pb-1">
-        <Select value={scope} onValueChange={setScope}>
-          {/* Ghost trigger: no border, no filled track — it reads as a label
-              until you hover it. */}
-          <SelectTrigger
-            className="h-7 min-w-0 flex-1 border-0 px-1.5 py-1 text-xs font-medium text-muted-foreground shadow-none hover:bg-sidebar-accent focus:ring-0"
-            aria-label={`Project scope: ${scopeLabel}`}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_PROJECTS} className="text-xs">
-              All projects
-            </SelectItem>
-            {projects.map((project) => (
-              <SelectItem
-                key={project.id}
-                value={project.id}
-                className="text-xs"
-              >
-                {project.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="flex h-8 shrink-0 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
+        <Icon name="Folder" className="size-3.5" aria-hidden />
+        <span className="text-2xs font-semibold uppercase tracking-wider">
+          Projects
+        </span>
+        <span className="tabular-nums text-2xs text-muted-foreground/70">
+          {projectGroups.length}
+        </span>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-2">
-        {/* Five outcomes, and the order carries the argument. The unready one
-            renders nothing rather than "No threads yet" — bb's threads are
-            already here, so what is still missing is this plugin's own rows,
-            and a false empty state is worse than a blank moment. It comes
-            after the error branch so a failed thread query still says so, and
-            it is reached whenever nothing seeded the shelves: a first-ever
-            run, a cleared origin, or any browser with web storage switched
-            off or partitioned, where the seed misses on every page load.
-            `shelvesReady`'s own deadline is behind all of them.
-
-            There is deliberately no second gate for the settled rows. The
-            shelves are ready by then, so waiting on the slower read would blank
-            pinned, inbox and snoozed — every one of them already in hand — to
-            protect one line at the bottom, and any wait bounded enough not to
-            hang the sidebar ends by opening on the same false empty state it
-            postponed. `shelvedTotal` counts the settled rows still in flight
-            instead. That closes this branch outright on a cache HIT: the rows
-            are already there, so a user whose threads are all settled has a
-            non-zero total from the first frame. On a MISS it only shortens the
-            exposure — there is nothing to count, so once `SHELF_GATE_MS` gives
-            up on a `listLifecycle` still in flight the branch is reachable
-            again and says "No threads yet" until that read lands. Nothing short
-            of the seed can close it there: on a cold origin the plugin knows
-            nothing about this user at all. */}
         {status === "loading" ? null : status === "error" ? (
-          // `output` is for calculation results; a polite live region for a
-          // status message is exactly what `role="status"` is for.
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           <p role="status" className={EMPTY_STATE_CLASS}>
             Could not load threads.
           </p>
-        ) : !lifecycle.shelvesReady ? null : shelvedTotal === 0 ? (
+        ) : !lifecycle.shelvesReady ? null : visibleTotal === 0 ? (
           // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           <p role="status" className={EMPTY_STATE_CLASS}>
-            {searchQuery.trim() ? "No threads found" : "No threads yet"}
+            {searching ? "No threads found" : "No threads yet"}
           </p>
         ) : (
           <>
-            {pinned.length > 0 ? (
-              <Shelf label="Pinned">
-                {pinned.map((thread) => (
-                  <ThreadCard
-                    key={thread.id}
-                    thread={thread}
-                    provider={providerInfoById.get(thread.providerId)}
-                    projectName={projectNameById.get(thread.projectId) ?? null}
-                    isActive={thread.id === activeThreadId}
-                    canPark={lifecycle.canPark(thread)}
-                    onNavigate={onNavigate}
-                    onSettle={() => lifecycle.settle(thread.id)}
-                    onSnooze={(until) => lifecycle.snooze(thread.id, until)}
-                    now={now}
-                  />
-                ))}
-              </Shelf>
-            ) : null}
-            {inbox.length > 0 ? (
-              <Shelf label={pinned.length > 0 ? "Inbox" : null}>
-                {inbox.map((thread) => (
-                  <ThreadCard
-                    key={thread.id}
-                    thread={thread}
-                    provider={providerInfoById.get(thread.providerId)}
-                    projectName={projectNameById.get(thread.projectId) ?? null}
-                    isActive={thread.id === activeThreadId}
-                    canPark={lifecycle.canPark(thread)}
-                    onNavigate={onNavigate}
-                    onSettle={() => lifecycle.settle(thread.id)}
-                    onSnooze={(until) => lifecycle.snooze(thread.id, until)}
-                    now={now}
-                  />
-                ))}
-              </Shelf>
-            ) : null}
+            {projectGroups.map((group) => (
+              <ProjectGroup
+                key={group.project.id}
+                group={group}
+                providerInfoById={providerInfoById}
+                activeThreadId={activeThreadId}
+                forceExpanded={searching}
+                lifecycle={lifecycle}
+                onNavigate={onNavigate}
+                now={now}
+              />
+            ))}
             <ParkedShelf
               label="Snoozed"
               threads={snoozed}
@@ -344,13 +208,6 @@ export function ThreadInbox({
   );
 }
 
-/**
- * A collapsed shelf of parked threads. The header stays while anything is
- * parked — the count is the whole footprint when collapsed — and the shelf
- * vanishes entirely at zero. A thread whose row has not arrived counts as
- * parked: this shelf is the only place it can be, and a header that turned up a
- * round trip later would be the flicker the count exists to remove.
- */
 function ParkedShelf({
   label,
   threads,
@@ -365,19 +222,6 @@ function ParkedShelf({
 }: {
   label: string;
   threads: readonly PluginSidebarThread[];
-  /**
-   * Threads this shelf owns whose rows have not arrived yet. Only the settled
-   * shelf has a second, slower source to wait on, so only it passes one, and it
-   * falls to zero the moment that read answers — with the rows, or without the
-   * ones it turns out it cannot resolve. Expanding inside that window draws a
-   * header over an empty list, costing one line of nothing and a second click.
-   *
-   * "That window" is a round trip only while the read is answering. A backend
-   * that cannot list archived threads at all never answers, and the header then
-   * stands over an empty list for as long as the rows stay inside the settled
-   * window. That is the deliberate direction: the alternative is telling a user
-   * whose threads are all settled that they have none.
-   */
   pendingCount?: number;
   expanded: boolean;
   onToggle: () => void;
@@ -385,8 +229,6 @@ function ParkedShelf({
   activeThreadId: string | null;
   lifecycle: ReturnType<typeof useLifecycle>;
   onNavigate: () => void;
-  /** Quantized clock, shared by every row — never a fresh read, which a
-   * seeded first paint could now disagree with. */
   now: number;
 }) {
   const count = threads.length + pendingCount;
@@ -397,10 +239,6 @@ function ParkedShelf({
         type="button"
         onClick={onToggle}
         aria-expanded={expanded}
-        // Padded like a card, so the chevron ends on the same right edge as
-        // every row's status and provider glyph. `cursor-pointer` is explicit
-        // because Tailwind v4's preflight gives a button `cursor: default`,
-        // and the whole header is the hit target for collapsing the shelf.
         className="mt-3 flex w-full cursor-pointer items-center gap-2 px-2.5 pb-1 text-left"
       >
         <span className="text-2xs font-medium text-muted-foreground/70">
@@ -437,30 +275,6 @@ function ParkedShelf({
           ))}
         </ul>
       ) : null}
-    </section>
-  );
-}
-
-function Shelf({
-  label,
-  children,
-}: {
-  label: string | null;
-  children: React.ReactNode;
-}) {
-  return (
-    // A named section is exposed as a landmark region; an unnamed one is not,
-    // which is exactly right for the single unlabelled inbox list.
-    <section {...(label ? { "aria-label": label } : {})}>
-      {label ? (
-        <h2 className={cn("flex items-center gap-2 px-2.5 pb-1 pt-3")}>
-          <span className="text-2xs font-medium text-muted-foreground/70">
-            {label}
-          </span>
-          <span className="h-px flex-1 bg-sidebar-border" />
-        </h2>
-      ) : null}
-      <ul className="flex flex-col gap-px">{children}</ul>
     </section>
   );
 }

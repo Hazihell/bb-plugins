@@ -17,26 +17,26 @@
   },
   "trustedDependencies": ["esbuild"],
   "config": {
-    "bbVersion": "0.36.0"
+    "bbVersion": "0.40.0"
   },
   "scripts": {
     "postinstall": "cd node_modules/better-sqlite3 && node ../.bin/prebuild-install",
-    "build": "bun run --filter '@smsunarto/bb-plugin-*' --parallel build",
+    "build": "bun run --filter 'bb-plugin-*' --parallel build",
     "build:reload": "bun run build && bun scripts/reload-workspace-plugins.ts",
-    "dev": "bun run --filter '@smsunarto/bb-plugin-*' --parallel --no-orphans dev",
+    "dev": "bun run --filter 'bb-plugin-*' --parallel --no-orphans dev",
     "reload": "bb plugin reload",
     "logs": "bb plugin logs",
     "icons": "bun scripts/plugin-icons.ts",
     "icons:check": "bun scripts/plugin-icons.ts --check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "typecheck": "bun run --filter '@smsunarto/bb-plugin-*' --parallel typecheck",
-    "test": "bun test scripts/*.test.ts && bun run --filter '@smsunarto/bb-plugin-*' --parallel test",
+    "typecheck": "bun run --filter 'bb-plugin-*' --parallel typecheck",
+    "test": "bun test scripts/*.test.ts && bun run --filter 'bb-plugin-*' --parallel test",
     "sdk-types:check": "bun scripts/sdk-types.ts check",
     "sdk-types:refresh": "bun scripts/sdk-types.ts refresh",
     "publish:dry": "bun scripts/publish.ts --dry-run",
     "publish:npm": "bun scripts/publish.ts",
-    "clean": "bun run --filter '@smsunarto/bb-plugin-*' --parallel clean"
+    "clean": "bun run --filter 'bb-plugin-*' --parallel clean"
   },
   "devDependencies": {
     "@ampcode/cli": "file:./plugins/amp/vendor/ampcode-cli-stub",

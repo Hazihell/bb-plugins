@@ -1,10 +1,10 @@
 <div align="center">
 
-# smsunarto's bb-plugins
+# bb-plugins
 
 **Plugins for [bb](https://github.com/get-bb/bb), the agent IDE — in one GitHub repository.**
 
-![bb >=0.36](https://img.shields.io/badge/bb-%3E%3D0.36-88C0D0?style=flat-square)
+![bb >=0.40](https://img.shields.io/badge/bb-%3E%3D0.40-88C0D0?style=flat-square)
 ![Bun workspace](https://img.shields.io/badge/Bun-1.3.14-3FA266?style=flat-square)
 ![macOS · Linux](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Linux-F1B467?style=flat-square)
 
@@ -51,6 +51,16 @@
 
 <table>
 <tr>
+<td align="center" width="60"><img src="plugins/action-topbar/assets/icon.svg" width="40" height="40" alt="" /></td>
+<td align="center"><a href="plugins/action-topbar/"><b>Action Topbar</b></a></td>
+<td>Keeps thread-panel actions in an Orca-style topbar and lets you drag an action onto a split pane.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/host-monitor/assets/logo-dark.svg" /><img src="plugins/host-monitor/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/host-monitor/"><b>Host Monitor</b></a></td>
+<td>Shows live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.</td>
+</tr>
+<tr>
 <td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/notify/assets/logo-dark.svg" /><img src="plugins/notify/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
 <td align="center"><a href="plugins/notify/"><b>Notify</b></a></td>
 <td>Real macOS notifications from bb itself when a thread finishes or fails, plus a <code>notify_user</code> agent tool.</td>
@@ -58,7 +68,7 @@
 <tr>
 <td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/t3sidebar/assets/logo-dark.svg" /><img src="plugins/t3sidebar/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
 <td align="center"><a href="plugins/t3sidebar/"><b>t3sidebar</b></a></td>
-<td>An inbox-style thread list that never re-orders itself. Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
+<td>A project-first thread list with stable ordering, clear working/unread states, and inline child agents. Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
 </tr>
 <tr>
 <td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/usage-tracker/assets/logo-dark.svg" /><img src="plugins/usage-tracker/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
@@ -82,23 +92,30 @@
 One command per plugin:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-<id>
+bb plugin install npm:bb-plugin-<id>
 ```
 
-`<id>` is the plugin's directory name — `agent-proxy`, `agentation`, `gh-stack`, `notify`, `amp`, `t3sidebar`, `usage-tracker`, or `monokai`. For example:
+`<id>` is the plugin's directory name — `action-topbar`, `agent-proxy`, `agentation`, `gh-stack`, `host-monitor`, `notify`, `amp`, `t3sidebar`, `usage-tracker`, or `monokai`. For example:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-notify
+bb plugin install npm:bb-plugin-notify
 ```
 
 ## Build from source
 
-This is also the git install route. It puts each plugin in as a **local path source**, so bb reads the files in place: edit, rebuild, reload — no reinstall. `bb plugin install git:<url>@<ref>` does not work for these plugins, because bb reads the manifest at the repository root and cannot see `plugins/<id>`.
+This puts each plugin in as a **local path source**, so bb reads the files in place and the development watcher rebuilds and reloads changes without a reinstall.
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins
+git clone https://github.com/mateocerquetella/bb-plugins
 cd bb-plugins
 bun install                              # one hoisted node_modules at the repo root
 bun run build                            # bb plugin build for every plugin
 bb plugin install ./plugins/<id>         # from the repo root
+bun run dev                              # watch all installed workspace plugins
+```
+
+To install one plugin directly from Git instead, target its subdirectory:
+
+```sh
+bb plugin install git:https://github.com/mateocerquetella/bb-plugins.git@main --subdirectory plugins/<id>
 ```

@@ -1,16 +1,16 @@
 {
-  "name": "@smsunarto/bb-plugin-notify",
+  "name": "bb-plugin-notify",
   "version": "0.1.0",
   "description": "Native macOS notifications when a BB thread finishes or fails, plus a notify_user agent tool and a `bb notify` command.",
   "license": "MIT",
-  "author": "Scott Sunarto",
-  "homepage": "https://github.com/smsunarto/bb-plugins/tree/main/plugins/notify",
+  "author": "Mateo Cerquetella",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/notify",
   "bugs": {
-    "url": "https://github.com/smsunarto/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/smsunarto/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/notify"
   },
   "keywords": [

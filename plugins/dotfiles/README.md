@@ -48,10 +48,10 @@ run validation checks, preview an apply, pull published changes, or publish loca
 ## Install
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-dotfiles' build
+bun run --filter 'bb-plugin-dotfiles' build
 bb plugin install ./plugins/dotfiles
 ```
 
@@ -129,8 +129,8 @@ or change `$SHELL`, then run `bb plugin reload dotfiles`.
 
 ```sh
 bun install
-bun run --filter '@smsunarto/bb-plugin-dotfiles' typecheck
-bun run --filter '@smsunarto/bb-plugin-dotfiles' build
+bun run --filter 'bb-plugin-dotfiles' typecheck
+bun run --filter 'bb-plugin-dotfiles' build
 bb plugin reload dotfiles
 ```
 

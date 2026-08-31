@@ -56,7 +56,7 @@ const SERVICE_LABEL = "com.bb.plugin.agent-proxy";
 /** Labels earlier versions installed. Retired once on initialize so an upgraded
     install keeps exactly one login service. Never derive this from the plugin
     id: a rename or reinstall would orphan the service already on disk. */
-const LEGACY_SERVICE_LABELS = ["com.smsunarto.bb.agent-proxy"] as const;
+const LEGACY_SERVICE_LABELS = ["com.mateocerquetella.bb.agent-proxy"] as const;
 
 interface LatestCache {
   repo: string;

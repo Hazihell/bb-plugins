@@ -1,11 +1,11 @@
 /**
  * How these scripts turn a workspace directory into the identity bb uses.
  *
- * Every plugin here publishes as `@smsunarto/bb-plugin-<id>`, and bb derives the
+ * Every plugin here publishes as `bb-plugin-<id>`, and bb derives the
  * runtime id — routes, storage, settings, CLI commands — from the package name
  * rather than the directory: it drops the npm scope, strips the `bb-plugin-`
  * prefix, then normalizes the rest (bb `packages/domain/src/plugin-id.ts`).
- * `@smsunarto/bb-plugin-notify` and `bb-plugin-notify` both give `notify`.
+ * `bb-plugin-notify` and `@scope/bb-plugin-notify` both give `notify`.
  * Anything that names a plugin goes through derivePluginId(), or it addresses
  * plugins by a name bb never uses.
  *
@@ -66,6 +66,7 @@ export interface PluginManifest {
   bb?: {
     server?: string;
     app?: string;
+    host?: string;
     skills?: string[];
     commands?: string[] | string;
     branding?: {
@@ -82,7 +83,7 @@ export interface WorkspacePlugin {
   directory: string;
   /** Absolute path to the plugin root. */
   dir: string;
-  /** npm package name, e.g. `@smsunarto/bb-plugin-notify`. */
+  /** npm package name, e.g. `bb-plugin-notify`. */
   name: string;
   /** Runtime id bb derives from `name`, e.g. `notify`. */
   id: string;

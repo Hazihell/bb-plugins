@@ -144,7 +144,11 @@ export function toSidebarThread(row: SettledThreadRow): PluginSidebarThread {
     titleFallback: row.titleFallback,
     parentThreadId: row.parentThreadId,
     sectionId: row.sectionId,
-    originKind: originKindFor(row.originKind),
+    // bb 0.40 adds the legacy `side-chat` value to this sidebar field. The
+    // plugin still ships declarations compatible with older bb releases,
+    // where the same field was typed as `"fork" | null`; keep the runtime
+    // value so archived legacy side chats remain identifiable across both.
+    originKind: originKindFor(row.originKind) as PluginSidebarThread["originKind"],
     originPluginId: row.originPluginId,
     providerId: row.providerId,
     hasPendingInteraction: row.hasPendingInteraction,

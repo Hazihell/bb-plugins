@@ -39,11 +39,9 @@ export type RawProviderUsage =
       accountEmail?: string | null;
     };
 
-export interface RawUsageResponse {
-  codex: RawProviderUsage;
-  claudeCode: RawProviderUsage;
-  cursor: RawProviderUsage;
-}
+export type RawUsageResponse = Readonly<
+  Record<string, RawProviderUsage | undefined>
+>;
 
 export interface UsageWindow {
   label: string;
@@ -76,12 +74,28 @@ interface ProviderDefinition {
   id: ProviderId;
   name: string;
   loginCommand: string;
+  usageKeys: readonly string[];
 }
 
 const PROVIDERS: readonly ProviderDefinition[] = [
-  { id: "codex", name: "Codex", loginCommand: "codex login" },
-  { id: "claudeCode", name: "Claude Code", loginCommand: "claude" },
-  { id: "cursor", name: "Cursor", loginCommand: "cursor-agent login" },
+  {
+    id: "codex",
+    name: "Codex",
+    loginCommand: "codex login",
+    usageKeys: ["codex"],
+  },
+  {
+    id: "claudeCode",
+    name: "Claude Code",
+    loginCommand: "claude",
+    usageKeys: ["claude-code", "claudeCode"],
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    loginCommand: "cursor-agent login",
+    usageKeys: ["acp-cursor", "cursor"],
+  },
 ];
 
 export const REQUEST_ERROR_MESSAGE =
@@ -162,6 +176,21 @@ function normalizeProvider(
   };
 }
 
+function providerUsage(
+  response: RawUsageResponse,
+  definition: ProviderDefinition,
+): RawProviderUsage {
+  for (const key of definition.usageKeys) {
+    const usage = response[key];
+    if (usage !== undefined) return usage;
+  }
+
+  return {
+    status: "error",
+    message: `${definition.name} usage was not reported by bb.`,
+  };
+}
+
 export function normalizeUsage(
   response: RawUsageResponse,
   host: UsageSnapshot["host"],
@@ -171,7 +200,7 @@ export function normalizeUsage(
     fetchedAt: fetchedAt.toISOString(),
     host,
     providers: PROVIDERS.map((provider) =>
-      normalizeProvider(provider, response[provider.id]),
+      normalizeProvider(provider, providerUsage(response, provider)),
     ),
   };
 }

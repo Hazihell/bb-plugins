@@ -1,38 +1,24 @@
-// @smsunarto/bb-plugin-t3sidebar — an inbox-style replacement for bb's sidebar thread
-// list, and the reference example for `app.slots.experimental_threadList`.
-//
-// The idea it is built around: the list NEVER re-orders itself. Threads sort
-// by creation time, newest first, and hold that place. Status is carried by
-// each card, not by position, so the sidebar only moves when you act.
+// bb-plugin-t3sidebar — a project-first replacement for bb's sidebar thread
+// list. Root threads keep a stable position and expand their child agents in
+// place, so activity changes state without moving the user's navigation.
 import { definePluginApp } from "@bb/plugin-sdk/app";
 import { ThreadInbox } from "@/components/inbox/thread-inbox";
 import { ParentChip } from "@/components/inbox/parent-chip";
-import { SubagentsChip } from "@/components/inbox/subagents-chip";
 
 export default definePluginApp((app) => {
   app.slots.experimental_threadList({
     id: "inbox",
-    title: "t3sidebar (inbox)",
-    description: "One flat list of cards, newest first, that never re-orders.",
+    title: "t3sidebar (projects)",
+    description:
+      "Stable project groups with expandable root threads and inline agents.",
     component: ThreadInbox,
   });
 
-  // Registered first, so it renders on the left of the children chip: the
-  // header then reads up (parent) then down (children).
-  //
-  // The hidden child is otherwise a dead end — it is not in the list, so this
-  // chip is its only route back to the parent.
+  // A child remains nested in the sidebar, and this is the direct route back
+  // to its root while the user is focused in the thread itself.
   app.slots.experimental_threadHeaderAction({
     id: "parent",
     title: "Parent thread",
     component: ParentChip,
-  });
-
-  // A flat inbox has nowhere to nest child threads, so the list hides them
-  // and this chip gives them a home on their parent's header.
-  app.slots.experimental_threadHeaderAction({
-    id: "children",
-    title: "Child threads",
-    component: SubagentsChip,
   });
 });

@@ -7,7 +7,7 @@
 
 # t3sidebar
 
-**A thread list that only moves when you move it.**
+**Stable projects, clear attention, inline agents.**
 
 ![bb ≥ 0.36](https://img.shields.io/badge/bb-%E2%89%A5%200.36-88C0D0?style=flat-square)
 ![any platform](https://img.shields.io/badge/platform-any-3FA266?style=flat-square)
@@ -15,16 +15,17 @@
 
 </div>
 
-<div align="center">
-<picture><img src="docs/media/hero.png" alt="The t3sidebar inbox: pinned and current threads, then Snoozed and Settled shelves" width="380" /></picture>
-</div>
+t3sidebar replaces the scrolling thread list in bb's left sidebar with a
+project-first inbox inspired by Orca's compact navigation.
 
-t3sidebar replaces the scrolling thread list in bb's left sidebar with an inbox.
+Projects keep bb's own order. Inside each project, root threads sort by creation
+time, newest first, and **hold that place until you park them**. Status lives inside
+each row instead of in its position, so the sidebar only moves when *you* act — no
+row slides away under your cursor because an agent finished something.
 
-Threads sort by creation time, newest first, and **hold that place until you park
-them**. Status lives inside each card instead of in its position, so the sidebar only
-moves when *you* act — no row slides away under your cursor because an agent
-finished something.
+Working is animated and labeled. Unread is a separate ring plus title weight, so a
+thread can be visibly working and unread at the same time. When a root has child
+threads, active or attention-bearing child work expands inline as an agent stack.
 
 You clear the list with two email verbs: **snooze** a thread until a wake time, or
 **settle** it when you are done. Both shelves collapse to one counted header.
@@ -34,17 +35,17 @@ You clear the list with two email verbs: **snooze** a thread until a wake time, 
 **From npm** — one command:
 
 ```sh
-bb plugin install npm:@smsunarto/bb-plugin-t3sidebar
+bb plugin install npm:bb-plugin-t3sidebar
 ```
 
 **From source** — clone the repo and install the plugin as a local path
 source. This is also how you install a change that is not released yet:
 
 ```sh
-git clone https://github.com/smsunarto/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins.git
 cd bb-plugins
 bun install
-bun run --filter '@smsunarto/bb-plugin-t3sidebar' build
+bun run --filter 'bb-plugin-t3sidebar' build
 bb plugin install ./plugins/t3sidebar
 ```
 
@@ -60,16 +61,17 @@ the manifest at the repository root, so it cannot see `plugins/<id>`.
 ## Usage
 
 Installing does not change your sidebar by itself. Open **Settings → Appearance →
-Sidebar** and choose **t3sidebar (inbox)**.
+Sidebar** and choose **t3sidebar (projects)**.
 
-<picture><img src="docs/media/enable.png" alt="bb's Appearance settings with t3sidebar (inbox) chosen for Sidebar" width="100%" /></picture>
+<picture><img src="docs/media/enable.png" alt="bb's Appearance settings where a sidebar replacement can be selected" width="100%" /></picture>
 
 bb's own list stays the default, and comes back the moment you switch away or
 disable the plugin.
 
-### Three shelves
+### Projects and parked shelves
 
-- **Inbox** — newest first, with pinned threads in their own shelf above.
+- **Projects** — bb's project order, with pinned roots first inside each project
+  and every other root fixed by creation time.
 - **Snoozed** — hidden until the wake time you chose. A snoozed thread comes back early if it starts working or asks you something.
 - **Settled** — work you are done with, collapsed to one line and shown for 24 hours. Settling also **archives the thread in bb**, so every other surface agrees, and new attention un-settles and unarchives it. After a day the row stops being drawn but stays archived.
 
@@ -77,11 +79,10 @@ An empty shelf disappears.
 
 ### Cards
 
-Three lines: the project and a status slot, the title in bold when unread, then the
-branch, activity counts, PR number, and the agent. The status slot shows what the
-thread needs — failed, waiting on you, working, or finished while you were away —
-and its age (`now`, `7m`, `3d`) when it needs nothing. Hovering swaps that slot for
-the two park buttons.
+Root rows use two compact lines: title and status, then branch, activity counts, and
+PR number. Read-idle work recedes; unread titles gain weight and a ring; live work
+uses an animated glyph and a **Working** label. Hovering a quiet root swaps its
+status for the two park buttons.
 
 ### A working thread can never be parked
 
@@ -93,16 +94,17 @@ never hidden.
 
 The hover button snoozes until **09:00 tomorrow**.
 
-### Child threads
+### Inline agents
 
-A flat list has nowhere to nest a child, so a child is hidden while its parent is on
-screen. Two chips in the thread header carry the relation instead: on a parent, a
-chip that opens its children and reads **Needs you** when one is blocked on you; on
-a child, a chip that names the parent and opens it.
+A root with child threads gets an agent count and disclosure. The stack opens by
+default when the family is selected or a child is working, unread, or waiting for
+you. Child rows keep their own provider, branch, age, working state, unread ring,
+context menu, split drag, and keyboard target. A parent chip in the thread header
+still gives a focused child a direct route back up.
 
 ### The rest
 
-- A project scope picker — the one control the plugin adds.
+- Collapsible project and agent groups.
 - Right-click for open in split, mark read/unread, pin, archive, delete.
 - Drag a card to a split pane, or Cmd/Ctrl-click to open one.
 - bb's search, its thread shortcuts, and modifier-click split-open all keep working.
@@ -131,9 +133,9 @@ archived and the thread leaves the sidebar until you unarchive it in bb yourself
 
 **Uninstalling left data behind.** The shelves live in the plugin's own database,
 which bb removes with the plugin — but a copy of them is cached in the browser's
-`localStorage` under `t3sidebar:v1:*` (thread ids, park timestamps, and provider ids,
-names, and logo paths). bb's uninstall does not clear web storage. Clear site data if
-that matters to you.
+`localStorage` under `t3sidebar:v1:*` (thread ids and park timestamps, plus legacy
+provider metadata written by older versions). bb's uninstall does not clear web
+storage. Clear site data if that matters to you.
 
 ## Credits
 
@@ -154,8 +156,8 @@ Install from source as shown under [Install](#install), then check a change
 with:
 
 ```sh
-bun run --filter '@smsunarto/bb-plugin-t3sidebar' typecheck
-bun run --filter '@smsunarto/bb-plugin-t3sidebar' test
+bun run --filter 'bb-plugin-t3sidebar' typecheck
+bun run --filter 'bb-plugin-t3sidebar' test
 ```
 
 The test script needs Node 22.6+.

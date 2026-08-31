@@ -5,7 +5,7 @@
  * the five feedback hexes, and the content (ANSI / code) palettes. One meaning
  * per hue — a colour never means two things.
  *
- * Contributed by @smsunarto/bb-plugin-monokai through `bb.themes` in
+ * Contributed by bb-plugin-monokai through `bb.themes` in
  * package.json, so bb reads this file in place — no copy under ~/.bb/theme.
  * It is injected after bb's own sheet, so a `.dark` rule here beats bb's
  * `.dark` rule at equal specificity.

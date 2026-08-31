@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-monokai — backend entry.
+// bb-plugin-monokai — backend entry.
 //
 // The palette itself is declarative: `bb.themes` in package.json points BB at
 // themes/bb-monokai.css, which BB reads straight from the plugin directory. No

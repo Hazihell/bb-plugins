@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-agentation — backend.
+// bb-plugin-agentation — backend.
 //
 // The browser toolbar is the only writer of annotation bodies; this backend is
 // the durable store, the agent-facing surface, and the change bus that pushes
@@ -641,9 +641,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_list_sessions",
     description:
       "List annotation sessions — one per bb page a human has left visual feedback on. Start here to discover which pages have feedback.",
-    experimental_statusLabels: {
-      pending: "Listing annotation sessions",
-      completed: "Listed annotation sessions",
+    presentation: {
+      label: {
+        pending: "Listing annotation sessions",
+        completed: "Listed annotation sessions",
+      },
     },
     parameters: z.object({}),
     execute() {
@@ -664,9 +666,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_get_session",
     description:
       "Get one annotation session with every annotation on it, including resolved and dismissed ones.",
-    experimental_statusLabels: {
-      pending: "Reading annotation session",
-      completed: "Read annotation session",
+    presentation: {
+      label: {
+        pending: "Reading annotation session",
+        completed: "Read annotation session",
+      },
     },
     parameters: z.object({ sessionId: z.string() }),
     execute({ sessionId }) {
@@ -685,9 +689,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_get_pending",
     description:
       "Get the open (pending or acknowledged) annotations for one session, rendered with the bb route, owning plugin, and DOM selector for each.",
-    experimental_statusLabels: {
-      pending: "Reading pending annotations",
-      completed: "Read pending annotations",
+    presentation: {
+      label: {
+        pending: "Reading pending annotations",
+        completed: "Read pending annotations",
+      },
     },
     parameters: z.object({ sessionId: z.string() }),
     execute({ sessionId }) {
@@ -710,9 +716,11 @@ export default async function plugin(bb: BbPluginApi) {
       "Get every open annotation across all bb pages. Use this first when the human says to address their UI feedback.",
     instructions:
       "When the human refers to feedback they left on the bb interface, read it with agentation_get_all_pending before searching the code. Each annotation names the bb route and, for plugin surfaces, the owning plugin id.",
-    experimental_statusLabels: {
-      pending: "Reading all pending annotations",
-      completed: "Read all pending annotations",
+    presentation: {
+      label: {
+        pending: "Reading all pending annotations",
+        completed: "Read all pending annotations",
+      },
     },
     parameters: z.object({
       pluginId: z
@@ -737,9 +745,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_acknowledge",
     description:
       "Mark an annotation as acknowledged so the human can see you have picked it up.",
-    experimental_statusLabels: {
-      pending: "Acknowledging annotation",
-      completed: "Acknowledged annotation",
+    presentation: {
+      label: {
+        pending: "Acknowledging annotation",
+        completed: "Acknowledged annotation",
+      },
     },
     parameters: z.object({ annotationId: z.string() }),
     execute({ annotationId }) {
@@ -758,9 +768,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_resolve",
     description:
       "Mark an annotation as resolved after you have fixed it. The marker disappears from the human's toolbar. Include a short summary of what changed.",
-    experimental_statusLabels: {
-      pending: "Resolving annotation",
-      completed: "Resolved annotation",
+    presentation: {
+      label: {
+        pending: "Resolving annotation",
+        completed: "Resolved annotation",
+      },
     },
     parameters: z.object({
       annotationId: z.string(),
@@ -783,9 +795,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_dismiss",
     description:
       "Dismiss an annotation you have decided not to act on. A reason is required — the human sees it.",
-    experimental_statusLabels: {
-      pending: "Dismissing annotation",
-      completed: "Dismissed annotation",
+    presentation: {
+      label: {
+        pending: "Dismissing annotation",
+        completed: "Dismissed annotation",
+      },
     },
     parameters: z.object({ annotationId: z.string(), reason: z.string() }),
     execute({ annotationId, reason }) {
@@ -805,9 +819,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_reply",
     description:
       "Add a message to an annotation's thread — ask a clarifying question, or report progress. The human reads and answers it in the Agentation panel.",
-    experimental_statusLabels: {
-      pending: "Replying to annotation",
-      completed: "Replied to annotation",
+    presentation: {
+      label: {
+        pending: "Replying to annotation",
+        completed: "Replied to annotation",
+      },
     },
     parameters: z.object({ annotationId: z.string(), message: z.string() }),
     execute({ annotationId, message }) {
@@ -825,9 +841,11 @@ export default async function plugin(bb: BbPluginApi) {
     name: "agentation_watch_annotations",
     description:
       "Block until new annotations appear, then return the batch. Call it in a loop for hands-free feedback: watch, fix, resolve, watch again.",
-    experimental_statusLabels: {
-      pending: "Watching for new annotations",
-      completed: "Collected new annotations",
+    presentation: {
+      label: {
+        pending: "Watching for new annotations",
+        completed: "Collected new annotations",
+      },
     },
     parameters: z.object({
       sessionId: z

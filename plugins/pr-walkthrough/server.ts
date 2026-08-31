@@ -1,4 +1,4 @@
-// @smsunarto/bb-plugin-pr-walkthrough — backend entry.
+// bb-plugin-pr-walkthrough — backend entry.
 //
 // The walkthrough is produced by the bundled `pr-walkthrough` skill
 // (skills/pr-walkthrough/), which agents run inside a thread. The skill's

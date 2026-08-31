@@ -1,15 +1,21 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import type { PluginSidebarThread } from "@bb/plugin-sdk";
+import type {
+  PluginSidebarProject,
+  PluginSidebarThread,
+} from "@bb/plugin-sdk";
 import {
   childrenOf,
   filterByProject,
+  groupThreadsByProject,
   hideChildrenOfVisibleParents,
   parentOf,
   partitionPinned,
+  searchProjectThreadGroups,
   searchThreadsByTitle,
   sortByCreatedAtDescending,
   threadDisplayTitle,
+  threadIsWorking,
   visibleInboxThreads,
 } from "../lib/inbox.ts";
 
@@ -47,6 +53,14 @@ function thread(
     latestAttentionAt: 100,
     ...overrides,
   };
+}
+
+function project(
+  id: string,
+  name: string,
+  isPersonal = false,
+): PluginSidebarProject {
+  return { id, name, isPersonal };
 }
 
 describe("sortByCreatedAtDescending", () => {
@@ -190,6 +204,103 @@ describe("filtering", () => {
       inbox.map((t) => t.id),
       ["a", "c"],
     );
+  });
+});
+
+describe("project thread groups", () => {
+  it("keeps bb's project order, pins roots within a project, and flattens descendants", () => {
+    const groups = groupThreadsByProject(
+      [
+        thread({ id: "root", projectId: "p1", createdAt: 10 }),
+        thread({
+          id: "child",
+          projectId: "p1",
+          parentThreadId: "root",
+          createdAt: 20,
+        }),
+        thread({
+          id: "grandchild",
+          projectId: "p1",
+          parentThreadId: "child",
+          createdAt: 30,
+        }),
+        thread({
+          id: "pinned",
+          projectId: "p1",
+          isPinned: true,
+          createdAt: 5,
+        }),
+        thread({ id: "other", projectId: "p2", createdAt: 40 }),
+      ],
+      [project("p2", "Second"), project("p1", "First")],
+    );
+
+    assert.deepEqual(
+      groups.map((group) => group.project.id),
+      ["p2", "p1"],
+    );
+    assert.deepEqual(
+      groups[1]?.families.map((family) => family.root.id),
+      ["pinned", "root"],
+    );
+    assert.deepEqual(
+      groups[1]?.families[1]?.children.map((child) => child.id),
+      ["child", "grandchild"],
+    );
+  });
+
+  it("promotes a child when its parent is not visible", () => {
+    const groups = groupThreadsByProject(
+      [thread({ id: "child", parentThreadId: "parked" })],
+      [project("proj_1", "Project")],
+    );
+    assert.equal(groups[0]?.families[0]?.root.id, "child");
+  });
+
+  it("keeps a parent as context when only its child matches search", () => {
+    const groups = groupThreadsByProject(
+      [
+        thread({ id: "root", title: "Parent" }),
+        thread({
+          id: "match",
+          title: "Fix checkout",
+          parentThreadId: "root",
+        }),
+        thread({
+          id: "other",
+          title: "Review taxes",
+          parentThreadId: "root",
+        }),
+      ],
+      [project("proj_1", "Storefront")],
+    );
+    const result = searchProjectThreadGroups(groups, "checkout");
+    assert.equal(result[0]?.families[0]?.root.id, "root");
+    assert.deepEqual(
+      result[0]?.families[0]?.children.map((child) => child.id),
+      ["match"],
+    );
+  });
+
+  it("matches a project name and keeps the whole project", () => {
+    const groups = groupThreadsByProject(
+      [thread({ id: "root" })],
+      [project("proj_1", "Storefront")],
+    );
+    assert.equal(searchProjectThreadGroups(groups, "store").length, 1);
+  });
+});
+
+describe("threadIsWorking", () => {
+  it("includes activity counts and resolved runtime states", () => {
+    assert.equal(
+      threadIsWorking(
+        thread({ activity: { workflows: 0, backgroundAgents: 1, backgroundCommands: 0, planMode: 0, goals: 0 } }),
+      ),
+      true,
+    );
+    assert.equal(threadIsWorking(thread({ indicator: "runtime" })), true);
+    assert.equal(threadIsWorking(thread()), false);
   });
 });
 

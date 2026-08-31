@@ -26,7 +26,7 @@ export function renderInitialConfig(options: InitialConfig): string {
     "usage-statistics-enabled": true,
   });
   doc.commentBefore =
-    " Managed by @smsunarto/bb-plugin-agent-proxy.\n" +
+    " Managed by bb-plugin-agent-proxy.\n" +
     " The core rewrites secret-key to a bcrypt hash on startup; the plugin\n" +
     " keeps the plaintext in its own secret store. Provider credentials added\n" +
     " through the management API are persisted here by the core itself.";

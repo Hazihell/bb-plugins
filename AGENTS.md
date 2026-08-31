@@ -1,3 +1,24 @@
+<!-- empirical-sdd:start -->
+## Empirical repository workflow
+
+Before any repository mutation, you MUST use the repository-local Empirical
+workflow for requests to build, add, implement, change, fix, refactor, remove,
+migrate, upgrade, change tests, or continue work. The user does not need to
+mention Empirical. This rule applies even when a summarized skill list omits
+Empirical: read the native local skill file directly.
+Read-only explanation and inspection stay outside the workflow.
+
+Read the native local workflow contract before acting: Codex, Cursor, and
+Gemini use `.agents/skills/empirical/SKILL.md`; Claude Code uses
+`.claude/skills/empirical/SKILL.md`; Windsurf uses
+`.windsurf/skills/empirical/SKILL.md`. Then first confirm
+`.empirical/config.json` has
+`schemaVersion: 5` and `setupComplete: true`. Use Empirical MCP operations
+first and private `empirical __internal` fallbacks only when MCP is unavailable.
+If the config is missing, invalid, or incomplete, do not initialize implicitly;
+tell the user to invoke `empirical-init` explicitly.
+<!-- empirical-sdd:end -->
+
 # bb-plugins
 
 Bun-workspace monorepo of personal bb plugins under `plugins/*`. One lockfile, one hoisted `node_modules`. Keep this file accurate when conventions change.
@@ -6,7 +27,7 @@ Bun-workspace monorepo of personal bb plugins under `plugins/*`. One lockfile, o
 
 - **Default during plugin work:** run `bun run dev` once and leave it running. It watches every plugin, rebuilds and reloads only the plugin that changed, and does not create duplicate watchers when run again. Do not prefer a filtered dev command; this repo is small and the all-plugin loop is the standard path.
 - **Start the watcher yourself.** Before the first edit to a plugin, start `bun run dev` in the background if it is not already running. Never close out a plugin change by telling the user to run `bb plugin build` or `bb plugin reload`, and never cite a stale git-ignored `dist/` as a reason to prescribe one — the watcher has already rebuilt and reloaded. Say what to exercise in bb instead.
-- **Fast check while editing:** run `bun run --filter '@smsunarto/bb-plugin-<id>' typecheck` or `test` for the plugin you changed. Use this only for iteration speed.
+- **Fast check while editing:** run `bun run --filter 'bb-plugin-<id>' typecheck` or `test` for the plugin you changed. Use this only for iteration speed.
 - **Before handoff:** run root `bun run typecheck`, `bun run test`, and `bun run lint`. Also run `bun run build` when the change affects a manifest, frontend bundle, build input, dependency, or workspace tooling. A pure backend logic change with passing typecheck and tests does not need an extra build.
 - **Live UI or runtime behavior:** use the existing `bun run dev` loop, exercise the affected surface in bb, and inspect `bun run logs <id> -f` when behavior or reload is unclear.
 - **One-shot recovery:** use `bun run reload <id>` only when no dev watcher is running or a plugin needs manual recovery. Use `bun run build:reload` only when you explicitly want one full build-and-reload pass instead of a watcher. Do not run either after each edit.
@@ -18,14 +39,14 @@ The pinned bb release lives in root `package.json` → `config.bbVersion`. Local
 
 ## Layout and invariants
 
-- Every package in this workspace takes the owner's npm scope: installable bb plugins are `@smsunarto/bb-plugin-<id>`; shared non-plugin packages are `@smsunarto/<name>` in `packages/<name>`.
-- Plugin id = manifest `name` with the scope dropped and the `bb-plugin-` prefix stripped, so `@smsunarto/bb-plugin-notify` yields `notify`. bb's `derivePluginId()` splits on `/` and keeps the last segment, so the scope is harmless — but the `bb-plugin-` segment after it is load-bearing and must stay. Keep the directory at `plugins/<id>` for navigation, although bb does not use the directory name as identity.
-- Root `build`, `dev`, `typecheck`, `test`, and `clean` fan out through the `--filter '@smsunarto/bb-plugin-*'` workspace glob. A filter that matches nothing exits 0 and looks like a successful no-op, so any change to package names must be re-proved against these five scripts.
+- Every installable plugin package uses the unscoped name `bb-plugin-<id>`. Shared non-plugin packages, if added under `packages/<name>`, should use a deliberate project-specific name rather than inheriting a personal npm scope.
+- Plugin id = manifest `name` with the scope dropped and the `bb-plugin-` prefix stripped, so `bb-plugin-notify` yields `notify`. bb's `derivePluginId()` splits on `/` and keeps the last segment, so the scope is harmless — but the `bb-plugin-` segment after it is load-bearing and must stay. Keep the directory at `plugins/<id>` for navigation, although bb does not use the directory name as identity.
+- Root `build`, `dev`, `typecheck`, `test`, and `clean` fan out through the `--filter 'bb-plugin-*'` workspace glob. A filter that matches nothing exits 0 and looks like a successful no-op, so any change to package names must be re-proved against these five scripts.
 - `bb plugin build` is the authoritative build. `dist/` is generated and git-ignored — never edit or commit it, and run `bun run build` after a fresh clone.
-- `bb.server` and `bb.app` point at **source** (`./server.ts`, `./app.tsx`), and `files` ships that source closure alongside `dist/`. This is bb's own plugin shape — see `bb/plugins/{docs,github,memory,tasks}`, whose `files` read `["dist","server.ts","app.tsx",…]`. Do not repoint them at `dist/`. For a managed (`npm:`/`git:`) install bb finds `dist/server.js` **by convention** and never reads `bb.server` to load it (`plugin-runtime.ts` `resolveServerEntry`); `bb.server` is the FALLBACK, used when no bundle ships and when `dist/server.meta.json` records a different SDK version than the running one. The SDK is pre-1.0, so minor bumps are breaking and that fallback is a live path. Declaring `dist/server.js` as the manifest entry is the packaged-**builtin** shape (`isPackagedBuiltinServerEntry` gates on `kind === "builtin"`); in an npm tarball it also makes the stale-SDK branch return the same incompatible bundle it just rejected, and it forces the build entry and the load entry to fight over one field.
+- `bb.server`, `bb.app`, and optional `bb.host` point at **source** (`./server.ts`, `./app.tsx`, `./host.ts`), and `files` ships each declared source closure alongside `dist/`. This is bb's own plugin shape — see `bb/plugins/{docs,github,memory,tasks}` for server/app and `bb/plugins/keep-awake` for a host worker. Do not repoint them at `dist/`. For a managed (`npm:`/`git:`) install bb finds `dist/server.js` **by convention** and never reads `bb.server` to load it (`plugin-runtime.ts` `resolveServerEntry`); `bb.server` is the FALLBACK, used when no bundle ships and when `dist/server.meta.json` records a different SDK version than the running one. The SDK is pre-1.0, so minor bumps are breaking and that fallback is a live path. Declaring `dist/server.js` as the manifest entry is the packaged-**builtin** shape (`isPackagedBuiltinServerEntry` gates on `kind === "builtin"`); in an npm tarball it also makes the stale-SDK branch return the same incompatible bundle it just rejected, and it forces the build entry and the load entry to fight over one field. A declared host entry must ship `dist/host.js` and `dist/host.meta.json`; the daemon downloads that verified bundle lazily on the targeted enrolled machine.
 - Because the manifest entries are source, `bb plugin build .` is the build command directly — no wrapper. The tarball must carry the source closure, or the fallback has nothing to load: `scripts/publish.ts` fails the publish if any `bb.*` target, or any file it transitively imports, is missing from the packed tarball.
 - Plugins are installed into bb as local **path sources**: bb reads files in place. Anything a plugin imports at build time must resolve from the plugin directory via the workspace `node_modules`.
-- `types/bb-plugin-sdk.d.ts` and `types/bb-plugin-sdk-app.d.ts` in each plugin are **generated** from the pinned bb release. Never hand-edit them. After a bb upgrade: bump `config.bbVersion`, run `bun run sdk-types:refresh`, and keep each manifest's `engines.bb` / `engines.bbPluginSdk` aligned. `types/css-modules.d.ts` is hand-maintained.
+- SDK declarations come in two supported layouts. Older plugins keep generated `types/bb-plugin-sdk.d.ts` / `types/bb-plugin-sdk-app.d.ts`; current plugins depend on the exact published `@get-bb/plugin-sdk` version and read `bundled-types/` from that package. Never hand-edit generated declarations. After a bb upgrade: bump `config.bbVersion`, run `bun run sdk-types:refresh` (which delegates each layout to `bb plugin types`), run `bun install` if package pins changed, and keep each manifest's `engines.bb` / `engines.bbPluginSdk` honest. `types/css-modules.d.ts` is hand-maintained.
 - `components/ui/`, `lib/`, and `hooks/` are vendored shadcn-model source each plugin owns. Edit them freely; the copies are currently identical across plugins but divergence is allowed and deliberate — do not build machinery that assumes byte equality.
 - The root `package.json` `overrides` entry replacing `@ampcode/cli` with the stub in `plugins/amp/vendor/` is load-bearing (rationale in the root `comments` field). Never remove or relocate it; `plugins/amp/test/cli-stub.test.ts` guards it.
 - `bunfig.toml` pins Bun's **hoisted** linker on purpose. The isolated linker breaks workspace-root subpath imports.
@@ -38,8 +59,8 @@ The pinned bb release lives in root `package.json` → `config.bbVersion`. Local
 
 ## Testing and verification
 
-- Root build, dev, typecheck, and clean scripts fan out through Bun's `@smsunarto/bb-plugin-*` workspace filter. Root tests cover workspace scripts before the plugin suites. Dev scripts use `scripts/dev-plugin.ts` for one polling watcher per plugin directory and stale-lock recovery. Amp uses `node --test` and that is fine — do not rewrite it for runner uniformity.
-- The `@bb/plugin-sdk/testing` vitest harness is documented in the bb plugin-authoring skill but is **still not distributable at bb 0.36.0**. Re-verified 2026-08-09, so do not re-litigate it: `@bb/plugin-sdk` 404s on npm and the whole `@bb` scope is empty; GitHub Packages has nothing under that owner; the `bb-app` tarball ships only the host-side `plugin-sdk-runtime.js`, not the package; bb's sole publish workflow publishes `packages/bb-app` alone; and `bb plugin new --app` vendors only the `types/*.d.ts`, no vitest and no harness. Upstream examples reach it via `"@bb/plugin-sdk": "workspace:*"`, which a fork cannot resolve, and no package manager can install a subdirectory of a git monorepo. Until it ships, UI verification means the live loop plus a real surface check; build success alone is insufficient.
+- Root build, dev, typecheck, and clean scripts fan out through Bun's `bb-plugin-*` workspace filter. Root tests cover workspace scripts before the plugin suites. Dev scripts use `scripts/dev-plugin.ts` for one polling watcher per plugin directory and stale-lock recovery. Amp uses `node --test` and that is fine — do not rewrite it for runner uniformity.
+- bb 0.40 publishes `@get-bb/plugin-sdk` (currently 0.4.21), including `/testing`, `/testing/app`, and `/testing/host`. New plugins may use those harnesses after declaring the exact SDK dev dependency and their optional test peers. Existing legacy plugins do not gain that runtime merely because they vendor declarations; add the package deliberately when a test needs it, and do not migrate an existing plugin unless the task calls for migration. The frontend harness does not reproduce bb layout/CSS, so UI work still requires the live loop plus a real surface check; build success alone is insufficient.
 - Keep pure logic in plain modules so it stays unit-testable without a bb server.
 
 ## Conduct
