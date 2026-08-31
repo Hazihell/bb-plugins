@@ -52,7 +52,7 @@ prompt-derived form behavior and legacy cleanup; test allowed and secret-like
 environment keys; run a repository-independent production-only install/build;
 and complete focused, root, live, Marketplace, and fresh-context checks.
 
-## D-002: Refine GitHub CLI proxy and credential-store variables
+## D-002: Refine GitHub CLI proxy and secure-store variables
 
 Status: Accepted
 
@@ -87,7 +87,7 @@ Strict POSIX and Windows synthetic-environment tests assert the exact allowed
 keys, fixed controls, casing behavior, empty-value handling, and exclusion of
 secret-like sentinels.
 
-## D-003: Resolve GitHub CLI before exposing credentials
+## D-003: Resolve GitHub CLI before authenticated execution
 
 Status: Accepted
 
