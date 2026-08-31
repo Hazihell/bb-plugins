@@ -1,198 +1,121 @@
-<p align="center">
-  <img src="./plugins/taskboard/assets/icon.svg" width="64" height="64" alt="Taskboard ticket icon" />
-</p>
+<div align="center">
 
-<h1 align="center">BB Plugins</h1>
+# bb-plugins
 
-<p align="center">
-  Focused extensions for <a href="https://github.com/get-bb/bb">BB</a>, kept together in one extensible workspace.
-</p>
+**Plugins for [bb](https://github.com/get-bb/bb), the agent IDE — in one GitHub repository.**
 
-<p align="center">
-  <a href="https://github.com/MateoCerquetella/bb-plugins/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/MateoCerquetella/bb-plugins/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status" /></a>
-  <img src="https://img.shields.io/badge/BB-%E2%89%A5%200.38-7c3aed?style=flat-square" alt="BB 0.38 or newer" />
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-16a34a?style=flat-square" alt="MIT license" /></a>
-</p>
+![bb >=0.40](https://img.shields.io/badge/bb-%3E%3D0.40-88C0D0?style=flat-square)
+![Bun workspace](https://img.shields.io/badge/Bun-1.3.14-3FA266?style=flat-square)
+![macOS · Linux](https://img.shields.io/badge/platform-macOS%20%C2%B7%20Linux-F1B467?style=flat-square)
 
-![Taskboard running inside BB](./docs/media/hero.png)
+</div>
 
-## Plugins
+<picture><img src="docs/media/hero.png" alt="bb running with these plugins enabled: the t3sidebar inbox, Agent Proxy and Agentation in the sidebar, an Amp Orb thread with an Oracle card, the GitHub Stack panel, and the bb Monokai palette throughout" width="100%" /></picture>
 
-| | Plugin | Install | What it does |
-| --- | --- | --- | --- |
-| <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
-| <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
-| <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
+### Agent Providers
 
-## Host Monitor quick start
+<table>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/agent-proxy/assets/logo-dark.svg" /><img src="plugins/agent-proxy/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/agent-proxy/"><b>Agent Proxy</b></a></td>
+<td>Pools several Claude Code and Codex subscriptions behind one local endpoint and load-balances across them, moving on when one hits its quota.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/amp/assets/logo-dark.svg" /><img src="plugins/amp/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/amp/"><b>Amp</b></a></td>
+<td>Runs <a href="https://ampcode.com">Amp</a> as a native bb provider, locally or in an Orb.</td>
+</tr>
+</table>
 
-Install the immutable Host Monitor Git release directly from this monorepo:
+### Dev Productivity
+
+<table>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/agentation/assets/logo-dark.svg" /><img src="plugins/agentation/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/agentation/"><b>Agentation</b></a></td>
+<td>Turns a click on any part of bb into a structured annotation an agent can act on.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/gh-stack/assets/logo-dark.svg" /><img src="plugins/gh-stack/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/gh-stack/"><b>GitHub Stack</b></a></td>
+<td>Drives a <code>gh stack</code> from the thread panel — build, sync, submit, merge — and can hand the split to your agent.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/dotfiles/assets/logo-dark.svg" /><img src="plugins/dotfiles/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/dotfiles/"><b>Dotfiles</b></a> ⚠️</td>
+<td><b>Personal, unsupported.</b> Syncs one specific dotfiles repo layout. Not published to npm.</td>
+</tr>
+</table>
+
+### Utilities
+
+<table>
+<tr>
+<td align="center" width="60"><img src="plugins/action-topbar/assets/icon.svg" width="40" height="40" alt="" /></td>
+<td align="center"><a href="plugins/action-topbar/"><b>Action Topbar</b></a></td>
+<td>Keeps thread-panel actions in an Orca-style topbar and lets you drag an action onto a split pane.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/host-monitor/assets/logo-dark.svg" /><img src="plugins/host-monitor/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/host-monitor/"><b>Host Monitor</b></a></td>
+<td>Shows live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/notify/assets/logo-dark.svg" /><img src="plugins/notify/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/notify/"><b>Notify</b></a></td>
+<td>Real macOS notifications from bb itself when a thread finishes or fails, plus a <code>notify_user</code> agent tool.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/t3sidebar/assets/logo-dark.svg" /><img src="plugins/t3sidebar/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/t3sidebar/"><b>t3sidebar</b></a></td>
+<td>A project-first thread list with stable ordering, clear working/unread states, and inline child agents. Forked from <a href="https://github.com/get-bb/bb/tree/main/examples/plugins/t3sidebar">bb's own example</a>.</td>
+</tr>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/usage-tracker/assets/logo-dark.svg" /><img src="plugins/usage-tracker/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/usage-tracker/"><b>Usage Tracker</b></a></td>
+<td>Shows compact Codex and Claude Code 5-hour and weekly limits directly in the sidebar footer.</td>
+</tr>
+</table>
+
+### Themes
+
+<table>
+<tr>
+<td align="center" width="60"><picture><source media="(prefers-color-scheme: dark)" srcset="plugins/monokai/assets/logo-dark.svg" /><img src="plugins/monokai/assets/logo.svg" width="40" height="40" alt="" /></picture></td>
+<td align="center"><a href="plugins/monokai/"><b>bb Monokai</b></a></td>
+<td>A dark Monokai-family palette for the whole app: one meaning per hue, a single text ladder, all 16 ANSI colors, and a matching diff viewer.</td>
+</tr>
+</table>
+
+## Install
+
+One command per plugin:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/host-monitor --tag-prefix host-monitor/
+bb plugin install npm:bb-plugin-<id>
 ```
 
-Host Monitor requires BB 0.40 or later; the collection's other plugins retain
-their BB 0.38-compatible releases.
-
-An installation made under Host Monitor's retired plugin id cannot update
-across the rename. Remove that earlier Host Monitor entry, then use the command
-above; threshold settings must be applied again for a managed installation.
-
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/128)
-is merged and live, the equivalent shorthand is:
+`<id>` is the plugin's directory name — `action-topbar`, `agent-proxy`, `agentation`, `gh-stack`, `host-monitor`, `notify`, `amp`, `t3sidebar`, `usage-tracker`, or `monokai`. For example:
 
 ```sh
-bb plugin install host-monitor
-```
-
-Host Monitor keeps live CPU, RAM used/total, disk, network, load, uptime, and
-connection state in responsive cards or rows. Its sidebar control opens a
-compact summary or movable floating monitor, while Host details provides a
-searchable process ledger with explicit, freshly validated stop confirmations.
-IPs remain masked until revealed. See the
-[Host Monitor README](./plugins/host-monitor) for platform support, privacy,
-thresholds, and process-safety details.
-
-Update or remove it with BB:
-
-```sh
-bb plugin outdated
-bb plugin update host-monitor
-bb plugin remove host-monitor
-```
-
-## Taskboard quick start
-
-Install the tracking Git release directly from this monorepo:
-
-```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/
-```
-
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
-is merged and live, the equivalent shorthand is:
-
-```sh
-bb plugin install taskboard
-```
-
-Then open **Taskboard → Manage**, choose a BB project, and select exactly one
-external tracker for it. Different BB projects can use different providers.
-
-Taskboard keeps rows and Kanban cards compact, preserves each provider's real
-workflow, opens live issue details, and can send any task to an agent with its
-context attached. Each project's remembered view can also be saved as a named
-preset and reapplied explicitly from the board or CLI. See the
-[Taskboard README](./plugins/taskboard) for GitHub, Linear, Jira, presets, CLI,
-and credential setup.
-
-Update or remove it with BB:
-
-```sh
-bb plugin outdated
-bb plugin update taskboard
-bb plugin remove taskboard
-```
-
-## Usage Tracker quick start
-
-Install the tracking Git release directly from this monorepo:
-
-```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
-```
-
-After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
-is updated and live, the equivalent shorthand is:
-
-```sh
-bb plugin install usage-tracker
-```
-
-Usage Tracker mounts in BB's native sidebar footer beside the existing utility
-icons. Each provider gets a compact progress bar and current usage reading.
-Select Codex or Claude Code to expand its five-hour, weekly, and any additional
-provider-defined limits, reset times, and session status without leaving the
-current thread. There is no separate plugin page to manage. The **Compact
-limit** setting chooses whether the collapsed percentage and bar prefer weekly
-or five-hour usage.
-
-The strip refreshes automatically every five minutes, refreshes when a stale BB
-window becomes active again, and includes a manual refresh control. If a
-provider is briefly unavailable or rate-limited, the last known limit windows
-remain visible with the current status. See the
-[Usage Tracker README](./plugins/usage-tracker) for requirements, behavior, and
-development details.
-
-Update or remove it with BB:
-
-```sh
-bb plugin outdated
-bb plugin update usage-tracker
-bb plugin remove usage-tracker
+bb plugin install npm:bb-plugin-notify
 ```
 
 ## Build from source
 
-Each plugin is an independent BB package under `plugins/<id>`. Clone the
-workspace once, install the shared dependencies, and register a plugin as a
-local-path source:
+This puts each plugin in as a **local path source**, so bb reads the files in place and the development watcher rebuilds and reloads changes without a reinstall.
 
 ```sh
-git clone https://github.com/MateoCerquetella/bb-plugins.git
+git clone https://github.com/mateocerquetella/bb-plugins
 cd bb-plugins
-npm install
-npm run build
-bb plugin install ./plugins/host-monitor
-bb plugin install ./plugins/taskboard
-bb plugin install ./plugins/usage-tracker
+bun install                              # one hoisted node_modules at the repo root
+bun run build                            # bb plugin build for every plugin
+bb plugin install ./plugins/<id>         # from the repo root
+bun run dev                              # watch all installed workspace plugins
 ```
 
-BB reads local-path plugins in place, so the development loop stays short:
+To install one plugin directly from Git instead, target its subdirectory:
 
 ```sh
-git pull
-npm install
-npm run build
-bb plugin reload host-monitor
-bb plugin reload taskboard
-bb plugin reload usage-tracker
+bb plugin install git:https://github.com/mateocerquetella/bb-plugins.git@main --subdirectory plugins/<id>
 ```
-
-BB 0.38 and newer reads the repository's `.bb/plugins.json` collection, so a
-plugin can also be installed straight from Git:
-
-```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin host-monitor
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin taskboard
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin usage-tracker
-```
-
-Host Monitor, Taskboard, and Usage Tracker release through immutable
-plugin-specific Git tags and the BB Community marketplace.
-
-## Develop
-
-Run every plugin's checks from the workspace root:
-
-```sh
-npm install
-npm run check
-```
-
-New plugins belong in `plugins/<id>` with their own `package.json`, source,
-tests, pinned `@get-bb/plugin-sdk` development dependency, and README. Add each
-directory to `.bb/plugins.json`; the root workspace picks it up automatically.
-
-## Contributors
-
-- [Stephen Dolan (@stephendolan)](https://github.com/stephendolan) contributed
-  Usage Tracker's configurable Compact limit.
-- [Andrii Los (@RIP21)](https://github.com/RIP21) contributed Taskboard's
-  project-view persistence work and dogfooding fixes, plus named filter
-  presets.
-
-## License
-
-[MIT](./LICENSE) © 2026 Mateo Cerquetella.

@@ -9,40 +9,7 @@
       "screenshotForUi": true,
       "codeReview": true
     },
-    "commands": [
-      {
-        "id": "workspace-check",
-        "argv": [
-          "npm",
-          "run",
-          "check"
-        ],
-        "cwd": ".",
-        "timeoutMs": 900000,
-        "maxOutputBytes": 1048576,
-        "evidenceKinds": [
-          "test"
-        ],
-        "criteria": [
-          "AC-1",
-          "AC-2",
-          "AC-3",
-          "AC-4",
-          "AC-5",
-          "AC-UI-1",
-          "AC-UI-2",
-          "AC-UI-3",
-          "AC-UI-4",
-          "AC-UI-5",
-          "AC-6",
-          "AC-7",
-          "AC-MKT-1",
-          "AC-MKT-2",
-          "AC-8",
-          "AC-9"
-        ]
-      }
-    ]
+    "commands": []
   },
   "delivery": null,
   "preferredAgent": null

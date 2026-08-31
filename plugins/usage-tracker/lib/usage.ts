@@ -1,7 +1,6 @@
 export const PROVIDER_IDS = ["codex", "claudeCode", "cursor"] as const;
 
 export type ProviderId = (typeof PROVIDER_IDS)[number];
-export type RawProviderId = ProviderId | "claude-code" | "acp-cursor";
 export type ProviderStatus =
   | "ok"
   | "not_installed"
@@ -40,8 +39,8 @@ export type RawProviderUsage =
       accountEmail?: string | null;
     };
 
-export type RawUsageResponse = Partial<
-  Record<RawProviderId, RawProviderUsage>
+export type RawUsageResponse = Readonly<
+  Record<string, RawProviderUsage | undefined>
 >;
 
 export interface UsageWindow {
@@ -73,29 +72,29 @@ export interface UsageSnapshot {
 
 interface ProviderDefinition {
   id: ProviderId;
-  wireIds: readonly RawProviderId[];
   name: string;
   loginCommand: string;
+  usageKeys: readonly string[];
 }
 
 const PROVIDERS: readonly ProviderDefinition[] = [
   {
     id: "codex",
-    wireIds: ["codex"],
     name: "Codex",
     loginCommand: "codex login",
+    usageKeys: ["codex"],
   },
   {
     id: "claudeCode",
-    wireIds: ["claude-code", "claudeCode"],
     name: "Claude Code",
     loginCommand: "claude",
+    usageKeys: ["claude-code", "claudeCode"],
   },
   {
     id: "cursor",
-    wireIds: ["acp-cursor", "cursor"],
     name: "Cursor",
     loginCommand: "cursor-agent login",
+    usageKeys: ["acp-cursor", "cursor"],
   },
 ];
 
@@ -134,20 +133,8 @@ function statusMessage(
 
 function normalizeProvider(
   definition: ProviderDefinition,
-  usage: RawProviderUsage | undefined,
+  usage: RawProviderUsage,
 ): ProviderUsage {
-  if (usage === undefined) {
-    return {
-      id: definition.id,
-      name: definition.name,
-      status: "error",
-      accountEmail: null,
-      planLabel: null,
-      message: `${definition.name} usage was not reported by bb.`,
-      windows: [],
-    };
-  }
-
   if (usage.status !== "ok") {
     return {
       id: definition.id,
@@ -192,12 +179,16 @@ function normalizeProvider(
 function providerUsage(
   response: RawUsageResponse,
   definition: ProviderDefinition,
-): RawProviderUsage | undefined {
-  for (const wireId of definition.wireIds) {
-    const usage = response[wireId];
+): RawProviderUsage {
+  for (const key of definition.usageKeys) {
+    const usage = response[key];
     if (usage !== undefined) return usage;
   }
-  return undefined;
+
+  return {
+    status: "error",
+    message: `${definition.name} usage was not reported by bb.`,
+  };
 }
 
 export function normalizeUsage(

@@ -2,49 +2,6 @@
 
 All notable changes to Usage Tracker are documented here.
 
-## Unreleased
-
-## 0.1.5 - 2026-08-31
-
-### Fixed
-
-- Keep the sidebar footer strip on one row at narrow widths, let compact
-  progress rails yield before provider marks and readings, and keep refresh
-  available from the responsive details card.
-- Size and stack the details card from the live sidebar footer so its content
-  remains visible when the sidebar is resized to its minimum width.
-
-## 0.1.4 - 2026-08-28
-
-### Changed
-
-- Consolidated the Git patch release on the merged provider-key,
-  compact-limit, additional-window, and provider-local failure behavior.
-
-## 0.1.3 - 2026-08-27
-
-### Added
-
-- A Compact limit setting chooses whether the collapsed percentage and
-  progress bar show weekly or five-hour usage. Weekly is the default.
-  Contributed by [Stephen Dolan (@stephendolan)](https://github.com/stephendolan).
-
-### Fixed
-
-- Read the current BB provider keys for Claude Code and Cursor while preserving
-  compatibility with legacy keys, and isolate an omitted provider instead of
-  failing the complete usage snapshot.
-- Show and retain every additional provider usage window after the canonical
-  five-hour and weekly rows, with responsive scrolling, accessible focus, and
-  reliable close, refresh, and Escape behavior.
-
-## 0.1.2 - 2026-08-17
-
-### Changed
-
-- Migrated development types to the pinned `@get-bb/plugin-sdk` development
-  dependency and raised the minimum BB version to 0.38.
-
 ## 0.1.1 - 2026-08-12
 
 ### Added

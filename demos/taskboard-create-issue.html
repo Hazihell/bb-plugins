@@ -3,369 +3,868 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Taskboard issue creation demo</title>
+    <title>Taskboard — create external issue concept</title>
     <style>
       :root {
         color-scheme: dark;
-        --bg: #0b0d11;
-        --panel: #12151b;
-        --raised: #181c24;
-        --soft: #202631;
-        --line: #2b323d;
-        --text: #f1f3f7;
-        --muted: #99a2af;
-        --accent: #8792ff;
-        --accent-soft: rgba(135, 146, 255, 0.14);
-        --good: #5fd197;
-        --danger: #ef767a;
+        --page: #0b0d10;
+        --canvas: #101318;
+        --surface: #15191f;
+        --surface-2: #1a1f27;
+        --surface-3: #202630;
+        --ink: #eef1f5;
+        --muted: #959da9;
+        --subtle: #69717e;
+        --line: #2a3039;
+        --line-strong: #38414d;
+        --accent: #7c8cff;
+        --accent-soft: rgba(124, 140, 255, 0.14);
+        --success: #5cc88a;
+        --warning: #e2a84a;
+        --danger: #eb6f73;
+        --shadow: 0 22px 70px rgba(0, 0, 0, 0.52);
       }
 
       @media (prefers-color-scheme: light) {
         :root {
           color-scheme: light;
-          --bg: #eef1f5;
-          --panel: #fafbfc;
-          --raised: #ffffff;
-          --soft: #edf0f4;
-          --line: #d9dee6;
-          --text: #171a20;
-          --muted: #66707d;
-          --accent: #5965db;
-          --accent-soft: rgba(89, 101, 219, 0.1);
-          --good: #218657;
-          --danger: #c9434b;
+          --page: #eef0f4;
+          --canvas: #fbfcfd;
+          --surface: #f6f7f9;
+          --surface-2: #ffffff;
+          --surface-3: #eef1f5;
+          --ink: #171a20;
+          --muted: #636b76;
+          --subtle: #8a929d;
+          --line: #dfe3e8;
+          --line-strong: #cbd1d9;
+          --accent: #5865dc;
+          --accent-soft: rgba(88, 101, 220, 0.1);
+          --success: #238653;
+          --warning: #a96c08;
+          --danger: #c83c45;
+          --shadow: 0 22px 70px rgba(36, 41, 50, 0.2);
         }
       }
 
       * { box-sizing: border-box; }
+
+      html, body { margin: 0; min-height: 100%; }
+
       body {
-        margin: 0;
-        min-height: 100vh;
-        padding: 16px;
-        background:
-          radial-gradient(circle at 50% -20%, var(--accent-soft), transparent 44%),
-          var(--bg);
-        color: var(--text);
-        font: 13px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+        background: var(--page);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 13px;
+        -webkit-font-smoothing: antialiased;
       }
-      button, textarea, input { font: inherit; color: inherit; }
-      button { cursor: pointer; }
-      button:focus-visible, textarea:focus-visible, input:focus-visible {
-        outline: 2px solid color-mix(in srgb, var(--accent) 70%, transparent);
-        outline-offset: 2px;
+
+      button, input, textarea, select { font: inherit; }
+      button { color: inherit; }
+
+      .demo {
+        min-height: 760px;
+        padding: 14px;
+        background:
+          radial-gradient(circle at 20% -30%, rgba(124, 140, 255, 0.12), transparent 42%),
+          var(--page);
       }
 
       .demo-note {
-        max-width: 1040px;
+        max-width: 1220px;
         margin: 0 auto 10px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 12px;
         color: var(--muted);
         font-size: 12px;
       }
-      .demo-note strong { color: var(--text); }
-      .safe { display: inline-flex; align-items: center; gap: 7px; }
-      .safe::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
 
-      .shell {
-        position: relative;
-        max-width: 1040px;
-        min-height: 710px;
+      .concept-label, .try-label { display: flex; align-items: center; gap: 7px; }
+      .concept-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--warning); box-shadow: 0 0 0 4px color-mix(in srgb, var(--warning) 13%, transparent); }
+      .try-label { color: var(--ink); font-weight: 600; }
+
+      .app {
+        max-width: 1220px;
+        height: 708px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: row-reverse;
         overflow: hidden;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        background: var(--panel);
-        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+        border: 1px solid var(--line-strong);
+        border-radius: 13px;
+        background: var(--canvas);
+        box-shadow: 0 10px 38px rgba(0, 0, 0, 0.24);
       }
-      .topbar {
-        height: 50px;
+
+      .sidebar {
+        width: 220px;
+        flex: none;
+        display: flex;
+        flex-direction: column;
+        border-left: 1px solid var(--line);
+        background: color-mix(in srgb, var(--surface) 88%, var(--canvas));
+      }
+
+      .sidebar-nav { flex: 1; overflow: auto; padding: 14px 9px; }
+      .sidebar-label { padding: 0 9px 7px; color: var(--subtle); font-size: 10px; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+      .sidebar-separator { height: 1px; margin: 11px 8px; background: var(--line); }
+
+      .project-row {
+        width: 100%;
+        min-height: 34px;
         display: flex;
         align-items: center;
         gap: 9px;
-        padding: 0 15px;
+        padding: 5px 8px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--muted);
+        text-align: left;
+        cursor: pointer;
+        transition: 130ms ease;
+      }
+
+      .project-row:hover { color: var(--ink); background: var(--surface-2); }
+      .project-row.active { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 32%, var(--line)); background: var(--accent-soft); }
+      .project-row .name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .project-row .provider-mini { color: var(--subtle); font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+      .sidebar-footer { padding: 8px 9px; border-top: 1px solid var(--line); }
+
+      .main { position: relative; min-width: 0; flex: 1; display: flex; flex-direction: column; }
+
+      .topbar {
+        height: 50px;
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 0 12px 0 16px;
         border-bottom: 1px solid var(--line);
+        background: color-mix(in srgb, var(--surface) 74%, transparent);
+        backdrop-filter: blur(14px);
       }
-      .mark { width: 25px; height: 25px; display: grid; place-items: center; border-radius: 7px; background: var(--accent-soft); color: var(--accent); }
-      .topbar strong { font-size: 14px; }
-      .tracker-tabs { margin-left: auto; display: flex; gap: 4px; padding: 3px; border-radius: 8px; background: var(--soft); }
-      .tracker-tab { border: 0; border-radius: 6px; padding: 5px 9px; background: transparent; color: var(--muted); font-size: 11px; }
-      .tracker-tab.active { background: var(--raised); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, .16); }
 
-      .board {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
-        padding: 14px;
-        opacity: .76;
+      .project-title { min-width: 0; display: flex; align-items: center; gap: 8px; font-weight: 650; }
+      .project-title > span:nth-child(2) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+      .provider-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 7px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 650;
       }
-      .column { min-height: 410px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--raised) 74%, transparent); }
-      .column h2 { margin: 0 0 10px; display: flex; align-items: center; gap: 7px; font-size: 11px; }
-      .column h2::before { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 2px solid var(--accent); }
-      .column:nth-child(2) h2::before { border-style: dashed; border-color: #e4ae54; }
-      .column:nth-child(3) h2::before { border-color: var(--good); }
-      .card { margin-top: 7px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
-      .card small { color: var(--muted); }
-      .card p { margin: 6px 0 0; font-size: 12px; }
 
-      .composer {
+      .spacer { flex: 1; }
+
+      .btn {
+        height: 31px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 0 11px;
+        border: 1px solid var(--line-strong);
+        border-radius: 7px;
+        background: var(--surface-2);
+        color: var(--ink);
+        font-weight: 620;
+        cursor: pointer;
+        transition: 130ms ease;
+      }
+
+      .btn:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 50%, var(--line-strong)); background: var(--surface-3); transform: translateY(-1px); }
+      .btn:focus-visible, .icon-btn:focus-visible, .project-row:focus-visible { outline: 2px solid color-mix(in srgb, var(--accent) 60%, transparent); outline-offset: 2px; }
+      .btn:disabled { opacity: .43; cursor: not-allowed; }
+      .btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+      .btn.primary:hover:not(:disabled) { border-color: color-mix(in srgb, var(--accent) 80%, white); background: color-mix(in srgb, var(--accent) 88%, white); }
+      .btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+      .btn.ghost:hover:not(:disabled) { border-color: transparent; background: var(--surface-3); color: var(--ink); transform: none; }
+
+      @keyframes guide { 0% { opacity: 0; transform: scale(.96); } 25% { opacity: .8; } 100% { opacity: 0; transform: scale(1.12); } }
+
+      .icon-btn {
+        width: 31px;
+        height: 31px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+      }
+
+      .icon-btn:hover { color: var(--ink); background: var(--surface-3); }
+      svg { display: block; }
+
+      .board-shell { min-height: 0; flex: 1; display: flex; flex-direction: column; padding: 13px; background: color-mix(in srgb, var(--canvas) 95%, var(--ink)); }
+
+      .composer-preview {
         position: absolute;
-        z-index: 4;
+        z-index: 12;
         left: 50%;
-        bottom: 22px;
-        width: min(610px, calc(100% - 30px));
+        bottom: 24px;
+        width: min(480px, calc(100% - 54px));
         transform: translateX(-50%);
-        border: 1px solid var(--line);
-        border-radius: 13px;
-        background: color-mix(in srgb, var(--raised) 94%, transparent);
-        box-shadow: 0 18px 50px rgba(0,0,0,.42);
+        padding: 10px;
+        border: 1px solid var(--line-strong);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--surface-2) 94%, transparent);
+        box-shadow: 0 13px 40px rgba(0, 0, 0, .4);
         backdrop-filter: blur(18px);
       }
-      .composer-label { padding: 9px 12px 0; color: var(--muted); font-size: 10px; }
-      .prompt { width: 100%; min-height: 84px; resize: none; padding: 9px 12px; border: 0; outline: 0; background: transparent; }
-      .actions { display: flex; align-items: center; gap: 3px; padding: 8px; border-top: 1px solid var(--line); }
-      .project { margin-right: auto; padding: 0 5px; color: var(--muted); font-size: 10px; }
-      .icon-button { width: 29px; height: 29px; display: grid; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--muted); }
-      .icon-button:hover { background: var(--soft); color: var(--text); }
-      .ticket { color: var(--text); }
-      .icon-button:disabled { cursor: default; opacity: .45; pointer-events: none; }
-      .send { width: auto; padding: 0 10px; background: var(--text); color: var(--bg); font-weight: 700; }
 
-      .overlay { position: absolute; z-index: 10; inset: 0; display: none; place-items: center; padding: 16px; background: rgba(4, 6, 10, .68); backdrop-filter: blur(5px); }
-      .overlay.open { display: grid; }
-      .dialog { width: min(590px, 100%); overflow: hidden; border: 1px solid var(--line); border-radius: 13px; background: var(--panel); box-shadow: 0 24px 80px rgba(0,0,0,.54); }
-      .dialog-header { display: flex; align-items: flex-start; gap: 10px; padding: 16px; border-bottom: 1px solid var(--line); }
-      .provider-icon { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); color: var(--accent); }
-      .dialog-header h2 { margin: 0; font-size: 15px; }
-      .dialog-header p { margin: 3px 0 0; color: var(--muted); font-size: 11px; }
-      .close { margin-left: auto; }
-      .dialog-body { padding: 16px; }
-      .destination { margin-bottom: 13px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); background: var(--raised); font-size: 11px; }
-      .destination strong { color: var(--text); }
-      .drafting { display: grid; gap: 11px; }
-      .draft-copy { display: flex; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--raised); }
-      .spinner { width: 15px; height: 15px; flex: none; margin-top: 2px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      .draft-copy strong { display: block; }
-      .draft-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
-      .skeleton { height: 13px; border-radius: 5px; background: var(--soft); }
-      .skeleton.title { width: 70%; height: 31px; }
-      .skeleton.short { width: 82%; }
-      .draft-actions { display: flex; justify-content: flex-end; }
-      .fields[hidden], .drafting[hidden] { display: none; }
-      .status { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 13px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); color: var(--muted); font-size: 11px; }
-      .status strong { color: var(--text); }
-      label { display: block; margin: 12px 0 5px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
-      .field { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--raised); outline: 0; }
-      input.field { height: 38px; padding: 0 10px; }
-      textarea.field { min-height: 190px; resize: vertical; padding: 10px; }
-      .footer { display: flex; align-items: center; gap: 7px; padding: 12px 16px; border-top: 1px solid var(--line); }
-      .footer-note { margin-right: auto; color: var(--muted); font-size: 10px; }
-      .button { height: 31px; padding: 0 11px; border: 1px solid var(--line); border-radius: 7px; background: var(--raised); }
-      .button:hover { background: var(--soft); }
-      .button.primary { border-color: var(--accent); background: var(--accent); color: white; font-weight: 700; }
-      .button:disabled { opacity: .45; cursor: not-allowed; }
-      .button.ghost { border-color: transparent; background: transparent; color: var(--muted); }
-      .toast { position: absolute; z-index: 15; left: 50%; bottom: 18px; display: none; align-items: center; gap: 9px; padding: 10px 13px; border: 1px solid color-mix(in srgb, var(--good) 55%, var(--line)); border-radius: 9px; background: var(--raised); transform: translateX(-50%); box-shadow: 0 16px 50px rgba(0,0,0,.42); }
-      .toast.show { display: flex; }
-      .toast strong { font-size: 11px; }
-      .toast span { color: var(--muted); font-size: 10px; }
+      .composer-caption { display: flex; align-items: center; gap: 7px; margin: 0 2px 8px; color: var(--muted); font-size: 10px; font-weight: 650; }
+      .composer-caption strong { color: var(--ink); }
+      .composer-input { min-height: 54px; padding: 1px 3px 8px; color: var(--ink); line-height: 1.45; outline: 0; }
+      .composer-input:empty::before { content: "Describe the work you want done…"; color: var(--subtle); pointer-events: none; }
+      .composer-actions { display: flex; align-items: center; gap: 3px; padding-top: 7px; border-top: 1px solid var(--line); }
+      .composer-actions .icon-btn { width: 28px; height: 28px; }
+      .composer-actions .taskboard-action { position: relative; color: var(--accent); background: var(--accent-soft); }
+      .composer-actions .taskboard-action::after { content: ""; position: absolute; inset: -4px; border: 1px solid color-mix(in srgb, var(--accent) 65%, transparent); border-radius: 9px; animation: guide 1.8s ease-out infinite; pointer-events: none; }
+      .composer-project { margin-right: auto; display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; }
+      .composer-send { width: auto !important; padding: 0 9px; border-color: var(--ink); background: var(--ink); color: var(--canvas); font-size: 10px; font-weight: 700; }
 
-      @media (max-width: 680px) {
-        body { padding: 8px; }
-        .demo-note > :last-child { display: none; }
-        .shell { min-height: 680px; }
-        .board { grid-template-columns: 1fr; }
-        .column:nth-child(n+2) { display: none; }
-        .tracker-tab { padding-inline: 6px; }
-        .footer-note { display: none; }
+      .filters {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px;
+        border: 1px solid var(--line);
+        border-radius: 10px 10px 0 0;
+        background: var(--surface);
       }
-      @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+
+      .search {
+        min-width: 180px;
+        max-width: 310px;
+        flex: 1;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 9px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        color: var(--subtle);
+        background: var(--canvas);
+      }
+
+      .search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); }
+      .filter-pill { height: 28px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--canvas); color: var(--muted); font-size: 11px; }
+      .view-toggle { margin-left: auto; display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 7px; background: var(--canvas); }
+      .view-toggle span { padding: 4px 7px; border-radius: 4px; color: var(--subtle); font-size: 10px; }
+      .view-toggle .active { color: var(--ink); background: var(--surface-3); }
+
+      .board {
+        min-height: 0;
+        flex: 1;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(190px, 1fr));
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-top: 0;
+        border-radius: 0 0 10px 10px;
+        background: var(--canvas);
+      }
+
+      .column { min-width: 0; padding: 0 9px 11px; border-right: 1px solid var(--line); }
+      .column:last-child { border-right: 0; }
+      .column-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 7px; height: 40px; background: var(--canvas); font-size: 11px; font-weight: 700; }
+      .state-dot { width: 8px; height: 8px; border: 2px solid currentColor; border-radius: 999px; }
+      .column.todo .state-dot { color: var(--accent); }
+      .column.progress .state-dot { color: var(--warning); border-style: dashed; }
+      .column.backlog .state-dot { color: #9b7ad9; }
+      .count { margin-left: auto; color: var(--subtle); font-size: 10px; font-variant-numeric: tabular-nums; }
+      .cards { display: flex; flex-direction: column; gap: 7px; }
+
+      .card {
+        padding: 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface);
+        box-shadow: 0 1px 1px rgba(0,0,0,.08);
+        transition: 130ms ease;
+      }
+
+      .card:hover { border-color: var(--line-strong); background: var(--surface-2); transform: translateY(-1px); }
+      .card.new { animation: card-in 500ms cubic-bezier(.2,.8,.2,1); border-color: color-mix(in srgb, var(--success) 60%, var(--line)); }
+      @keyframes card-in { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+      .card-key { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; font-weight: 650; }
+      .card-title { margin-top: 7px; line-height: 1.35; font-size: 12px; font-weight: 590; }
+      .card-meta { margin-top: 10px; display: flex; align-items: center; gap: 6px; color: var(--subtle); font-size: 10px; }
+      .priority { margin-left: auto; width: 14px; text-align: center; color: var(--warning); font-weight: 800; }
+      .avatar { width: 19px; height: 19px; display: grid; place-items: center; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface-3); color: var(--muted); font-size: 8px; font-weight: 700; }
+
+      .source-mark { width: 16px; height: 16px; display: inline-grid; place-items: center; flex: none; }
+      .source-mark.linear { color: #8b8cff; }
+      .source-mark.github { color: var(--ink); }
+      .source-mark.jira { color: #5793ff; }
+      .folder-icon { color: var(--muted); }
+
+      .empty-board { grid-column: 1 / -1; display: grid; place-items: center; padding: 30px; color: var(--muted); text-align: center; }
+
+      .modal-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background: rgba(4, 6, 9, .64);
+        backdrop-filter: blur(5px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 150ms ease;
+      }
+
+      .modal-layer.open { opacity: 1; pointer-events: auto; }
+      .dialog {
+        width: min(650px, calc(100vw - 30px));
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        border-radius: 13px;
+        background: var(--canvas);
+        box-shadow: var(--shadow);
+        transform: translateY(8px) scale(.985);
+        transition: transform 170ms cubic-bezier(.2,.8,.2,1);
+      }
+      .modal-layer.open .dialog { transform: translateY(0) scale(1); }
+
+      .dialog-header { display: flex; align-items: flex-start; gap: 11px; padding: 17px 18px 15px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 72%, transparent); }
+      .provider-icon { width: 34px; height: 34px; display: grid; place-items: center; flex: none; border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-2); }
+      .dialog-heading { flex: 1; min-width: 0; }
+      .dialog-title { margin: 0; font-size: 15px; line-height: 1.3; }
+      .dialog-destination { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
+      .dialog-destination strong { color: var(--ink); font-weight: 650; }
+      .close-btn { margin: -4px -4px 0 0; }
+
+      .dialog-body { padding: 19px 20px 17px; }
+      .field-label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+      .title-input { width: 100%; padding: 0 0 11px; border: 0; border-bottom: 1px solid var(--line); outline: 0; background: transparent; color: var(--ink); font-size: 18px; font-weight: 640; }
+      .title-input::placeholder, .description-input::placeholder { color: color-mix(in srgb, var(--muted) 62%, transparent); }
+      .description-wrap { margin-top: 15px; }
+      .description-input { width: 100%; min-height: 132px; resize: vertical; padding: 0; border: 0; outline: 0; background: transparent; color: var(--ink); line-height: 1.5; }
+
+      .draft-state { display: grid; gap: 12px; padding: 2px 0 4px; }
+      .draft-copy { display: flex; align-items: flex-start; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+      .draft-copy svg { flex: none; margin-top: 1px; color: var(--accent); animation: spin 1.15s linear infinite; }
+      .draft-copy strong { display: block; font-size: 11px; }
+      .draft-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+      .draft-skeleton { height: 12px; overflow: hidden; border-radius: 5px; background: var(--surface-3); }
+      .draft-skeleton::after { content: ""; display: block; width: 44%; height: 100%; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink) 9%, transparent), transparent); animation: shimmer 1.25s ease-in-out infinite; }
+      .draft-skeleton.title { width: 72%; height: 18px; }
+      .draft-skeleton.line-2 { width: 92%; }
+      .draft-skeleton.line-3 { width: 78%; }
+      @keyframes shimmer { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+      [hidden] { display: none !important; }
+
+      .draft-badge { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 11px; padding: 4px 7px; border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: 9px; font-weight: 750; letter-spacing: .04em; text-transform: uppercase; }
+
+      .attributes { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 14px; padding-top: 13px; border-top: 1px solid var(--line); }
+      .attribute {
+        height: 29px;
+        max-width: 170px;
+        padding: 0 25px 0 9px;
+        border: 1px solid var(--line-strong);
+        border-radius: 7px;
+        outline: 0;
+        background: var(--surface-2);
+        color: var(--muted);
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .attribute.fixed { display: inline-flex; align-items: center; max-width: 230px; padding-right: 9px; color: var(--ink); white-space: nowrap; }
+
+      .dialog-footer { display: flex; align-items: center; gap: 8px; padding: 13px 18px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface) 62%, transparent); }
+      .footer-note { flex: 1; color: var(--subtle); font-size: 10px; }
+      .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.35); border-top-color: white; border-radius: 999px; animation: spin .7s linear infinite; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .toast {
+        position: fixed;
+        z-index: 80;
+        left: 50%;
+        bottom: 24px;
+        min-width: 280px;
+        max-width: calc(100vw - 32px);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 13px;
+        border: 1px solid color-mix(in srgb, var(--success) 48%, var(--line));
+        border-radius: 9px;
+        background: var(--surface-2);
+        box-shadow: var(--shadow);
+        opacity: 0;
+        transform: translate(-50%, 12px);
+        pointer-events: none;
+        transition: 180ms ease;
+      }
+      .toast.show { opacity: 1; transform: translate(-50%, 0); }
+      .toast-check { width: 21px; height: 21px; display: grid; place-items: center; border-radius: 999px; background: color-mix(in srgb, var(--success) 18%, transparent); color: var(--success); }
+      .toast-copy { flex: 1; }
+      .toast-copy strong { display: block; font-size: 11px; }
+      .toast-copy span { color: var(--muted); font-size: 10px; }
+
+      @media (max-width: 760px) {
+        .demo { padding: 8px; min-height: 700px; }
+        .demo-note { margin: 0 3px 8px; }
+        .try-label span { display: none; }
+        .app { height: 660px; border-radius: 10px; }
+        .sidebar { display: none; }
+        .provider-badge { display: none; }
+        .filters { flex-wrap: wrap; }
+        .filter-pill:nth-of-type(n+3) { display: none; }
+        .search { max-width: none; }
+        .board { grid-template-columns: repeat(3, minmax(235px, 1fr)); }
+        .dialog-body { padding: 16px; }
+        .composer-preview { width: calc(100% - 24px); bottom: 15px; }
+        .footer-note { display: none; }
+        .dialog-footer { justify-content: flex-end; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      }
     </style>
   </head>
   <body>
-    <div class="demo-note">
-      <span class="safe">Interactive demo · no external issue is created</span>
-      <span>Edit the prompt, then click the <strong>ticket icon</strong></span>
-    </div>
-
-    <main class="shell">
-      <header class="topbar">
-        <span class="mark" aria-hidden="true">✓</span>
-        <strong>Taskboard</strong>
-        <span style="color:var(--muted);font-size:11px">New thread issue flow</span>
-        <nav class="tracker-tabs" aria-label="Demo tracker">
-          <button class="tracker-tab active" data-tracker="linear">Linear</button>
-          <button class="tracker-tab" data-tracker="github">GitHub</button>
-          <button class="tracker-tab" data-tracker="jira">Jira</button>
-        </nav>
-      </header>
-
-      <section class="board" aria-hidden="true">
-        <div class="column"><h2>Backlog</h2><article class="card"><small>TB-121</small><p>Keep filters when opening a task</p></article><article class="card"><small>TB-119</small><p>Clarify missing tracker credentials</p></article></div>
-        <div class="column"><h2>In progress</h2><article class="card"><small>TB-124</small><p>Improve repository-aware issue drafts</p></article></div>
-        <div class="column"><h2>Done</h2><article class="card"><small>TB-117</small><p>Add project-specific workflow ordering</p></article></div>
-      </section>
-
-      <section class="composer" aria-label="New thread composer">
-        <div class="composer-label">New thread · prompt and repository context become an editable issue draft</div>
-        <textarea id="prompt" class="prompt">i want the taskboard ticket button to turn this prompt into a clean issue using the repo context</textarea>
-        <div class="actions">
-          <span class="project">▣ bb-plugins</span>
-          <button class="icon-button" title="Improve prompt" aria-label="Improve prompt">✦</button>
-          <button id="ticket" class="icon-button ticket" title="Turn prompt into Taskboard issue" aria-label="Turn prompt into Taskboard issue">☑</button>
-          <button class="icon-button" title="Start voice input" aria-label="Start voice input">◉</button>
-          <button class="icon-button send">Send</button>
-        </div>
-      </section>
-
-      <div id="overlay" class="overlay" aria-hidden="true">
-        <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
-          <header class="dialog-header">
-            <span id="providerIcon" class="provider-icon" aria-hidden="true">L</span>
-            <div><h2 id="dialogTitle">Create Linear issue</h2><p id="dialogSubtitle">Drafted from bb-plugins repository context</p></div>
-            <button id="close" class="icon-button close" aria-label="Close">×</button>
-          </header>
-          <form id="issueForm">
-            <div class="dialog-body">
-              <div class="destination">Destination · <strong id="destination">Team ENG</strong></div>
-              <div id="drafting" class="drafting" aria-live="polite">
-                <div class="draft-copy"><span class="spinner"></span><div><strong>Structuring your issue</strong><span>A hidden model is reading relevant repository files and writing a standalone ticket.</span></div></div>
-                <div class="skeleton title"></div><div class="skeleton"></div><div class="skeleton short"></div>
-                <div class="draft-actions"><button id="usePrompt" class="button ghost" type="button">Use original prompt</button></div>
-              </div>
-              <div id="fields" class="fields" hidden>
-                <div class="status"><span id="statusCopy"><strong>Drafted with repository context</strong> · review before creating</span><button id="retry" class="button ghost" type="button" hidden>Try repository draft again</button></div>
-                <label for="title">Title</label><input id="title" class="field" maxlength="500" />
-                <label for="description">Description</label><textarea id="description" class="field" maxlength="100000"></textarea>
-              </div>
-            </div>
-            <footer class="footer"><span class="footer-note">Nothing reaches the tracker until Create issue is clicked.</span><button id="cancel" class="button ghost" type="button">Cancel</button><button id="create" class="button primary" type="submit" disabled>Create Linear issue</button></footer>
-          </form>
-        </section>
+    <div class="demo">
+      <div class="demo-note">
+        <div class="concept-label"><span class="concept-dot"></span><span>Interactive concept · no external issues are created</span></div>
+        <div class="try-label"><span>Edit the prompt, then click the highlighted</span> <strong>ticket icon</strong></div>
       </div>
 
-      <div id="toast" class="toast" role="status"><strong id="toastTitle"></strong><span>Simulated only · attached as a Taskboard mention</span></div>
-    </main>
+      <div class="app">
+        <aside class="sidebar" aria-label="Taskboard projects">
+          <nav class="sidebar-nav">
+            <div class="sidebar-label">Projects</div>
+            <div id="projectRows"></div>
+            <div class="sidebar-separator"></div>
+            <button class="project-row" id="acrossProjects" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h14M5 12h14M5 19h14"/><circle cx="3" cy="5" r=".5" fill="currentColor"/><circle cx="3" cy="12" r=".5" fill="currentColor"/><circle cx="3" cy="19" r=".5" fill="currentColor"/></svg>
+              <span class="name">Across projects</span>
+            </button>
+          </nav>
+          <div class="sidebar-footer">
+            <button class="project-row" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.12 2.12-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1 1.55V20h-3v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.88.34l-.06.06-2.12-2.12.06-.06A1.7 1.7 0 0 0 7 14.7a1.7 1.7 0 0 0-1.55-1H5.3v-3h.09A1.7 1.7 0 0 0 7 9.7a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.12-2.12.06.06A1.7 1.7 0 0 0 10.7 6a1.7 1.7 0 0 0 1-1.55V4.4h3v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.88-.34l.06-.06 2.12 2.12-.06.06A1.7 1.7 0 0 0 19.4 9.7a1.7 1.7 0 0 0 1.55 1h.09v3h-.09a1.7 1.7 0 0 0-1.55 1.3Z"/></svg>
+              <span class="name">Manage</span>
+            </button>
+          </div>
+        </aside>
+
+        <main class="main">
+          <header class="topbar">
+            <div class="project-title" id="projectTitle"></div>
+            <span class="provider-badge" id="providerBadge"></span>
+            <div class="spacer"></div>
+            <button class="icon-btn" type="button" title="Refresh work items" aria-label="Refresh work items">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6v5h-5M4 18v-5h5"/><path d="M6.1 9a7 7 0 0 1 11.6-2.6L20 11M4 13l2.3 4.6A7 7 0 0 0 17.9 15"/></svg>
+            </button>
+            <button class="icon-btn" type="button" title="Collapse sidebar" aria-label="Collapse sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M16 4v16"/></svg>
+            </button>
+          </header>
+
+          <section class="board-shell">
+            <div class="filters">
+              <label class="search">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                <input aria-label="Search issues" placeholder="Search issues…" />
+              </label>
+              <button class="filter-pill" type="button">Status</button>
+              <button class="filter-pill" type="button">Assignee</button>
+              <button class="filter-pill" type="button">Priority</button>
+              <div class="view-toggle" aria-label="View">
+                <span>List</span><span class="active">Kanban</span>
+              </div>
+            </div>
+            <div class="board" id="board"></div>
+          </section>
+
+          <section class="composer-preview" aria-label="New thread composer preview">
+            <p class="composer-caption"><strong>New thread</strong><span>·</span><span>Taskboard uses this prompt and the selected repository</span></p>
+            <div class="composer-input" id="composerPrompt" contenteditable="true" role="textbox" aria-label="New thread prompt">i want when i write a prompt here to create a clean issue in my tracker based on this repo</div>
+            <div class="composer-actions">
+              <span class="composer-project"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7.5h7l2 2h9v9.5H3z"/><path d="M3 7.5V5h7l2 2h7"/></svg><span id="composerProjectName">bb-plugins</span></span>
+              <button class="icon-btn taskboard-action" id="newThreadIssueBtn" type="button" title="Turn prompt into Taskboard issue" aria-label="Turn prompt into Taskboard issue">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h11M9 12h11M9 18h7"/><path d="m3.5 6 1.3 1.3L7 4.8M3.5 12l1.3 1.3L7 10.8M3.5 18l1.3 1.3L7 16.8"/></svg>
+              </button>
+              <button class="icon-btn" type="button" title="Improve prompt" aria-label="Improve prompt">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 1.3 4.2L17.5 8.5l-4.2 1.3L12 14l-1.3-4.2-4.2-1.3 4.2-1.3L12 3Z"/><path d="m18 14 .8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8L18 14Z"/></svg>
+              </button>
+              <button class="icon-btn" type="button" title="Start voice input" aria-label="Start voice input">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M9 21h6"/></svg>
+              </button>
+              <button class="icon-btn composer-send" type="button">Send</button>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div class="modal-layer" id="modalLayer" aria-hidden="true">
+      <section class="dialog" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+        <header class="dialog-header">
+          <div class="provider-icon" id="modalProviderIcon"></div>
+          <div class="dialog-heading">
+            <h2 class="dialog-title" id="dialogTitle"></h2>
+            <p class="dialog-destination" id="dialogDestination"></p>
+          </div>
+          <button class="icon-btn close-btn" id="closeModalBtn" type="button" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </header>
+
+        <form id="issueForm">
+          <div class="dialog-body">
+            <div class="draft-state" id="draftingState" aria-live="polite">
+              <div class="draft-copy">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v6h-6"/></svg>
+                <div><strong>Structuring your issue</strong><span>The model is reading relevant Taskboard files and turning the rough prompt into a standalone ticket.</span></div>
+              </div>
+              <div class="draft-skeleton title"></div>
+              <div class="draft-skeleton"></div>
+              <div class="draft-skeleton line-2"></div>
+              <div class="draft-skeleton line-3"></div>
+            </div>
+
+            <div id="draftFields" hidden>
+              <span class="draft-badge">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 1.3 4.2L17.5 8.5l-4.2 1.3L12 14l-1.3-4.2-4.2-1.3 4.2-1.3L12 3Z"/></svg>
+                Drafted with repository context
+              </span>
+              <label class="field-label" for="issueTitle">Title</label>
+              <input class="title-input" id="issueTitle" autocomplete="off" placeholder="What needs to be done?" />
+
+              <div class="description-wrap">
+                <label class="field-label" for="issueDescription">Description · Markdown supported</label>
+                <textarea class="description-input" id="issueDescription" placeholder="Add context, acceptance criteria, or links…"></textarea>
+              </div>
+            </div>
+
+            <div class="attributes" id="attributes"></div>
+          </div>
+          <footer class="dialog-footer">
+            <span class="footer-note" id="footerNote">Review the model’s draft before anything is sent to your tracker.</span>
+            <button class="btn ghost" id="cancelBtn" type="button">Cancel</button>
+            <button class="btn primary" id="createBtn" type="submit" disabled>Create issue</button>
+          </footer>
+        </form>
+      </section>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <div class="toast-check">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12 4 4L19 6"/></svg>
+      </div>
+      <div class="toast-copy"><strong id="toastTitle"></strong><span id="toastDetail"></span></div>
+      <span style="color:var(--accent);font-size:10px;font-weight:650">Open issue</span>
+    </div>
 
     <script>
-      const trackers = {
-        linear: { name: "Linear", icon: "L", destination: "Team ENG", key: "ENG-248" },
-        github: { name: "GitHub", icon: "GH", destination: "acme/bb-plugins", key: "#248" },
-        jira: { name: "Jira", icon: "J", destination: "Project ENG · Task", key: "ENG-248" }
+      const icons = {
+        folder: `<svg class="folder-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7.5h7l2 2h9v9.5H3z"/><path d="M3 7.5V5h7l2 2h7"/></svg>`,
+        linear: `<span class="source-mark linear" aria-label="Linear"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4.5 14.5 9.5 19.5M4.5 9.5l10 10M7 5l12 12M11.5 4.5l8 8"/></svg></span>`,
+        github: `<span class="source-mark github" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7" cy="6" r="2"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/><path d="M7 8v8M9 6h3a5 5 0 0 1 5 5v5"/></svg></span>`,
+        jira: `<span class="source-mark jira" aria-label="Jira"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 5.1 5.1L12 12.2 6.9 7.1 12 2Zm-5.1 8.9L12 5.8l5.1 5.1L12 16l-5.1-5.1Zm0 6L12 11.8l5.1 5.1L12 22l-5.1-5.1Z" opacity=".9"/></svg></span>`
       };
-      let tracker = "linear";
+
+      const projects = [
+        {
+          id: "plugins",
+          name: "bb-plugins",
+          provider: "linear",
+          providerName: "Linear",
+          target: "ENG · Engineering",
+          nextKey: "ENG-248",
+          cards: [
+            { key: "ENG-241", title: "Make provider filters persistent", state: "progress", assignee: "MC", priority: "↑" },
+            { key: "ENG-236", title: "Add a compact board density option", state: "todo", assignee: "AL", priority: "=" },
+            { key: "ENG-229", title: "Explain missing tracker credentials", state: "backlog", assignee: "", priority: "" },
+            { key: "ENG-217", title: "Preserve filters when opening a task", state: "todo", assignee: "MC", priority: "" }
+          ]
+        },
+        {
+          id: "portal",
+          name: "Customer portal",
+          provider: "github",
+          providerName: "GitHub",
+          target: "acme/customer-portal",
+          nextKey: "#184",
+          cards: [
+            { key: "#181", title: "Login form loses the return URL", state: "progress", assignee: "JD", priority: "↑" },
+            { key: "#176", title: "Show invoice download progress", state: "todo", assignee: "", priority: "=" },
+            { key: "#165", title: "Audit keyboard focus in settings", state: "backlog", assignee: "AK", priority: "" }
+          ]
+        },
+        {
+          id: "platform",
+          name: "Platform services",
+          provider: "jira",
+          providerName: "Jira",
+          target: "PLAT · Platform",
+          nextKey: "PLAT-907",
+          cards: [
+            { key: "PLAT-899", title: "Rotate staging service credentials", state: "progress", assignee: "SP", priority: "↑" },
+            { key: "PLAT-891", title: "Add retry metrics to the gateway", state: "todo", assignee: "RO", priority: "=" },
+            { key: "PLAT-873", title: "Document the rollback checklist", state: "backlog", assignee: "", priority: "" }
+          ]
+        }
+      ];
+
+      const stateMeta = [
+        { id: "backlog", label: "Backlog" },
+        { id: "todo", label: "Todo" },
+        { id: "progress", label: "In progress" }
+      ];
+
+      let selectedProject = projects[0];
+      let modalOpen = false;
+      let toastTimer;
       let draftTimer;
-      const $ = id => document.getElementById(id);
-      const overlay = $("overlay");
-      const prompt = $("prompt");
-      const drafting = $("drafting");
-      const fields = $("fields");
-      const title = $("title");
-      const description = $("description");
-      const retry = $("retry");
-      const create = $("create");
-      const ticket = $("ticket");
 
-      function syncTicketState() {
-        ticket.disabled = !prompt.value.trim();
+      const projectRows = document.getElementById("projectRows");
+      const acrossProjects = document.getElementById("acrossProjects");
+      const projectTitle = document.getElementById("projectTitle");
+      const providerBadge = document.getElementById("providerBadge");
+      const board = document.getElementById("board");
+      const modalLayer = document.getElementById("modalLayer");
+      const issueTitle = document.getElementById("issueTitle");
+      const issueDescription = document.getElementById("issueDescription");
+      const createBtn = document.getElementById("createBtn");
+      const newThreadIssueBtn = document.getElementById("newThreadIssueBtn");
+      const composerPrompt = document.getElementById("composerPrompt");
+      const footerNote = document.getElementById("footerNote");
+      const composerProjectName = document.getElementById("composerProjectName");
+      const draftingState = document.getElementById("draftingState");
+      const draftFields = document.getElementById("draftFields");
+
+      function sourceIcon(provider) { return icons[provider] || ""; }
+
+      function renderProjectRows() {
+        projectRows.innerHTML = projects.map(project => `
+          <button class="project-row ${selectedProject?.id === project.id ? "active" : ""}" data-project="${project.id}" type="button">
+            ${icons.folder}
+            <span class="name">${project.name}</span>
+            <span class="provider-mini">${project.providerName}</span>
+          </button>
+        `).join("");
+        acrossProjects.classList.toggle("active", selectedProject === null);
+        projectRows.querySelectorAll("[data-project]").forEach(row => {
+          row.addEventListener("click", () => selectProject(row.dataset.project));
+        });
       }
 
-      function trackerInfo() { return trackers[tracker]; }
-      function titleFromPrompt(value) {
-        if (/taskboard|ticket|issue/i.test(value)) return "Create Taskboard issues from New thread prompts";
-        const clean = value.trim().replace(/^(i want|please|can you)\s+/i, "").split(/[.!?\n]/)[0].trim();
-        return clean ? clean[0].toUpperCase() + clean.slice(1) : "Create a Taskboard issue";
+      function selectProject(id) {
+        selectedProject = projects.find(project => project.id === id) || null;
+        render();
       }
-      function generatedDescription(value) {
-        return `Taskboard's New thread composer integration lives in \`plugins/taskboard/app.tsx\`, with issue drafting and provider creation coordinated by the Taskboard backend.\n\n## Requested change\n\n${value.trim()}\n\nTurn the rough prompt into a concise, editable issue using verified repository terminology and the tracker configured for the selected BB project.\n\n## Acceptance criteria\n\n- [ ] The ticket icon appears between Improve Prompt and voice.\n- [ ] The title and description use relevant repository context.\n- [ ] The generated draft remains fully editable.\n- [ ] Nothing is sent to ${trackerInfo().name} before Create issue is clicked.\n- [ ] If drafting is slow, the original prompt can be used immediately.`;
+
+      function cardMarkup(card, project, isNew = false) {
+        return `<article class="card ${isNew ? "new" : ""}">
+          <div class="card-key">${sourceIcon(project.provider)}<span>${card.key}</span></div>
+          <div class="card-title">${escapeHtml(card.title)}</div>
+          <div class="card-meta">
+            <span>${project.providerName}</span>
+            <span>·</span>
+            <span>${card.state === "progress" ? "In progress" : card.state === "todo" ? "Todo" : "Backlog"}</span>
+            <span class="priority">${card.priority || ""}</span>
+            ${card.assignee ? `<span class="avatar">${card.assignee}</span>` : ""}
+          </div>
+        </article>`;
       }
-      function configureDialog() {
-        const info = trackerInfo();
-        $("providerIcon").textContent = info.icon;
-        $("dialogTitle").textContent = `Create ${info.name} issue`;
-        $("destination").textContent = info.destination;
-        create.textContent = `Create ${info.name} issue`;
+
+      function renderBoard(newKey = null) {
+        if (!selectedProject) {
+          board.innerHTML = `<div class="empty-board"><div><strong>Across projects</strong><br><span style="font-size:11px">Choose a project before creating an issue, so Taskboard knows the destination.</span></div></div>`;
+          return;
+        }
+        board.innerHTML = stateMeta.map(state => {
+          const cards = selectedProject.cards.filter(card => card.state === state.id);
+          return `<section class="column ${state.id}">
+            <header class="column-header"><span class="state-dot"></span><span>${state.label}</span><span class="count">${cards.length}</span></header>
+            <div class="cards">${cards.map(card => cardMarkup(card, selectedProject, card.key === newKey)).join("")}</div>
+          </section>`;
+        }).join("");
       }
-      function startDraft() {
+
+      function render(newKey = null) {
+        renderProjectRows();
+        if (selectedProject) {
+          projectTitle.innerHTML = `${icons.folder}<span>${selectedProject.name}</span>`;
+          providerBadge.innerHTML = `${sourceIcon(selectedProject.provider)}<span>${selectedProject.providerName}</span>`;
+          composerProjectName.textContent = selectedProject.name;
+        } else {
+          projectTitle.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 5h14M5 12h14M5 19h14"/></svg><span>Across projects</span>`;
+          providerBadge.textContent = "All trackers";
+          composerProjectName.textContent = "Choose a project";
+        }
+        updateComposerAction();
+        renderBoard(newKey);
+      }
+
+      function updateComposerAction() {
+        const hasPrompt = composerPrompt.textContent.trim().length > 0;
+        newThreadIssueBtn.disabled = !selectedProject || !hasPrompt;
+        newThreadIssueBtn.title = !selectedProject
+          ? "Choose a project first"
+          : !hasPrompt
+            ? "Write a prompt first"
+            : "Turn prompt into Taskboard issue";
+      }
+
+      function selectMarkup(label, values) {
+        return `<select class="attribute" aria-label="${label}">${values.map(value => `<option>${value}</option>`).join("")}</select>`;
+      }
+
+      function renderModal() {
+        if (!selectedProject) return;
+        document.getElementById("modalProviderIcon").innerHTML = sourceIcon(selectedProject.provider);
+        document.getElementById("dialogTitle").textContent = `Create ${selectedProject.providerName} issue`;
+        document.getElementById("dialogDestination").innerHTML = `Detected from <strong>${selectedProject.name}</strong> · creates in <strong>${selectedProject.target}</strong>`;
+        const attributes = document.getElementById("attributes");
+        if (selectedProject.provider === "linear") {
+          attributes.innerHTML = `<span class="attribute fixed">Team · ENG</span>`;
+        } else if (selectedProject.provider === "github") {
+          attributes.innerHTML = `<span class="attribute fixed">Repository · acme/customer-portal</span>`;
+        } else {
+          attributes.innerHTML = `<span class="attribute fixed">Project · PLAT</span>${selectMarkup("Issue type", ["Task", "Bug", "Story"])}`;
+        }
+        createBtn.textContent = `Create ${selectedProject.providerName} issue`;
+      }
+
+      function naturalTicketTitle(prompt) {
+        if (/issue|ticket|jira|linear|github/i.test(prompt) && /new[- ]?thread|prompt/i.test(prompt)) {
+          return "Create tracker issues from New thread prompts";
+        }
+        const cleaned = prompt
+          .replace(/^(please\s+|i\s+(?:would\s+)?(?:like|love|want)\s+(?:to\s+)?|can\s+you\s+)/i, "")
+          .split(/\r?\n|[.!?]\s/, 1)[0]
+          .trim()
+          .replace(/[.!?]+$/, "")
+          .slice(0, 110);
+        return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : "Create a Taskboard issue";
+      }
+
+      function repositoryAwareDescription(prompt) {
+        const context = selectedProject.id === "plugins"
+          ? "Taskboard is a BB plugin with its composer UI in `plugins/taskboard/app.tsx` and provider creation logic in `plugins/taskboard/server.ts`."
+          : selectedProject.provider === "github"
+            ? "The selected BB project is mapped to the `acme/customer-portal` GitHub repository, so the issue should use that repository's terminology and destination."
+            : "The selected BB project uses the PLAT Jira scope, so the issue should remain provider-neutral while preserving the configured project key.";
+        const requested = prompt.trim().replace(/[.!?]?$/, ".");
+        return `${context}\n\n## Requested change\n\n${requested}\n\nUse a compact Taskboard icon in the New thread composer. When clicked, it should inspect relevant repository context, turn the rough prompt into a clear title and description, and open an editable review modal for the tracker configured on the selected BB project.\n\n## Acceptance criteria\n\n- [ ] The action is an icon beside Improve Prompt and voice in New thread.\n- [ ] The current prompt and selected repository context produce a natural ticket title and description.\n- [ ] The user can review and edit both fields before submission.\n- [ ] Nothing is sent to ${selectedProject.providerName} until the user clicks Create issue.`;
+      }
+
+      function openModal() {
+        if (!selectedProject) return;
+        const prompt = composerPrompt.textContent.trim();
+        if (!prompt) return;
         window.clearTimeout(draftTimer);
-        configureDialog();
-        drafting.hidden = false;
-        fields.hidden = true;
-        retry.hidden = true;
-        title.value = "";
-        description.value = "";
-        create.disabled = true;
+        newThreadIssueBtn.classList.remove("taskboard-action");
+        issueTitle.value = "";
+        issueDescription.value = "";
+        draftingState.hidden = false;
+        draftFields.hidden = true;
+        footerNote.textContent = "Review the model’s draft before anything is sent to your tracker.";
+        createBtn.disabled = true;
+        renderModal();
+        modalOpen = true;
+        modalLayer.classList.add("open");
+        modalLayer.setAttribute("aria-hidden", "false");
         draftTimer = window.setTimeout(() => {
-          title.value = titleFromPrompt(prompt.value);
-          description.value = generatedDescription(prompt.value);
-          drafting.hidden = true;
-          fields.hidden = false;
-          $("statusCopy").innerHTML = "<strong>Drafted with repository context</strong> · review before creating";
-          create.disabled = false;
-          title.focus();
+          if (!modalOpen) return;
+          issueTitle.value = naturalTicketTitle(prompt);
+          issueDescription.value = repositoryAwareDescription(prompt);
+          draftingState.hidden = true;
+          draftFields.hidden = false;
+          createBtn.disabled = false;
+          issueTitle.focus();
         }, 1050);
       }
-      function openDialog() {
-        if (!prompt.value.trim()) return prompt.focus();
-        overlay.classList.add("open");
-        overlay.setAttribute("aria-hidden", "false");
-        startDraft();
-      }
-      function closeDialog() {
+
+      function closeModal() {
+        if (createBtn.dataset.busy === "true") return;
         window.clearTimeout(draftTimer);
-        overlay.classList.remove("open");
-        overlay.setAttribute("aria-hidden", "true");
-        $("ticket").focus();
+        modalOpen = false;
+        modalLayer.classList.remove("open");
+        modalLayer.setAttribute("aria-hidden", "true");
+        newThreadIssueBtn.focus();
       }
-      function useOriginalPrompt() {
-        window.clearTimeout(draftTimer);
-        title.value = titleFromPrompt(prompt.value);
-        description.value = prompt.value.trim();
-        drafting.hidden = true;
-        fields.hidden = false;
-        retry.hidden = false;
-        $("statusCopy").innerHTML = "<strong>Using the original prompt</strong> · edit it before creating";
-        create.disabled = false;
-        title.focus();
+
+      function escapeHtml(value) {
+        return value.replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[char]);
       }
-      document.querySelectorAll("[data-tracker]").forEach(button => button.addEventListener("click", () => {
-        tracker = button.dataset.tracker;
-        document.querySelectorAll("[data-tracker]").forEach(tab => tab.classList.toggle("active", tab === button));
-      }));
-      prompt.addEventListener("input", syncTicketState);
-      ticket.addEventListener("click", openDialog);
-      $("close").addEventListener("click", closeDialog);
-      $("cancel").addEventListener("click", closeDialog);
-      $("usePrompt").addEventListener("click", useOriginalPrompt);
-      retry.addEventListener("click", startDraft);
-      title.addEventListener("input", () => { create.disabled = !title.value.trim(); });
-      overlay.addEventListener("mousedown", event => { if (event.target === overlay) closeDialog(); });
-      document.addEventListener("keydown", event => { if (event.key === "Escape" && overlay.classList.contains("open")) closeDialog(); });
-      $("issueForm").addEventListener("submit", event => {
+
+      function createIssue(event) {
         event.preventDefault();
-        if (!title.value.trim()) return;
-        const info = trackerInfo();
-        closeDialog();
-        $("toastTitle").textContent = `${info.key} would be created in ${info.name}`;
-        $("toast").classList.add("show");
-        window.setTimeout(() => $("toast").classList.remove("show"), 3600);
-      });
-      syncTicketState();
+        const title = issueTitle.value.trim();
+        if (!title || !selectedProject || createBtn.dataset.busy === "true") return;
+        const projectAtSubmit = selectedProject;
+        createBtn.dataset.busy = "true";
+        createBtn.disabled = true;
+        createBtn.innerHTML = `<span class="spinner"></span>Creating…`;
+
+        window.setTimeout(() => {
+          const key = projectAtSubmit.nextKey;
+          projectAtSubmit.cards.unshift({ key, title, state: "todo", assignee: "MC", priority: "=" });
+          if (projectAtSubmit.provider === "linear") projectAtSubmit.nextKey = `ENG-${Number(key.split("-")[1]) + 1}`;
+          if (projectAtSubmit.provider === "github") projectAtSubmit.nextKey = `#${Number(key.slice(1)) + 1}`;
+          if (projectAtSubmit.provider === "jira") projectAtSubmit.nextKey = `PLAT-${Number(key.split("-")[1]) + 1}`;
+
+          createBtn.dataset.busy = "false";
+          createBtn.textContent = `Create ${projectAtSubmit.providerName} issue`;
+          modalOpen = false;
+          modalLayer.classList.remove("open");
+          modalLayer.setAttribute("aria-hidden", "true");
+          selectedProject = projectAtSubmit;
+          render(key);
+          showToast(
+            `${key} created in ${projectAtSubmit.providerName}`,
+            "Attached to the New thread draft as a Taskboard mention."
+          );
+        }, 720);
+      }
+
+      function showToast(title, detail) {
+        const toast = document.getElementById("toast");
+        document.getElementById("toastTitle").textContent = title;
+        document.getElementById("toastDetail").textContent = detail;
+        toast.classList.add("show");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 3600);
+      }
+
+      acrossProjects.addEventListener("click", () => { selectedProject = null; render(); });
+      newThreadIssueBtn.addEventListener("click", openModal);
+      composerPrompt.addEventListener("input", updateComposerAction);
+      document.getElementById("closeModalBtn").addEventListener("click", closeModal);
+      document.getElementById("cancelBtn").addEventListener("click", closeModal);
+      document.getElementById("issueForm").addEventListener("submit", createIssue);
+      issueTitle.addEventListener("input", () => { createBtn.disabled = !issueTitle.value.trim(); });
+      modalLayer.addEventListener("mousedown", event => { if (event.target === modalLayer) closeModal(); });
+      document.addEventListener("keydown", event => { if (event.key === "Escape" && modalOpen) closeModal(); });
 
       const demoParams = new URLSearchParams(window.location.search);
-      const requestedTracker = demoParams.get("tracker");
-      if (requestedTracker && trackers[requestedTracker]) {
-        tracker = requestedTracker;
-        document.querySelectorAll("[data-tracker]").forEach(tab =>
-          tab.classList.toggle("active", tab.dataset.tracker === tracker)
-        );
+      const requestedProject = demoParams.get("project");
+      if (requestedProject && projects.some(project => project.id === requestedProject)) {
+        selectedProject = projects.find(project => project.id === requestedProject);
       }
-      if (demoParams.get("modal") === "1") openDialog();
-      if (demoParams.get("manual") === "1") {
-        window.setTimeout(useOriginalPrompt, 80);
-      }
+      render();
+      if (demoParams.get("modal") === "1") openModal();
     </script>
   </body>
 </html>

@@ -1,5 +1,18 @@
-dist/
 node_modules/
+dist/
+.worktrees/
+.snapshots/
+.clones/
+out/
+.next/
+__pycache__/
+*.py[cod]
+*.tsbuildinfo
 .DS_Store
-*.log
-.npm-publish.env
+.env
+.env.*
+.claude/
+.pr-walkthrough/
+
+# Commercial font binaries are never redistributed with the site template.
+plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/src/app/fonts/*.woff2

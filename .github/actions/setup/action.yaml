@@ -1,0 +1,38 @@
+# Every CI job needs the same four things, and two of them are easy to get
+# subtly wrong (the bb CLI must match config.bbVersion; the cache mount must
+# come after checkout). Keeping them in one composite action means a job cannot
+# drift from the others by forgetting a step.
+name: Setup
+description: Node, Bun, the Namespace cache volume, and the pinned bb CLI.
+
+runs:
+  using: composite
+  steps:
+    # Several plugin test scripts require Node 22.6+ (they use type stripping).
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.3.14
+        no-cache: true # the Namespace cache volume below is the only cache
+
+    # Must run AFTER checkout — checkout wipes the workspace and would delete a
+    # mount placed before it — and after setup-bun, because a mode only mounts
+    # what its toolchain already resolves.
+    - uses: namespacelabs/nscloud-cache-action@v1
+      with:
+        cache: bun
+
+    # Not a convenience: `bun run build` shells out to `bb plugin build .` for
+    # every plugin, and sdk-types:check diffs the vendored .d.ts against what
+    # this exact release writes. Floating on latest would fail the type check
+    # the moment bb shipped a new SDK.
+    - name: Install pinned bb CLI
+      shell: bash
+      run: bun install -g "bb-app@$(node -p "require('./package.json').config.bbVersion")"
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

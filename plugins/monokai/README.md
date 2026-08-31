@@ -1,0 +1,140 @@
+<div align="center">
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.svg" />
+  <img src="assets/logo.svg" width="72" height="72" alt="" />
+</picture>
+
+# bb Monokai
+
+**A dark Monokai palette for bb, terminal included.**
+
+![bb ≥ 0.36](https://img.shields.io/badge/bb-%E2%89%A5%200.36-88C0D0?style=flat-square)
+![platform: any](https://img.shields.io/badge/platform-any-3FA266?style=flat-square)
+![dark only](https://img.shields.io/badge/appearance-dark%20only-E3E3DD?style=flat-square)
+
+</div>
+
+<picture><img src="docs/media/hero.png" alt="bb Monokai applied across bb — sidebar, thread, syntax highlighting, and the GitHub Stack panel" width="100%" /></picture>
+
+bb draws itself from CSS custom properties, so a theme is just a stylesheet.
+This plugin adds one: **bb Monokai**, a dark palette built on a five-step
+grounds ramp, a single off-white text ladder, and one accent that always means
+*interactive*.
+
+It reaches past the app chrome: the terminal, the diff viewer, the file tree's
+git-status column, and inline code all draw from the same palette rather than
+keeping bb's defaults.
+
+## Install
+
+**From npm** — install the plugin, then select the palette:
+
+```sh
+bb plugin install npm:bb-plugin-monokai
+bb theme set plugin:monokai:bb-monokai
+```
+
+**From source** — clone the repo and install the plugin as a local path
+source. This is also how you install a change that is not released yet:
+
+```sh
+git clone https://github.com/mateocerquetella/bb-plugins.git
+cd bb-plugins
+bun install
+bun run --filter 'bb-plugin-monokai' build
+bb plugin install ./plugins/monokai
+bb theme set plugin:monokai:bb-monokai
+```
+
+The source path needs Bun and the `bb` CLI. Note that
+`bb plugin install git:<url>@<ref>` does not work for these plugins: bb reads
+the manifest at the repository root, so it cannot see `plugins/<id>`.
+
+## Usage
+
+Installing the plugin only adds the palette. The `bb theme set` line above is
+what selects it. You can also switch in bb under
+**Settings → Appearance → Palette**:
+
+Disabling or removing the plugin returns bb to the default palette.
+
+## Requirements
+
+- bb ≥ 0.36
+- bb set to **dark** appearance. The palette only restyles `.dark`; light mode
+  keeps bb's defaults.
+- Optional: **Berkeley Mono**. It is *not* bundled. Install it yourself and the
+  type stack picks it up. Without it the
+  stack falls back to `ui-monospace`, Menlo, then `monospace`. The terminal
+  additionally prefers `BerkeleyMono Nerd Font Mono` when present.
+
+## The palette
+
+<picture><img src="docs/media/palette.svg" alt="bb Monokai swatches" width="100%" /></picture>
+
+| Role | Value | Where it lands |
+|---|---|---|
+| Chrome ground | `#141414` | cards, popovers, sidebar, terminal ground |
+| Editor ground | `#181818` | the main pane |
+| Well | `#1F1F1F` | inputs, code wells |
+| Raised | `#262626` | hover and active fills |
+| Selection | `#404040` | text selection, chips |
+| Ink | `#E3E3DD` | the one white; every text tier is an alpha of it |
+| Accent | `#88C0D0` | the only chroma in the chrome — always means interactive |
+| Success / added | `#3FA266` | |
+| Warning / attention | `#F1B467` | |
+| Danger / removed | `#E34671` | |
+| Merged | `#B267E6` | |
+
+**One meaning per hue.** A color never does two jobs. Text is one white at four
+alphas (100 / 74 / 55 / 30 %), each annotated inline with its measured contrast
+ratio against the ground it sits on.
+
+## What it restyles
+
+| Surface | Notes |
+|---|---|
+| App chrome | panes, panels, sidebar, menus, buttons, mention pills, focus rings |
+| Terminal | all 16 ANSI colors plus 16 companion foreground tokens, one per ANSI background |
+| Diff viewer | addition / deletion / modified colors, gutter number grounds and role-colored numbers |
+| File tree | the git-status column — added, untracked, renamed, modified, deleted, ignored |
+| Inline code | the sugar-high token set, measured on the `#1F1F1F` well |
+| Composer stop button | repainted to the danger hue |
+
+## Troubleshooting
+
+**The app still looks the same.** The palette has to be selected. Run
+`bb theme set plugin:monokai:bb-monokai`, or pick **bb Monokai** under
+**Settings → Appearance → Palette**.
+
+**Only part of the app changed.** Check that bb is in dark appearance. In light
+mode the palette contributes fonts only.
+
+**Some surfaces stay off-palette.** CSS cannot reach them:
+
+- **Code and diff syntax tokens.** The bundled diff library calls Shiki with a
+  fixed theme pair and writes inline styles inside a shadow root, so no
+  selector reaches them. Code keeps bb's own token colors.
+- **File-type icons.** Their 13 source swatches are declared on `:host`, so all
+  48 language icons collapse to a single color.
+- **Terminal font size and cursor blink.** Both are xterm constructor
+  arguments, not tokens. Terminal selection alpha is clamped by the host.
+- **Mermaid diagrams** keep a hardcoded Inter font. Colors follow the palette
+  on the next render.
+- **The favicon tint** comes from a fixed list, with no CSS involved.
+- **Built-in bb plugin panels** (tasks, docs, github, workflows, memory) ship
+  their own bundles with raw scale colors.
+
+## Develop from source
+
+Install from source as shown under [Install](#install). Only `server.ts` is
+bundled; the CSS is read in place, so an edit needs no rebuild:
+
+```sh
+$EDITOR plugins/monokai/themes/bb-monokai.css
+bb plugin reload monokai
+```
+
+Re-apply with `bb theme set plugin:monokai:bb-monokai` if the palette does not
+refresh.

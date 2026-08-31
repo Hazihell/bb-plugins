@@ -1,17 +1,16 @@
 {
   "name": "bb-plugin-usage-tracker",
-  "version": "0.1.5",
-  "private": true,
+  "version": "0.1.1",
   "description": "Compact Codex and Claude usage limits in bb's sidebar footer.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
-  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/usage-tracker#readme",
+  "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/usage-tracker#readme",
   "bugs": {
-    "url": "https://github.com/MateoCerquetella/bb-plugins/issues"
+    "url": "https://github.com/mateocerquetella/bb-plugins/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MateoCerquetella/bb-plugins.git",
+    "url": "git+https://github.com/mateocerquetella/bb-plugins.git",
     "directory": "plugins/usage-tracker"
   },
   "keywords": [
@@ -24,10 +23,13 @@
     "claude-code",
     "cursor"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "engines": {
-    "bb": ">=0.38",
-    "bbPluginSdk": ">=0.4.6"
+    "bb": ">=0.36",
+    "bbPluginSdk": "^0.4.1"
   },
   "bb": {
     "name": "Usage Tracker",
@@ -43,23 +45,35 @@
     "app": "./app.tsx",
     "skills": []
   },
+  "files": [
+    "dist/server.js",
+    "dist/server.meta.json",
+    "dist/app.js",
+    "dist/app.meta.json",
+    "dist/app.css",
+    "assets/",
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "server.ts",
+    "app.tsx",
+    "app.css",
+    "lib/"
+  ],
   "dependencies": {
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@get-bb/plugin-sdk": "0.4.6",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
-    "bb-app": "^0.38.0",
-    "typescript": "^5.7.0"
+    "typescript": "^7.0.0"
   },
   "scripts": {
-    "build": "env -u BB_CLI bb plugin build .",
-    "dev": "bb plugin dev .",
+    "dev": "bun ../../scripts/dev-plugin.ts",
+    "build": "bb plugin build .",
     "typecheck": "tsc --noEmit",
-    "types:check": "env -u BB_CLI bb plugin types --check .",
-    "types:refresh": "env -u BB_CLI bb plugin types .",
     "test": "node --test --experimental-strip-types test/*.test.ts",
-    "check": "npm run types:check && npm run typecheck && npm test && npm run build"
+    "clean": "rm -rf dist"
   }
 }

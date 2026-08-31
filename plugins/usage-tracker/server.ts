@@ -1,10 +1,8 @@
-import { defineRpcContract, type BbPluginApi } from "@get-bb/plugin-sdk";
+import { defineRpcContract, type BbPluginApi } from "@bb/plugin-sdk";
 import { z } from "zod";
 import { loadUsageSnapshot } from "./lib/load-usage.ts";
 import {
-  COMPACT_LIMIT_OPTIONS,
   enabledSidebarProviderIds,
-  normalizeCompactLimitOption,
   SIDEBAR_PROVIDER_IDS,
 } from "./lib/preferences.ts";
 import { PROVIDER_IDS } from "./lib/usage.ts";
@@ -50,7 +48,6 @@ export const usageRpcContract = defineRpcContract({
     output: z
       .object({
         enabledProviderIds: z.array(z.enum(SIDEBAR_PROVIDER_IDS)),
-        compactLimit: z.enum(COMPACT_LIMIT_OPTIONS),
       })
       .strict(),
   },
@@ -87,21 +84,12 @@ export default function plugin(bb: BbPluginApi) {
       description: "Show Codex usage in the sidebar footer.",
       default: true,
     },
-    compactLimit: {
-      type: "select",
-      label: "Compact limit",
-      description: "Choose which limit the compact percentage and bar show.",
-      options: [...COMPACT_LIMIT_OPTIONS],
-      default: "Weekly",
-    },
   });
 
   bb.rpc.register(usageRpcContract, {
     async getPreferences() {
-      const preferences = await settings.get();
       return {
-        enabledProviderIds: enabledSidebarProviderIds(preferences),
-        compactLimit: normalizeCompactLimitOption(preferences.compactLimit),
+        enabledProviderIds: enabledSidebarProviderIds(await settings.get()),
       };
     },
     getUsage({ threadId }) {
