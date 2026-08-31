@@ -1,10 +1,11 @@
 {
   "name": "bb-plugin-host-monitor",
   "version": "0.1.0",
+  "private": true,
   "description": "Live CPU, memory, disk, network throughput, load, and uptime across every host enrolled in bb.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
-  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/host-monitor/v0.1.0/plugins/host-monitor#readme",
+  "homepage": "https://github.com/MateoCerquetella/bb-plugins/tree/main/plugins/host-monitor#readme",
   "bugs": {
     "url": "https://github.com/MateoCerquetella/bb-plugins/issues"
   },
@@ -23,9 +24,6 @@
     "disk",
     "network-monitor"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "type": "module",
   "engines": {
     "bb": ">=0.40",
@@ -85,6 +83,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "bb-app": "^0.40.0",
     "better-sqlite3": "^12.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -92,14 +91,17 @@
     "hono": "^4.11.9",
     "sonner": "^1.7.4",
     "tailwind-merge": "^3.4.0",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.0",
     "vaul": "^1.1.2"
   },
   "scripts": {
-    "dev": "bun ../../scripts/dev-plugin.ts",
-    "build": "bb plugin build .",
+    "build": "env -u BB_CLI bb plugin build .",
+    "dev": "bb plugin dev .",
     "typecheck": "tsc --noEmit",
-    "test": "bun test test/*.test.ts",
-    "clean": "rm -rf dist"
+    "types:check": "env -u BB_CLI bb plugin types --check .",
+    "types:refresh": "env -u BB_CLI bb plugin types .",
+    "test": "node --import tsx --import ./test/register-css.mjs --test test/*.test.ts",
+    "check": "npm run types:check && npm run typecheck && npm test && npm run build"
   }
 }

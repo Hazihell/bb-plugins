@@ -60,6 +60,10 @@ open one movable window with CPU, RAM, download, and upload readings.
 
 ### BB Community marketplace
 
+This shorthand becomes available after
+[marketplace PR #128](https://github.com/get-bb/marketplace/pull/128) is merged
+and live:
+
 ```sh
 bb plugin install host-monitor
 ```
@@ -75,6 +79,11 @@ bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 
 The Git source tracks compatible `host-monitor/vX.Y.Z` releases. BB still
 stages, validates, and rolls back plugin updates through its normal install
 pipeline.
+
+An installation made under Host Monitor's retired plugin id cannot update
+across the rename. Remove that earlier Host Monitor entry, then install
+`host-monitor`; threshold settings are scoped to the plugin id and must be
+applied again.
 
 ## Requirements and platform support
 
@@ -134,16 +143,16 @@ signal. There are no bulk, process-tree, or automatic stop actions.
 From the repository root:
 
 ```sh
-bun install
-bun run dev
+npm install
+bb plugin install ./plugins/host-monitor
+npm run dev --workspace bb-plugin-host-monitor
 ```
 
-The repository watcher rebuilds and reloads Host Monitor after source changes.
-Focused checks are available with:
+The workspace dev loop rebuilds and reloads Host Monitor after source changes.
+Run its complete focused check with:
 
 ```sh
-bun run --filter 'bb-plugin-host-monitor' typecheck
-bun run --filter 'bb-plugin-host-monitor' test
+npm run check --workspace bb-plugin-host-monitor
 ```
 
 ## License

@@ -1,7 +1,0 @@
-{
-  "name": "@ampcode/cli",
-  "version": "0.0.0-stub",
-  "description": "Empty workspace stub that keeps @ampcode/sdk on the explicitly provisioned AMP_CLI_PATH binary.",
-  "private": true,
-  "type": "module"
-}

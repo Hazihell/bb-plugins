@@ -20,10 +20,6 @@
   "interaction": {
     "questions": "concise"
   },
-  "review": {
-    "mode": "fresh-context",
-    "reviewerTokenEnv": "EMPIRICAL_REVIEWER_TOKEN"
-  },
   "setupComplete": true,
   "legacySource": null
 }

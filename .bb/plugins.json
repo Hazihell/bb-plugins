@@ -1,0 +1,19 @@
+{
+  "$schema": "https://getbb.app/schemas/plugins.schema.json",
+  "schemaVersion": 1,
+  "name": "mateocerquetella-bb-plugins",
+  "plugins": [
+    {
+      "name": "host-monitor",
+      "source": "./plugins/host-monitor"
+    },
+    {
+      "name": "taskboard",
+      "source": "./plugins/taskboard"
+    },
+    {
+      "name": "usage-tracker",
+      "source": "./plugins/usage-tracker"
+    }
+  ]
+}
