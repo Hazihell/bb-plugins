@@ -63,6 +63,33 @@ bb plugin update host-monitor
 bb plugin remove host-monitor
 ```
 
+## Save My Model quick start
+
+Install the latest immutable Save My Model release directly from this monorepo:
+
+```sh
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.1 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
+```
+
+After [the BB Community entry](https://github.com/get-bb/marketplace/pull/154)
+is merged and live, install it by its short name:
+
+```sh
+bb plugin install save-my-model
+```
+
+Save My Model keeps provider, model, and reasoning defaults separate for each
+host and provider. Open **Settings → Save My Model** to inspect or clear saved
+values. See the [Save My Model README](./plugins/save-my-model) for details.
+
+Update or remove it with BB:
+
+```sh
+bb plugin outdated
+bb plugin update save-my-model
+bb plugin remove save-my-model
+```
+
 ## Taskboard quick start
 
 Install the tracking Git release directly from this monorepo:

@@ -16,5 +16,11 @@ provides the durable preference contract for the upstream native integration.
 Install from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.1 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
+```
+
+Or install the community listing after it is merged:
+
+```sh
+bb plugin install save-my-model
 ```
