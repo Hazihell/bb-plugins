@@ -1,12 +1,12 @@
-# Machine model preferences
+# Project model preferences
 
 ## Purpose
-Remember execution choices per machine so users can keep different defaults on local and remote hosts.
+Remember execution choices per project so users can keep different defaults across projects and hosts.
 
 ## ADDED Requirements
 
-### Requirement: Host-scoped provider and execution preferences
-The plugin SHALL persist provider by host, and model/reasoning by host and provider, with unscoped browser values available as fallback.
+### Requirement: Project and host-scoped provider and execution preferences
+The plugin SHALL persist provider, model, and reasoning by project, host, and provider, with unscoped browser values available as fallback.
 
 #### Scenario: Separate hosts
 - GIVEN host A and host B have different saved selections

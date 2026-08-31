@@ -21,7 +21,7 @@
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
 | <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
-| <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider, model, and reasoning defaults separately for each BB host and provider. |
+| <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider, model, and reasoning defaults separately for each BB project, host, and provider. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 | <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 
@@ -68,7 +68,7 @@ bb plugin remove host-monitor
 Install the latest immutable Save My Model release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.1 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.2 --subdirectory plugins/save-my-model --tag-prefix save-my-model/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/154)
@@ -79,7 +79,7 @@ bb plugin install save-my-model
 ```
 
 Save My Model keeps provider, model, and reasoning defaults separate for each
-host and provider. Open **Settings → Save My Model** to inspect or clear saved
+project, host, and provider. Open **Settings → Save My Model** to inspect or clear saved
 values. See the [Save My Model README](./plugins/save-my-model) for details.
 
 Update or remove it with BB:
