@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generator": "empirical-0.28.0",
-  "sourceDigest": "sha256:14d1a380b5aa09307fd426c7cd7a3f649dd1b4ac6898597942a4c212c5ad89af",
+  "generator": "empirical-0.29.0",
+  "sourceDigest": "sha256:164b14235861f74fa1870212272515cf5e2c451438683eee446c0101a05f439e",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -29,11 +29,6 @@
       "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
     },
     {
-      "path": ".gemini/settings.json",
-      "size": 137,
-      "digest": "sha256:58b7bc1fef265b214425ef17eeb67f9f9ad687e049cc8d65c368c01ef5bb8780"
-    },
-    {
       "path": ".gitattributes",
       "size": 46,
       "digest": "sha256:cf68cdd8225ec7d3dd5a0f92ac62c7e328f87c47f09786c55b46d114c9611879"
@@ -54,22 +49,12 @@
       "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
     },
     {
-      "path": ".windsurf/skills/empirical/SKILL.md",
-      "size": 5967,
-      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
-    },
-    {
       "path": "AGENTS.md",
       "size": 2720,
       "digest": "sha256:e907e06cfe05924c9b90bde87636696bf8d16f4c5d0527f10b62d64b05b48544"
     },
     {
       "path": "CLAUDE.md",
-      "size": 1083,
-      "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
-    },
-    {
-      "path": "GEMINI.md",
       "size": 1083,
       "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
     },
@@ -96,7 +81,7 @@
     {
       "path": "package-lock.json",
       "size": 277983,
-      "digest": "sha256:44e47af3f2798d7a9b266e23cbfad969710d8164c606b169762a51ed8b7ac105"
+      "digest": "sha256:3311020f14876a9ac65da1b62ec1146d9f9fb7dadca4e8d9f699caa58f298ea1"
     },
     {
       "path": "package.json",
@@ -606,7 +591,7 @@
     {
       "path": "plugins/taskboard/test/distribution.test.ts",
       "size": 6759,
-      "digest": "sha256:e9cff84c45590206e684c83cada8569f13b1939bfc6b7894a13281bb8bc0e877"
+      "digest": "sha256:9d061099311acad3bf7599f4788edc2567504bb6dbf37ddc8c0b2d8eafb56de0"
     },
     {
       "path": "plugins/taskboard/test/filter-presets-backend.test.ts",
@@ -645,8 +630,8 @@
     },
     {
       "path": "plugins/usage-tracker/CHANGELOG.md",
-      "size": 1664,
-      "digest": "sha256:bb947ce3734dd6468a3ae0ba12d69ac4f4179807b1e0bc8b2ad2204dc5620881"
+      "size": 2215,
+      "digest": "sha256:d1f229be3d170d1a35a564d3cfa8ea4e2ea3c398c6374a6b5bdcfc7a08543854"
     },
     {
       "path": "plugins/usage-tracker/LICENSE",
@@ -665,8 +650,8 @@
     },
     {
       "path": "plugins/usage-tracker/app.css",
-      "size": 8425,
-      "digest": "sha256:5012f4426a8389d7391e8662882da3ddd0b685c12ec425edc2fc328fd2f71052"
+      "size": 11641,
+      "digest": "sha256:e820313f86e6abc3f10eb0895f7b276632a4bb5dfed1c47aa02aed9303a88a7e"
     },
     {
       "path": "plugins/usage-tracker/app.tsx",
@@ -705,8 +690,8 @@
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-strip.ts",
-      "size": 22457,
-      "digest": "sha256:f5087070f21bd028ac0b1a6d4aadc4baff656c31896ba9b135a5d5901fb125f9"
+      "size": 22889,
+      "digest": "sha256:d5358da3f19d94fbb5c2588db74a978b96dd82f6de6ae4171fb53a08b0b3cc1b"
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-usage.ts",
@@ -721,7 +706,7 @@
     {
       "path": "plugins/usage-tracker/package.json",
       "size": 1761,
-      "digest": "sha256:2538af62a6d9d47efdee73b456e4ee1d1eb6d421752f38c999cfaa69346f3928"
+      "digest": "sha256:42cb9baff46b742d7271a1494efa1cf77984e5bbc5e468711368104bb9be17cb"
     },
     {
       "path": "plugins/usage-tracker/server.ts",
@@ -747,7 +732,7 @@
   "pages": [
     {
       "path": ".empirical/context/index.md",
-      "generator": "empirical-0.28.0",
+      "generator": "empirical-0.29.0",
       "managed": false,
       "dependencies": [
         ".agents/skills/empirical/SKILL.md",
@@ -755,15 +740,12 @@
         ".claude/skills/empirical/SKILL.md",
         ".codex/config.toml",
         ".cursor/mcp.json",
-        ".gemini/settings.json",
         ".gitattributes",
         ".github/workflows/ci.yml",
         ".gitignore",
         ".mcp.json",
-        ".windsurf/skills/empirical/SKILL.md",
         "AGENTS.md",
         "CLAUDE.md",
-        "GEMINI.md",
         "LICENSE",
         "README.md",
         "THIRD_PARTY_NOTICES.md",
@@ -899,13 +881,13 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:14d1a380b5aa09307fd426c7cd7a3f649dd1b4ac6898597942a4c212c5ad89af",
+      "sourceDigest": "sha256:164b14235861f74fa1870212272515cf5e2c451438683eee446c0101a05f439e",
       "digest": "sha256:10082cd6b7a30aaa42f0ae037b0a59f8aa211cf8f0f34f233f78132307c899e9",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/overview.md",
-      "generator": "empirical-0.28.0",
+      "generator": "empirical-0.29.0",
       "managed": false,
       "dependencies": [
         "README.md",
@@ -919,13 +901,13 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:4a9e1eb2a1c2066596c9b921aafd2672177cbac5adece0fce6144e59f18b7723",
+      "sourceDigest": "sha256:da882cfe4c5a632e8087e73177839a2fbc3d420e951e0cc19e913929a40bb7f5",
       "digest": "sha256:67162c51b3ff088759f391b657e163a87f044470f114b6cd8b172b17ef05c00f",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/architecture.md",
-      "generator": "empirical-0.28.0",
+      "generator": "empirical-0.29.0",
       "managed": false,
       "dependencies": [
         "package.json",
@@ -933,13 +915,13 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:d9de9a0b119eb364a09cd50d148905f86d54598bf69cd5dc1a8ca6f436c4bc65",
+      "sourceDigest": "sha256:39bf58c5a8b212fb3e9845fc722c07a6241a967970a316519847008ca570ae4b",
       "digest": "sha256:a4a57ffee4400c9ea75cfff5dc430a8998edde1ea57b51498d87f5b1acda74ce",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/commands.md",
-      "generator": "empirical-0.28.0",
+      "generator": "empirical-0.29.0",
       "managed": false,
       "dependencies": [
         ".github/workflows/ci.yml",
@@ -948,13 +930,13 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:5c90b38a16bfaa958679b09cf3d057309ce9c2e132ef0ab10f49042d378b7460",
+      "sourceDigest": "sha256:05f742df5bb9e15d3d5bf359eda438bc9eb66d48f0465be1af213b086dc4f31b",
       "digest": "sha256:725594a7a297df9c291124b48fa7bf836e609bc105f70a4c3ce9b30db32d5808",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/conventions.md",
-      "generator": "empirical-0.28.0",
+      "generator": "empirical-0.29.0",
       "managed": false,
       "dependencies": [
         "AGENTS.md",
@@ -968,5 +950,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:bf2af34f3e443d3076eedcf437d9b4c5a0893c7ddc841374b5dec95377e12192"
+  "digest": "sha256:ae9588b3c9b0ce3bde74642a1b5c3c27132a596aa282a75581c2cb88b60ba88a"
 }
