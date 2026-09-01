@@ -15,6 +15,7 @@ const live = JSON.parse(
 assert.equal(live.route, "/settings/plugins/save-my-model");
 assert.equal(live.previewVisible, true);
 assert.equal(live.browserWideLabel, true);
+assert.equal(live.providerOnlyVisible, true);
 assert.equal(live.hostScopedColumns, true);
 assert.equal(live.clearEnabledWithRows, true);
 assert.equal(live.clearedToEmptyState, true);
