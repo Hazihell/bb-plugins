@@ -75,7 +75,13 @@ assert.deepEqual(
 const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(rootPackage.workspaces, ["plugins/*"]);
 assert.match(rootPackage.scripts.check, /check:dockside/);
-assert.equal(rootPackage.scripts.ci, "npm run check");
+assert.equal(
+  rootPackage.scripts.ci,
+  "node .github/run-npm-check.mjs",
+);
+const npmAdapter = await readFile(".github/run-npm-check.mjs", "utf8");
+assert.match(npmAdapter, /spawnSync\("npm", \["run", "check"\]/);
+assert.match(npmAdapter, /shell: false/);
 const docksideCheck = await readFile(".github/check-dockside.mjs", "utf8");
 assert.match(docksideCheck, /bb-plugin-dockside/);
 const policy = JSON.parse(await readFile(".empirical/policy.json", "utf8"));

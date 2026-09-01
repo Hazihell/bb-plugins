@@ -173,8 +173,11 @@ the canonical npm check.
 ### Chosen approach
 
 Keep the Policy v2 promotion command as exact `bun run ci`, and define the sole
-root `ci` script as `npm run check`. Do not add a Bun lock, Bun dependencies,
-Bun workspace scripts, or Bun GitHub CI. Treat this as an Empirical protocol
+root `ci` script as a tiny Node wrapper that spawns the existing `npm`
+executable with fixed `run check` arguments and no shell. This prevents Bun
+from rewriting a literal package-script `npm run` into recursive `bun run`
+without adding another package. Do not add a Bun lock, Bun dependencies, Bun
+workspace scripts, or Bun GitHub CI. Treat this as an Empirical protocol
 adapter, not repository package-manager authority.
 
 ### Trade-offs and risks

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "sequence": 10,
+  "previousDigest": "sha256:e5efd3289ab81a79478e9768cecae01e012578edc60f4efad70ed93fe20ba421",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "A second genuinely fresh reviewer approved all seven criteria on repaired committed head 31d66c9. It confirmed the normal main merge, exact plugin authority trees, absent t3sidebar and retired files, five-plugin npm catalog and green CI, unchanged Dockside behavior, pushed prior review record, and D-006's narrow mandatory Empirical adapter without Bun workspace state.",
+  "createdAt": "2026-09-01T06:42:33.951Z",
+  "stateBeforeDigest": "sha256:b3646707e317126eedfeb65098b3f53d49f11fec64078757ac18225aa05a5eed",
+  "stateAfterDigest": "sha256:c45dcf54eec7b6e7821199196545129cc3cf4c28d843d70b06b5da29dec63a94",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 10,
+    "activeFeature": "dockside-main-reconciliation",
+    "request": "Reconcile the current Dockside PR branch with origin/main without losing Dockside or current main work. Preserve the complete plugins/dockside implementation and its Empirical evidence, retain origin/main's Taskboard, Host Monitor, Save My Model, and Usage Tracker plugins, adopt origin/main's current npm workspace, package lock, catalog, documentation, and CI conventions, remove only files origin/main intentionally retired, make Dockside independently installable in that workspace, resolve the shared t3sidebar rename history without duplicate or conflict markers, and leave PR #26 mergeable. Run Dockside and full repository npm install/check requirements, review the committed merge result, commit and push the merge resolution, and update PR #26.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "integrate",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "A second genuinely fresh reviewer approved all seven criteria on repaired committed head 31d66c9. It confirmed the normal main merge, exact plugin authority trees, absent t3sidebar and retired files, five-plugin npm catalog and green CI, unchanged Dockside behavior, pushed prior review record, and D-006's narrow mandatory Empirical adapter without Bun workspace state.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:18f29492b12af81f1af5b8086bfeb26fd033a42b5bf809e99ac3724eee400382",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:fc621923d7aa79732da1374d418ef24f40fbed2905c336ef3c19e8fdb2e76ad5",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-main-reconciliation-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "qa-668a00df523eada0c3d6ec36",
+      "qa-9ec816ae39b582fb12336330",
+      "qa-ad59cc6e0a41945cec4d4eb1",
+      "qa-4b66eda6f8cad40d7e9f613f",
+      "qa-839841a096c9638bb9695a42",
+      "qa-177923b29a5b1cfc70cde27e",
+      "qa-f42f8fd1649ba30215fc4498",
+      "qa-458d0214f69960ad1697f153",
+      "qa-d49c67759f6e9fb4e57f602c",
+      "collected-619d3dc73d9304e6fa8dc21f"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "verified",
+      "reasons": {
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T06:42:33.951Z"
+  },
+  "digest": "sha256:86f8dfce70c9a7490b3bda8fb2bc292c880e50e75f38897c3fb41fdc3899ef54"
+}

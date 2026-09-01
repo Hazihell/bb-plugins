@@ -24,8 +24,10 @@
 - `.empirical/policy.json` keeps main's `workspace-check` and adds npm-era
   Dockside focused/contract/system/portability commands. Empirical's strict
   promotion schema requires the exact adapter `bun run ci`; the sole `ci`
-  package script delegates directly to `npm run check`. GitHub CI, dependency
-  installation, workspaces, package lock, and product checks remain npm.
+  package script invokes a tiny Node wrapper that spawns the existing npm CLI
+  with fixed arguments and no shell, so Bun cannot rewrite the delegation
+  recursively. GitHub CI, dependency installation, workspaces, package lock,
+  and product checks remain npm.
 - Generated Empirical context is refreshed from the reconciled tree instead of
   resolving stale generated files manually.
 

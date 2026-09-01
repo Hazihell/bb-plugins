@@ -13,7 +13,7 @@
     "test": "npm run test --workspaces --if-present",
     "check": "npm run check --workspaces --if-present && npm run check:dockside",
     "check:dockside": "node .github/check-dockside.mjs",
-    "ci": "npm run check"
+    "ci": "node .github/run-npm-check.mjs"
   },
   "devDependencies": {
     "@get-bb/plugin-sdk": "0.4.29",
