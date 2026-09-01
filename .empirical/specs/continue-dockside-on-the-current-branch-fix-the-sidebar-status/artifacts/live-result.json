@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "surface": "live BB Dockside sidebar with controlled six-state fixture",
+  "settings": {
+    "previewVisible": true,
+    "activityRoles": [
+      "working",
+      "waiting",
+      "unread",
+      "error",
+      "inactive",
+      "stale",
+      "workflow",
+      "agent",
+      "command",
+      "plan",
+      "goal"
+    ],
+    "containsEveryState": true
+  },
+  "realSidebar": {
+    "actualKindsBeforeFixture": [
+      "inactive",
+      "working"
+    ],
+    "projectName": "Naranja",
+    "dragInitialOrder": [
+      "thr_ys2uiaiem2",
+      "thr_7ahr5hjsd4",
+      "thr_nv9anpbjt9"
+    ],
+    "dragResultOrder": [
+      "thr_7ahr5hjsd4",
+      "thr_ys2uiaiem2",
+      "thr_nv9anpbjt9"
+    ],
+    "persistedOrder": [
+      "thr_7ahr5hjsd4",
+      "thr_ys2uiaiem2",
+      "thr_nv9anpbjt9"
+    ],
+    "orderStored": true
+  },
+  "controlledFixture": {
+    "kindOrder": [
+      "working",
+      "needs-you",
+      "unread",
+      "failed",
+      "inactive",
+      "stale"
+    ],
+    "normalRows": [
+      {
+        "kind": "working",
+        "cardHeight": 48,
+        "titleY": 79,
+        "detailY": 97,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      },
+      {
+        "kind": "needs-you",
+        "cardHeight": 48,
+        "titleY": 133,
+        "detailY": 151,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      },
+      {
+        "kind": "unread",
+        "cardHeight": 48,
+        "titleY": 187,
+        "detailY": 205,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      },
+      {
+        "kind": "failed",
+        "cardHeight": 48,
+        "titleY": 241,
+        "detailY": 259,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      },
+      {
+        "kind": "inactive",
+        "cardHeight": 48,
+        "titleY": 295,
+        "detailY": 313,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      },
+      {
+        "kind": "stale",
+        "cardHeight": 48,
+        "titleY": 349,
+        "detailY": 367,
+        "badgeWidth": 72,
+        "badgeRight": 595,
+        "titleOverflow": false,
+        "branchOverflow": false
+      }
+    ],
+    "narrowRows": [
+      {
+        "kind": "working",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      },
+      {
+        "kind": "needs-you",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      },
+      {
+        "kind": "unread",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      },
+      {
+        "kind": "failed",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      },
+      {
+        "kind": "inactive",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      },
+      {
+        "kind": "stale",
+        "cardHeight": 48,
+        "badgeWidth": 72,
+        "badgeRight": 375,
+        "titleOverflow": true,
+        "branchOverflow": true
+      }
+    ],
+    "badgeWidthSpread": 0,
+    "badgeRightSpread": 0,
+    "dedicatedDragIcons": 0,
+    "statusDragTargets": 6,
+    "readyBackground": "color(srgb 0.203922 0.658824 0.32549 / 0.24)",
+    "readyColor": "rgb(52, 168, 83)"
+  }
+}

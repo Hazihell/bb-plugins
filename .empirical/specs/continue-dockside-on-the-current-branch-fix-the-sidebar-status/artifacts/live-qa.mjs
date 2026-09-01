@@ -161,12 +161,12 @@ const persistedOrder = await evaluate(`(() => ({
 const fixture = await evaluate(`(() => {
   const templates = ${JSON.stringify(settings.templates)};
   const states = [
-    ["working", "Run release workflow", "feature/release-workflow", "now"],
-    ["needs-you", "Approve production deployment", "feature/deploy-approval", "4m"],
-    ["unread", "Review completed accessibility audit", "feature/a11y-audit", "18m"],
-    ["failed", "Repair failed integration checks", "fix/integration-failure", "31m"],
-    ["inactive", "Prepare next sprint outline", "chore/sprint-outline", "2h"],
-    ["stale", "Archive old migration experiment", "archive/migration-v1", "3w"],
+    ["working", "Run release workflow across every production environment", "feature/release-workflow-all-production-environments", "now"],
+    ["needs-you", "Approve production deployment after security review", "feature/deploy-approval-security-review", "4m"],
+    ["unread", "Review completed accessibility audit recommendations", "feature/accessibility-audit-recommendations", "18m"],
+    ["failed", "Repair failed integration checks for provider bridge", "fix/provider-bridge-integration-failure", "31m"],
+    ["inactive", "Prepare next sprint outline and dependency inventory", "chore/sprint-outline-dependency-inventory", "2h"],
+    ["stale", "Archive old migration experiment and compatibility notes", "archive/migration-v1-compatibility-notes", "3w"],
   ];
   const dockside = document.querySelector('[data-dockside-palette]');
   const scroller = dockside?.querySelector('.overflow-y-auto');
@@ -210,10 +210,18 @@ const fixture = await evaluate(`(() => {
   section.append(list);
   scroller.replaceChildren(section);
   scroller.scrollTop = 0;
+  dockside.setAttribute('data-bb-plugin', 'dockside');
+  dockside.setAttribute('data-bb-plugin-root', '');
+  document.body.append(dockside);
+  dockside.style.position = 'fixed';
+  dockside.style.left = '0';
+  dockside.style.top = '0';
+  dockside.style.zIndex = '2147483647';
+  dockside.style.height = '900px';
+  dockside.style.background = 'var(--sidebar, var(--background))';
+  scroller.style.overflow = 'visible';
   dockside.style.width = '610px';
   dockside.style.maxWidth = '610px';
-  const host = dockside.parentElement;
-  if (host) { host.style.width = '610px'; host.style.maxWidth = '610px'; }
   return true;
 })()`);
 await sleep(300);
@@ -241,7 +249,7 @@ const normalMetrics = await evaluate(`(() => {
     rows,
     badgeWidthSpread: Math.max(...badges.map((badge) => badge.width)) - Math.min(...badges.map((badge) => badge.width)),
     badgeRightSpread: Math.max(...badges.map((badge) => badge.right)) - Math.min(...badges.map((badge) => badge.right)),
-    dedicatedDragIcons: document.querySelectorAll('.group\\/reorder, button[aria-label^="Reorder thread family"]').length,
+    dedicatedDragIcons: document.querySelectorAll('button[aria-label^="Reorder thread family"]').length,
     statusDragTargets: document.querySelectorAll('[data-dockside-family-status-icon]').length,
     readyBackground: ready ? getComputedStyle(ready).backgroundColor : null,
     readyColor: ready ? getComputedStyle(ready).color : null,
@@ -253,8 +261,6 @@ const narrowMetrics = await evaluate(`(() => {
   const dockside = document.querySelector('[data-dockside-palette]');
   dockside.style.width = '390px';
   dockside.style.maxWidth = '390px';
-  const host = dockside.parentElement;
-  if (host) { host.style.width = '390px'; host.style.maxWidth = '390px'; }
   const bounds = dockside.getBoundingClientRect();
   return { bounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: Math.min(bounds.height, 895) } };
 })()`);
