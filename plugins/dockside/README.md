@@ -16,28 +16,60 @@
 </div>
 
 Dockside replaces the scrolling thread list in bb's left sidebar with a
-project-first inbox inspired by Orca's compact navigation.
+compact project-first inbox inspired by Orca's navigation.
 
-Projects keep bb's own order. Inside each project, root threads sort by creation
-time, newest first, and **hold that place until you park them**. Status lives inside
-each row instead of in its position, so the sidebar only moves when *you* act — no
-row slides away under your cursor because an agent finished something.
+Projects and complete root/child families stay where you put them. Drag the
+existing project header or a family's semantic status icon to sort, or use
+Alt+Up/Alt+Down from the same focus targets. The browser-local order survives
+reloads, children remain attached, and pinned roots retain their leading
+partition. Sorting pauses during search, filtering, or bulk selection so hidden
+rows never move implicitly.
 
-Working is animated and labeled. Unread is a separate ring plus title weight, so a
-thread can be visibly working and unread at the same time. When a root has child
-threads, active or attention-bearing child work expands inline as an agent stack.
+Every family has an explicit **Failed**, **Needs you**, **Working**, **Unread**,
+**Inactive**, or seven-day **Stale** state. Labels, distinct shapes, animation,
+accessible help, and customizable semantic colors keep color from carrying the
+meaning alone. Inactive and stale work recedes instead of using a bright unused
+state, and Dockside never invents Done for ordinary idle work.
+
+When a root has child threads, the family expands inline as an agent stack with
+provider marks for Codex, Claude, and other BB providers. Pull-request metadata
+stays on the parent only, including semantic ready, merged, and blocked/error
+states.
 
 You clear the list with two email verbs: **snooze** a thread until a wake time, or
 **settle** it when you are done. Both shelves collapse to one counted header.
 
+## Dockside in action
+
+| Light | Dark |
+|:--:|:--:|
+| <img src="docs/media/dockside-light.png" alt="Compact Dockside sidebar in light mode showing project groups, Working, Unread, Needs you, Failed, Inactive, pull requests, and expanded child agents" width="317" /> | <img src="docs/media/dockside-dark.png" alt="Compact Dockside sidebar in dark mode with accessible semantic colors, project groups, pull requests, and expanded child agents" width="317" /> |
+
+### Inline subagents
+
+<p align="center">
+  <img src="docs/media/dockside-subagents.png" alt="Expanded Dockside release family with three child agents and Codex, Claude, and Codex provider marks" width="634" />
+</p>
+
 ## Install
 
-**Dockside is not published to npm yet.** The `bb-plugin-dockside` name is
-currently unclaimed, so do not install a bare npm package with that name. Until
-the maintainer controls the namespace, install only from this trusted source
-checkout.
+Dockside is available as an immutable Git release. Install the compatible range
+from the reviewed monorepo subdirectory:
 
-**From source** — clone the repo and install the plugin as a local path source:
+```sh
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 \
+  --subdirectory plugins/dockside \
+  --tag-prefix dockside/
+```
+
+The range currently resolves [`dockside/v0.1.0`](https://github.com/MateoCerquetella/bb-plugins/tree/dockside/v0.1.0)
+at the code merged by [plugin PR #26](https://github.com/MateoCerquetella/bb-plugins/pull/26).
+The [BB Community marketplace submission](https://github.com/get-bb/marketplace/pull/162)
+is validated and awaiting maintainer merge. Until it lands, use the Git command
+above rather than a bare npm package or marketplace name.
+
+**For development from source** — clone the repo and install the plugin as a
+local path source:
 
 ```sh
 git clone https://github.com/mateocerquetella/bb-plugins.git
@@ -47,9 +79,9 @@ bun run --filter 'bb-plugin-dockside' build
 bb plugin install ./plugins/dockside
 ```
 
-The source path needs Bun and the `bb` CLI. Note that
-`bb plugin install git:<url>@<ref>` does not work for these plugins: bb reads
-the manifest at the repository root, so it cannot see `plugins/<id>`.
+The source-development path needs Bun and the `bb` CLI. The release command does
+not: BB resolves the monorepo plugin through `--subdirectory` and builds the
+selected immutable tag through its normal managed install pipeline.
 
 ## Requirements
 
@@ -110,9 +142,11 @@ The hover button snoozes until **09:00 tomorrow**.
 
 A root with child threads gets an agent count and disclosure. The stack opens by
 default when the family is selected or a child is working, unread, or waiting for
-you. Child rows keep their own provider, branch, age, working state, unread ring,
-context menu, split drag, and keyboard target. A parent chip in the thread header
-still gives a focused child a direct route back up.
+you. Child rows keep their own provider mark (including Codex and Claude), branch,
+age, working state, unread ring, context menu, split drag, and keyboard-readable
+status help. Provider names are announced by the child disclosure without adding
+nested tab stops. A parent chip in the thread header still gives a focused child
+a direct route back up.
 
 ### The rest
 
@@ -140,9 +174,15 @@ browser, or remote client where you want to use it.
 
 ## Configuration
 
-There is nothing to configure. The snooze presets assume a 09:00 morning, an 18:00
-evening, and a week starting Monday, in your local timezone. The settled shelf
-reaches back 24 hours. None of these are settings.
+Dockside Settings offers Default, High contrast, Colorblind-friendly, and Custom
+semantic palettes. Every status, live activity type, and PR role is previewed;
+custom values accept only six-digit hex colors and otherwise fall back safely.
+You can also choose row density, default child expansion, provider marks,
+parent-only PR metadata, and relative-time visibility.
+
+The snooze presets still assume a 09:00 morning, an 18:00 evening, and a week
+starting Monday in your local timezone. The settled shelf reaches back 24 hours.
+Those timing constants are not configurable.
 
 ## Troubleshooting
 
