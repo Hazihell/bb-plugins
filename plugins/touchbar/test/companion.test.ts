@@ -121,6 +121,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.doesNotMatch(controller, /SummaryButton|labelWithString: "BB"/u);
   assert.match(controller, /hasHorizontalScroller = false/u);
   assert.match(controller, /GroupDividerView/u);
+  assert.match(controller, /ProjectGroupView/u);
+  assert.match(controller, /projectEntries\.map/u);
   assert.match(controller, /project\.localizedCaseInsensitiveCompare/u);
   assert.doesNotMatch(controller, /detailLabel|ProviderIcon\.label\(for: entry\.provider\)/u);
   assert.match(controller, /ProjectInitialBadge/u);
@@ -136,7 +138,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /priorityTapped/u);
   assert.match(controller, /projectSortTapped/u);
   assert.match(controller, /private final class GroupDividerView: NSButton/u);
-  assert.match(controller, /threadId: entry\.id/u);
+  assert.match(controller, /threadId: first\.id/u);
   assert.match(controller, /compactWidth/u);
   assert.match(controller, /compactWidth = projectFirst\s*\? 32/su);
   assert.match(controller, /action: #selector\(agentTapped/u);
@@ -161,6 +163,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /StatusPalette/u);
   assert.match(model, /\["touchbar", "snapshot"\]/u);
   assert.match(model, /\["touchbar", "open", entry\.id\]/u);
+  assert.match(model, /dev\.bb\.desktop/u);
+  assert.match(model, /activateBB/u);
   assert.doesNotMatch(model, /\["touchbar", "stop"/u);
   for (const provider of ["opencode", "kimi", "deepseek", "qwen", "windsurf", "cline", "roocode"]) {
     assert.match(support, new RegExp(`"${provider}"`, "u"));

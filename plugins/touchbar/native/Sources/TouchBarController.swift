@@ -175,7 +175,7 @@ private final class GroupDividerView: NSButton {
         return String(token.prefix(1)).uppercased()
     }
 
-    private static func projectColor(_ project: String) -> NSColor {
+    static func projectColor(_ project: String) -> NSColor {
         let palette: [NSColor] = [
             .systemBlue, .systemPurple, .systemPink, .systemOrange,
             .systemGreen, .systemTeal, .systemIndigo, .systemRed,
@@ -186,6 +186,38 @@ private final class GroupDividerView: NSButton {
             hash &*= 0x100000001b3
         }
         return palette[Int(hash % UInt64(palette.count))]
+    }
+}
+
+private final class ProjectGroupView: NSView {
+    private let stack: NSStackView
+    private let measuredWidth: CGFloat
+
+    init(views: [NSView], color: NSColor) {
+        let nestedStack = NSStackView(views: views)
+        nestedStack.orientation = .horizontal
+        nestedStack.spacing = 3
+        nestedStack.alignment = .centerY
+        stack = nestedStack
+        measuredWidth = nestedStack.fittingSize.width + 6
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = 6
+        layer?.borderWidth = 1
+        layer?.borderColor = color.withAlphaComponent(0.8).cgColor
+        layer?.backgroundColor = color.withAlphaComponent(0.10).cgColor
+        layer?.masksToBounds = true
+        addSubview(stack)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: measuredWidth, height: 30)
+    }
+
+    override func layout() {
+        super.layout()
+        stack.frame = NSRect(x: 3, y: 0, width: bounds.width - 6, height: 30)
     }
 }
 
@@ -573,23 +605,29 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         } else if sortMode == .status {
             views.append(contentsOf: entries.map { button(for: $0) })
         } else {
-            var previousGroup = ""
-            for entry in entries {
-                let group = entry.project
-                if group != previousGroup {
-                    let count = entries.filter { $0.project == entry.project }.count
-                    views.append(GroupDividerView(
-                        status: entry.status,
-                        project: entry.project,
-                        count: count,
-                        projectFirst: true,
-                        threadId: entry.id,
-                        target: self,
-                        action: #selector(agentTapped(_:))
-                    ))
-                    previousGroup = group
+            var index = 0
+            while index < entries.count {
+                let first = entries[index]
+                var end = index + 1
+                while end < entries.count && entries[end].project == first.project {
+                    end += 1
                 }
-                views.append(button(for: entry))
+                let projectEntries = Array(entries[index..<end])
+                var nested: [NSView] = [GroupDividerView(
+                    status: first.status,
+                    project: first.project,
+                    count: projectEntries.count,
+                    projectFirst: true,
+                    threadId: first.id,
+                    target: self,
+                    action: #selector(agentTapped(_:))
+                )]
+                nested.append(contentsOf: projectEntries.map { button(for: $0) })
+                views.append(ProjectGroupView(
+                    views: nested,
+                    color: GroupDividerView.projectColor(first.project)
+                ))
+                index = end
             }
         }
         panelItem.view = scrollContainer(views)

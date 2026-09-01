@@ -126,9 +126,35 @@ final class AgentStore {
     static func focus(_ entry: AgentEntry) {
         DispatchQueue.global(qos: .userInitiated).async {
             _ = BBCommand.run(["touchbar", "open", entry.id])
-            NSWorkspace.shared.runningApplications
-                .first(where: { $0.bundleIdentifier == "app.getbb.bb" })?
-                .activate(options: [.activateAllWindows])
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                activateBB()
+            }
+        }
+    }
+
+    private static func activateBB() {
+        let workspace = NSWorkspace.shared
+        if let app = workspace.runningApplications.first(where: {
+            $0.bundleIdentifier == "dev.bb.desktop" ||
+                $0.localizedName?.caseInsensitiveCompare("bb") == .orderedSame
+        }) {
+            app.activate(options: [.activateAllWindows])
+            NativeLog.info("activated BB for selected thread")
+            return
+        }
+        guard let url = workspace.urlForApplication(
+            withBundleIdentifier: "dev.bb.desktop"
+        ) else {
+            NativeLog.error("BB desktop application was not found")
+            return
+        }
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.activates = true
+        workspace.openApplication(at: url, configuration: configuration) {
+            _, error in
+            if let error {
+                NativeLog.error("could not activate BB: \(error.localizedDescription)")
+            }
         }
     }
 }
