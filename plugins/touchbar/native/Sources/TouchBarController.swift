@@ -36,6 +36,31 @@ private final class CompactControlButton: NSButton {
     }
 }
 
+private final class PanelRootView: NSView {
+    private var controlActions: [(view: NSView, action: () -> Void)] = []
+
+    func registerControl(_ view: NSView, action: @escaping () -> Void) {
+        controlActions.append((view, action))
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        action(at: point) == nil ? super.hitTest(point) : self
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        let point = convert(event.locationInWindow, from: nil)
+        action(at: point)?()
+    }
+
+    private func action(at point: NSPoint) -> (() -> Void)? {
+        for target in controlActions where !target.view.isHidden {
+            let targetFrame = target.view.convert(target.view.bounds, to: self)
+            if targetFrame.contains(point) { return target.action }
+        }
+        return nil
+    }
+}
+
 private enum StatusPalette {
     static func bezel(for status: AgentStatus) -> NSColor {
         switch status {
@@ -122,7 +147,7 @@ private final class GroupDividerView: NSButton {
     ) {
         compactProject = projectFirst
         compactWidth = projectFirst
-            ? min(max(38 + CGFloat(min(project.count, 14)) * 4.4, 72), 100)
+            ? 32
             : 96
         super.init(frame: .zero)
         self.target = target
@@ -133,8 +158,10 @@ private final class GroupDividerView: NSButton {
         let color = projectFirst ? Self.projectColor(project) : StatusPalette.bezel(for: status)
         wantsLayer = true
         layer?.cornerRadius = 5
-        layer?.backgroundColor = NSColor(white: 0.08, alpha: 0.98).cgColor
-        layer?.borderWidth = 1
+        layer?.backgroundColor = projectFirst
+            ? NSColor.clear.cgColor
+            : NSColor(white: 0.08, alpha: 0.98).cgColor
+        layer?.borderWidth = projectFirst ? 0 : 1
         layer?.borderColor = color.withAlphaComponent(0.7).cgColor
 
         statusLabel.stringValue = projectFirst ? "" : StatusPalette.section(for: status)
@@ -143,7 +170,7 @@ private final class GroupDividerView: NSButton {
         statusLabel.textColor = color
         statusLabel.lineBreakMode = .byTruncatingTail
         projectLabel.stringValue = projectFirst
-            ? project.uppercased()
+            ? ""
             : "\(project.uppercased()) · \(count)"
         projectLabel.font = .monospacedSystemFont(
             ofSize: projectFirst ? 7.2 : 7.5,
@@ -176,7 +203,7 @@ private final class GroupDividerView: NSButton {
         if compactProject {
             statusLabel.frame = .zero
             projectBadge?.frame = NSRect(x: 5, y: 4, width: 22, height: 22)
-            projectLabel.frame = NSRect(x: 32, y: 8, width: bounds.width - 38, height: 12)
+            projectLabel.frame = .zero
         } else {
             statusLabel.frame = NSRect(x: 7, y: 16, width: bounds.width - 14, height: 9)
             projectLabel.frame = NSRect(x: 7, y: 4, width: bounds.width - 14, height: 10)
@@ -680,7 +707,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         let fixed = NSView(frame: .zero)
         for control in controls { fixed.addSubview(control) }
 
-        let root = NSView(frame: NSRect(
+        let root = PanelRootView(frame: NSRect(
             x: 0,
             y: 0,
             width: Self.panelMaxWidth,
@@ -688,6 +715,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         ))
         root.addSubview(scroll)
         root.addSubview(fixed)
+        for control in controls {
+            root.registerControl(control) { [weak control] in
+                guard let button = control as? NSButton,
+                      let action = button.action else { return }
+                NSApp.sendAction(action, to: button.target, from: button)
+            }
+        }
         panelStack = stack
         panelScroll = scroll
         controlsContainer = fixed

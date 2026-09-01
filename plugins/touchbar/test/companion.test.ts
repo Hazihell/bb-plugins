@@ -140,7 +140,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /private final class GroupDividerView: NSButton/u);
   assert.match(controller, /threadId: entry\.id/u);
   assert.match(controller, /compactWidth/u);
-  assert.match(controller, /min\(max\(38 .* 72\), 100\)/u);
+  assert.match(controller, /compactWidth = projectFirst\s*\? 32/su);
   assert.match(controller, /action: #selector\(agentTapped/u);
   assert.match(controller, /CompactControlButton/u);
   assert.match(controller, /override func mouseDown/u);
@@ -155,6 +155,11 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /fixedControls\.filter/u);
   assert.match(controller, /control\.frame = NSRect/u);
   assert.doesNotMatch(controller, /controlsStack/u);
+  assert.match(controller, /private final class PanelRootView/u);
+  assert.match(controller, /root\.registerControl/u);
+  assert.match(controller, /target\.view\.convert/u);
+  assert.match(controller, /compactWidth = projectFirst\s*\? 32/su);
+  assert.match(controller, /projectLabel\.frame = \.zero/u);
   assert.match(controller, /NSBezierPath\(roundedRect: bounds/u);
   assert.match(controller, /projectColor/u);
   assert.match(controller, /0xcbf29ce484222325/u);
