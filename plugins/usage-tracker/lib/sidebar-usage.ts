@@ -47,6 +47,19 @@ function isWeeklyLabel(label: string): boolean {
   );
 }
 
+function isCodexProWithoutFiveHourLimit(
+  provider: ProviderUsage,
+  windows: SidebarUsageWindows,
+): boolean {
+  return (
+    provider.id === "codex" &&
+    provider.status === "ok" &&
+    windows.fiveHour === null &&
+    provider.planLabel !== null &&
+    /\bpro(?:lite)?\b/iu.test(provider.planLabel)
+  );
+}
+
 export function sidebarUsageWindows(
   provider: ProviderUsage,
 ): SidebarUsageWindows {
@@ -67,7 +80,9 @@ export function sidebarUsageDetailRows(
   if (pair.weekly !== null) selected.add(pair.weekly);
 
   return [
-    { label: "5-hour limit", window: pair.fiveHour },
+    ...(isCodexProWithoutFiveHourLimit(provider, pair)
+      ? []
+      : [{ label: "5-hour limit", window: pair.fiveHour }]),
     { label: "Weekly limit", window: pair.weekly },
     ...provider.windows
       .filter((window) => !selected.has(window))
@@ -206,10 +221,14 @@ export function mergeLastKnownWindows(
   const previousPair = sidebarUsageWindows(previous);
   const windows = [...current.windows];
   const handledPrevious = new Set<UsageWindow>();
+  const hidesFiveHourLimit = isCodexProWithoutFiveHourLimit(
+    current,
+    currentPair,
+  );
 
   if (previousPair.fiveHour !== null) {
     handledPrevious.add(previousPair.fiveHour);
-    if (currentPair.fiveHour === null) {
+    if (currentPair.fiveHour === null && !hidesFiveHourLimit) {
       windows.unshift(previousPair.fiveHour);
     }
   }

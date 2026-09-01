@@ -28,6 +28,7 @@ usage reading, without adding a navigation item or a separate plugin page.
   weekly or five-hour limit. Weekly is the default.
 - Expands either provider to show its five-hour, weekly, and additional
   provider-defined percentages.
+- Shows the available Codex usage resets in the expanded details.
 - Includes reset timing and provider session status in the expanded view.
 - Refreshes automatically every five minutes and whenever a stale BB window
   becomes active again.
@@ -75,8 +76,12 @@ to see the recovery instruction reported by BB.
 The collapsed strip is designed for quick scanning:
 
 - Select the Claude Code or Codex reading to open its details in place.
-- Review the full **5-hour limit**, **weekly limit**, every additional
-  provider-defined window, and their reset times.
+- Review the reported **5-hour limit**, **weekly limit**, every additional
+  provider-defined window, and their reset times. Codex Pro accounts that do
+  not report a five-hour limit omit that row.
+- For Codex, select **Use a reset…** to open a confirmation. Nothing is
+  consumed until **Yes, use reset** is selected; canceling the confirmation
+  does not contact the reset-consumption endpoint.
 - Select the same provider again, use the close button, press <kbd>Esc</kbd>,
   or click outside the details to collapse it.
 - Select the refresh icon to fetch both providers immediately.
@@ -102,10 +107,13 @@ bb plugin remove usage-tracker
 
 ## Data and privacy
 
-The plugin reads BB's local `system.usageLimits` data and does not ask for or
-store provider credentials. Its only persistent browser data is the last
-successful usage snapshot in local storage, used to keep useful values visible
-during a temporary provider or network failure.
+The plugin reads BB's local `system.usageLimits` data for provider windows. It
+also uses the installed `codex app-server` with the existing local Codex
+session to read the available reset count and, only after the explicit
+confirmation above, request one reset. It does not ask for or store provider
+credentials. Its only persistent browser data is the last successful usage
+snapshot in local storage, used to keep useful values visible during a
+temporary provider or network failure.
 
 Usage Tracker runs as a trusted BB frontend content script. Install plugins
 only from sources you trust.

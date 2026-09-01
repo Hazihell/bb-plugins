@@ -633,7 +633,6 @@ private final class TouchBarScrollView: NSScrollView {
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
-    private let statusIconView = NSImageView()
     private let accentLayer = CALayer()
     private var grouped = false
 
@@ -653,11 +652,9 @@ private final class AgentButton: NSButton {
         iconView.wantsLayer = true
         titleLabel.font = .monospacedSystemFont(ofSize: 9.5, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingTail
-        statusIconView.imageScaling = .scaleProportionallyDown
-
         accentLayer.cornerRadius = 1
         layer?.addSublayer(accentLayer)
-        for view in [iconView, titleLabel, statusIconView] { addSubview(view) }
+        for view in [iconView, titleLabel] { addSubview(view) }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
@@ -667,11 +664,10 @@ private final class AgentButton: NSButton {
     override func layout() {
         super.layout()
         iconView.frame = NSRect(x: 5, y: 4, width: 22, height: 22)
-        statusIconView.frame = NSRect(x: bounds.width - 23, y: 7, width: 16, height: 16)
         titleLabel.frame = NSRect(
             x: 31,
             y: 8,
-            width: bounds.width - 61,
+            width: bounds.width - 38,
             height: 14
         )
         accentLayer.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 2)
@@ -696,13 +692,11 @@ private final class AgentButton: NSButton {
         iconView.layer?.backgroundColor = needsLightTile
             ? NSColor.white.cgColor
             : NSColor.clear.cgColor
+        iconView.layer?.cornerRadius = 5
+        iconView.layer?.borderWidth = 2
+        iconView.layer?.borderColor = color.cgColor
         titleLabel.stringValue = primary
         titleLabel.textColor = .white
-        statusIconView.image = NSImage(
-            systemSymbolName: Self.statusSymbol(entry.status),
-            accessibilityDescription: StatusPalette.badge(for: entry.status)
-        )
-        statusIconView.contentTintColor = color
         layer?.backgroundColor = NSColor(
             white: grouped ? 0.075 : 0.055,
             alpha: 0.96
@@ -713,18 +707,6 @@ private final class AgentButton: NSButton {
         accentLayer.backgroundColor = color.cgColor
         setAccessibilityLabel("\(entry.title), \(entry.project), \(entry.status.rawValue)")
         needsLayout = true
-    }
-
-    private static func statusSymbol(_ status: AgentStatus) -> String {
-        switch status {
-        case .blocked: return "questionmark.circle.fill"
-        case .error: return "xmark.circle.fill"
-        case .working: return "arrow.triangle.2.circlepath"
-        case .done: return "circle"
-        case .waiting: return "clock.fill"
-        case .idle: return "circle.fill"
-        case .unknown: return "questionmark.circle"
-        }
     }
 }
 
@@ -829,6 +811,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         showUsage = visible
         UserDefaults.standard.set(visible, forKey: "BBTouchBarShowUsage")
         refreshAccessoryLayout()
+        schedulePanelRender()
     }
 
     func setHostVisibilityFromMenu(_ visible: Bool) {
@@ -850,6 +833,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         UserDefaults.standard.set(visible, forKey: defaultsKey)
         updateControlColors()
         updateAccessoryButtons(store.snapshot)
+        schedulePanelRender()
     }
 
     private func refreshAccessoryLayout() {
@@ -1134,9 +1118,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
-        var identifiers: [NSTouchBarItem.Identifier] = [
-            .bbPreviousProject, .bbList, .bbNextProject,
-        ]
+        var identifiers: [NSTouchBarItem.Identifier] = [.bbList]
         identifiers.append(.flexibleSpace)
         if !configurationVisible {
             if showUsage { identifiers.append(.bbUsage) }
@@ -1167,11 +1149,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func settingsTapped(_ sender: NSButton) {
-        closePanel()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            self?.onSettingsRequested?()
-        }
-        NativeLog.info("menu bar settings requested")
+        configurationVisible.toggle()
+        updateControlColors()
+        panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
+        schedulePanelRender()
+        NativeLog.info("inline settings \(configurationVisible ? "opened" : "closed")")
     }
 
     @objc private func priorityTapped(_ sender: NSButton) {
@@ -1364,23 +1346,98 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func settingsGroups() -> [NSView] {
-        [
+        let priority = settingControl(
+            title: "PRIORITY", width: 52,
+            action: #selector(priorityTapped(_:)),
+            selected: sortMode == .status, color: .systemBlue
+        )
+        let project = settingControl(
+            title: "PROJECT", width: 48,
+            action: #selector(projectTapped(_:)),
+            selected: sortMode == .project, color: .systemOrange
+        )
+        let dock = settingControl(
+            title: "DOCK", width: 36,
+            action: #selector(dockTapped(_:)),
+            selected: sortMode == .dock, color: .systemTeal
+        )
+        let carousel = settingControl(
+            title: "CAROUSEL", width: 54,
+            action: #selector(carouselTapped(_:)),
+            selected: sortMode == .carousel, color: .systemPurple
+        )
+        let usage = settingControl(
+            title: showUsage ? "ON" : "OFF", width: 38,
+            action: #selector(usageVisibilityTapped(_:)),
+            selected: showUsage, color: .systemBlue
+        )
+        let codex = providerSettingControl(
+            provider: "codex", action: #selector(codexVisibilityTapped(_:)),
+            selected: usageProviderVisibility["codex"] == true,
+            color: .systemBlue
+        )
+        let claude = providerSettingControl(
+            provider: "claude-code", action: #selector(claudeVisibilityTapped(_:)),
+            selected: usageProviderVisibility["claudeCode"] == true,
+            color: .systemOrange
+        )
+        let cursor = providerSettingControl(
+            provider: "cursor", action: #selector(cursorVisibilityTapped(_:)),
+            selected: usageProviderVisibility["cursor"] == true,
+            color: .systemPurple
+        )
+        let host = settingControl(
+            title: showHostMonitor ? "ON" : "OFF", width: 38,
+            action: #selector(hostVisibilityTapped(_:)),
+            selected: showHostMonitor, color: .systemGreen
+        )
+        return [
             SettingsGroupView(
                 title: "FILTERS",
-                controls: [priorityButton, projectButton, dockButton, carouselButton]
+                controls: [priority, project, dock, carousel]
             ),
             SettingsGroupView(
                 title: "SUBSCRIPTIONS",
-                controls: [
-                    usageToggleButton, codexToggleButton,
-                    claudeToggleButton, cursorToggleButton,
-                ]
+                controls: [usage, codex, claude, cursor]
             ),
             SettingsGroupView(
                 title: "HOST MONITOR",
-                controls: [hostToggleButton]
+                controls: [host]
             ),
         ]
+    }
+
+    private func settingControl(
+        title: String,
+        width: CGFloat,
+        action: Selector,
+        selected: Bool,
+        color: NSColor
+    ) -> SettingsControlButton {
+        let button = SettingsControlButton(title: title, width: width)
+        button.target = self
+        button.action = action
+        button.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
+        button.bezelColor = selected
+            ? color
+            : NSColor(white: 0.18, alpha: 1)
+        return button
+    }
+
+    private func providerSettingControl(
+        provider: String,
+        action: Selector,
+        selected: Bool,
+        color: NSColor
+    ) -> SettingsControlButton {
+        let button = settingControl(
+            title: "", width: 25, action: action,
+            selected: selected, color: color
+        )
+        button.image = ProviderIcon.image(for: provider)
+        button.imagePosition = .imageOnly
+        button.imageScaling = .scaleProportionallyDown
+        return button
     }
 
     private func projectGroups(for entries: [AgentEntry]) -> [NSView] {

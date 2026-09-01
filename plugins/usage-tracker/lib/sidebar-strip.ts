@@ -1,4 +1,5 @@
 import {
+  formatResetCredits,
   formatResetTime,
   formatUsedPercent,
   providerStatusLabel,
@@ -6,6 +7,7 @@ import {
   type UsageSnapshot,
   type UsageWindow,
 } from "./usage.ts";
+
 import {
   normalizeCompactLimitOption,
   SIDEBAR_PROVIDER_IDS,
@@ -41,11 +43,41 @@ interface PreferencesResult {
   compactLimit: CompactLimitOption;
 }
 
+interface ResetPrepareResult {
+  outcome: "ready" | "unavailable" | "no-credit";
+  confirmationToken?: string;
+  expiresAtMs?: number;
+  availableCount?: number;
+  message?: string;
+}
+
+interface ResetConfirmation {
+  confirmationToken: string;
+  availableCount: number;
+  expiresAtMs: number;
+}
+
+interface ResetMessage {
+  kind: "info" | "success" | "error";
+  text: string;
+}
+
+type ResetConsumptionOutcome =
+  | "reset"
+  | "nothingToReset"
+  | "noCredit"
+  | "alreadyRedeemed"
+  | "confirmation-invalid"
+  | "confirmation-expired";
+
+type ResetRpcMethod = "prepareReset" | "consumeReset";
+
 type SidebarFocusTarget =
   | { kind: "provider"; providerId: SidebarProviderId }
   | { kind: "close" }
   | { kind: "windows" }
   | { kind: "refresh" }
+  | { kind: "reset" }
   | null;
 
 function element<K extends keyof HTMLElementTagNameMap>(
@@ -57,6 +89,28 @@ function element<K extends keyof HTMLElementTagNameMap>(
   if (className !== undefined) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
+}
+
+async function callResetRpc<T>(
+  method: ResetRpcMethod,
+  body: unknown,
+  signal: AbortSignal,
+): Promise<T> {
+  const response = await fetch(
+    `/api/v1/plugins/usage-tracker/rpc/${method}`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+      credentials: "same-origin",
+      signal,
+    },
+  );
+  const payload = (await response.json()) as RpcEnvelope<T>;
+  if (!response.ok || !payload.ok || payload.result === undefined) {
+    throw new Error(payload.error?.message ?? "Usage reset is unavailable.");
+  }
+  return payload.result;
 }
 
 function providerGlyph(providerId: SidebarProviderId): SVGSVGElement {
@@ -160,6 +214,9 @@ function activeSidebarFocusTarget(root: HTMLElement): SidebarFocusTarget {
   if (active.classList.contains("usage-tracker-sidebar__refresh")) {
     return { kind: "refresh" };
   }
+  if (active.classList.contains("usage-tracker-sidebar__reset-action")) {
+    return { kind: "reset" };
+  }
   if (isSidebarProviderId(active.dataset.provider)) {
     return { kind: "provider", providerId: active.dataset.provider };
   }
@@ -195,6 +252,16 @@ function focusSidebarTarget(
       element = root.querySelector<HTMLElement>(
         ".usage-tracker-sidebar__refresh",
       );
+      break;
+    case "reset":
+      element = root.querySelector<HTMLElement>(
+        ".usage-tracker-sidebar__reset-confirm",
+      );
+      if (element === null) {
+        element = root.querySelector<HTMLElement>(
+          ".usage-tracker-sidebar__reset-start",
+        );
+      }
       break;
   }
   element?.focus({ preventScroll: true });
@@ -297,10 +364,124 @@ function detailWindowRow(
   return row;
 }
 
+interface ResetCardActions {
+  confirmation: ResetConfirmation | null;
+  message: ResetMessage | null;
+  isPreparing: boolean;
+  isConsuming: boolean;
+  onPrepare: () => void;
+  onCancel: () => void;
+  onConsume: () => void;
+}
+
+function resetActionButton(
+  label: string,
+  className: string,
+  disabled: boolean,
+  onClick: () => void,
+): HTMLButtonElement {
+  const button = element(
+    "button",
+    `usage-tracker-sidebar__reset-action ${className}`,
+    label,
+  );
+  button.type = "button";
+  button.disabled = disabled;
+  button.setAttribute("aria-disabled", String(disabled));
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function resetSection(
+  provider: ProviderUsage,
+  actions: ResetCardActions,
+): HTMLDivElement {
+  const section = element("div", "usage-tracker-sidebar__resets");
+  const heading = element("div", "usage-tracker-sidebar__reset-heading");
+  const count = provider.resetCredits?.availableCount ?? null;
+  heading.append(element("span", undefined, "Usage resets"));
+  section.append(heading);
+
+  const summary = element(
+    "p",
+    "usage-tracker-sidebar__reset-summary",
+    count === null
+      ? "Reset availability unavailable."
+      : formatResetCredits(count),
+  );
+  section.append(summary);
+
+  if (count !== null && count > 0) {
+    if (actions.confirmation === null) {
+      section.append(
+        resetActionButton(
+          actions.isPreparing
+            ? "Checking reset availability…"
+            : "Use a reset…",
+          "usage-tracker-sidebar__reset-start",
+          actions.isPreparing || actions.isConsuming,
+          actions.onPrepare,
+        ),
+      );
+    } else {
+      const confirmation = element(
+        "div",
+        "usage-tracker-sidebar__reset-confirmation",
+      );
+      confirmation.setAttribute("role", "alertdialog");
+      confirmation.setAttribute("aria-label", "Confirm usage reset");
+      confirmation.append(
+        element(
+          "p",
+          undefined,
+          `Use one of your ${actions.confirmation.availableCount} usage resets? This consumes one reset and immediately resets an eligible Codex usage window.`,
+        ),
+      );
+      const confirmationActions = element(
+        "div",
+        "usage-tracker-sidebar__reset-actions",
+      );
+      confirmationActions.append(
+        resetActionButton(
+          "Cancel",
+          "usage-tracker-sidebar__reset-cancel",
+          actions.isConsuming,
+          actions.onCancel,
+        ),
+        resetActionButton(
+          actions.isConsuming ? "Using reset…" : "Yes, use reset",
+          "usage-tracker-sidebar__reset-confirm",
+          actions.isConsuming,
+          actions.onConsume,
+        ),
+      );
+      confirmation.append(confirmationActions);
+      section.append(confirmation);
+    }
+  }
+
+  if (actions.message !== null) {
+    const message = element(
+      "p",
+      "usage-tracker-sidebar__reset-message",
+      actions.message.text,
+    );
+    message.dataset.kind = actions.message.kind;
+    message.setAttribute(
+      "role",
+      actions.message.kind === "error" ? "alert" : "status",
+    );
+    section.append(message);
+  }
+
+  return section;
+}
+
 function detailsCard(
   provider: ProviderUsage,
   onClose: () => void,
   refresh: HTMLButtonElement,
+  resetActions: ResetCardActions,
 ): HTMLDivElement {
   const card = element("div", "usage-tracker-sidebar__details");
   card.id = detailsId(provider.id);
@@ -340,12 +521,18 @@ function detailsCard(
   windows.tabIndex = 0;
   windows.setAttribute("role", "region");
   windows.setAttribute("aria-label", `${provider.name} usage windows`);
+  const detailRows = sidebarUsageDetailRows(provider);
+  windows.dataset.hasFiveHour = String(
+    detailRows.some((row) => row.label === "5-hour limit"),
+  );
   windows.append(
-    ...sidebarUsageDetailRows(provider).map(({ label, window }) =>
-      detailWindowRow(label, window),
-    ),
+    ...detailRows.map(({ label, window }) => detailWindowRow(label, window)),
   );
   card.append(header, windows);
+
+  if (provider.id === "codex") {
+    card.append(resetSection(provider, resetActions));
+  }
 
   if (provider.status !== "ok" && provider.message !== null) {
     const message = element(
@@ -384,6 +571,11 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
   let lastLoadedAt = 0;
   let requestController: AbortController | null = null;
   let preferencesRequestController: AbortController | null = null;
+  let resetRequestController: AbortController | null = null;
+  let resetConfirmation: ResetConfirmation | null = null;
+  let resetMessage: ResetMessage | null = null;
+  let isPreparingReset = false;
+  let isConsumingReset = false;
   let ensureFrame: number | null = null;
   let requestedFocus: SidebarFocusTarget = null;
   let disposed = false;
@@ -409,6 +601,170 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     refresh.addEventListener("click", () => void load());
     return refresh;
   };
+
+  async function prepareReset(): Promise<void> {
+    if (
+      selectedProviderId !== "codex" ||
+      isPreparingReset ||
+      isConsumingReset ||
+      disposed
+    ) {
+      return;
+    }
+
+    isPreparingReset = true;
+    resetMessage = null;
+    render();
+    const controller = new AbortController();
+    resetRequestController = controller;
+    const abortRequest = () => controller.abort();
+    signal.addEventListener("abort", abortRequest, { once: true });
+
+    try {
+      const result = await callResetRpc<ResetPrepareResult>(
+        "prepareReset",
+        null,
+        controller.signal,
+      );
+      if (
+        result.outcome === "ready" &&
+        typeof result.confirmationToken === "string" &&
+        result.confirmationToken.length > 0 &&
+        typeof result.availableCount === "number" &&
+        Number.isSafeInteger(result.availableCount) &&
+        result.availableCount > 0 &&
+        typeof result.expiresAtMs === "number" &&
+        Number.isSafeInteger(result.expiresAtMs)
+      ) {
+        resetConfirmation = {
+          confirmationToken: result.confirmationToken,
+          availableCount: result.availableCount,
+          expiresAtMs: result.expiresAtMs,
+        };
+        requestedFocus = { kind: "reset" };
+      } else {
+        resetConfirmation = null;
+        resetMessage = {
+          kind: "error",
+          text: result.message ?? "Usage reset is unavailable.",
+        };
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        resetConfirmation = null;
+        resetMessage = {
+          kind: "error",
+          text:
+            error instanceof Error
+              ? error.message
+              : "Usage reset is unavailable.",
+        };
+      }
+    } finally {
+      signal.removeEventListener("abort", abortRequest);
+      if (resetRequestController === controller) {
+        resetRequestController = null;
+      }
+      isPreparingReset = false;
+      render();
+    }
+  }
+
+  function cancelResetConfirmation(): void {
+    if (isConsumingReset) return;
+    resetConfirmation = null;
+    resetMessage = null;
+    requestedFocus = { kind: "reset" };
+    render();
+  }
+
+  async function consumeReset(): Promise<void> {
+    if (
+      selectedProviderId !== "codex" ||
+      resetConfirmation === null ||
+      isConsumingReset ||
+      disposed
+    ) {
+      return;
+    }
+
+    const confirmationToken = resetConfirmation.confirmationToken;
+    isConsumingReset = true;
+    resetMessage = {
+      kind: "info",
+      text: "Sending usage reset…",
+    };
+    render();
+    const controller = new AbortController();
+    resetRequestController = controller;
+    const abortRequest = () => controller.abort();
+    signal.addEventListener("abort", abortRequest, { once: true });
+
+    try {
+      const result = await callResetRpc<{ outcome: ResetConsumptionOutcome }>(
+        "consumeReset",
+        { confirmationToken },
+        controller.signal,
+      );
+      resetConfirmation = null;
+      switch (result.outcome) {
+        case "reset":
+          resetMessage = {
+            kind: "success",
+            text: "Usage reset. Refreshing limits.",
+          };
+          break;
+        case "alreadyRedeemed":
+          resetMessage = {
+            kind: "success",
+            text: "Usage reset was already applied. Refreshing limits.",
+          };
+          break;
+        case "nothingToReset":
+          resetMessage = {
+            kind: "info",
+            text: "No eligible usage window needed a reset.",
+          };
+          break;
+        case "noCredit":
+          resetMessage = {
+            kind: "error",
+            text: "No usage resets are available now.",
+          };
+          break;
+        case "confirmation-expired":
+          resetMessage = {
+            kind: "error",
+            text: "That reset confirmation expired. Choose Use a reset again.",
+          };
+          break;
+        case "confirmation-invalid":
+          resetMessage = {
+            kind: "error",
+            text: "That reset confirmation is no longer valid.",
+          };
+          break;
+      }
+      void load();
+    } catch (error) {
+      if (!controller.signal.aborted) {
+        resetMessage = {
+          kind: "error",
+          text:
+            error instanceof Error
+              ? error.message
+              : "Usage reset is unavailable.",
+        };
+      }
+    } finally {
+      signal.removeEventListener("abort", abortRequest);
+      if (resetRequestController === controller) {
+        resetRequestController = null;
+      }
+      isConsumingReset = false;
+      render();
+    }
+  }
 
   const render = (): void => {
     if (root === null) return;
@@ -440,10 +796,21 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
           providerFor(providerId),
           () => {
             selectedProviderId = null;
+            resetConfirmation = null;
+            resetMessage = null;
             requestedFocus = { kind: "provider", providerId };
             render();
           },
           refreshButton(),
+          {
+            confirmation: resetConfirmation,
+            message: resetMessage,
+            isPreparing: isPreparingReset,
+            isConsuming: isConsumingReset,
+            onPrepare: () => void prepareReset(),
+            onCancel: cancelResetConfirmation,
+            onConsume: () => void consumeReset(),
+          },
         ),
       );
     }
@@ -484,17 +851,19 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
 
       const mark = element("span", "usage-tracker-sidebar__mark");
       mark.append(providerGlyph(providerId));
+      const primarySummary = sidebarUsagePrimarySelectionSummary(primary);
       const reading = element(
         "span",
         "usage-tracker-sidebar__reading",
-        isLoading && lastKnownSnapshot === null
-          ? "…"
-          : sidebarUsagePrimarySelectionSummary(primary),
+        isLoading && lastKnownSnapshot === null ? "…" : primarySummary,
       );
       button.append(mark, progressRail(primary.window), reading);
       button.addEventListener("click", () => {
+        if (isConsumingReset) return;
         const isClosing = selectedProviderId === providerId;
         selectedProviderId = isClosing ? null : providerId;
+        resetConfirmation = null;
+        resetMessage = null;
         requestedFocus = isClosing
           ? { kind: "provider", providerId }
           : { kind: "close" };
@@ -623,6 +992,8 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         !enabledProviderIds.includes(selectedProviderId)
       ) {
         selectedProviderId = null;
+        resetConfirmation = null;
+        resetMessage = null;
         requestedFocus = { kind: "refresh" };
       }
       cacheProviderIds(enabledProviderIds);
@@ -671,6 +1042,8 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         !root.contains(event.target)
       ) {
         selectedProviderId = null;
+        resetConfirmation = null;
+        resetMessage = null;
         render();
       }
     },
@@ -693,6 +1066,8 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
         event.preventDefault();
         event.stopImmediatePropagation();
         selectedProviderId = null;
+        resetConfirmation = null;
+        resetMessage = null;
         requestedFocus = { kind: "provider", providerId };
         render();
       }
@@ -709,6 +1084,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
     window.clearInterval(preferencesRefreshInterval);
     requestController?.abort();
     preferencesRequestController?.abort();
+    resetRequestController?.abort();
     root?.remove();
     root = null;
   };

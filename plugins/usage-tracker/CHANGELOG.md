@@ -3,6 +3,15 @@
 All notable changes to Usage Tracker are documented here.
 
 ## Unreleased
+### Added
+
+- Show available Codex usage resets in expanded details with an explicit
+  confirmation before any reset is consumed.
+
+### Fixed
+
+- Omit the five-hour row for Codex Pro accounts that do not report that
+  limit, and let the weekly row use the full details-card width.
 
 ## 0.1.5 - 2026-08-31
 

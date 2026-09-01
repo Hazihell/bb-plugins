@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:5a873909535e9bcdc492514c4c663e2a06e827ae73a0dc38edb767eb38c99621",
+  "sourceDigest": "sha256:b834829a09c4451bb6a5d248186267b47699b698c37193e0faf8804a404737bc",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:ddc59d8b00e69eaf68eaff9b2d8a681938d8ead86b347f34d6f3d1d95b4de341"
+      "digest": "sha256:a6adfe71a692e193583ca10c2f108ac29610cfa9194df1c329874d657dff407e"
     },
     {
       "path": "LICENSE",
@@ -80,8 +80,8 @@
     },
     {
       "path": "README.md",
-      "size": 12285,
-      "digest": "sha256:79491415325888da3ad83605ef420b6fe1046d346b43160829a555b7f18d1420"
+      "size": 12269,
+      "digest": "sha256:fd374edcd1b6bc4c3e91754aa0429655cb9cbd670b76e6377cb6b790e04b4d8a"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -220,8 +220,8 @@
     },
     {
       "path": "plugins/dockside/assets/icon.svg",
-      "size": 571,
-      "digest": "sha256:49489ca2d2eecd8b54e40c52722217177ee350dad698af534c009a0f82a9a021"
+      "size": 639,
+      "digest": "sha256:69e9184bed2c45d3b41ecfd4ca07439e7e76f4e214b3a28a143eafd06e0c88f8"
     },
     {
       "path": "plugins/dockside/assets/logo-dark.svg",
@@ -590,8 +590,8 @@
     },
     {
       "path": "plugins/host-monitor/assets/icon.svg",
-      "size": 963,
-      "digest": "sha256:e1143dae9796604bcdb0d864b27d2941b3558c81d1fde8f7d317f2a39b6358ff"
+      "size": 1031,
+      "digest": "sha256:b127ff767b915de80843a68a855684c8b9a6709d6961eeac1acd98151717c5c9"
     },
     {
       "path": "plugins/host-monitor/assets/logo-dark.svg",
@@ -1155,8 +1155,8 @@
     },
     {
       "path": "plugins/touchbar/README.md",
-      "size": 7926,
-      "digest": "sha256:28a50c536ea0260f12d54117de1b0182fbee5a273ff08db35e972afaf3634654"
+      "size": 7894,
+      "digest": "sha256:782d3db73308bb808d09e8ffa22eb62395620ea45b2fe9c51b7aac79d69f2bd3"
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 59562,
-      "digest": "sha256:07b090bb651c227e6c8baaf04c8371449d4df104377c1e0afb6f1c098fe09c19"
+      "size": 61662,
+      "digest": "sha256:d2defdc1d2c09e80bb8b67014c4d01bb4cd70cea973b8d4e0c336e0f90f77c55"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1320,8 +1320,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 14576,
-      "digest": "sha256:9b4838f347a5a74dfc2af9d608d8aeeb1fcaf2d3955046e2d1a61d47b003c982"
+      "size": 14726,
+      "digest": "sha256:3212b7cea8a1e83eb43ae9dc60be4a59461ae8acdabda43af75acc8019ac1e36"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1452,6 +1452,21 @@
       "path": "plugins/usage-tracker/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
+    },
+    {
+      "path": "touchbar-ui-concept.html",
+      "size": 10842,
+      "digest": "sha256:0c7310d125bbf77d6d922c581a5ec5211e2875a353c9845e0e4ea4bfc46a81db"
+    },
+    {
+      "path": "touchbar-ui-concepts-v2.html",
+      "size": 10097,
+      "digest": "sha256:a159d57c014487edd9c89e3e4d0490dff03ec858197ba60c938d8e8fc7e0cdb8"
+    },
+    {
+      "path": "touchbar-ui-exploration-v3.html",
+      "size": 12060,
+      "digest": "sha256:bd34528c61b74899d1891f766dad5e994d1dfcbc6066d9c7b4a51452ed096400"
     }
   ],
   "pages": [
@@ -1749,9 +1764,12 @@
         "plugins/usage-tracker/server.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
-        "plugins/usage-tracker/types/css-modules.d.ts"
+        "plugins/usage-tracker/types/css-modules.d.ts",
+        "touchbar-ui-concept.html",
+        "touchbar-ui-concepts-v2.html",
+        "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:5a873909535e9bcdc492514c4c663e2a06e827ae73a0dc38edb767eb38c99621",
+      "sourceDigest": "sha256:b834829a09c4451bb6a5d248186267b47699b698c37193e0faf8804a404737bc",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1786,7 +1804,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:e4703cc6c5eecc5dfa054491e2c5de03fe46e170066b2345990615a1d78fe334",
+      "sourceDigest": "sha256:cf93aae77dd6059f1b371ebedf71aac3ffcf7366e2ffba8c789c5114870b3432",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1847,5 +1865,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:a5d6262d84ec5ea3c16e9d9afbb0ae9098f146fc2743c8afc5aa3b0c5b9478ce"
+  "digest": "sha256:1cebab09ce7d48c4fe1b5a51bdc90fa407b57627afc9cbf0e01e93717d81d993"
 }

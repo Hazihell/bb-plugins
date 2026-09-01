@@ -104,23 +104,24 @@ The app has no Dock icon. Its BB badge appears in the Touch Bar's Control Strip.
 Install and enable the repository's `host-monitor` plugin to populate the host
 cards; subscription usage comes directly from BB's provider usage API.
 
-Use the BB Touch Bar menu-bar icon for grouped LAYOUT FILTER, SUBSCRIPTIONS,
-and HOST MONITOR settings. The slider button on the Touch Bar opens that same
-menu after safely collapsing the system-modal panel. Toggle Usage and Host Monitor,
-choose Codex, Claude Code, and/or Cursor, and select the thread layout. These
-native preferences persist per macOS user. Tap the computer icon on the main
-bar to switch between threads and host metrics.
+Tap the slider button for grouped FILTERS, SUBSCRIPTIONS, and HOST MONITOR
+cards directly inside the Touch Bar. Each render creates fresh controls so
+AppKit never reparents live buttons. The menu-bar icon remains an optional
+second settings entry point. Toggle Usage and Host Monitor, choose Codex,
+Claude Code, and/or Cursor, and select the thread layout. These preferences
+persist per macOS user. Tap the computer icon to switch between threads and
+host metrics.
 
-Agent cards match Dockside's default semantic colors and glyphs: green
-working, amber needs-you/waiting, blue unread, red error, and gray inactive.
+Agent provider icons use Dockside's default semantic status border/accent:
+green working, amber needs-you/waiting, blue unread, red error, and gray
+inactive. No extra status glyph consumes card space.
 
 Host CPU, RAM, and disk rings use Host Monitor's current configurable yellow
 and red thresholds. Changing those settings automatically changes Touch Bar
 gauge colors on the next sample; download remains red and upload blue.
 
-The fixed ‹ and › controls page the horizontally scrollable card lane in every
-normal layout. In Carousel mode, those same controls switch projects. Trackpad
-or finger horizontal scrolling remains enabled as a secondary gesture.
+Trackpad or finger horizontal scrolling moves the card lane; paging arrows are
+intentionally omitted to preserve card space.
 
 ## Controls
 
