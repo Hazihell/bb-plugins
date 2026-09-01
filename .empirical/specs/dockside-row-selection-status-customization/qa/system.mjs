@@ -8,6 +8,7 @@ const screenshots = [
   ["settings-customization.png", 1200, 657],
   ["sidebar-colorblind.png", 320, 417],
   ["row-shift-selected.png", 320, 417],
+  ["row-hit-targets.png", 320, 445],
 ];
 for (const [name, width, height] of screenshots) {
   const bytes = await readFile(`${featureRoot}/artifacts/${name}`);
@@ -19,9 +20,12 @@ for (const [name, width, height] of screenshots) {
 const live = JSON.parse(
   await readFile(`${featureRoot}/artifacts/live-customization-result.json`, "utf8"),
 );
-assert.equal(live.observations.rowSelection.ordinaryRowClickSelected, 1);
-assert.equal(live.observations.rowSelection.shiftRowClickSelected, 4);
+assert.equal(live.observations.rowSelection.ordinaryStatusIconClickSelected, 1);
+assert.equal(live.observations.rowSelection.shiftTrailingTimeClickSelected, 3);
 assert.equal(live.observations.rowSelection.protectedRowsSelected, 0);
+assert.equal(live.observations.rowSelection.protectedRowClickNavigated, false);
+assert.equal(live.observations.rowSelection.selectionTargetRole, "button");
+assert.equal(live.observations.repairedHitTesting.protectedSelectionTargetDisabled, true);
 assert.equal(live.observations.settingsRegistration.previewVisible, true);
 assert.equal(live.observations.colorblindPreset.liveWithoutReload, true);
 assert.equal(live.observations.customValidation.effectiveWorkingFallback, "#22C55E");
@@ -59,8 +63,12 @@ assert.match(preferences, /Colorblind-friendly/);
 assert.match(preferences, /docksidePreferenceStyle/);
 assert.match(inbox, /const settings = useSettings\(\)/);
 assert.match(inbox, /data-dockside-palette=/);
-assert.match(card, /if \(selectionMode\)/);
+assert.match(card, /data-dockside-selection-target=\{thread\.id\}/);
+assert.match(card, /aria-pressed=/);
+assert.match(card, /disabled=\{selectionDisabledReason !== null\}/);
 assert.match(card, /selected: !selected/);
+assert.match(card, /interactive=\{!selectionMode\}/);
+assert.match(card, /disabled=\{selectionMode\}/);
 assert.match(card, /preferences\.showProviderIcons/);
 assert.match(card, /preferences\.showPullRequestMetadata/);
 assert.match(card, /preferences\.showRelativeTime/);

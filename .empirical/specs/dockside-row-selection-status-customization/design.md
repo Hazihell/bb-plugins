@@ -45,11 +45,15 @@
 
 ## Row selection fix
 
-- In selection mode the root overlay consumes all row clicks. Eligible rows
-  call the existing selection intent callback with `selected: !selected` and
-  the row MouseEvent Shift modifier. Protected rows no-op and never navigate.
+- In selection mode a semantic, full-row button consumes row clicks and reports
+  state with `aria-pressed`. Eligible rows call the existing selection intent
+  callback with `selected: !selected` and the row MouseEvent Shift modifier;
+  protected buttons are disabled and cannot navigate.
 - Checkbox clicks stop propagation and continue using native checked state.
-- Outside selection mode the overlay keeps existing navigation/split behavior.
+- Status and trailing metadata stay visible but become pointer-inert in
+  selection mode so every non-checkbox coordinate reaches the row button.
+- Outside selection mode the button is replaced by the required navigation
+  anchor, preserving shortcut/split behavior and interactive metadata.
 
 ## Verification
 

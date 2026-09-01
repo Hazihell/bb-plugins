@@ -8,19 +8,15 @@ import { pullRequestPresentation } from "@/lib/pull-request-presentation";
 
 export function PullRequestMetadata({
   pullRequest,
+  interactive = true,
 }: {
   pullRequest: PluginSidebarPullRequest;
+  interactive?: boolean;
 }) {
   const presentation = pullRequestPresentation(pullRequest);
-  // Number first; the semantic PR icon deliberately owns the far-right edge.
-  return (
-    <UrlLink
-      href={pullRequest.url}
-      onClick={(event) => event.stopPropagation()}
-      className="group/pr pointer-events-auto relative flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground hover:text-foreground"
-      aria-label={`${presentation.label} pull request ${pullRequest.number}: ${pullRequest.title}`}
-      title={`${presentation.label}: ${pullRequest.title}`}
-    >
+  const label = `${presentation.label} pull request ${pullRequest.number}: ${pullRequest.title}`;
+  const content = (
+    <>
       <span className="shrink-0 font-mono text-muted-foreground/80">
         #{pullRequest.number}
       </span>
@@ -43,6 +39,33 @@ export function PullRequestMetadata({
           {pullRequest.title}
         </span>
       </span>
+    </>
+  );
+
+  if (!interactive) {
+    return (
+      <span
+        className="group/pr pointer-events-none relative flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground"
+        title={`${presentation.label}: ${pullRequest.title}`}
+      >
+        <span className="sr-only">{label}</span>
+        <span aria-hidden className="contents">
+          {content}
+        </span>
+      </span>
+    );
+  }
+
+  // Number first; the semantic PR icon deliberately owns the far-right edge.
+  return (
+    <UrlLink
+      href={pullRequest.url}
+      onClick={(event) => event.stopPropagation()}
+      className="group/pr pointer-events-auto relative flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground hover:text-foreground"
+      aria-label={label}
+      title={`${presentation.label}: ${pullRequest.title}`}
+    >
+      {content}
     </UrlLink>
   );
 }

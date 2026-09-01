@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 8,
+  "previousDigest": "sha256:c6eab1c2a97676797a3e8bffc670705acd88f83f5e60cd3d9bbe453ebe966e75",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Evidence integrity repair: implementation is now committed at 57bdb937b, so pre-commit delivery-risk receipts must be regenerated against the durable source tree before review.",
+  "createdAt": "2026-09-01T05:25:39.016Z",
+  "stateBeforeDigest": "sha256:1391f4f576b88afc28458cabec2739f6ce68b947d15f37d50259e05321ccefc0",
+  "stateAfterDigest": "sha256:349c3e09fddf93d6577f1129f3b85b145e8444f27d59c82a75a752db9efe57d0",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 8,
+    "activeFeature": "dockside-row-selection-status-customization",
+    "request": "Fix Dockside Shift selection so ordinary click and Shift+click work anywhere on an eligible root thread row while selection mode is active, not only on the checkbox; protected rows must never select or navigate accidentally. Make thread-state icon colors customizable from a Dockside settings page with clear defaults for working, stalled/waiting, unread/waiting-to-read, error, and idle/stale, plus PR review/checks/ready/merged/draft/blocked/closed colors. Add Default, High contrast, and colorblind-friendly presets, reset controls, persistent validated preferences, and additional settings for row density, default child expansion, provider icon visibility, PR metadata visibility, and relative-time visibility. Changes must apply live across the Dockside sidebar, preserve accessible non-color labels/shape/animation, and keep current behavior as defaults.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Evidence integrity repair: implementation is now committed at 57bdb937b, so pre-commit delivery-risk receipts must be regenerated against the durable source tree before review.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:11ccc7b0d4ae2b10c36685b55bfa765515c5437ad529a777cccbbaa9f2c8373e",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:424051528498481aac53795b4f2b46e3b632721a2ef59f33f0d38d18d9525c9c",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-row-selection-status-customization-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T05:25:39.016Z"
+  },
+  "digest": "sha256:ab37262da9f59c228142dc001194f8ad8c6ecf4bbbdac5b0cf66428b3fc276e2"
+}

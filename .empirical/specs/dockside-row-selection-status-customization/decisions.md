@@ -91,7 +91,9 @@ Test status/PR role mapping and inspect live root/child/PR states under presets.
 
 ## D-004: Row selection consumes the overlay only during selection mode
 
-Status: Accepted
+Status: Superseded
+
+Superseded by: D-005
 
 ### Evidence
 
@@ -117,3 +119,37 @@ and toolbar make that mode explicit.
 
 Live-click row title/background with and without Shift; click protected rows;
 then exit mode and confirm navigation behavior is restored.
+
+## D-005: Selection mode uses a semantic button and inert foreground chrome
+
+Status: Accepted
+
+Supersedes: D-004
+
+### Evidence
+
+Independent review found that reusing the shortcut anchor conveyed navigation
+semantics while changing selection state, and pointer-active status/metadata
+controls prevented the overlay from owning the complete row hit area.
+
+### Options
+
+Raise the anchor above all content; forward every foreground click manually;
+or render a semantic full-row selection button while selection mode is active.
+
+### Chosen approach
+
+Render the shortcut/split anchor only in navigation mode. In selection mode,
+render a full-row button with `aria-pressed`, disable it for protected roots,
+keep the checkbox above it, and make displayed PR/disclosure chrome inert.
+
+### Trade-offs and risks
+
+PR and disclosure controls remain legible during selection but cannot be
+activated until the user exits the explicit bulk-selection mode.
+
+### Verification
+
+Click status, title, time, PR, and disclosure coordinates in selection mode;
+confirm keyboard activation announces and toggles a button; confirm protected
+rows cannot select or navigate; then exit mode and test all normal controls.

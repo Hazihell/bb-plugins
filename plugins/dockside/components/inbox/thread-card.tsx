@@ -123,51 +123,62 @@ export function ThreadCard({
                 : "hover:bg-sidebar-accent/60",
             )}
           >
-            {/* The shortcut/split contract requires an anchor, while the
-                controls remain sibling buttons above it. */}
-            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- bb's
-                shortcut and split-drag contracts require an anchor. */}
-            <a
-              data-sidebar-thread-shortcut-target=""
-              data-sidebar-thread-id={thread.id}
-              href="#"
-              aria-label={
-                selectionMode
-                  ? selectionDisabledReason === null
+            {selectionMode ? (
+              <button
+                type="button"
+                data-dockside-selection-target={thread.id}
+                aria-label={
+                  selectionDisabledReason === null
                     ? `${selected ? "Deselect" : "Select"} ${threadDisplayTitle(thread)}`
                     : `${threadDisplayTitle(thread)} cannot be selected: ${selectionDisabledReason}`
-                  : threadDisplayTitle(thread)
-              }
-              aria-current={rootIsActive ? "page" : undefined}
-              aria-disabled={
-                selectionMode && selectionDisabledReason !== null
-                  ? true
-                  : undefined
-              }
-              {...splitProps}
-              onClick={(event) => {
-                event.preventDefault();
-                if (selectionMode) {
-                  if (selectionDisabledReason === null) {
-                    onToggleSelected({
-                      selected: !selected,
-                      shiftKey: event.shiftKey,
-                    });
-                  }
-                  return;
                 }
-                actions.open(thread.id, {
-                  split: event.metaKey || event.ctrlKey,
-                });
-                onNavigate();
-              }}
-              className={cn(
-                "absolute inset-0 rounded-lg",
-                selectionMode && selectionDisabledReason !== null
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer",
-              )}
-            />
+                aria-pressed={
+                  selectionDisabledReason === null ? selected : undefined
+                }
+                aria-describedby={
+                  selectionDisabledReason === null ? selectionHintId : undefined
+                }
+                title={
+                  selectionDisabledReason ?? "Shift+click to select a range"
+                }
+                disabled={selectionDisabledReason !== null}
+                onClick={(event) => {
+                  onToggleSelected({
+                    selected: !selected,
+                    shiftKey: event.shiftKey,
+                  });
+                }}
+                className={cn(
+                  "absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                  selectionDisabledReason === null
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed",
+                )}
+              />
+            ) : (
+              <>
+                {/* The shortcut/split contract requires an anchor, while the
+                    controls remain sibling buttons above it. */}
+                {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid -- bb's
+                    shortcut and split-drag contracts require an anchor. */}
+                <a
+                  data-sidebar-thread-shortcut-target=""
+                  data-sidebar-thread-id={thread.id}
+                  href="#"
+                  aria-label={threadDisplayTitle(thread)}
+                  aria-current={rootIsActive ? "page" : undefined}
+                  {...splitProps}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    actions.open(thread.id, {
+                      split: event.metaKey || event.ctrlKey,
+                    });
+                    onNavigate();
+                  }}
+                  className="absolute inset-0 cursor-pointer rounded-lg"
+                />
+              </>
+            )}
 
             {selectionMode ? (
               <input
@@ -206,7 +217,10 @@ export function ThreadCard({
               />
             ) : null}
 
-            <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
+            <ThreadStateGlyph
+              thread={thread}
+              className="pointer-events-none relative mt-0.5"
+            />
 
             <div className="pointer-events-none relative min-w-0 flex-1">
               <div
@@ -254,7 +268,12 @@ export function ThreadCard({
               </div>
             </div>
 
-            <div className="relative z-10 flex shrink-0 flex-col items-end gap-0.5">
+            <div
+              className={cn(
+                "relative z-10 flex shrink-0 flex-col items-end gap-0.5",
+                selectionMode && "pointer-events-none",
+              )}
+            >
               <span
                 data-dockside-root-time=""
                 className={cn(
@@ -290,14 +309,22 @@ export function ThreadCard({
                 className="flex h-4 items-center justify-end gap-1"
               >
                 {preferences.showPullRequestMetadata && pullRequest ? (
-                  <PullRequestMetadata pullRequest={pullRequest} />
+                  <PullRequestMetadata
+                    pullRequest={pullRequest}
+                    interactive={!selectionMode}
+                  />
                 ) : null}
                 {childThreads.length > 0 ? (
                   <button
                     type="button"
-                    aria-label={`${expanded ? "Hide" : "Show"} ${childThreads.length} child threads`}
+                    aria-label={
+                      selectionMode
+                        ? `${childThreads.length} child threads; exit selection mode to ${expanded ? "hide" : "show"}`
+                        : `${expanded ? "Hide" : "Show"} ${childThreads.length} child threads`
+                    }
                     aria-expanded={expanded}
                     aria-controls={childListId}
+                    disabled={selectionMode}
                     onClick={(event) => {
                       event.preventDefault();
                       event.stopPropagation();
@@ -306,6 +333,7 @@ export function ThreadCard({
                     className={cn(
                       "group/children relative flex h-4 items-center gap-0.5 rounded px-0.5 text-2xs font-medium text-muted-foreground",
                       "hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                      selectionMode && "pointer-events-none",
                       childNeedsAttention && "text-primary",
                     )}
                   >

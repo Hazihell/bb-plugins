@@ -3,11 +3,14 @@
   "surface": "live BB Dockside sidebar and plugin settings",
   "observations": {
     "rowSelection": {
-      "ordinaryRowClickSelected": 1,
-      "shiftRowClickSelected": 4,
+      "ordinaryStatusIconClickSelected": 1,
+      "shiftTrailingTimeClickSelected": 3,
       "protectedRowsInRange": 2,
       "protectedRowsSelected": 0,
-      "protectedRowClickChangedSelection": false
+      "protectedRowClickChangedSelection": false,
+      "protectedRowClickNavigated": false,
+      "selectionTargetRole": "button",
+      "selectionTargetState": "aria-pressed"
     },
     "settingsRegistration": {
       "declaredSettings": 18,
@@ -42,6 +45,13 @@
       "prMetadataVisible": true,
       "relativeTimeVisible": true,
       "childrenExpandedByDefault": true
+    },
+    "repairedHitTesting": {
+      "viewport": "1200x657",
+      "sidebarCardWidth": 305,
+      "statusCoordinateOwner": "full-row selection button",
+      "timeCoordinateOwner": "full-row selection button",
+      "protectedSelectionTargetDisabled": true
     }
   }
 }

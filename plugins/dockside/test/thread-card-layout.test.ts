@@ -25,11 +25,11 @@ describe("compact root card contract", () => {
   it("co-locates root PR and multiple-child controls in row two", () => {
     const metadataStart = rootSource.indexOf("data-dockside-root-metadata");
     const pullRequestStart = rootSource.indexOf(
-      "<PullRequestMetadata pullRequest={pullRequest}",
+      "<PullRequestMetadata",
       metadataStart,
     );
     const disclosureStart = rootSource.indexOf(
-      'aria-label={`${expanded ? "Hide" : "Show"}',
+      "{childThreads.length > 0 ? (",
       metadataStart,
     );
 

@@ -59,12 +59,16 @@ describe("Dockside settings contract", () => {
     assert.match(card, /preferences\.showRelativeTime/);
   });
 
-  it("turns the row overlay into a protected selection target only in selection mode", () => {
-    assert.match(card, /if \(selectionMode\)/);
+  it("uses a semantic full-row selection target and keeps navigation separate", () => {
+    assert.match(card, /data-dockside-selection-target=\{thread\.id\}/);
+    assert.match(card, /aria-pressed=/);
+    assert.match(card, /disabled=\{selectionDisabledReason !== null\}/);
     assert.match(card, /selectionDisabledReason === null/);
     assert.match(card, /selected: !selected/);
     assert.match(card, /shiftKey: event\.shiftKey/);
-    assert.match(card, /aria-disabled=/);
+    assert.match(card, /interactive=\{!selectionMode\}/);
+    assert.match(card, /disabled=\{selectionMode\}/);
+    assert.match(card, /selectionMode && "pointer-events-none"/);
     assert.match(card, /actions\.open\(thread\.id/);
   });
 });

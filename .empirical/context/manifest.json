@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:17b3898cd9bbd48a2e344e584b954d4836fde64aea7e351a34f9bf7920a50b72",
+  "sourceDigest": "sha256:7ba24fdd57945125c18aca83a7e721a2ced5b7ace80547ecc22fb99debc0810c",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -985,8 +985,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/row-metadata.tsx",
-      "size": 2611,
-      "digest": "sha256:c042842ed72d07dc7b544b741746713ff155627c17cf7d3f2e9d479604e2a465"
+      "size": 3072,
+      "digest": "sha256:bd3562080fa3b2f3b4d6f43db39440d7549fe46cf54679ae7adce258d74ab879"
     },
     {
       "path": "plugins/dockside/components/inbox/slim-row.tsx",
@@ -1010,8 +1010,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 21239,
-      "digest": "sha256:798b9e1e30d23e7196ac4f55ba5b9b5e0005c5133c6e47a64a551a45a535ffcb"
+      "size": 22399,
+      "digest": "sha256:ad7290965be3de8210fe7aa71053fa0ed4562a18cd395b47d7828d659b756b1b"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
@@ -1165,8 +1165,8 @@
     },
     {
       "path": "plugins/dockside/test/settings-contract.test.ts",
-      "size": 2601,
-      "digest": "sha256:3b477e56d6b8003830c2ed7e2830c66587a1e8537605ad4899fadb11911e6fa0"
+      "size": 2869,
+      "digest": "sha256:793d29a956d69f4339f97053f9ed5cee95d4bdb53b1363fbfda4ac50700a4641"
     },
     {
       "path": "plugins/dockside/test/settled-threads.test.ts",
@@ -1180,8 +1180,8 @@
     },
     {
       "path": "plugins/dockside/test/thread-card-layout.test.ts",
-      "size": 2260,
-      "digest": "sha256:dd90a8ed0d6c7e4612e36ccdb8e4b362854b7d8214a6eb65eddfb0cd7de31068"
+      "size": 2220,
+      "digest": "sha256:df9d842b872fdb6cd1059edffbf4c0708c92e17b7ecb8dc3e69341812d33dd7a"
     },
     {
       "path": "plugins/dockside/test/thread-management.test.ts",
@@ -1200,13 +1200,13 @@
     },
     {
       "path": "plugins/dockside/types/bb-plugin-sdk-app.d.ts",
-      "size": 100793,
-      "digest": "sha256:e1623d4345d46c0ac9afcb537db7335bf3123a447128ea4454882aeb8648ff46"
+      "size": 104298,
+      "digest": "sha256:06e87dbf1e6ed2809cd7b4dfc15d8e07bdc5a88fd8969e41e2a8924c98ac3b27"
     },
     {
       "path": "plugins/dockside/types/bb-plugin-sdk.d.ts",
-      "size": 700327,
-      "digest": "sha256:fa0bf15333bc09a3cd5785fc70aa471244e09a0710a63bb0457649826128d815"
+      "size": 690598,
+      "digest": "sha256:1ee2f293c08cafd3b73eb1861a64671f114b46f077cefc20deaa8496b635d086"
     },
     {
       "path": "plugins/dotfiles/LICENSE",
@@ -3203,8 +3203,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:17b3898cd9bbd48a2e344e584b954d4836fde64aea7e351a34f9bf7920a50b72",
-      "digest": "sha256:06eb7db0c7da539b2e4c657eb7a2d99356b425c557e8038d155d1646e223fcdf",
+      "sourceDigest": "sha256:7ba24fdd57945125c18aca83a7e721a2ced5b7ace80547ecc22fb99debc0810c",
+      "digest": "sha256:00620a04ab71ed5bbddd803d3cbb4f54d4afe5d46ddfb0d0b5ce37f9e975e603",
       "freshness": "fresh"
     },
     {
@@ -3340,5 +3340,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:bc34291a537e51ac6236d492fcda6f3c6f70dbcbefa2369a9a3379c674aedf4d"
+  "digest": "sha256:0563a07463cdc1a64d51ed6efbd3555b298709852368463de2048a796ae26334"
 }
