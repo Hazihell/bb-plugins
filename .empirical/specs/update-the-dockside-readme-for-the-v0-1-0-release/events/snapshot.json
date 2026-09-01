@@ -1,25 +1,21 @@
 {
   "schemaVersion": 1,
-  "sequence": 7,
-  "previousDigest": "sha256:06dc95799afa461d512cb7f2e291a2b59d705f640f94bcae38c1983851f7bd31",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Verified README facts, links, image paths/signatures/dimensions, preserved guide sections, public tag and pending marketplace state; 192 Dockside tests, typecheck, system, portability, and all workspace checks pass.",
-  "createdAt": "2026-09-01T16:54:33.259Z",
-  "stateBeforeDigest": "sha256:48e3a7aa4e91076eb2eeb9e3714a6987ba285533314dc38f91fda033f33ba425",
-  "stateAfterDigest": "sha256:7f3fc52004237281368cf8228c400c69893b02058bccbcd7d3bc74803efa277d",
+  "feature": "update-the-dockside-readme-for-the-v0-1-0-release",
+  "lastSequence": 9,
+  "lastEventDigest": "sha256:d06ea492e1a208e797a4e8bb03b4e8229466fdd393b447b5aa689f62f6f642ce",
+  "stateDigest": "sha256:711663c2a1c0ed2a8063a8eca3413aa665b345dad47cb497c1402cb150d9aeeb",
   "state": {
     "schemaVersion": 5,
-    "revision": 7,
+    "revision": 9,
     "activeFeature": "update-the-dockside-readme-for-the-v0-1-0-release",
     "request": "Update the Dockside README for the v0.1.0 release and add the final compact light, dark, and expanded-subagent screenshots under plugins/dockside/docs/media. Preserve all existing content and accurately describe the shipped semantic states, subagent provider marks, project/family sorting, and marketplace release.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "review",
-    "status": "waiting",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Verified README facts, links, image paths/signatures/dimensions, preserved guide sections, public tag and pending marketplace state; 192 Dockside tests, typecheck, system, portability, and all workspace checks pass.",
+    "message": "Integrated capability changes: plugin-git-distribution",
     "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:7308aaf42fdbf0837e76852d6a732e739913a3be7f6b57157c23f026911f015f",
@@ -37,23 +33,25 @@
       "qa-ea87b6912c68f45ade492781",
       "qa-8149ecd1a5165a9590b0bedb",
       "collected-5785a334ec469335d4545cb4",
-      "qa-d50f77e95619e6481089f5e5"
+      "qa-d50f77e95619e6481089f5e5",
+      "collected-8bfc80707b6aec89ac966ce3",
+      "qa-013620be0cb1d42e323a3a9e"
     ],
     "legacyEvidenceCount": 0,
     "completion": {
       "implemented": true,
       "verified": true,
-      "integrated": false,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "verified",
+      "highest": "integrated",
       "reasons": {
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-09-01T16:54:33.259Z"
+    "updatedAt": "2026-09-01T17:04:40.307Z"
   },
-  "digest": "sha256:ce99604305a0bef5998153db9d191c1a409ffcfb0cf2bf60cd6e325189d0ebfe"
+  "compactedAt": "2026-09-01T17:04:40.324Z",
+  "digest": "sha256:940f6614ab413371cc2bde238b4144aeefc1f969508f72a4d3adb85443018c2e"
 }
