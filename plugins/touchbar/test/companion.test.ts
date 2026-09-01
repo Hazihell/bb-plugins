@@ -170,6 +170,12 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /project\.uppercased\(\)/u);
   assert.match(controller, /StatusPalette/u);
   assert.match(model, /\["touchbar", "snapshot"\]/u);
+  assert.match(model, /timeout: 5/u);
+  assert.match(model, /offlineFailureThreshold = 3/u);
+  assert.match(model, /lastGoodSnapshot/u);
+  assert.match(model, /stale\.connected = false/u);
+  assert.match(controller, /message\("Reconnecting…"\)/u);
+  assert.match(controller, /snapshot\.connected \? "No BB threads" : "BB is offline"/u);
   assert.match(model, /\["touchbar", "open", entry\.id\]/u);
   assert.match(model, /dev\.bb\.desktop/u);
   assert.match(model, /activateBB/u);

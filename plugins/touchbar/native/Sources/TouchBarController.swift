@@ -654,45 +654,48 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         onScreenOrder = entries.map(\.id)
 
         var views: [NSView] = []
-        if !snapshot.connected {
-            views.append(message("BB is offline"))
-        } else if snapshot.agents.isEmpty {
-            views.append(message("No BB threads"))
-        } else if sortMode == .status {
-            views.append(contentsOf: entries.map { button(for: $0) })
-        } else if let project = resolvedProject(in: entries) {
-            let projectEntries = entries.filter { $0.project == project }
-            if sortMode == .dock {
-                for name in orderedProjects(in: entries) {
-                    guard let first = entries.first(where: { $0.project == name }) else {
-                        continue
+        if entries.isEmpty {
+            views.append(message(snapshot.connected ? "No BB threads" : "BB is offline"))
+        } else {
+            if !snapshot.connected {
+                views.append(message("Reconnecting…"))
+            }
+            if sortMode == .status {
+                views.append(contentsOf: entries.map { button(for: $0) })
+            } else if let project = resolvedProject(in: entries) {
+                let projectEntries = entries.filter { $0.project == project }
+                if sortMode == .dock {
+                    for name in orderedProjects(in: entries) {
+                        guard let first = entries.first(where: { $0.project == name }) else {
+                            continue
+                        }
+                        let badge = GroupDividerView(
+                            status: first.status,
+                            project: name,
+                            count: entries.filter { $0.project == name }.count,
+                            projectFirst: true,
+                            threadId: name,
+                            target: self,
+                            action: #selector(projectDockTapped(_:))
+                        )
+                        badge.setSelected(name == project)
+                        views.append(badge)
                     }
+                } else if let first = projectEntries.first {
                     let badge = GroupDividerView(
                         status: first.status,
-                        project: name,
-                        count: entries.filter { $0.project == name }.count,
+                        project: project,
+                        count: projectEntries.count,
                         projectFirst: true,
-                        threadId: name,
+                        threadId: first.id,
                         target: self,
-                        action: #selector(projectDockTapped(_:))
+                        action: #selector(agentTapped(_:))
                     )
-                    badge.setSelected(name == project)
+                    badge.setSelected(true)
                     views.append(badge)
                 }
-            } else if let first = projectEntries.first {
-                let badge = GroupDividerView(
-                    status: first.status,
-                    project: project,
-                    count: projectEntries.count,
-                    projectFirst: true,
-                    threadId: first.id,
-                    target: self,
-                    action: #selector(agentTapped(_:))
-                )
-                badge.setSelected(true)
-                views.append(badge)
+                views.append(contentsOf: projectEntries.map { button(for: $0) })
             }
-            views.append(contentsOf: projectEntries.map { button(for: $0) })
         }
         panelItem.view = scrollContainer(views)
     }
