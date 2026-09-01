@@ -193,19 +193,19 @@ private final class ProjectGroupView: NSView {
     private let stack: NSStackView
     private let measuredWidth: CGFloat
 
-    init(views: [NSView], color: NSColor) {
+    init(views: [NSView]) {
         let nestedStack = NSStackView(views: views)
         nestedStack.orientation = .horizontal
-        nestedStack.spacing = 3
+        nestedStack.spacing = 4
         nestedStack.alignment = .centerY
         stack = nestedStack
-        measuredWidth = nestedStack.fittingSize.width + 6
+        measuredWidth = nestedStack.fittingSize.width + 8
         super.init(frame: .zero)
         wantsLayer = true
         layer?.cornerRadius = 6
         layer?.borderWidth = 1
-        layer?.borderColor = color.withAlphaComponent(0.8).cgColor
-        layer?.backgroundColor = color.withAlphaComponent(0.10).cgColor
+        layer?.borderColor = NSColor(white: 0.28, alpha: 0.9).cgColor
+        layer?.backgroundColor = NSColor(white: 0.035, alpha: 0.98).cgColor
         layer?.masksToBounds = true
         addSubview(stack)
     }
@@ -217,7 +217,7 @@ private final class ProjectGroupView: NSView {
 
     override func layout() {
         super.layout()
-        stack.frame = NSRect(x: 3, y: 0, width: bounds.width - 6, height: 30)
+        stack.frame = NSRect(x: 4, y: 0, width: bounds.width - 8, height: 30)
     }
 }
 
@@ -227,6 +227,7 @@ private final class AgentButton: NSButton {
     private let badgeLabel = NSTextField(labelWithString: "")
     private let accentLayer = CALayer()
     private var badgeWidth: CGFloat = 30
+    private var grouped = false
 
     init(target: AnyObject?, action: Selector?) {
         super.init(frame: .zero)
@@ -282,6 +283,12 @@ private final class AgentButton: NSButton {
         frame.contains(point) ? self : nil
     }
 
+    func setGrouped(_ value: Bool) {
+        grouped = value
+        layer?.borderWidth = value ? 0 : 1
+        accentLayer.isHidden = value
+    }
+
     func update(entry: AgentEntry, primary: String) {
         let color = StatusPalette.bezel(for: entry.status)
         iconView.image = ProviderIcon.image(for: entry.provider)
@@ -296,8 +303,13 @@ private final class AgentButton: NSButton {
         badgeWidth = entry.status == .done ? 40 : 30
         badgeLabel.stringValue = StatusPalette.badge(for: entry.status)
         badgeLabel.layer?.backgroundColor = color.withAlphaComponent(0.92).cgColor
-        layer?.backgroundColor = NSColor(white: 0.055, alpha: 0.96).cgColor
-        layer?.borderColor = color.withAlphaComponent(0.82).cgColor
+        layer?.backgroundColor = NSColor(
+            white: grouped ? 0.075 : 0.055,
+            alpha: 0.96
+        ).cgColor
+        layer?.borderColor = grouped
+            ? NSColor.clear.cgColor
+            : color.withAlphaComponent(0.82).cgColor
         accentLayer.backgroundColor = color.cgColor
         setAccessibilityLabel("\(entry.title), \(entry.project), \(entry.status.rawValue)")
         needsLayout = true
@@ -622,10 +634,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
                     target: self,
                     action: #selector(agentTapped(_:))
                 )]
-                nested.append(contentsOf: projectEntries.map { button(for: $0) })
+                nested.append(contentsOf: projectEntries.map {
+                    button(for: $0, grouped: true)
+                })
                 views.append(ProjectGroupView(
-                    views: nested,
-                    color: GroupDividerView.projectColor(first.project)
+                    views: nested
                 ))
                 index = end
             }
@@ -640,10 +653,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         return label
     }
 
-    private func button(for entry: AgentEntry) -> NSButton {
+    private func button(for entry: AgentEntry, grouped: Bool = false) -> NSButton {
         let button = AgentButton(target: self, action: #selector(agentTapped(_:)))
         button.identifier = NSUserInterfaceItemIdentifier(entry.id)
         button.frame.size = NSSize(width: 145, height: Self.barHeight)
+        button.setGrouped(grouped)
         agentButtons[entry.id] = button
         paint(button, entry)
         return button

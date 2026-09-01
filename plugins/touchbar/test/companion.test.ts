@@ -123,6 +123,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /GroupDividerView/u);
   assert.match(controller, /ProjectGroupView/u);
   assert.match(controller, /projectEntries\.map/u);
+  assert.match(controller, /setGrouped/u);
+  assert.match(controller, /button\(for: \$0, grouped: true\)/u);
+  assert.match(controller, /borderColor = NSColor\(white: 0\.28/u);
   assert.match(controller, /project\.localizedCaseInsensitiveCompare/u);
   assert.doesNotMatch(controller, /detailLabel|ProviderIcon\.label\(for: entry\.provider\)/u);
   assert.match(controller, /ProjectInitialBadge/u);
