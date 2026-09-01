@@ -3,7 +3,6 @@ import {
   useMemo,
   useState,
   type DragEvent,
-  type KeyboardEvent,
 } from "react";
 import {
   experimental_useSidebarThreadPullRequest as useSidebarThreadPullRequest,
@@ -83,7 +82,7 @@ export function ThreadCard({
   reorderEnabled: boolean;
   reorderDisabledReason: string | null;
   onMoveByKeyboard: (direction: -1 | 1) => void;
-  onReorderDragStart: (event: DragEvent<HTMLButtonElement>) => void;
+  onReorderDragStart: (event: DragEvent<HTMLSpanElement>) => void;
   onReorderDragOver: (event: DragEvent<HTMLLIElement>) => void;
   onReorderDrop: (event: DragEvent<HTMLLIElement>) => void;
   preferences: DocksidePreferences;
@@ -247,21 +246,30 @@ export function ThreadCard({
               <FamilyStatusIcon
                 status={familyState}
                 className="col-start-1 row-start-1"
+                draggable={reorderEnabled}
+                reorderHelp={
+                  reorderEnabled
+                    ? "Drag this status icon to reorder. Press Alt+Up or Alt+Down to move the family."
+                    : (reorderDisabledReason ?? "Reordering is unavailable.")
+                }
+                onDragStart={(event) => {
+                  event.stopPropagation();
+                  if (!reorderEnabled) {
+                    event.preventDefault();
+                    return;
+                  }
+                  onReorderDragStart(event);
+                }}
+                onKeyDown={(event) => {
+                  if (!event.altKey) return;
+                  if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    onMoveByKeyboard(event.key === "ArrowUp" ? -1 : 1);
+                  }
+                }}
               />
             )}
-            <ReorderHandle
-              enabled={reorderEnabled}
-              disabledReason={reorderDisabledReason}
-              onDragStart={onReorderDragStart}
-              onKeyDown={(event) => {
-                if (!event.altKey) return;
-                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  onMoveByKeyboard(event.key === "ArrowUp" ? -1 : 1);
-                }
-              }}
-            />
 
             <div className="pointer-events-none relative col-start-2 row-span-2 min-w-0">
               <div
@@ -341,7 +349,6 @@ export function ThreadCard({
                 data-dockside-root-metadata=""
                 className="flex h-4 max-w-full items-center justify-end gap-1 whitespace-nowrap"
               >
-                <FamilyStatusBadge status={familyState} />
                 {preferences.showPullRequestMetadata && pullRequest ? (
                   <PullRequestMetadata
                     pullRequest={pullRequest}
@@ -408,6 +415,7 @@ export function ThreadCard({
                     className="size-3 opacity-75"
                   />
                 ) : null}
+                <FamilyStatusBadge status={familyState} />
               </div>
             </div>
           </div>
@@ -444,60 +452,6 @@ export function ThreadCard({
         </div>
       </li>
     </RowContextMenu>
-  );
-}
-
-function ReorderHandle({
-  enabled,
-  disabledReason,
-  onDragStart,
-  onKeyDown,
-}: {
-  enabled: boolean;
-  disabledReason: string | null;
-  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
-  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
-}) {
-  const help = enabled
-    ? "Drag to reorder this family. Press Alt+Up or Alt+Down to move it."
-    : (disabledReason ?? "Reordering is unavailable.");
-  return (
-    <button
-      type="button"
-      draggable={enabled}
-      aria-label={`Reorder thread family. ${help}`}
-      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
-      aria-disabled={!enabled}
-      title={help}
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-      }}
-      onDragStart={(event) => {
-        event.stopPropagation();
-        if (!enabled) {
-          event.preventDefault();
-          return;
-        }
-        onDragStart(event);
-      }}
-      onKeyDown={onKeyDown}
-      className={cn(
-        "group/reorder relative z-20 col-start-1 row-start-2 flex size-4 cursor-grab items-center justify-center rounded text-muted-foreground/55 hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing",
-        !enabled && "cursor-not-allowed opacity-40",
-      )}
-    >
-      <span aria-hidden className="flex flex-col -space-y-1.5">
-        <Icon name="ChevronUp" className="size-2.5" />
-        <Icon name="ChevronDown" className="size-2.5" />
-      </span>
-      <span
-        role="tooltip"
-        className="pointer-events-none absolute bottom-full left-0 z-40 mb-1 w-52 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-left text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/reorder:translate-y-0 group-hover/reorder:opacity-100 group-focus/reorder:translate-y-0 group-focus/reorder:opacity-100"
-      >
-        {help}
-      </span>
-    </button>
   );
 }
 

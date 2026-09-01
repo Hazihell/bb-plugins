@@ -57,7 +57,9 @@ Round-trip, corruption, cap, stale-root, pinned-boundary, and reload tests.
 
 ## D-003: Isolate reorder drag from BB split drag
 
-Status: Accepted
+Status: Superseded
+
+Superseded by: D-007
 
 ### Evidence
 
@@ -125,8 +127,9 @@ Add a third status line; overlay badges; or use a fixed two-row CSS grid.
 
 ### Chosen approach
 
-Use two fixed-height grid rows, truncate title and branch first, and keep badge,
-PR, disclosure, provider, and reorder controls in one non-wrapping cluster.
+Use two fixed-height grid rows, truncate title and branch first, and keep PR,
+disclosure, provider, and one fixed-width final status badge in a non-wrapping
+cluster.
 
 ### Trade-offs and risks
 
@@ -169,3 +172,38 @@ the card adds no row or text and color remains backed by shape and tooltip.
 Table-test every activity indicator/color role, assert settings declarations and
 preview, assert semantic PR background CSS, and inspect live Working/ready PR
 examples.
+
+## D-007: Reuse the semantic status icon as the reorder target
+
+Status: Accepted
+
+Supersedes: D-003
+
+### Evidence
+
+Live review showed that the dedicated stacked-chevron reorder glyph creates a
+third visual column and makes otherwise compact rows noisy.
+
+### Options
+
+Keep the extra handle; make the whole card draggable and conflict with split
+drag; or reuse the already focusable semantic status icon.
+
+### Chosen approach
+
+Remove the dedicated reorder glyph. Make the semantic status icon the native
+drag and Alt+Arrow focus target, extending its tooltip with reorder help while
+leaving the card anchor's BB split-drag props unchanged. Give all family badges
+one fixed width and put the badge last in the row-two cluster so every status
+aligns at the same right edge.
+
+### Trade-offs and risks
+
+The status icon has two discoverable actions, mitigated by its hover/focus help,
+keyboard shortcut metadata, and unchanged status label/description.
+
+### Verification
+
+Source contracts assert no dedicated reorder glyph, status-icon drag/keyboard
+wiring, fixed badge width, and badge-last cluster ordering; live normal/narrow
+screenshots verify alignment.

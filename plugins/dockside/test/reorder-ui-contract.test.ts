@@ -14,6 +14,10 @@ const card = await readFile(
   new URL("../components/inbox/thread-card.tsx", import.meta.url),
   "utf8",
 );
+const familyStatus = await readFile(
+  new URL("../components/inbox/family-status.tsx", import.meta.url),
+  "utf8",
+);
 
 describe("family reorder UI contract", () => {
   it("applies persisted complete-family order before filter and search", () => {
@@ -36,8 +40,9 @@ describe("family reorder UI contract", () => {
     assert.match(group, /application\/x-dockside-family/);
     assert.match(group, /sourceProjectId: dragged\.projectId/);
     assert.match(group, /targetProjectId: group\.project\.id/);
-    assert.match(card, /draggable=\{enabled\}/);
-    assert.match(card, /aria-keyshortcuts="Alt\+ArrowUp Alt\+ArrowDown"/);
+    assert.match(card, /draggable=\{reorderEnabled\}/);
+    assert.match(familyStatus, /aria-keyshortcuts=/);
+    assert.doesNotMatch(card, /ReorderHandle|group\/reorder/);
     assert.match(inbox, /aria-live="polite"/);
     assert.match(inbox, /Thread families cannot move between projects/);
     assert.match(inbox, /Pinned and unpinned thread families cannot cross/);

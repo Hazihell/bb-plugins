@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/icon";
+import type { DragEventHandler, KeyboardEventHandler } from "react";
 import type { FamilyStatusPresentation } from "@/lib/family-status";
 import { cn } from "@/lib/utils";
 
@@ -9,17 +10,35 @@ export function familyStatusColor(status: FamilyStatusPresentation): string {
 export function FamilyStatusIcon({
   status,
   className,
+  draggable = false,
+  reorderHelp,
+  onDragStart,
+  onKeyDown,
 }: {
   status: FamilyStatusPresentation;
   className?: string;
+  draggable?: boolean;
+  reorderHelp?: string;
+  onDragStart?: DragEventHandler<HTMLSpanElement>;
+  onKeyDown?: KeyboardEventHandler<HTMLSpanElement>;
 }) {
+  const help = reorderHelp
+    ? `${status.label}: ${status.description} ${reorderHelp}`
+    : `${status.label}: ${status.description}`;
   return (
     <span
+      data-dockside-family-status-icon={status.kind}
+      data-dockside-status-color-role={status.colorRole}
       tabIndex={0}
-      aria-label={`${status.label}: ${status.description}`}
-      title={`${status.label}: ${status.description}`}
+      draggable={draggable}
+      aria-label={help}
+      aria-keyshortcuts={reorderHelp ? "Alt+ArrowUp Alt+ArrowDown" : undefined}
+      title={help}
+      onDragStart={onDragStart}
+      onKeyDown={onKeyDown}
       className={cn(
         "group/family-status relative z-10 inline-flex size-5 shrink-0 items-center justify-center rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        draggable && "cursor-grab active:cursor-grabbing",
         className,
       )}
       style={{ color: familyStatusColor(status) }}
@@ -41,6 +60,11 @@ export function FamilyStatusIcon({
         <span className="mt-0.5 block whitespace-normal text-muted-foreground">
           {status.description}
         </span>
+        {reorderHelp ? (
+          <span className="mt-1 block border-t border-border/70 pt-1 whitespace-normal text-muted-foreground">
+            {reorderHelp}
+          </span>
+        ) : null}
       </span>
     </span>
   );
@@ -57,7 +81,7 @@ export function FamilyStatusBadge({
     <span
       data-dockside-family-status={status.kind}
       className={cn(
-        "inline-flex h-4 shrink-0 items-center rounded px-1.5 text-[10px] font-semibold leading-none",
+        "inline-flex h-4 w-[5.5rem] shrink-0 items-center justify-center rounded px-1.5 text-[10px] font-semibold leading-none",
         status.receded ? "bg-muted/45" : "bg-current/10",
         preview && "h-5 px-2 text-2xs",
       )}

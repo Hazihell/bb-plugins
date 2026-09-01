@@ -16,7 +16,8 @@ describe("resolveDocksidePreferences", () => {
     assert.equal(loading.showProviderIcons, true);
     assert.equal(loading.showPullRequestMetadata, true);
     assert.equal(loading.showRelativeTime, true);
-    assert.match(loading.colors.working, /--success-foreground/);
+    assert.equal(loading.colors.working, "#34A853");
+    assert.equal(loading.colors.prReady, "#34A853");
 
     const malformed = resolveDocksidePreferences({
       palettePreset: "Unknown",

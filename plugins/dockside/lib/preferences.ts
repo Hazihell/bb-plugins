@@ -67,7 +67,7 @@ export const CUSTOM_COLOR_DEFAULTS = {
 } as const satisfies SemanticPalette;
 
 const DEFAULT_PALETTE = {
-  working: "var(--success-foreground, #22C55E)",
+  working: "#34A853",
   workflow: "#8B5CF6",
   agent: "#0891B2",
   command: "#EA6A20",
@@ -80,7 +80,7 @@ const DEFAULT_PALETTE = {
   stale: "color-mix(in srgb, var(--muted-foreground, #69717D) 50%, transparent)",
   prReview: "var(--primary, #3B82F6)",
   prChecks: "var(--warning-text, var(--warning, #F59E0B))",
-  prReady: "var(--success-foreground, #22C55E)",
+  prReady: "#34A853",
   prMerged: "var(--pr-merged, #A855F7)",
   prDraft: "var(--muted-foreground, #94A3B8)",
   prBlocked: "var(--destructive, #EF4444)",

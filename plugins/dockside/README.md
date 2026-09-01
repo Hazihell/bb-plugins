@@ -69,7 +69,7 @@ disable the plugin.
 ### Projects and parked shelves
 
 - **Projects** — bb's project order, with pinned roots first inside each project.
-  Drag the compact reorder handle, or focus it and press Alt+Up/Alt+Down, to move
+  Drag a family's semantic status icon, or focus it and press Alt+Up/Alt+Down, to move
   a complete root/child family inside its pinned or unpinned partition. The
   browser-local order survives reloads. Clear search, choose the All filter, and
   exit bulk selection before sorting so hidden rows are never moved implicitly.
@@ -116,7 +116,8 @@ still gives a focused child a direct route back up.
 - Collapsible project and agent groups.
 - Right-click for open in split, mark read/unread, pin, archive, delete.
 - Drag a card to a split pane, or Cmd/Ctrl-click to open one.
-- Reorder handles are separate from BB's card-to-split drag target.
+- Status-icon reordering is separate from BB's card-to-split drag target and
+  adds no extra row icon.
 - bb's search, its thread shortcuts, and modifier-click split-open all keep working.
 
 ## Switching from t3sidebar

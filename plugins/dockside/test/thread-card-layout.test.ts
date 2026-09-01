@@ -9,6 +9,10 @@ const threadCardSource = await readFile(
 const childRowStart = threadCardSource.indexOf("function ChildThreadRow");
 const rootSource = threadCardSource.slice(0, childRowStart);
 const childSource = threadCardSource.slice(childRowStart);
+const familyStatusSource = await readFile(
+  new URL("../components/inbox/family-status.tsx", import.meta.url),
+  "utf8",
+);
 
 describe("compact root card contract", () => {
   it("keeps zero-child and no-PR roots on the same two-row skeleton", () => {
@@ -68,8 +72,15 @@ describe("compact root card contract", () => {
   it("keeps semantic, disclosure, provider, and reorder help keyboard-readable", () => {
     assert.match(rootSource, /<FamilyStatusIcon/);
     assert.match(rootSource, /role="tooltip"/);
-    assert.match(rootSource, /aria-keyshortcuts="Alt\+ArrowUp Alt\+ArrowDown"/);
+    assert.match(rootSource, /reorderHelp=/);
+    assert.match(familyStatusSource, /aria-keyshortcuts=/);
     assert.match(rootSource, /application\/x-dockside-family|onReorderDragStart/);
     assert.match(rootSource, /interactive=\{false\}/);
+    assert.doesNotMatch(rootSource, /function ReorderHandle|group\/reorder/);
+    assert.match(familyStatusSource, /w-\[5\.5rem\]/);
+    const metadataStart = rootSource.indexOf("data-dockside-root-metadata");
+    const badgeStart = rootSource.indexOf("<FamilyStatusBadge", metadataStart);
+    const providerStart = rootSource.indexOf("<ProviderGlyph", metadataStart);
+    assert.ok(badgeStart > providerStart, "fixed-width status badge owns the right edge");
   });
 });

@@ -48,8 +48,9 @@ target IDs, and direction. It succeeds only for an exact same-project full list,
 known distinct IDs, and the same pinned partition. It returns a complete new
 permutation which ThreadInbox persists and reapplies before filtering/search.
 
-ProjectGroup exposes native drag events on each family wrapper and Alt+ArrowUp /
-Alt+ArrowDown on the root focus target. Reorder enablement is one boolean:
+ProjectGroup exposes native drop events on each family wrapper; the existing
+semantic status icon is the drag and Alt+ArrowUp/Alt+ArrowDown focus target, so
+no extra reorder glyph appears. Reorder enablement is one boolean:
 selection off, `all` filter, and blank host search. Disabled attempts do not
 write and expose a reason. A polite live region announces moves and boundaries.
 Children remain inside ThreadCard and therefore move atomically with the root.
@@ -65,8 +66,8 @@ reload, and normal/narrow live screenshots complete verification.
 
 ## Risks
 
-- Native drag can steal BB split-drag: initiate reorder only from an explicit
-  compact drag handle/control and leave the row anchor's split props unchanged.
+- Native drag can steal BB split-drag: initiate reorder only from the semantic
+  status icon and leave the row anchor's split props unchanged.
 - Stored order can become stale: merge stored ranks with canonical roots and
   rewrite only after an exact current-list operation.
 - Metadata can crowd narrow rows: the branch owns all remaining flexible width;
