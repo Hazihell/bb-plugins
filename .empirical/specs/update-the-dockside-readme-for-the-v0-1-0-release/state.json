@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 8,
   "activeFeature": "update-the-dockside-readme-for-the-v0-1-0-release",
   "request": "Update the Dockside README for the v0.1.0 release and add the final compact light, dark, and expanded-subagent screenshots under plugins/dockside/docs/media. Preserve all existing content and accurately describe the shipped semantic states, subagent provider marks, project/family sorting, and marketplace release.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Verified README facts, links, image paths/signatures/dimensions, preserved guide sections, public tag and pending marketplace state; 192 Dockside tests, typecheck, system, portability, and all workspace checks pass.",
+  "message": "Fresh-context review approved the exact committed README/media diff with all criteria passing and no security, correctness, accessibility, or maintainability blocker.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:7308aaf42fdbf0837e76852d6a732e739913a3be7f6b57157c23f026911f015f",
@@ -27,7 +27,8 @@
     "qa-ea87b6912c68f45ade492781",
     "qa-8149ecd1a5165a9590b0bedb",
     "collected-5785a334ec469335d4545cb4",
-    "qa-d50f77e95619e6481089f5e5"
+    "qa-d50f77e95619e6481089f5e5",
+    "collected-8bfc80707b6aec89ac966ce3"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -43,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T16:54:33.259Z"
+  "updatedAt": "2026-09-01T16:57:09.528Z"
 }
