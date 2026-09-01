@@ -93,29 +93,28 @@ accessible status summary while row-level status remains authoritative.
 
 ### Requirement: Rows show semantic pull-request context
 
-Dockside MUST show a semantic PR-state icon plus PR number on quiet roots and
-mounted children. State/title MUST remain accessible and available as a native
-tooltip, while visible state words and PR-title prose are omitted.
+Dockside MUST show `#number` followed by the semantic PR-state icon as the
+rightmost metadata on quiet PR rows. State/title remain accessible; visible
+state words and title prose remain omitted.
 
-#### Scenario: Child PR awaits review
+#### Scenario: PR is ready
 
-- **Given** an expanded quiet child has a review-requested PR
-- **When** its row renders
-- **Then** it shows the primary review icon and `#number`
-- **And** the accessible label names In review and the title
+- **Given** a quiet row has a ready-to-merge PR
+- **When** it renders
+- **Then** the row ends with `#<number>` followed by a success check icon
+- **And** the accessible label names Ready and the PR title
 
 ### Requirement: Completed rows show only real bounded outcomes
 
-Dockside MUST use verified output only to show an accessible success check on
-root rows. Child/sub-agent rows MUST NOT request or render Done completion
-metadata.
+Dockside MUST NOT show Done text or a completion/check icon on ordinary no-PR
+roots or children and MUST NOT fetch final output for sidebar completion.
 
-#### Scenario: Three children are complete
+#### Scenario: No-PR thread has final output
 
-- **Given** a root and three children are quiet with final output
-- **When** the family renders
-- **Then** the root may show one accessible completion check
-- **And** no child shows Done text, a completion icon, or output prose
+- **Given** an ordinary thread is quiet and has final assistant output
+- **When** Dockside renders it
+- **Then** no check or Done completion metadata appears
+- **And** the row retains status glyph, title, location, and age
 
 ### Requirement: Active child work has one family orchestration signal
 
