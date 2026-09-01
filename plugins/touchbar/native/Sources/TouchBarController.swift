@@ -10,6 +10,13 @@ extension NSTouchBarItem.Identifier {
     static let bbCarousel = NSTouchBarItem.Identifier("app.getbb.touchbar.carousel")
     static let bbPreviousProject = NSTouchBarItem.Identifier("app.getbb.touchbar.previous-project")
     static let bbNextProject = NSTouchBarItem.Identifier("app.getbb.touchbar.next-project")
+    static let bbUsage = NSTouchBarItem.Identifier("app.getbb.touchbar.usage")
+    static let bbHostMonitor = NSTouchBarItem.Identifier("app.getbb.touchbar.host-monitor")
+    static let bbUsageToggle = NSTouchBarItem.Identifier("app.getbb.touchbar.usage-toggle")
+    static let bbHostToggle = NSTouchBarItem.Identifier("app.getbb.touchbar.host-toggle")
+    static let bbCodexToggle = NSTouchBarItem.Identifier("app.getbb.touchbar.codex-toggle")
+    static let bbClaudeToggle = NSTouchBarItem.Identifier("app.getbb.touchbar.claude-toggle")
+    static let bbCursorToggle = NSTouchBarItem.Identifier("app.getbb.touchbar.cursor-toggle")
     static let bbClose = NSTouchBarItem.Identifier("app.getbb.touchbar.close")
 }
 
@@ -238,6 +245,72 @@ private final class ProjectGroupView: NSView {
     }
 }
 
+private final class HostMetricView: NSView {
+    private let nameLabel = NSTextField(labelWithString: "")
+    private let metricLabel = NSTextField(labelWithString: "")
+
+    init(entry: HostMetricEntry) {
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = 6
+        layer?.borderWidth = 1
+        layer?.borderColor = Self.color(for: entry).withAlphaComponent(0.8).cgColor
+        layer?.backgroundColor = NSColor(white: 0.045, alpha: 0.98).cgColor
+        nameLabel.stringValue = entry.name
+        nameLabel.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        nameLabel.textColor = .white
+        nameLabel.lineBreakMode = .byTruncatingTail
+        metricLabel.stringValue = Self.metrics(entry)
+        metricLabel.font = .monospacedDigitSystemFont(ofSize: 6.5, weight: .medium)
+        metricLabel.textColor = NSColor(white: 0.78, alpha: 1)
+        metricLabel.lineBreakMode = .byTruncatingTail
+        addSubview(nameLabel)
+        addSubview(metricLabel)
+        setAccessibilityLabel("\(entry.name), \(Self.metrics(entry))")
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: 220, height: 30) }
+
+    override func layout() {
+        super.layout()
+        nameLabel.frame = NSRect(x: 7, y: 16, width: bounds.width - 14, height: 10)
+        metricLabel.frame = NSRect(x: 7, y: 4, width: bounds.width - 14, height: 10)
+    }
+
+    private static func percent(_ value: Double?) -> String {
+        value.map { String(Int($0.rounded())) } ?? "—"
+    }
+
+    private static func rate(_ value: Double?) -> String {
+        guard var current = value else { return "—" }
+        let units = ["B", "K", "M", "G"]
+        var index = 0
+        while current >= 1_024, index < units.count - 1 {
+            current /= 1_024
+            index += 1
+        }
+        return current >= 10
+            ? "\(Int(current.rounded()))\(units[index])"
+            : String(format: "%.1f%@", current, units[index])
+    }
+
+    private static func metrics(_ entry: HostMetricEntry) -> String {
+        if entry.status != "connected" { return "OFFLINE" }
+        return "CPU \(percent(entry.cpuPercent))  RAM \(percent(entry.memoryPercent))  D \(percent(entry.diskPercent))  ↓\(rate(entry.receiveBytesPerSecond)) ↑\(rate(entry.sendBytesPerSecond))"
+    }
+
+    private static func color(for entry: HostMetricEntry) -> NSColor {
+        guard entry.status == "connected" else { return .systemRed }
+        let peak = [entry.cpuPercent, entry.memoryPercent, entry.diskPercent]
+            .compactMap { $0 }
+            .max() ?? 0
+        if peak >= 95 { return .systemRed }
+        if peak >= 85 { return .systemOrange }
+        return .systemGreen
+    }
+}
+
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
@@ -345,6 +418,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let carouselItem = NSCustomTouchBarItem(identifier: .bbCarousel)
     private let previousProjectItem = NSCustomTouchBarItem(identifier: .bbPreviousProject)
     private let nextProjectItem = NSCustomTouchBarItem(identifier: .bbNextProject)
+    private let usageItem = NSCustomTouchBarItem(identifier: .bbUsage)
+    private let hostMonitorItem = NSCustomTouchBarItem(identifier: .bbHostMonitor)
+    private let usageToggleItem = NSCustomTouchBarItem(identifier: .bbUsageToggle)
+    private let hostToggleItem = NSCustomTouchBarItem(identifier: .bbHostToggle)
+    private let codexToggleItem = NSCustomTouchBarItem(identifier: .bbCodexToggle)
+    private let claudeToggleItem = NSCustomTouchBarItem(identifier: .bbClaudeToggle)
+    private let cursorToggleItem = NSCustomTouchBarItem(identifier: .bbCursorToggle)
     private let closeItem = NSCustomTouchBarItem(identifier: .bbClose)
     private let settingsButton = NSButton(title: "", target: nil, action: nil)
     private let priorityButton = NSButton(title: "PRIORITY", target: nil, action: nil)
@@ -353,6 +433,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let carouselButton = NSButton(title: "CAROUSEL", target: nil, action: nil)
     private let previousProjectButton = NSButton(title: "‹", target: nil, action: nil)
     private let nextProjectButton = NSButton(title: "›", target: nil, action: nil)
+    private let usageButton = NSButton(title: "USAGE —", target: nil, action: nil)
+    private let hostMonitorButton = NSButton(title: "HOSTS —", target: nil, action: nil)
+    private let usageToggleButton = NSButton(title: "USAGE", target: nil, action: nil)
+    private let hostToggleButton = NSButton(title: "HOST", target: nil, action: nil)
+    private let codexToggleButton = NSButton(title: "CODEX", target: nil, action: nil)
+    private let claudeToggleButton = NSButton(title: "CLAUDE", target: nil, action: nil)
+    private let cursorToggleButton = NSButton(title: "CURSOR", target: nil, action: nil)
     private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var panelTouchBar: NSTouchBar?
     private var panelVisible = false
@@ -362,6 +449,18 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var tick = 0
     private var configurationVisible = false
+    private var hostViewVisible = false
+    private var showUsage = UserDefaults.standard.object(
+        forKey: "BBTouchBarShowUsage"
+    ) as? Bool ?? true
+    private var showHostMonitor = UserDefaults.standard.object(
+        forKey: "BBTouchBarShowHostMonitor"
+    ) as? Bool ?? true
+    private var usageProviderVisibility: [String: Bool] = [
+        "codex": UserDefaults.standard.object(forKey: "BBTouchBarUsageCodex") as? Bool ?? true,
+        "claudeCode": UserDefaults.standard.object(forKey: "BBTouchBarUsageClaude") as? Bool ?? true,
+        "cursor": UserDefaults.standard.object(forKey: "BBTouchBarUsageCursor") as? Bool ?? true,
+    ]
     private var selectedProject = UserDefaults.standard.string(
         forKey: "BBTouchBarSelectedProject"
     )
@@ -433,6 +532,28 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         nextProjectButton.target = self
         nextProjectButton.action = #selector(nextProjectTapped(_:))
         nextProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
+        usageButton.font = .monospacedDigitSystemFont(ofSize: 7.5, weight: .bold)
+        usageButton.setAccessibilityLabel("Agent subscription usage")
+        hostMonitorButton.target = self
+        hostMonitorButton.action = #selector(hostMonitorTapped(_:))
+        hostMonitorButton.font = .monospacedDigitSystemFont(ofSize: 7.5, weight: .bold)
+        hostMonitorButton.setAccessibilityLabel("Show Host Monitor metrics")
+        for button in [
+            usageToggleButton, hostToggleButton, codexToggleButton,
+            claudeToggleButton, cursorToggleButton,
+        ] {
+            button.font = .monospacedSystemFont(ofSize: 7, weight: .bold)
+        }
+        usageToggleButton.target = self
+        usageToggleButton.action = #selector(usageVisibilityTapped(_:))
+        hostToggleButton.target = self
+        hostToggleButton.action = #selector(hostVisibilityTapped(_:))
+        codexToggleButton.target = self
+        codexToggleButton.action = #selector(codexVisibilityTapped(_:))
+        claudeToggleButton.target = self
+        claudeToggleButton.action = #selector(claudeVisibilityTapped(_:))
+        cursorToggleButton.target = self
+        cursorToggleButton.action = #selector(cursorVisibilityTapped(_:))
         closeButton.target = self
         closeButton.action = #selector(closeTapped(_:))
         closeButton.bezelColor = NSColor(white: 0.18, alpha: 1)
@@ -445,6 +566,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         carouselItem.view = carouselButton
         previousProjectItem.view = previousProjectButton
         nextProjectItem.view = nextProjectButton
+        usageItem.view = usageButton
+        hostMonitorItem.view = hostMonitorButton
+        usageToggleItem.view = usageToggleButton
+        hostToggleItem.view = hostToggleButton
+        codexToggleItem.view = codexToggleButton
+        claudeToggleItem.view = claudeToggleButton
+        cursorToggleItem.view = cursorToggleButton
         closeItem.view = closeButton
         updateControlColors()
     }
@@ -465,6 +593,18 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         carouselButton.bezelColor = sortMode == .carousel
             ? .systemPurple
             : NSColor(white: 0.18, alpha: 1)
+        usageToggleButton.title = showUsage ? "USAGE ON" : "USAGE OFF"
+        usageToggleButton.bezelColor = showUsage ? .systemBlue : NSColor(white: 0.18, alpha: 1)
+        hostToggleButton.title = showHostMonitor ? "HOST ON" : "HOST OFF"
+        hostToggleButton.bezelColor = showHostMonitor ? .systemGreen : NSColor(white: 0.18, alpha: 1)
+        codexToggleButton.bezelColor = usageProviderVisibility["codex"] == true
+            ? .systemBlue : NSColor(white: 0.18, alpha: 1)
+        claudeToggleButton.bezelColor = usageProviderVisibility["claudeCode"] == true
+            ? .systemOrange : NSColor(white: 0.18, alpha: 1)
+        cursorToggleButton.bezelColor = usageProviderVisibility["cursor"] == true
+            ? .systemPurple : NSColor(white: 0.18, alpha: 1)
+        hostMonitorButton.bezelColor = hostViewVisible
+            ? .systemGreen : NSColor(white: 0.18, alpha: 1)
     }
 
     func uninstall() {
@@ -497,8 +637,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     private func apply(_ snapshot: AgentSnapshot) {
         renderStrip(snapshot)
+        updateAccessoryButtons(snapshot)
         if panelVisible {
-            if snapshot.connected,
+            if !hostViewVisible,
+               snapshot.connected,
                organized(snapshot.agents).map(\.id) == onScreenOrder,
                !snapshot.agents.isEmpty {
                 for entry in snapshot.agents { repaint(entry) }
@@ -507,6 +649,21 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             }
         }
         syncSpinner(snapshot)
+    }
+
+    private func updateAccessoryButtons(_ snapshot: AgentSnapshot) {
+        let abbreviations = ["codex": "CX", "claudeCode": "CL", "cursor": "CR"]
+        let labels = snapshot.usage.compactMap { entry -> String? in
+            guard usageProviderVisibility[entry.id] == true else { return nil }
+            let value = entry.usedPercent.map { "\(Int($0.rounded()))%" } ?? "—"
+            return "\(abbreviations[entry.id] ?? entry.name.prefix(2).uppercased()) \(value)"
+        }
+        usageButton.title = labels.isEmpty ? "USAGE —" : labels.joined(separator: "  ")
+        usageButton.setAccessibilityLabel("Subscription used: \(usageButton.title)")
+        let connected = snapshot.hosts.filter { $0.status == "connected" }.count
+        hostMonitorButton.title = snapshot.hosts.isEmpty
+            ? "HOSTS —"
+            : "HOSTS \(connected)/\(snapshot.hosts.count)"
     }
 
     private func syncSpinner(_ snapshot: AgentSnapshot) {
@@ -586,7 +743,14 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         }
         identifiers.append(.flexibleSpace)
         if configurationVisible {
-            identifiers.append(contentsOf: [.bbPriority, .bbProject, .bbDock, .bbCarousel])
+            identifiers.append(contentsOf: [
+                .bbPriority, .bbProject, .bbDock, .bbCarousel,
+                .bbUsageToggle, .bbCodexToggle, .bbClaudeToggle,
+                .bbCursorToggle, .bbHostToggle,
+            ])
+        } else {
+            if showUsage { identifiers.append(.bbUsage) }
+            if showHostMonitor { identifiers.append(.bbHostMonitor) }
         }
         identifiers.append(contentsOf: [.bbSettings, .bbClose])
         return identifiers
@@ -635,6 +799,46 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         selectSortMode(.carousel)
     }
 
+    @objc private func hostMonitorTapped(_ sender: NSButton) {
+        hostViewVisible.toggle()
+        updateControlColors()
+        schedulePanelRender()
+    }
+
+    @objc private func usageVisibilityTapped(_ sender: NSButton) {
+        showUsage.toggle()
+        UserDefaults.standard.set(showUsage, forKey: "BBTouchBarShowUsage")
+        updateControlColors()
+    }
+
+    @objc private func hostVisibilityTapped(_ sender: NSButton) {
+        showHostMonitor.toggle()
+        if !showHostMonitor { hostViewVisible = false }
+        UserDefaults.standard.set(showHostMonitor, forKey: "BBTouchBarShowHostMonitor")
+        updateControlColors()
+        schedulePanelRender()
+    }
+
+    @objc private func codexVisibilityTapped(_ sender: NSButton) {
+        toggleUsageProvider("codex", defaultsKey: "BBTouchBarUsageCodex")
+    }
+
+    @objc private func claudeVisibilityTapped(_ sender: NSButton) {
+        toggleUsageProvider("claudeCode", defaultsKey: "BBTouchBarUsageClaude")
+    }
+
+    @objc private func cursorVisibilityTapped(_ sender: NSButton) {
+        toggleUsageProvider("cursor", defaultsKey: "BBTouchBarUsageCursor")
+    }
+
+    private func toggleUsageProvider(_ id: String, defaultsKey: String) {
+        let next = usageProviderVisibility[id] != true
+        usageProviderVisibility[id] = next
+        UserDefaults.standard.set(next, forKey: defaultsKey)
+        updateControlColors()
+        updateAccessoryButtons(store.snapshot)
+    }
+
     @objc private func previousProjectTapped(_ sender: NSButton) {
         moveProject(by: -1)
     }
@@ -662,6 +866,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     private func selectSortMode(_ mode: SortMode) {
         sortMode = mode
+        hostViewVisible = false
         configurationVisible = false
         UserDefaults.standard.set(sortMode.rawValue, forKey: "BBTouchBarSortMode")
         updateControlColors()
@@ -695,6 +900,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         case .bbCarousel: return carouselItem
         case .bbPreviousProject: return previousProjectItem
         case .bbNextProject: return nextProjectItem
+        case .bbUsage: return usageItem
+        case .bbHostMonitor: return hostMonitorItem
+        case .bbUsageToggle: return usageToggleItem
+        case .bbHostToggle: return hostToggleItem
+        case .bbCodexToggle: return codexToggleItem
+        case .bbClaudeToggle: return claudeToggleItem
+        case .bbCursorToggle: return cursorToggleItem
         case .bbClose: return closeItem
         default: return nil
         }
@@ -704,6 +916,14 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         agentButtons.removeAll()
         let entries = organized(snapshot.agents)
         onScreenOrder = entries.map(\.id)
+
+        if hostViewVisible {
+            let views: [NSView] = snapshot.hosts.isEmpty
+                ? [message("Host metrics are loading…")]
+                : snapshot.hosts.map { HostMetricView(entry: $0) }
+            panelItem.view = scrollContainer(views)
+            return
+        }
 
         var views: [NSView] = []
         if entries.isEmpty {

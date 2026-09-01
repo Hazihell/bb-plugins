@@ -140,6 +140,37 @@ test("refresh fans out only to connected hosts and isolates one failure", async 
   assert.equal(fake.harness.inspection.realtimeSignals.at(-1)?.channel, "machines-changed");
 });
 
+test("CLI exposes the bounded cached dashboard used by Touch Bar", async (t) => {
+  const fake = createFakePluginHost({
+    pluginId: "host-monitor",
+    sdk: { hosts: { list: async () => [hostRecord("host-alpha", "Alpha")] } },
+    experimental_callHostRpc: () => snapshot({ cpuPercent: 31, memoryPercent: 62 }),
+  });
+  t.after(() => fake.harness.lifecycle.dispose());
+  await plugin(fake.bb);
+
+  const result = await fake.harness.behavior.runCli(["snapshot"]);
+  assert.equal(result.exitCode, 0);
+  const parsed = JSON.parse(result.stdout ?? "") as {
+    schemaVersion: number;
+    hosts: Array<Record<string, unknown>>;
+  };
+  assert.equal(parsed.schemaVersion, 1);
+  assert.deepEqual(parsed.hosts, [
+    {
+      id: "host-alpha",
+      name: "Alpha",
+      status: "connected",
+      sampleState: "fresh",
+      cpuPercent: 31,
+      memoryPercent: 62,
+      diskPercent: 45,
+      receiveBytesPerSecond: 8_192,
+      sendBytesPerSecond: 2_048,
+    },
+  ]);
+});
+
 test("a failed refresh preserves the last good reading", async (t) => {
   let shouldFail = false;
   const fake = createFakePluginHost({

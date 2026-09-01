@@ -11,6 +11,9 @@ Swift/AppKit background app owns the physical Touch Bar:
 - one outlined two-line card per thread with provider, project, status colour,
   badge and activity spinner;
 - tap a card to open that exact BB thread;
+- optional right-side Codex, Claude Code, and Cursor subscription percentages;
+- an optional Host Monitor button that swaps the thread lane for bounded
+  CPU, RAM, disk, download, and upload cards for every enrolled host;
 - tap ✕ to collapse to the ordinary Control Strip;
 - automatic restoration after login and wake.
 
@@ -67,6 +70,13 @@ The installer:
 7. launches the app and waits for its readiness file.
 
 The app has no Dock icon. Its BB badge appears in the Touch Bar's Control Strip.
+Install and enable the repository's `host-monitor` plugin to populate the host
+cards; subscription usage comes directly from BB's provider usage API.
+
+Open the slider button on the Touch Bar to toggle Usage and Host Monitor, choose
+Codex, Claude Code, and/or Cursor, and select the thread layout. These native
+preferences persist per macOS user. Tap the HOSTS button on the main bar to
+switch between threads and host metrics.
 
 ## Controls
 
@@ -96,7 +106,7 @@ bound to a physical tap.
 
 The snapshot contains only stable, bounded card fields: id, short title,
 lifecycle status, provider id, project label, update time, unread state and a
-small attention enum. It never exposes prompts, messages, tool output,
+small attention enum, plus compact provider usage percentages. It never exposes prompts, messages, tool output,
 credentials, or filesystem paths. Hidden worker threads are excluded by
 default.
 
