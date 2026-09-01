@@ -143,6 +143,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /min\(max\(38 .* 72\), 100\)/u);
   assert.match(controller, /action: #selector\(agentTapped/u);
   assert.match(controller, /CompactControlButton/u);
+  assert.match(controller, /sendAction\(on: \.leftMouseUp\)/u);
+  assert.match(controller, /bounds\.contains\(point\) \? self : nil/u);
+  assert.match(controller, /close control tapped/u);
   assert.match(controller, /projectInitials/u);
   assert.match(controller, /provider == "cursor" \|\| provider == "acp-cursor"/u);
   assert.match(controller, /\.done: 1, \.working: 2/u);

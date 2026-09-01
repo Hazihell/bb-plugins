@@ -20,10 +20,16 @@ private final class CompactControlButton: NSButton {
         self.target = target
         self.action = action
         font = .monospacedSystemFont(ofSize: title.count > 2 ? 7.5 : 13, weight: .bold)
+        refusesFirstResponder = true
+        sendAction(on: .leftMouseUp)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
     override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 30) }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
 }
 
 private enum StatusPalette {
@@ -455,7 +461,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         assertStripPresence()
     }
 
-    @objc private func closeTapped(_ sender: NSButton) { closePanel() }
+    @objc private func closeTapped(_ sender: NSButton) {
+        NativeLog.info("close control tapped")
+        closePanel()
+    }
 
     @objc private func settingsTapped(_ sender: NSButton) {
         configurationVisible.toggle()
