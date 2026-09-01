@@ -6,15 +6,19 @@ describe("pullRequestPresentation", () => {
   it("gives terminal states precedence over stale attention", () => {
     assert.deepEqual(
       pullRequestPresentation({ state: "merged", attention: "checks_failed" }),
-      { label: "MERGED", icon: "Check", tone: "merged" },
+      { label: "MERGED", icon: "GitMerge", tone: "merged" },
     );
     assert.deepEqual(
       pullRequestPresentation({ state: "closed", attention: "ready_to_merge" }),
-      { label: "CLOSED", icon: "CircleX", tone: "muted" },
+      {
+        label: "CLOSED",
+        icon: "GitPullRequestClosed",
+        tone: "closed",
+      },
     );
     assert.deepEqual(
       pullRequestPresentation({ state: "draft", attention: "none" }),
-      { label: "DRAFT", icon: "GitBranch", tone: "muted" },
+      { label: "DRAFT", icon: "GitPullRequestDraft", tone: "muted" },
     );
   });
 
@@ -24,10 +28,10 @@ describe("pullRequestPresentation", () => {
       ["blocked", "BLOCKED", "destructive", "CircleX"],
       ["checks_failed", "BLOCKED", "destructive", "CircleX"],
       ["conflicts", "BLOCKED", "destructive", "CircleX"],
-      ["checks_pending", "CHECKS", "primary", "Loading"],
+      ["checks_pending", "CHECKS", "warning", "Hourglass"],
       ["review_requested", "IN REVIEW", "primary", "Eye"],
       ["ready_to_merge", "READY", "success", "Check"],
-      ["none", "OPEN", "muted", "GitBranch"],
+      ["none", "OPEN", "muted", "GitPullRequest"],
     ] as const;
 
     for (const [attention, label, tone, icon] of cases) {

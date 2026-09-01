@@ -36,7 +36,7 @@ export function PullRequestMetadata({
         <span className="block font-semibold">
           {presentation.label} · #{pullRequest.number}
         </span>
-        <span className="mt-0.5 block max-w-52 truncate text-muted-foreground">
+        <span className="mt-0.5 block max-w-52 whitespace-normal break-words text-muted-foreground">
           {pullRequest.title}
         </span>
       </span>

@@ -107,6 +107,7 @@ export function StatusGlyph({
       return (
         <span
           aria-label={aria}
+          title={aria}
           className={cn("flex items-center justify-center", shared)}
         >
           <span className="size-2.5 rounded-full border-2 border-primary" />

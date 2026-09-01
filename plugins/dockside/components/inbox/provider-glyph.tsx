@@ -72,7 +72,12 @@ export function ProviderGlyph({
       WebkitMaskSize: "contain",
     };
     return (
-      <span role="img" aria-label={displayName} className={box}>
+      <span
+        role="img"
+        aria-label={displayName}
+        title={displayName}
+        className={box}
+      >
         <span className="size-3 bg-muted-foreground/70" style={mask} />
       </span>
     );
@@ -81,7 +86,7 @@ export function ProviderGlyph({
   const mark = providerMark(providerId);
   if (mark !== undefined) {
     return (
-      <span className={box}>
+      <span className={box} title={displayName}>
         <svg
           viewBox={mark.viewBox}
           fill="currentColor"
@@ -99,7 +104,12 @@ export function ProviderGlyph({
   }
 
   return (
-    <span role="img" aria-label={displayName} className={box}>
+    <span
+      role="img"
+      aria-label={displayName}
+      title={displayName}
+      className={box}
+    >
       <span className="size-2 rounded-full bg-muted-foreground/50" />
     </span>
   );

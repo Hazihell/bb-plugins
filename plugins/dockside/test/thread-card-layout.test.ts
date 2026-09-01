@@ -1,0 +1,63 @@
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { describe, it } from "node:test";
+
+const threadCardSource = await readFile(
+  new URL("../components/inbox/thread-card.tsx", import.meta.url),
+  "utf8",
+);
+const childRowStart = threadCardSource.indexOf("function ChildThreadRow");
+const rootSource = threadCardSource.slice(0, childRowStart);
+const childSource = threadCardSource.slice(childRowStart);
+
+describe("compact root card contract", () => {
+  it("keeps zero-child and no-PR roots on the same two-row skeleton", () => {
+    assert.match(rootSource, /data-dockside-root-title-row/);
+    assert.match(rootSource, /data-dockside-root-detail-row/);
+    assert.match(rootSource, /data-dockside-root-time/);
+    assert.match(rootSource, /data-dockside-root-metadata/);
+    assert.match(
+      rootSource,
+      /data-dockside-root-metadata=""[\s\S]*className="flex h-4 items-center justify-end gap-1"/,
+    );
+  });
+
+  it("co-locates root PR and multiple-child controls in row two", () => {
+    const metadataStart = rootSource.indexOf("data-dockside-root-metadata");
+    const pullRequestStart = rootSource.indexOf(
+      "<PullRequestMetadata pullRequest={pullRequest}",
+      metadataStart,
+    );
+    const disclosureStart = rootSource.indexOf(
+      'aria-label={`${expanded ? "Hide" : "Show"}',
+      metadataStart,
+    );
+
+    assert.ok(metadataStart >= 0);
+    assert.ok(pullRequestStart > metadataStart);
+    assert.ok(disclosureStart > pullRequestStart);
+  });
+
+  it("looks up PR data only for the parent and never on child rows", () => {
+    assert.equal(
+      threadCardSource.match(/useSidebarThreadPullRequest\(thread\.id\)/g)
+        ?.length,
+      1,
+    );
+    assert.doesNotMatch(childSource, /useSidebarThreadPullRequest/);
+    assert.doesNotMatch(childSource, /PullRequestMetadata/);
+  });
+
+  it("truncates long title and branch text without shrinking metadata", () => {
+    assert.match(
+      rootSource,
+      /min-w-0 flex-1 truncate text-sm/,
+    );
+    assert.match(threadCardSource, /className="truncate font-mono"/);
+    assert.match(threadCardSource, /\{branch\}/);
+    assert.match(
+      rootSource,
+      /relative z-10 flex shrink-0 flex-col items-end gap-0\.5/,
+    );
+  });
+});

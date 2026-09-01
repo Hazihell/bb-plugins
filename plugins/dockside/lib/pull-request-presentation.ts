@@ -3,7 +3,15 @@ import type { SemanticStateTone } from "./attention-state.ts";
 
 export interface PullRequestPresentation {
   label: string;
-  icon: "Check" | "CircleX" | "Eye" | "GitBranch" | "Loading";
+  icon:
+    | "Check"
+    | "CircleX"
+    | "Eye"
+    | "GitMerge"
+    | "GitPullRequest"
+    | "GitPullRequestClosed"
+    | "GitPullRequestDraft"
+    | "Hourglass";
   tone: SemanticStateTone;
 }
 
@@ -18,19 +26,23 @@ export function pullRequestPresentation(
     pullRequest.state === "merged" ||
     pullRequest.attention === "merged"
   ) {
-    return { label: "MERGED", icon: "Check", tone: "merged" };
+    return { label: "MERGED", icon: "GitMerge", tone: "merged" };
   }
   if (
     pullRequest.state === "closed" ||
     pullRequest.attention === "closed"
   ) {
-    return { label: "CLOSED", icon: "CircleX", tone: "muted" };
+    return {
+      label: "CLOSED",
+      icon: "GitPullRequestClosed",
+      tone: "closed",
+    };
   }
   if (
     pullRequest.state === "draft" ||
     pullRequest.attention === "draft"
   ) {
-    return { label: "DRAFT", icon: "GitBranch", tone: "muted" };
+    return { label: "DRAFT", icon: "GitPullRequestDraft", tone: "muted" };
   }
 
   switch (pullRequest.attention) {
@@ -41,12 +53,12 @@ export function pullRequestPresentation(
     case "conflicts":
       return { label: "BLOCKED", icon: "CircleX", tone: "destructive" };
     case "checks_pending":
-      return { label: "CHECKS", icon: "Loading", tone: "primary" };
+      return { label: "CHECKS", icon: "Hourglass", tone: "warning" };
     case "review_requested":
       return { label: "IN REVIEW", icon: "Eye", tone: "primary" };
     case "ready_to_merge":
       return { label: "READY", icon: "Check", tone: "success" };
     default:
-      return { label: "OPEN", icon: "GitBranch", tone: "muted" };
+      return { label: "OPEN", icon: "GitPullRequest", tone: "muted" };
   }
 }

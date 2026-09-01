@@ -18,11 +18,7 @@ import {
   PullRequestMetadata,
   WaitingForAgentsMetadata,
 } from "@/components/inbox/row-metadata";
-import {
-  childSecondaryState,
-  familyWaitingForAgents,
-  rootSecondaryState,
-} from "@/lib/attention-state";
+import { familyWaitingForAgents } from "@/lib/attention-state";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
 import { relativeTimeLabel } from "@/lib/relative-time";
@@ -93,10 +89,6 @@ export function ThreadCard({
     () => [...new Set(childThreads.map((child) => child.providerId))].slice(0, 2),
     [childThreads],
   );
-  const secondaryState = rootSecondaryState({
-    waitingForAgents,
-    hasPullRequest: pullRequest !== null,
-  });
   const rootIsActive = thread.id === activeThreadId;
 
   return (
@@ -113,6 +105,7 @@ export function ThreadCard({
           )}
         >
           <div
+            data-dockside-root-card=""
             className={cn(
               "group/root relative flex min-h-12 items-start gap-2 rounded-lg px-2 py-1.5",
               rootIsActive
@@ -168,8 +161,12 @@ export function ThreadCard({
             <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
 
             <div className="pointer-events-none relative min-w-0 flex-1">
-              <div className="flex min-w-0 items-center gap-1.5">
+              <div
+                data-dockside-root-title-row=""
+                className="flex h-4 min-w-0 items-center gap-1.5"
+              >
                 <span
+                  title={threadDisplayTitle(thread)}
                   className={cn(
                     "min-w-0 flex-1 truncate text-sm",
                     thread.isUnread ? "font-semibold" : "font-medium",
@@ -188,13 +185,12 @@ export function ThreadCard({
                   />
                 ) : null}
               </div>
-              <div className="mt-0.5 flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground">
+              <div
+                data-dockside-root-detail-row=""
+                className="mt-0.5 flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground"
+              >
                 <ThreadLocation thread={thread} />
-                {secondaryState === "agents-working" ? (
-                  <WaitingForAgentsMetadata />
-                ) : secondaryState === "pull-request" && pullRequest ? (
-                  <PullRequestMetadata pullRequest={pullRequest} />
-                ) : null}
+                {waitingForAgents ? <WaitingForAgentsMetadata /> : null}
                 {thread.activity.workflows > 0 ? (
                   <ActivityCount
                     label="workflows"
@@ -210,8 +206,9 @@ export function ThreadCard({
               </div>
             </div>
 
-            <div className="relative z-10 flex w-16 shrink-0 flex-col items-end gap-1">
+            <div className="relative z-10 flex shrink-0 flex-col items-end gap-0.5">
               <span
+                data-dockside-root-time=""
                 className={cn(
                   "flex h-4 items-center justify-end",
                   canPark && !selectionMode && "group-hover/root:hidden",
@@ -238,44 +235,59 @@ export function ThreadCard({
                   />
                 </span>
               ) : null}
-              {childThreads.length > 0 ? (
-                <button
-                  type="button"
-                  aria-label={`${expanded ? "Hide" : "Show"} ${childThreads.length} child threads`}
-                  aria-expanded={expanded}
-                  aria-controls={childListId}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    setExpandedOverride(!expanded);
-                  }}
-                  className={cn(
-                    "flex h-5 items-center gap-1 rounded px-1 text-2xs font-medium text-muted-foreground",
-                    "hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-                    childNeedsAttention && "text-primary",
-                  )}
-                >
-                  <Icon
-                    name="ChevronDown"
+              <div
+                data-dockside-root-metadata=""
+                className="flex h-4 items-center justify-end gap-1"
+              >
+                {pullRequest ? (
+                  <PullRequestMetadata pullRequest={pullRequest} />
+                ) : null}
+                {childThreads.length > 0 ? (
+                  <button
+                    type="button"
+                    aria-label={`${expanded ? "Hide" : "Show"} ${childThreads.length} child threads`}
+                    aria-expanded={expanded}
+                    aria-controls={childListId}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setExpandedOverride(!expanded);
+                    }}
                     className={cn(
-                      "size-3 transition-transform",
-                      expanded && "rotate-180",
+                      "group/children relative flex h-4 items-center gap-0.5 rounded px-0.5 text-2xs font-medium text-muted-foreground",
+                      "hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+                      childNeedsAttention && "text-primary",
                     )}
-                    aria-hidden
-                  />
-                  <span className="tabular-nums">{childThreads.length}</span>
-                  <span className="flex items-center -space-x-0.5">
-                    {childProviderIds.map((providerId) => (
-                      <ProviderGlyph
-                        key={providerId}
-                        providerId={providerId}
-                        provider={providerInfoById.get(providerId)}
-                        className="size-3 opacity-80"
-                      />
-                    ))}
-                  </span>
-                </button>
-              ) : null}
+                  >
+                    <Icon
+                      name="ChevronDown"
+                      className={cn(
+                        "size-3 transition-transform",
+                        expanded && "rotate-180",
+                      )}
+                      aria-hidden
+                    />
+                    <span className="tabular-nums">{childThreads.length}</span>
+                    <span className="flex items-center -space-x-0.5">
+                      {childProviderIds.map((providerId) => (
+                        <ProviderGlyph
+                          key={providerId}
+                          providerId={providerId}
+                          provider={providerInfoById.get(providerId)}
+                          className="size-3 opacity-80"
+                        />
+                      ))}
+                    </span>
+                    <span
+                      role="tooltip"
+                      className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/children:translate-y-0 group-hover/children:opacity-100 group-focus-visible/children:translate-y-0 group-focus-visible/children:opacity-100"
+                    >
+                      {expanded ? "Hide" : "Show"} {childThreads.length} child
+                      {childThreads.length === 1 ? " thread" : " threads"}
+                    </span>
+                  </button>
+                ) : null}
+              </div>
             </div>
           </div>
 
@@ -323,14 +335,8 @@ function ChildThreadRow({
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
-  const { isLoading: isPullRequestLoading, pullRequest } =
-    useSidebarThreadPullRequest(thread.id);
   const status = threadStatus(thread);
   const isWorking = threadIsWorking(thread);
-  const secondaryState = childSecondaryState({
-    hasStatus: status !== null,
-    hasPullRequest: pullRequest !== null,
-  });
 
   return (
     <RowContextMenu thread={thread}>
@@ -378,6 +384,7 @@ function ChildThreadRow({
           <div className="pointer-events-none relative min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-1.5">
               <span
+                title={threadDisplayTitle(thread)}
                 className={cn(
                   "min-w-0 flex-1 truncate text-xs",
                   thread.isUnread
@@ -393,11 +400,6 @@ function ChildThreadRow({
             </div>
             <div className="mt-0.5 flex h-3.5 min-w-0 items-center gap-1.5 text-2xs">
               <ThreadLocation thread={thread} />
-              {secondaryState === "pull-request" &&
-              !isPullRequestLoading &&
-              pullRequest ? (
-                <PullRequestMetadata pullRequest={pullRequest} />
-              ) : null}
             </div>
           </div>
         </div>
@@ -418,6 +420,7 @@ function ThreadStateGlyph({
     return (
       <span
         aria-hidden
+        title="Idle"
         className={cn(
           "flex size-3.5 shrink-0 items-center justify-center",
           className,
@@ -428,11 +431,15 @@ function ThreadStateGlyph({
     );
   }
   return (
-    <StatusGlyph
-      indicator={status.indicator}
-      label={thread.indicatorLabel ?? status.label}
-      className={className}
-    />
+    <span
+      title={thread.indicatorLabel ?? status.label}
+      className={cn("flex size-3.5 shrink-0", className)}
+    >
+      <StatusGlyph
+        indicator={status.indicator}
+        label={thread.indicatorLabel ?? status.label}
+      />
+    </span>
   );
 }
 
@@ -454,7 +461,10 @@ function ThreadLocation({ thread }: { thread: PluginSidebarThread }) {
   const branch = thread.environment?.branchName;
   if (branch) {
     return (
-      <span className="flex min-w-0 flex-1 items-center gap-1 truncate text-muted-foreground">
+      <span
+        title={`Branch: ${branch}`}
+        className="flex min-w-0 flex-1 items-center gap-1 truncate text-muted-foreground"
+      >
         <Icon
           name="GitBranch"
           aria-label="Branch"
@@ -466,7 +476,10 @@ function ThreadLocation({ thread }: { thread: PluginSidebarThread }) {
   }
   if (thread.host) {
     return (
-      <span className="min-w-0 flex-1 truncate text-muted-foreground">
+      <span
+        title={`Host: ${thread.host.name}`}
+        className="min-w-0 flex-1 truncate text-muted-foreground"
+      >
         {thread.host.name}
       </span>
     );
@@ -487,6 +500,7 @@ function ParkButton({
     <button
       type="button"
       aria-label={label}
+      title={label}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -503,6 +517,7 @@ function ActivityCount({ label, count }: { label: string; count: number }) {
   return (
     <span
       aria-label={`${count} ${label}`}
+      title={`${count} ${label}`}
       className="shrink-0 rounded bg-muted px-1 font-mono text-2xs text-muted-foreground"
     >
       {count}

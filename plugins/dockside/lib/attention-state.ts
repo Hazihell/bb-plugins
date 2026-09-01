@@ -1,30 +1,14 @@
 import type { PluginSidebarThread } from "@bb/plugin-sdk";
 import { threadIsWorking } from "./inbox.ts";
 
-export type RowSecondaryState =
-  | "agents-working"
-  | "pull-request"
-  | "status"
-  | null;
-
 export type SemanticStateTone =
+  | "closed"
   | "destructive"
   | "merged"
   | "muted"
   | "primary"
-  | "success";
-
-export function rootSecondaryState({
-  waitingForAgents,
-  hasPullRequest,
-}: {
-  waitingForAgents: boolean;
-  hasPullRequest: boolean;
-}): RowSecondaryState {
-  if (waitingForAgents) return "agents-working";
-  if (hasPullRequest) return "pull-request";
-  return null;
-}
+  | "success"
+  | "warning";
 
 export function familyWaitingForAgents(
   children: readonly PluginSidebarThread[],
@@ -32,20 +16,10 @@ export function familyWaitingForAgents(
   return children.some(threadIsWorking);
 }
 
-export function childSecondaryState({
-  hasStatus,
-  hasPullRequest,
-}: {
-  hasStatus: boolean;
-  hasPullRequest: boolean;
-}): RowSecondaryState {
-  if (hasStatus) return "status";
-  if (hasPullRequest) return "pull-request";
-  return null;
-}
-
 export function semanticStateToneClass(tone: SemanticStateTone): string {
   switch (tone) {
+    case "closed":
+      return "bg-muted/60 text-muted-foreground/60";
     case "destructive":
       return "bg-destructive/10 text-destructive";
     case "merged":
@@ -54,6 +28,8 @@ export function semanticStateToneClass(tone: SemanticStateTone): string {
       return "bg-primary/10 text-primary";
     case "success":
       return "bg-primary/10 text-success-foreground";
+    case "warning":
+      return "bg-primary/10 text-[color:var(--warning-text,var(--warning))]";
     case "muted":
       return "bg-muted text-muted-foreground";
   }

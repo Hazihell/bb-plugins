@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 6,
+  "previousDigest": "sha256:f28dbbd872d1edecc71a688a0c13d398f719ccc11811207a3b44f528fef1d76c",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Refreshed Empirical repository context and confirmed all five context pages exist with no stale, invalid, missing, or refinement-required paths.",
+  "createdAt": "2026-09-01T02:28:30.176Z",
+  "stateBeforeDigest": "sha256:6870d2b8c3693be0c262741f16a39cebbfdbca0a027bf3c5b9703b2eb6afeba0",
+  "stateAfterDigest": "sha256:6eee20873eed2297d524d7b65b765cca20398294dd9f9d58a43b8fd0a3bc2818",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 6,
+    "activeFeature": "dockside-root-only-pr-position",
+    "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Refreshed Empirical repository context and confirmed all five context pages exist with no stale, invalid, missing, or refinement-required paths.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:eaa2b90096519f661a77da07b1e8d669e55bfbc6074a97798bfc6dee823f7f69",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-root-only-pr-position-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T02:28:30.176Z"
+  },
+  "digest": "sha256:fdd0b3463b0eddac626ff81b949b418c3cce08d0739fc0cab6f8003a81641422"
+}

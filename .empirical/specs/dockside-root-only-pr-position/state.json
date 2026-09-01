@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 5,
+  "revision": 7,
+  "activeFeature": "dockside-root-only-pr-position",
+  "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
+  "profile": "complex",
+  "workflow": "complex",
+  "mode": "normal",
+  "phase": "review",
+  "status": "waiting",
+  "repairAttempts": 0,
+  "message": "Verified all Dockside root-only compact-card criteria with focused tests, typecheck, isolated portability/package/clean/cross-platform checks, live system QA, normal/narrow CDP geometry and screenshots, keyboard-focus PR tooltip evidence, fresh-context outcome QA, and a non-blocking security advisory.",
+  "implementationActor": "agent",
+  "workStartedAt": null,
+  "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
+  "approvedSpecRevision": 2,
+  "capabilityArchiveRequired": true,
+  "capabilityDeltaDigest": "sha256:eaa2b90096519f661a77da07b1e8d669e55bfbc6074a97798bfc6dee823f7f69",
+  "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+  "capabilityClaimId": "dockside-root-only-pr-position-b40841a02be2",
+  "authorizationDigest": null,
+  "evidence": [],
+  "evidenceReceiptIds": [
+    "collected-e874bbb16fc530b2cf782735",
+    "qa-f595f5b8bb1055a2f56c0ab7",
+    "qa-4ee8a18f4a095950e8b19c9c",
+    "qa-1a2de44af1d8838a023953fe",
+    "qa-692725d5d991003460556e60",
+    "qa-b6e38f4013f8f33fd7f66caf",
+    "qa-2bad079456b4e82c7898634f",
+    "qa-4b033b239dffeb7e556dd573",
+    "qa-e909b8016166d9ce828754ff",
+    "qa-41544736bdc622739a0e895b"
+  ],
+  "legacyEvidenceCount": 0,
+  "completion": {
+    "implemented": true,
+    "verified": true,
+    "integrated": false,
+    "delivered": false,
+    "published": false,
+    "highest": "verified",
+    "reasons": {
+      "integrated": "integrated has not been proven by a durable receipt.",
+      "delivered": "delivered has not been proven by a durable receipt.",
+      "published": "published has not been proven by a durable receipt."
+    }
+  },
+  "updatedAt": "2026-09-01T02:31:17.101Z"
+}

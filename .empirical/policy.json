@@ -53,10 +53,10 @@
       },
       {
         "id": "dockside-system",
-      "argv": [
-        "node",
-        ".empirical/specs/dockside-pr-icon-tooltips/qa/system.mjs"
-      ],
+        "argv": [
+          "node",
+          ".empirical/specs/dockside-root-only-pr-position/qa/system.mjs"
+        ],
         "cwd": ".",
         "timeoutMs": 60000,
         "maxOutputBytes": 262144,
