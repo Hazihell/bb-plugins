@@ -29,8 +29,14 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     }
 
     func showMenu() {
+        rebuildMenu()
         NSApp.activate(ignoringOtherApps: true)
-        statusItem.button?.performClick(nil)
+        guard let button = statusItem.button else { return }
+        menu.popUp(
+            positioning: nil,
+            at: NSPoint(x: button.bounds.midX, y: button.bounds.minY),
+            in: button
+        )
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {

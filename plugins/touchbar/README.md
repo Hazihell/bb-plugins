@@ -100,10 +100,14 @@ cards; subscription usage comes directly from BB's provider usage API.
 
 Use the BB Touch Bar menu-bar icon for grouped LAYOUT FILTER, SUBSCRIPTIONS,
 and HOST MONITOR settings. The slider button on the Touch Bar opens that same
-menu without replacing the live Touch Bar view. Toggle Usage and Host Monitor,
+menu after safely collapsing the system-modal panel. Toggle Usage and Host Monitor,
 choose Codex, Claude Code, and/or Cursor, and select the thread layout. These
 native preferences persist per macOS user. Tap the computer icon on the main
 bar to switch between threads and host metrics.
+
+The fixed ‹ and › controls page the horizontally scrollable card lane in every
+normal layout. In Carousel mode, those same controls switch projects. Trackpad
+or finger horizontal scrolling remains enabled as a secondary gesture.
 
 ## Controls
 

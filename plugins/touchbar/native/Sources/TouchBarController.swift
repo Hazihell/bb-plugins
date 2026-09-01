@@ -550,6 +550,32 @@ private final class SettingsGroupView: NSView {
     }
 }
 
+private final class TouchBarScrollView: NSScrollView {
+    func scrollPage(_ direction: Int) {
+        let distance = max(contentView.bounds.width * 0.72, 140)
+        scrollHorizontally(by: CGFloat(direction) * distance)
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        let horizontal = abs(event.scrollingDeltaX) >= abs(event.scrollingDeltaY)
+            ? event.scrollingDeltaX
+            : event.scrollingDeltaY
+        guard horizontal != 0 else {
+            super.scrollWheel(with: event)
+            return
+        }
+        scrollHorizontally(by: -horizontal * 2)
+    }
+
+    private func scrollHorizontally(by delta: CGFloat) {
+        guard let documentView else { return }
+        let maximum = max(0, documentView.bounds.width - contentView.bounds.width)
+        let target = min(max(0, contentView.bounds.origin.x + delta), maximum)
+        contentView.scroll(to: NSPoint(x: target, y: 0))
+        reflectScrolledClipView(contentView)
+    }
+}
+
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
@@ -689,6 +715,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let cursorToggleButton = SettingsControlButton(title: "", width: 25)
     private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var panelTouchBar: NSTouchBar?
+    private weak var panelScrollView: TouchBarScrollView?
     private var panelVisible = false
     private var agentButtons: [String: AgentButton] = [:]
     private var onScreenOrder: [String] = []
@@ -887,6 +914,12 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func updateControlColors() {
+        previousProjectButton.setAccessibilityLabel(
+            sortMode == .carousel ? "Previous project" : "Scroll left"
+        )
+        nextProjectButton.setAccessibilityLabel(
+            sortMode == .carousel ? "Next project" : "Scroll right"
+        )
         settingsButton.bezelColor = configurationVisible
             ? .systemIndigo
             : NSColor(white: 0.18, alpha: 1)
@@ -1041,14 +1074,9 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
-        var identifiers: [NSTouchBarItem.Identifier] = []
-        if !configurationVisible && sortMode == .carousel {
-            identifiers.append(.bbPreviousProject)
-        }
-        identifiers.append(contentsOf: [.bbList])
-        if !configurationVisible && sortMode == .carousel {
-            identifiers.append(.bbNextProject)
-        }
+        var identifiers: [NSTouchBarItem.Identifier] = [
+            .bbPreviousProject, .bbList, .bbNextProject,
+        ]
         identifiers.append(.flexibleSpace)
         if !configurationVisible {
             if showUsage { identifiers.append(.bbUsage) }
@@ -1079,7 +1107,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func settingsTapped(_ sender: NSButton) {
-        onSettingsRequested?()
+        closePanel()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            self?.onSettingsRequested?()
+        }
         NativeLog.info("menu bar settings requested")
     }
 
@@ -1131,11 +1162,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func previousProjectTapped(_ sender: NSButton) {
-        moveProject(by: -1)
+        if sortMode == .carousel { moveProject(by: -1) }
+        else { panelScrollView?.scrollPage(-1) }
     }
 
     @objc private func nextProjectTapped(_ sender: NSButton) {
-        moveProject(by: 1)
+        if sortMode == .carousel { moveProject(by: 1) }
+        else { panelScrollView?.scrollPage(1) }
     }
 
     @objc private func projectDockTapped(_ sender: NSButton) {
@@ -1409,7 +1442,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             height: Self.barHeight
         )
 
-        let scroll = NSScrollView(frame: NSRect(
+        let scroll = TouchBarScrollView(frame: NSRect(
             x: 0,
             y: 0,
             width: visible,
@@ -1421,6 +1454,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         scroll.horizontalScrollElasticity = .allowed
         scroll.verticalScrollElasticity = .none
         scroll.documentView = stack
+        panelScrollView = scroll
         return scroll
     }
 }

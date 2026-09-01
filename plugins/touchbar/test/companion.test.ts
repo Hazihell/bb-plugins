@@ -212,6 +212,12 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /private final class UsageIconStripView/u);
   assert.match(controller, /private final class SettingsControlButton/u);
   assert.match(controller, /private final class SettingsGroupView/u);
+  assert.match(controller, /private final class TouchBarScrollView/u);
+  assert.match(controller, /func scrollPage/u);
+  assert.match(controller, /override func scrollWheel/u);
+  assert.match(controller, /panelScrollView\?\.scrollPage\(-1\)/u);
+  assert.match(controller, /panelScrollView\?\.scrollPage\(1\)/u);
+  assert.match(controller, /\.bbPreviousProject, \.bbList, \.bbNextProject/u);
   assert.match(controller, /title: "FILTERS"/u);
   assert.match(controller, /title: "SUBSCRIPTIONS"/u);
   assert.match(controller, /title: "HOST MONITOR"/u);
@@ -252,6 +258,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(menuBar, /Show usage rings/u);
   assert.match(menuBar, /Show host button/u);
   assert.match(menuBar, /Quit BB Touch Bar/u);
+  assert.match(menuBar, /menu\.popUp/u);
+  assert.doesNotMatch(menuBar, /performClick/u);
+  assert.match(controller, /closePanel\(\)\s*DispatchQueue\.main\.asyncAfter/su);
   assert.match(main, /applicationWillTerminate/u);
   assert.match(build, /DFRFoundation/u);
   assert.match(build, /codesign --force --sign -/u);
