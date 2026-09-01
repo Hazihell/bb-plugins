@@ -55,7 +55,7 @@
         "id": "dockside-system",
         "argv": [
           "node",
-          ".empirical/specs/dockside-expand-child-agent-families/qa/system.mjs"
+          ".empirical/specs/dockside-rich-pr-agent-metadata/qa/system.mjs"
         ],
         "cwd": ".",
         "timeoutMs": 60000,
@@ -67,6 +67,26 @@
         ],
         "checks": [
           "end-to-end"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-portability",
+        "argv": [
+          "node",
+          ".empirical/specs/dockside-rich-pr-agent-metadata/qa/portability.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 600000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "integration",
+          "package-consumer",
+          "clean-clone",
+          "cross-platform"
         ],
         "criteria": []
       },

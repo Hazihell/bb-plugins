@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import {
   experimental_useSidebarThreadPullRequest as useSidebarThreadPullRequest,
   experimental_useSidebarThreadSplit as useSidebarThreadSplit,
@@ -14,8 +14,15 @@ import {
 } from "@/components/inbox/provider-glyph";
 import { StatusGlyph } from "@/components/inbox/status-glyph";
 import { threadStatus } from "@/components/inbox/status-slot";
+import {
+  DoneMetadata,
+  PullRequestMetadata,
+  WaitingForAgentsMetadata,
+} from "@/components/inbox/row-metadata";
+import { useThreadSummaries } from "@/hooks/use-thread-summaries";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
+import { familyWaitingForAgents } from "@/lib/thread-summary";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
@@ -59,7 +66,8 @@ export function ThreadCard({
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
-  const { pullRequest } = useSidebarThreadPullRequest(thread.id);
+  const { isLoading: isPullRequestLoading, pullRequest } =
+    useSidebarThreadPullRequest(thread.id);
   const childListId = useId();
   const [expandedOverride, setExpandedOverride] = useState<boolean | null>(
     null,
@@ -79,6 +87,12 @@ export function ThreadCard({
     forceExpanded,
     override: expandedOverride,
   });
+  const waitingForAgents = familyWaitingForAgents(childThreads);
+  const summaryThreads = useMemo(
+    () => (expanded ? [thread, ...childThreads] : [thread]),
+    [childThreads, expanded, thread],
+  );
+  const summaries = useThreadSummaries(summaryThreads);
   const rootIsActive = thread.id === activeThreadId;
 
   return (
@@ -184,29 +198,13 @@ export function ThreadCard({
                     count={thread.activity.backgroundAgents}
                   />
                 ) : null}
-                {pullRequest ? (
-                  <a
-                    href={pullRequest.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={(event) => event.stopPropagation()}
-                    title={pullRequest.title}
-                    className={cn(
-                      "pointer-events-auto relative shrink-0 font-mono hover:underline",
-                      pullRequest.state === "merged"
-                        ? "text-[color:var(--pr-merged)]"
-                        : pullRequest.attention === "checks_failed" ||
-                            pullRequest.attention === "conflicts"
-                          ? "text-destructive"
-                          : pullRequest.attention === "ready_to_merge"
-                            ? "text-success-foreground"
-                            : "text-muted-foreground",
-                    )}
-                  >
-                    #{pullRequest.number}
-                  </a>
-                ) : null}
               </div>
+              {waitingForAgents ? <WaitingForAgentsMetadata /> : null}
+              {pullRequest ? (
+                <PullRequestMetadata pullRequest={pullRequest} />
+              ) : !isPullRequestLoading && summaries.has(thread.id) ? (
+                <DoneMetadata summary={summaries.get(thread.id) ?? ""} />
+              ) : null}
             </div>
 
             <div className="relative z-10 flex w-16 shrink-0 flex-col items-end gap-1">
@@ -272,7 +270,12 @@ export function ThreadCard({
             <ul
               id={childListId}
               aria-label={`Agents for ${threadDisplayTitle(thread)}`}
-              className="ml-[14px] border-l border-sidebar-border pb-0.5 pl-3"
+              className={cn(
+                "ml-[14px] border-l pb-0.5 pl-3 transition-colors",
+                waitingForAgents
+                  ? "border-primary/60"
+                  : "border-sidebar-border",
+              )}
             >
               {childThreads.map((child) => (
                 <ChildThreadRow
@@ -282,6 +285,7 @@ export function ThreadCard({
                   isActive={child.id === activeThreadId}
                   onNavigate={onNavigate}
                   now={now}
+                  summary={summaries.get(child.id) ?? null}
                 />
               ))}
             </ul>
@@ -298,23 +302,31 @@ function ChildThreadRow({
   isActive,
   onNavigate,
   now,
+  summary,
 }: {
   thread: PluginSidebarThread;
   provider?: ProviderGlyphInfo;
   isActive: boolean;
   onNavigate: () => void;
   now: number;
+  summary: string | null;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
+  const { isLoading: isPullRequestLoading, pullRequest } =
+    useSidebarThreadPullRequest(thread.id);
   const status = threadStatus(thread);
+  const isWorking = threadIsWorking(thread);
 
   return (
     <RowContextMenu thread={thread}>
       <li className="relative list-none py-px">
         <span
           aria-hidden
-          className="absolute -left-3 top-1/2 h-px w-3 bg-sidebar-border"
+          className={cn(
+            "absolute -left-3 top-1/2 h-px w-3 transition-colors",
+            isWorking ? "bg-primary/60" : "bg-sidebar-border",
+          )}
         />
         <div
           className={cn(
@@ -371,6 +383,11 @@ function ChildThreadRow({
                 </span>
               ) : null}
             </div>
+            {pullRequest ? (
+              <PullRequestMetadata pullRequest={pullRequest} />
+            ) : !isPullRequestLoading && summary !== null ? (
+              <DoneMetadata summary={summary} />
+            ) : null}
           </div>
         </div>
       </li>
