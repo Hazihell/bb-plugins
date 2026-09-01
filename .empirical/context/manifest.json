@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:7a4d5368ec58b3b4005ba1783cd0d5dcea89340b9079b83e8f49ff0c19e042c4",
+  "sourceDigest": "sha256:99404077ed09e279fe3f102b143452738a0f3256f388578464bda2000be70847",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -140,8 +140,8 @@
     },
     {
       "path": "plugins/action-topbar/assets/icon.svg",
-      "size": 476,
-      "digest": "sha256:6b853b325f8e8375fa4de171eed4ce210f608c63479410882364516bebc54678"
+      "size": 529,
+      "digest": "sha256:43b10ff4db96bb3cd6b1e584b03ee932820ba3cf486a97819655076655d47b8e"
     },
     {
       "path": "plugins/action-topbar/lib/action-catalog.ts",
@@ -220,8 +220,8 @@
     },
     {
       "path": "plugins/dockside/assets/icon.svg",
-      "size": 581,
-      "digest": "sha256:5e9f48f9cf7ba0481b3bf4825d931e6f90c694b096eb1b9eee573db15c527db8"
+      "size": 639,
+      "digest": "sha256:69e9184bed2c45d3b41ecfd4ca07439e7e76f4e214b3a28a143eafd06e0c88f8"
     },
     {
       "path": "plugins/dockside/assets/logo-dark.svg",
@@ -560,8 +560,8 @@
     },
     {
       "path": "plugins/host-monitor/assets/icon.svg",
-      "size": 978,
-      "digest": "sha256:0f3b0a93a39641605b8f725b9b884adfd110e9685001fe9bfb9e71c231bec058"
+      "size": 1031,
+      "digest": "sha256:b127ff767b915de80843a68a855684c8b9a6709d6961eeac1acd98151717c5c9"
     },
     {
       "path": "plugins/host-monitor/assets/logo-dark.svg",
@@ -1130,8 +1130,8 @@
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
-      "size": 367,
-      "digest": "sha256:f0cbe1c44686606c2156eda82ce8f634ed5e75ca45f2e58cdeb240e946add11f"
+      "size": 442,
+      "digest": "sha256:6ab395fe8fe742e7beed680a260efe391dc97f535d602416e3eab9bc4fa70503"
     },
     {
       "path": "plugins/touchbar/companion/BB-Agent-Monitor.bttpreset",
@@ -1355,8 +1355,8 @@
     },
     {
       "path": "plugins/usage-tracker/assets/icon.svg",
-      "size": 1763,
-      "digest": "sha256:3b8940e64aaa1d34e53e48a7a8bd49f385a1c347508262ddb3cb58594e006dc6"
+      "size": 1826,
+      "digest": "sha256:a0ebde76f726ab3f6e053dcebbc0cb125e120770e719aa9e53bccb7066f36fb2"
     },
     {
       "path": "plugins/usage-tracker/assets/logo-dark.svg",
@@ -1733,7 +1733,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:7a4d5368ec58b3b4005ba1783cd0d5dcea89340b9079b83e8f49ff0c19e042c4",
+      "sourceDigest": "sha256:99404077ed09e279fe3f102b143452738a0f3256f388578464bda2000be70847",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1825,5 +1825,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:397d5c1686c4f3618b6155678b026bd2c4d7f0486efd3620175d62fd52e21032"
+  "digest": "sha256:dfd8ef02adc51dae88b3025d8daababbe85ad580aa5f4b2bb11e50a73da3ce77"
 }
