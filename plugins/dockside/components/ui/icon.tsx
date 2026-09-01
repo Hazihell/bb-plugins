@@ -1,6 +1,7 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 import {
   Add01Icon,
+  Archive02Icon,
   ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -28,6 +29,7 @@ import { cn } from "@/lib/utils";
 
 const ICON_MAP = {
   Add: Add01Icon,
+  Archive: Archive02Icon,
   ArrowTurnBackward: ArrowTurnBackwardIcon,
   Check: Tick02Icon,
   CheckSquare: CheckmarkSquare02Icon,

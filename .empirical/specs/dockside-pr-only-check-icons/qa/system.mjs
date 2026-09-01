@@ -40,6 +40,7 @@ const card = await readFile(
 );
 assert.doesNotMatch(card, /useThreadSummaries|secondaryState === "done"/);
 assert.match(card, /childProviderIds\.map/);
+assert.match(card, /label="Settle thread"[\s\S]{0,100}icon="Archive"/);
 
 const server = await readFile("plugins/dockside/server.ts", "utf8");
 assert.doesNotMatch(server, /listThreadSummaries|threadSummaryCache/);

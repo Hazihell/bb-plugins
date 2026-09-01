@@ -233,7 +233,7 @@ export function ThreadCard({
                   />
                   <ParkButton
                     label="Settle thread"
-                    icon="Check"
+                    icon="Archive"
                     onActivate={onSettle}
                   />
                 </span>
@@ -480,7 +480,7 @@ function ParkButton({
   onActivate,
 }: {
   label: string;
-  icon: Extract<IconName, "Clock" | "Check">;
+  icon: Extract<IconName, "Archive" | "Clock">;
   onActivate: () => void;
 }) {
   return (
