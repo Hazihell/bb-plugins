@@ -3,62 +3,15 @@ import AppKit
 extension NSTouchBarItem.Identifier {
     static let bbStrip = NSTouchBarItem.Identifier("app.getbb.touchbar.strip")
     static let bbList = NSTouchBarItem.Identifier("app.getbb.touchbar.list")
+    static let bbSettings = NSTouchBarItem.Identifier("app.getbb.touchbar.settings")
+    static let bbPriority = NSTouchBarItem.Identifier("app.getbb.touchbar.priority")
+    static let bbProject = NSTouchBarItem.Identifier("app.getbb.touchbar.project")
+    static let bbClose = NSTouchBarItem.Identifier("app.getbb.touchbar.close")
 }
 
 private enum SortMode: String {
     case status
     case project
-}
-
-private final class CompactControlButton: NSButton {
-    private let fixedWidth: CGFloat
-
-    init(title: String, width: CGFloat, target: AnyObject?, action: Selector?) {
-        fixedWidth = width
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 30))
-        self.title = title
-        self.target = target
-        self.action = action
-        font = .monospacedSystemFont(ofSize: title.count > 2 ? 7.5 : 13, weight: .bold)
-        refusesFirstResponder = true
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 30) }
-
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        bounds.contains(point) ? self : nil
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        guard isEnabled, let action else { return }
-        NSApp.sendAction(action, to: target, from: self)
-    }
-}
-
-private final class PanelRootView: NSView {
-    private var controlActions: [(view: NSView, action: () -> Void)] = []
-
-    func registerControl(_ view: NSView, action: @escaping () -> Void) {
-        controlActions.append((view, action))
-    }
-
-    override func hitTest(_ point: NSPoint) -> NSView? {
-        action(at: point) == nil ? super.hitTest(point) : self
-    }
-
-    override func mouseDown(with event: NSEvent) {
-        let point = convert(event.locationInWindow, from: nil)
-        action(at: point)?()
-    }
-
-    private func action(at point: NSPoint) -> (() -> Void)? {
-        for target in controlActions where !target.view.isHidden {
-            let targetFrame = target.view.convert(target.view.bounds, to: self)
-            if targetFrame.contains(point) { return target.action }
-        }
-        return nil
-    }
 }
 
 private enum StatusPalette {
@@ -324,6 +277,14 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let stripItem = NSCustomTouchBarItem(identifier: .bbStrip)
     private let stripButton = NSButton(title: "", target: nil, action: nil)
     private let panelItem = NSCustomTouchBarItem(identifier: .bbList)
+    private let settingsItem = NSCustomTouchBarItem(identifier: .bbSettings)
+    private let priorityItem = NSCustomTouchBarItem(identifier: .bbPriority)
+    private let projectItem = NSCustomTouchBarItem(identifier: .bbProject)
+    private let closeItem = NSCustomTouchBarItem(identifier: .bbClose)
+    private let settingsButton = NSButton(title: "", target: nil, action: nil)
+    private let priorityButton = NSButton(title: "PRIORITY", target: nil, action: nil)
+    private let projectButton = NSButton(title: "PROJECT", target: nil, action: nil)
+    private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var panelTouchBar: NSTouchBar?
     private var panelVisible = false
     private var agentButtons: [String: AgentButton] = [:]
@@ -332,19 +293,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var tick = 0
     private var configurationVisible = false
-    private weak var settingsControl: NSButton?
-    private weak var priorityControl: NSButton?
-    private weak var projectControl: NSButton?
-    private weak var panelStack: NSStackView?
-    private weak var panelScroll: NSScrollView?
-    private weak var controlsContainer: NSView?
-    private var fixedControls: [NSView] = []
-    private weak var panelRoot: NSView?
     private var sortMode = SortMode(
         rawValue: UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
     ) ?? .status
 
-    private static let panelMaxWidth: CGFloat = 1000
     private static let barHeight: CGFloat = 30
 
     func install() {
@@ -354,6 +306,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         stripButton.setAccessibilityLabel("BB agents")
         stripButton.frame = NSRect(x: 0, y: 0, width: 88, height: Self.barHeight)
         stripItem.view = stripButton
+        configurePanelControls()
 
         DFRSystemModalShowsCloseBoxWhenFrontMost(false)
         NSTouchBarItem.addSystemTrayItem(stripItem)
@@ -370,6 +323,53 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         store.start()
         apply(store.snapshot)
         NativeLog.info("native Control Strip item installed")
+    }
+
+    private func configurePanelControls() {
+        settingsButton.target = self
+        settingsButton.action = #selector(settingsTapped(_:))
+        settingsButton.bezelColor = NSColor(white: 0.18, alpha: 1)
+        settingsButton.setAccessibilityLabel("BB Touch Bar settings")
+        if let image = NSImage(
+            systemSymbolName: "slider.horizontal.3",
+            accessibilityDescription: "BB Touch Bar settings"
+        ) {
+            settingsButton.image = image
+            settingsButton.imagePosition = .imageOnly
+            settingsButton.imageScaling = .scaleProportionallyDown
+            settingsButton.contentTintColor = .white
+        } else {
+            settingsButton.title = "CFG"
+        }
+
+        priorityButton.target = self
+        priorityButton.action = #selector(priorityTapped(_:))
+        priorityButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        projectButton.target = self
+        projectButton.action = #selector(projectSortTapped(_:))
+        projectButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        closeButton.target = self
+        closeButton.action = #selector(closeTapped(_:))
+        closeButton.bezelColor = NSColor(white: 0.18, alpha: 1)
+        closeButton.setAccessibilityLabel("Close BB agent panel")
+
+        settingsItem.view = settingsButton
+        priorityItem.view = priorityButton
+        projectItem.view = projectButton
+        closeItem.view = closeButton
+        updateControlColors()
+    }
+
+    private func updateControlColors() {
+        settingsButton.bezelColor = configurationVisible
+            ? .systemIndigo
+            : NSColor(white: 0.18, alpha: 1)
+        priorityButton.bezelColor = sortMode == .status
+            ? .systemBlue
+            : NSColor(white: 0.18, alpha: 1)
+        projectButton.bezelColor = sortMode == .project
+            ? .systemTeal
+            : NSColor(white: 0.18, alpha: 1)
     }
 
     func uninstall() {
@@ -467,7 +467,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     @objc private func openPanel() {
         let bar = NSTouchBar()
         bar.delegate = self
-        bar.defaultItemIdentifiers = [.bbList]
+        bar.defaultItemIdentifiers = panelIdentifiers()
         panelTouchBar = bar
         panelVisible = true
         onScreenOrder = []
@@ -478,6 +478,15 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             systemTrayItemIdentifier: .bbStrip
         )
         assertStripPresence()
+    }
+
+    private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
+        var identifiers: [NSTouchBarItem.Identifier] = [.bbList, .flexibleSpace]
+        if configurationVisible {
+            identifiers.append(contentsOf: [.bbPriority, .bbProject])
+        }
+        identifiers.append(contentsOf: [.bbSettings, .bbClose])
+        return identifiers
     }
 
     private func closePanel(teardown: Bool = false) {
@@ -502,12 +511,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     @objc private func settingsTapped(_ sender: NSButton) {
         configurationVisible.toggle()
-        priorityControl?.isHidden = !configurationVisible
-        projectControl?.isHidden = !configurationVisible
-        settingsControl?.bezelColor = configurationVisible
-            ? .systemIndigo
-            : NSColor(white: 0.18, alpha: 1)
-        relayoutPanelStack()
+        updateControlColors()
+        panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
         NativeLog.info("settings controls \(configurationVisible ? "opened" : "closed")")
     }
 
@@ -523,6 +528,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         sortMode = mode
         configurationVisible = false
         UserDefaults.standard.set(sortMode.rawValue, forKey: "BBTouchBarSortMode")
+        updateControlColors()
+        panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
         schedulePanelRender()
     }
 
@@ -543,62 +550,20 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         _ touchBar: NSTouchBar,
         makeItemForIdentifier identifier: NSTouchBarItem.Identifier
     ) -> NSTouchBarItem? {
-        identifier == .bbList ? panelItem : nil
+        switch identifier {
+        case .bbList: return panelItem
+        case .bbSettings: return settingsItem
+        case .bbPriority: return priorityItem
+        case .bbProject: return projectItem
+        case .bbClose: return closeItem
+        default: return nil
+        }
     }
 
     private func renderPanel(_ snapshot: AgentSnapshot) {
         agentButtons.removeAll()
         let entries = organized(snapshot.agents)
         onScreenOrder = entries.map(\.id)
-
-        let settings = CompactControlButton(
-            title: "",
-            width: 32,
-            target: self,
-            action: #selector(settingsTapped(_:))
-        )
-        if let image = NSImage(
-            systemSymbolName: "slider.horizontal.3",
-            accessibilityDescription: "BB Touch Bar settings"
-        ) {
-            settings.image = image
-            settings.imagePosition = .imageOnly
-            settings.imageScaling = .scaleProportionallyDown
-            settings.contentTintColor = .white
-        } else {
-            settings.title = "CFG"
-        }
-        settings.bezelColor = configurationVisible ? .systemIndigo : NSColor(white: 0.18, alpha: 1)
-        settings.setAccessibilityLabel("BB Touch Bar settings")
-        settingsControl = settings
-
-        let close = CompactControlButton(
-            title: "✕",
-            width: 32,
-            target: self,
-            action: #selector(closeTapped(_:))
-        )
-        close.bezelColor = NSColor(white: 0.18, alpha: 1)
-        close.setAccessibilityLabel("Close BB agent panel")
-
-        let priority = CompactControlButton(
-            title: "PRIORITY",
-            width: 86,
-            target: self,
-            action: #selector(priorityTapped(_:))
-        )
-        priority.bezelColor = sortMode == .status ? .systemBlue : NSColor(white: 0.18, alpha: 1)
-        priority.isHidden = !configurationVisible
-        priorityControl = priority
-        let project = CompactControlButton(
-            title: "PROJECT",
-            width: 82,
-            target: self,
-            action: #selector(projectSortTapped(_:))
-        )
-        project.bezelColor = sortMode == .project ? .systemTeal : NSColor(white: 0.18, alpha: 1)
-        project.isHidden = !configurationVisible
-        projectControl = project
 
         var views: [NSView] = []
         if !snapshot.connected {
@@ -627,10 +592,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
                 views.append(button(for: entry))
             }
         }
-        panelItem.view = panelContainer(
-            content: views,
-            controls: [priority, project, settings, close]
-        )
+        panelItem.view = scrollContainer(views)
     }
 
     private func message(_ text: String) -> NSView {
@@ -689,83 +651,34 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         ])
     }
 
-    private func panelContainer(content views: [NSView], controls: [NSView]) -> NSView {
+    private func scrollContainer(_ views: [NSView]) -> NSView {
         let stack = NSStackView(views: views)
         stack.orientation = .horizontal
         stack.spacing = 5
         stack.alignment = .centerY
         stack.translatesAutoresizingMaskIntoConstraints = true
 
-        let scroll = NSScrollView(frame: .zero)
+        let fitting = stack.fittingSize
+        let visible = min(max(fitting.width, 100), 850)
+        stack.frame = NSRect(
+            x: 0,
+            y: 0,
+            width: max(fitting.width, visible),
+            height: Self.barHeight
+        )
+
+        let scroll = NSScrollView(frame: NSRect(
+            x: 0,
+            y: 0,
+            width: visible,
+            height: Self.barHeight
+        ))
         scroll.drawsBackground = false
         scroll.hasHorizontalScroller = false
         scroll.hasVerticalScroller = false
         scroll.horizontalScrollElasticity = .allowed
         scroll.verticalScrollElasticity = .none
         scroll.documentView = stack
-
-        let fixed = NSView(frame: .zero)
-        for control in controls { fixed.addSubview(control) }
-
-        let root = PanelRootView(frame: NSRect(
-            x: 0,
-            y: 0,
-            width: Self.panelMaxWidth,
-            height: Self.barHeight
-        ))
-        root.addSubview(scroll)
-        root.addSubview(fixed)
-        for control in controls {
-            root.registerControl(control) { [weak control] in
-                guard let button = control as? NSButton,
-                      let action = button.action else { return }
-                NSApp.sendAction(action, to: button.target, from: button)
-            }
-        }
-        panelStack = stack
-        panelScroll = scroll
-        controlsContainer = fixed
-        fixedControls = controls
-        panelRoot = root
-        relayoutPanelStack()
-        return root
-    }
-
-    private func relayoutPanelStack() {
-        guard let stack = panelStack,
-              let scroll = panelScroll,
-              let fixed = controlsContainer,
-              let root = panelRoot else { return }
-        stack.needsLayout = true
-        stack.layoutSubtreeIfNeeded()
-        let contentWidth = stack.fittingSize.width
-        let visibleControls = fixedControls.filter { !$0.isHidden }
-        var controlX: CGFloat = 0
-        for control in visibleControls {
-            let width = control.intrinsicContentSize.width
-            control.frame = NSRect(
-                x: controlX,
-                y: 0,
-                width: width,
-                height: Self.barHeight
-            )
-            controlX += width + 5
-        }
-        let controlsWidth = max(0, controlX - 5)
-        let visible = max(100, Self.panelMaxWidth - controlsWidth - 5)
-        stack.frame.size = NSSize(
-            width: max(contentWidth, visible),
-            height: Self.barHeight
-        )
-        scroll.frame = NSRect(x: 0, y: 0, width: visible, height: Self.barHeight)
-        fixed.frame = NSRect(
-            x: visible + 5,
-            y: 0,
-            width: controlsWidth,
-            height: Self.barHeight
-        )
-        fixed.needsDisplay = true
-        root.frame.size = NSSize(width: Self.panelMaxWidth, height: Self.barHeight)
-        scroll.needsDisplay = true
+        return scroll
     }
 }
