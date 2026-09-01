@@ -59,6 +59,15 @@ export interface TouchBarSnapshot {
     visible: number;
   };
   threads: TouchBarThread[];
+  usage?: TouchBarUsage[];
+}
+
+export interface TouchBarUsage {
+  id: "codex" | "claudeCode" | "cursor";
+  name: string;
+  status: "ok" | "not_installed" | "unauthenticated" | "expired" | "error";
+  usedPercent: number | null;
+  windowLabel: string | null;
 }
 
 export interface SnapshotOptions {

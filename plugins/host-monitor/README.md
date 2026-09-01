@@ -34,6 +34,8 @@ inspect its current processes when resource pressure needs attention.
   shared across the page, sidebar, and floating window.
 - A searchable, sortable process ledger with protected-process explanations
   and deliberately guarded stop actions.
+- A bounded read-only `bb host-monitor snapshot` command for native companion
+  surfaces such as the BB Touch Bar monitor.
 
 ## Processes when pressure matters
 
@@ -154,6 +156,16 @@ Run its complete focused check with:
 ```sh
 npm run check --workspace bb-plugin-host-monitor
 ```
+
+The compact machine snapshot is available as JSON:
+
+```sh
+bb host-monitor snapshot [--pretty]
+```
+
+It exposes only host id/name/status, freshness, CPU/RAM/disk percentages, and
+aggregate download/upload rates. It excludes IPs, interfaces, processes, and
+other detailed system fields.
 
 ## License
 

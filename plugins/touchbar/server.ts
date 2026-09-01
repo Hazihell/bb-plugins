@@ -7,6 +7,7 @@ import {
   resolveCardLimit,
   type ThreadSnapshotInput,
   type TouchBarSnapshot,
+  type TouchBarUsage,
 } from "./lib/snapshot.js";
 
 const USAGE = [
@@ -31,6 +32,59 @@ function parseSlot(raw: string | undefined): number | null {
   return Number(raw);
 }
 
+type UsageLimits = Awaited<
+  ReturnType<BbPluginApi["sdk"]["system"]["usageLimits"]>
+>;
+
+const USAGE_PROVIDERS = [
+  { id: "codex", name: "Codex", wireIds: ["codex"] },
+  {
+    id: "claudeCode",
+    name: "Claude Code",
+    wireIds: ["claudeCode", "claude-code"],
+  },
+  { id: "cursor", name: "Cursor", wireIds: ["cursor", "acp-cursor"] },
+] as const;
+
+export function projectTouchBarUsage(limits: UsageLimits): TouchBarUsage[] {
+  return USAGE_PROVIDERS.map((provider) => {
+    const current = provider.wireIds
+      .map((id) => limits[id])
+      .find((value) => value !== undefined);
+    if (current === undefined) {
+      return {
+        id: provider.id,
+        name: provider.name,
+        status: "error" as const,
+        usedPercent: null,
+        windowLabel: null,
+      };
+    }
+    if (current.status !== "ok") {
+      return {
+        id: provider.id,
+        name: provider.name,
+        status: current.status,
+        usedPercent: null,
+        windowLabel: null,
+      };
+    }
+    const window =
+      current.windows.find((candidate) => /week/iu.test(candidate.label)) ??
+      current.windows[0];
+    return {
+      id: provider.id,
+      name: provider.name,
+      status: "ok" as const,
+      usedPercent:
+        window === undefined
+          ? null
+          : Math.min(100, Math.max(0, window.usedPercent)),
+      windowLabel: window?.label ?? null,
+    };
+  });
+}
+
 export default async function touchBarPlugin(bb: BbPluginApi): Promise<void> {
   const settings = bb.settings.define({
     cardLimit: {
@@ -50,22 +104,32 @@ export default async function touchBarPlugin(bb: BbPluginApi): Promise<void> {
 
   async function snapshot(): Promise<TouchBarSnapshot> {
     const values = await settings.get();
-    const [threads, projects] = await Promise.all([
+    const [threads, projects, usage] = await Promise.all([
       bb.sdk.threads.list({
         archived: false,
         includeHidden: true,
         limit: THREAD_QUERY_LIMIT,
       }),
       bb.sdk.projects.list({ includePersonal: true }),
+      Promise.resolve()
+        .then(() => bb.sdk.system.usageLimits())
+        .then(projectTouchBarUsage)
+        .catch((error: unknown) => {
+          bb.log.warn(`Could not load Touch Bar usage: ${errorMessage(error)}`);
+          return [];
+        }),
     ]);
     const projectNames = new Map(
       projects.map((project) => [project.id, project.name] as const),
     );
-    return buildSnapshot(threads as ThreadSnapshotInput[], {
-      cardLimit: resolveCardLimit(values.cardLimit),
-      includeHidden: values.includeHidden,
-      projectNames,
-    });
+    return {
+      ...buildSnapshot(threads as ThreadSnapshotInput[], {
+        cardLimit: resolveCardLimit(values.cardLimit),
+        includeHidden: values.includeHidden,
+        projectNames,
+      }),
+      usage,
+    };
   }
 
   async function resolveThread(threadId: string) {

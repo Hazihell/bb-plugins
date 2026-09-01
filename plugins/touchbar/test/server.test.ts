@@ -112,6 +112,61 @@ test("snapshot returns bounded JSON and queries hidden rows explicitly", async (
   );
 });
 
+test("snapshot includes bounded weekly subscription percentages", async (t) => {
+  const fake = createFakePluginHost({
+    pluginId: "touchbar",
+    sdk: {
+      threads: { list: async () => [listThread("active")] },
+      projects: { list: async () => [project()] },
+      system: {
+        usageLimits: async () => ({
+          codex: {
+            status: "ok" as const,
+            accountEmail: null,
+            planLabel: "Plus",
+            windows: [
+              { label: "Five-hour", usedPercent: 10, resetsAt: null },
+              { label: "Weekly", usedPercent: 42.4, resetsAt: null },
+            ],
+          },
+          "claude-code": { status: "unauthenticated" as const },
+        }),
+      },
+    },
+  });
+  t.after(() => fake.harness.lifecycle.dispose());
+  await plugin(fake.bb);
+
+  const result = await fake.harness.behavior.runCli(["snapshot"]);
+  assert.equal(result.exitCode, 0);
+  const parsed = JSON.parse(result.stdout ?? "") as {
+    usage: Array<Record<string, unknown>>;
+  };
+  assert.deepEqual(parsed.usage, [
+    {
+      id: "codex",
+      name: "Codex",
+      status: "ok",
+      usedPercent: 42.4,
+      windowLabel: "Weekly",
+    },
+    {
+      id: "claudeCode",
+      name: "Claude Code",
+      status: "unauthenticated",
+      usedPercent: null,
+      windowLabel: null,
+    },
+    {
+      id: "cursor",
+      name: "Cursor",
+      status: "error",
+      usedPercent: null,
+      windowLabel: null,
+    },
+  ]);
+});
+
 test("settings expose hidden-worker privacy and card count", async (t) => {
   const fake = createFakePluginHost({ pluginId: "touchbar" });
   t.after(() => fake.harness.lifecycle.dispose());

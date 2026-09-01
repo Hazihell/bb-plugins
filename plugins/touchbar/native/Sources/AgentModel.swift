@@ -14,8 +14,30 @@ struct AgentEntry: Equatable {
     let status: AgentStatus
 }
 
+struct UsageEntry: Equatable {
+    let id: String
+    let name: String
+    let status: String
+    let usedPercent: Double?
+    let windowLabel: String?
+}
+
+struct HostMetricEntry: Equatable {
+    let id: String
+    let name: String
+    let status: String
+    let sampleState: String
+    let cpuPercent: Double?
+    let memoryPercent: Double?
+    let diskPercent: Double?
+    let receiveBytesPerSecond: Double?
+    let sendBytesPerSecond: Double?
+}
+
 struct AgentSnapshot: Equatable {
     var agents: [AgentEntry] = []
+    var usage: [UsageEntry] = []
+    var hosts: [HostMetricEntry] = []
     var connected = false
 
     var working: Int { agents.filter { $0.status == .working }.count }
@@ -40,9 +62,35 @@ private struct BBSnapshot: Decodable {
         let attention: String?
     }
 
+    struct Usage: Decodable {
+        let id: String
+        let name: String
+        let status: String
+        let usedPercent: Double?
+        let windowLabel: String?
+    }
+
     let schemaVersion: Int
     let summary: Summary
     let threads: [Thread]
+    let usage: [Usage]?
+}
+
+private struct BBHostSnapshot: Decodable {
+    struct Host: Decodable {
+        let id: String
+        let name: String
+        let status: String
+        let sampleState: String
+        let cpuPercent: Double?
+        let memoryPercent: Double?
+        let diskPercent: Double?
+        let receiveBytesPerSecond: Double?
+        let sendBytesPerSecond: Double?
+    }
+
+    let schemaVersion: Int
+    let hosts: [Host]
 }
 
 final class AgentStore {
@@ -59,7 +107,7 @@ final class AgentStore {
     func start() {
         queue.async { [weak self] in
             while let self, !self.isStopped {
-                if let next = Self.fetch() {
+                if let next = Self.fetch(previousHosts: self.lastGoodSnapshot.hosts) {
                     self.consecutiveFailures = 0
                     self.lastGoodSnapshot = next
                     self.publish(next)
@@ -98,7 +146,7 @@ final class AgentStore {
         }
     }
 
-    private static func fetch() -> AgentSnapshot? {
+    private static func fetch(previousHosts: [HostMetricEntry]) -> AgentSnapshot? {
         guard let data = BBCommand.run(["touchbar", "snapshot"], timeout: 5) else {
             NativeLog.debug("snapshot command returned no data")
             return nil
@@ -125,7 +173,50 @@ final class AgentStore {
                 status: status(for: thread)
             )
         }
-        return AgentSnapshot(agents: entries, connected: true)
+        let usage = (payload.usage ?? []).map {
+            UsageEntry(
+                id: $0.id,
+                name: $0.name,
+                status: $0.status,
+                usedPercent: $0.usedPercent,
+                windowLabel: $0.windowLabel
+            )
+        }
+        return AgentSnapshot(
+            agents: entries,
+            usage: usage,
+            hosts: fetchHosts(fallback: previousHosts),
+            connected: true
+        )
+    }
+
+    private static func fetchHosts(fallback: [HostMetricEntry]) -> [HostMetricEntry] {
+        let enabled = UserDefaults.standard.object(
+            forKey: "BBTouchBarShowHostMonitor"
+        ) as? Bool ?? true
+        guard enabled else {
+            return fallback
+        }
+        guard let data = BBCommand.run(["host-monitor", "snapshot"], timeout: 5),
+              data.count <= 65_536,
+              let payload = try? JSONDecoder().decode(BBHostSnapshot.self, from: data),
+              payload.schemaVersion == 1 else {
+            NativeLog.debug("host monitor snapshot unavailable")
+            return fallback
+        }
+        return payload.hosts.map {
+            HostMetricEntry(
+                id: $0.id,
+                name: $0.name,
+                status: $0.status,
+                sampleState: $0.sampleState,
+                cpuPercent: $0.cpuPercent,
+                memoryPercent: $0.memoryPercent,
+                diskPercent: $0.diskPercent,
+                receiveBytesPerSecond: $0.receiveBytesPerSecond,
+                sendBytesPerSecond: $0.sendBytesPerSecond
+            )
+        }
     }
 
     private static func status(for thread: BBSnapshot.Thread) -> AgentStatus {

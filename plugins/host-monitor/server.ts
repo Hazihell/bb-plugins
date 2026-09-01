@@ -33,6 +33,27 @@ const HOST_CALL_TIMEOUT_MS = 5_000;
 export const PROCESS_HOST_CALL_TIMEOUT_MS = 20_000;
 export const PROCESS_TERMINATION_HOST_CALL_TIMEOUT_MS = 30_000;
 const REALTIME_CHANNEL = "machines-changed";
+const HOST_SNAPSHOT_LIMIT = 100;
+
+export function compactHostDashboard(current: Dashboard) {
+  return {
+    schemaVersion: 1 as const,
+    generatedAtMs: current.generatedAtMs,
+    hosts: current.machines.slice(0, HOST_SNAPSHOT_LIMIT).map((machine) => ({
+      id: machine.host.id,
+      name: machine.host.name,
+      status: machine.host.status,
+      sampleState: machine.sampleState,
+      cpuPercent: machine.snapshot?.cpu.usagePercent ?? null,
+      memoryPercent: machine.snapshot?.memory.usagePercent ?? null,
+      diskPercent: machine.snapshot?.disk?.usagePercent ?? null,
+      receiveBytesPerSecond:
+        machine.snapshot?.network.receiveBytesPerSecond ?? null,
+      sendBytesPerSecond:
+        machine.snapshot?.network.sendBytesPerSecond ?? null,
+    })),
+  };
+}
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -568,6 +589,38 @@ export default async function hostMonitorPlugin(
             "The connection dropped during the stop request. Refresh before trying again.",
         };
       }
+    },
+  });
+
+  bb.cli.register({
+    name: "host-monitor",
+    summary: "Read the cached Host Monitor resource snapshot",
+    commands: [
+      {
+        name: "snapshot",
+        summary: "Print bounded CPU, memory, disk, and network JSON",
+        usage: "bb host-monitor snapshot [--pretty]",
+      },
+    ],
+    async run(argv, context) {
+      const [command, ...args] = argv;
+      if (
+        command !== "snapshot" ||
+        args.some((argument) => argument !== "--pretty")
+      ) {
+        return {
+          exitCode: 1,
+          stderr: "Usage: bb host-monitor snapshot [--pretty]",
+        };
+      }
+      if (hosts.length === 0) await refreshAll(context.signal);
+      const projected = compactHostDashboard(dashboard());
+      return {
+        exitCode: 0,
+        stdout: args.includes("--pretty")
+          ? JSON.stringify(projected, null, 2)
+          : JSON.stringify(projected),
+      };
     },
   });
 
