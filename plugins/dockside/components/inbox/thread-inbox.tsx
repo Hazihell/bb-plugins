@@ -27,6 +27,7 @@ import {
 } from "@/components/inbox/bulk-delete-dialog";
 import { useLifecycle } from "@/hooks/use-lifecycle";
 import { useSettledThreads } from "@/hooks/use-settled-threads";
+import { useProjectColors } from "@/hooks/use-project-colors";
 import {
   mergeSettledThreads,
   pendingSettledCount,
@@ -89,6 +90,7 @@ export function ThreadInbox({
     () => resolveDocksidePreferences(settings.values),
     [settings.values],
   );
+  const { overrides: projectColorOverrides } = useProjectColors();
   const inboxRef = useRef<HTMLDivElement>(null);
   const selectionAnchorRootId = useRef<string | null>(null);
   const selectionHintId = useId();
@@ -757,6 +759,7 @@ export function ThreadInbox({
                 onProjectReorder={reorderProjectByDrag}
                 onProjectKeyboardMove={reorderProjectByKeyboard}
                 preferences={preferences}
+                projectColorOverrides={projectColorOverrides}
               />
             ))}
             {showParkedShelves ? (

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:2991e73acc81e030b43c1c3829bb9c82dfcefdb7f89ac82e19aa61ce33a74afd",
+  "sourceDigest": "sha256:ae153a6f1bdcfcbed6d443d164dcec4b7f8be49280d34911fc64146de24b9177",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -100,8 +100,8 @@
     },
     {
       "path": "package-lock.json",
-      "size": 298158,
-      "digest": "sha256:694bbcebb5ee15882dc654b9785929dd21b831fdf5d4012751989adfb6534bb1"
+      "size": 298190,
+      "digest": "sha256:a55b1cb8d6d8326a41a1cb67269142bcace83e8a37bae11725c816c71d81f392"
     },
     {
       "path": "package.json",
@@ -260,8 +260,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/project-group.tsx",
-      "size": 12168,
-      "digest": "sha256:ecbd316fdca9810d7fcb97504c906493a175d20329085e7a3a6f4716d238d8d8"
+      "size": 12500,
+      "digest": "sha256:d039c1c6656a3d4ccb6e9492879bfd7cabceaf547f2ae49208b8e68ceebf2362"
     },
     {
       "path": "plugins/dockside/components/inbox/provider-glyph.tsx",
@@ -305,13 +305,13 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
-      "size": 29811,
-      "digest": "sha256:effd6e8767f129ff6624c9f8bd1f2f566f02316511b8b16503f80dadbb4840be"
+      "size": 30003,
+      "digest": "sha256:cfa56b8f7c978477016ef11ba9a3f8e8157c5429cc2fadceee1c8e60908f71ce"
     },
     {
       "path": "plugins/dockside/components/settings/dockside-settings.tsx",
-      "size": 5156,
-      "digest": "sha256:63e82415e409a1c8385254f5e29934097ac20125021890bb42153d98325d2094"
+      "size": 14171,
+      "digest": "sha256:bbdcd61df588f87d58bbddb9ad6d59fa08a3c20f15541686012d59146e543af5"
     },
     {
       "path": "plugins/dockside/components/ui/icon.tsx",
@@ -327,6 +327,11 @@
       "path": "plugins/dockside/hooks/use-lifecycle.ts",
       "size": 11509,
       "digest": "sha256:fb2c4b240eb06955238981ccbb4dd31945bce4ec712aa6f4e7579ad35b26731c"
+    },
+    {
+      "path": "plugins/dockside/hooks/use-project-colors.ts",
+      "size": 2626,
+      "digest": "sha256:b4018099c69586de2afb1b3aa985b2cfd00eeb69e54b93539373ca5d9ebe52aa"
     },
     {
       "path": "plugins/dockside/hooks/use-retrying-read.ts",
@@ -379,6 +384,16 @@
       "digest": "sha256:0f897bed7c0f9115cdb05c33de808522f431b0ba19eef6ea1ad6938ad012ea40"
     },
     {
+      "path": "plugins/dockside/lib/project-color-store.ts",
+      "size": 2483,
+      "digest": "sha256:c2ba8bb05243461298ad8de4485be7469c554acd390afd922ba746c686e1407f"
+    },
+    {
+      "path": "plugins/dockside/lib/project-colors.ts",
+      "size": 2861,
+      "digest": "sha256:803653d32b3a55a58c939192673b587daf6e7119b6210322f47783979bb45ee7"
+    },
+    {
       "path": "plugins/dockside/lib/project-order.ts",
       "size": 4249,
       "digest": "sha256:7410a25462cacf34f8131fdfc9099f23f2f6359dd0366a13ca115ca9982d7fb5"
@@ -425,13 +440,13 @@
     },
     {
       "path": "plugins/dockside/package.json",
-      "size": 2140,
-      "digest": "sha256:fe0b0be5d8e551c84c92d0b6192b41b9c635ab33b00a486794f408bb176eb4a1"
+      "size": 2142,
+      "digest": "sha256:10ce5a5bbd02dbd50be46acbc79264f5d3b95af53e8182f520bb72f402f7dfca"
     },
     {
       "path": "plugins/dockside/server.ts",
-      "size": 26135,
-      "digest": "sha256:19baf7609e34e25dd233842cac7848c5ed7dec44e02f546efec8842b1e02cd32"
+      "size": 27946,
+      "digest": "sha256:9db262e6a816e74fdde8e31b8f329fdc23431455659ed95a92ab7f30155ef4f6"
     },
     {
       "path": "plugins/dockside/test/attention-state.test.ts",
@@ -442,6 +457,11 @@
       "path": "plugins/dockside/test/bulk-delete.test.ts",
       "size": 8273,
       "digest": "sha256:3c6abdc109dac60a33e66b6332d94fc8c322920259894b7325b3e4a5019485cb"
+    },
+    {
+      "path": "plugins/dockside/test/distribution-contract.test.ts",
+      "size": 1363,
+      "digest": "sha256:8b2d41605fe6d373fe90bbd067071129313961d81b778a209a8af6045d8b7a4d"
     },
     {
       "path": "plugins/dockside/test/family-order.test.ts",
@@ -469,6 +489,16 @@
       "digest": "sha256:7e309752756231e8856d27ebf8f20cbe5ba25bbb569db91c9e161f7d315e8802"
     },
     {
+      "path": "plugins/dockside/test/project-color-store.test.ts",
+      "size": 2633,
+      "digest": "sha256:fd5f03fe994f7332954f26d60aafe47110d03a2d63847d2e4a20612a8aaf9e99"
+    },
+    {
+      "path": "plugins/dockside/test/project-colors.test.ts",
+      "size": 2694,
+      "digest": "sha256:11acf860c32fd4954730e79f46e3348205949b71cc3ec07ff91f5ed5cdf47639"
+    },
+    {
       "path": "plugins/dockside/test/project-order.test.ts",
       "size": 1898,
       "digest": "sha256:924a51ea56c5c3d64190f70594b33701d3256b95c6ac3e19068760dac55f302e"
@@ -490,8 +520,8 @@
     },
     {
       "path": "plugins/dockside/test/settings-contract.test.ts",
-      "size": 3467,
-      "digest": "sha256:8905c4af2c102bac74dede6f5a4a13d2625728fb0a3697113728ea335e90f2d6"
+      "size": 5195,
+      "digest": "sha256:508f2540fe9ba4420dfe1a7fd37a4f68a6828c68ddfd214d329a96762f5d0c33"
     },
     {
       "path": "plugins/dockside/test/settled-threads.test.ts",
@@ -1422,21 +1452,6 @@
       "path": "plugins/usage-tracker/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
-    },
-    {
-      "path": "touchbar-ui-concept.html",
-      "size": 10842,
-      "digest": "sha256:0c7310d125bbf77d6d922c581a5ec5211e2875a353c9845e0e4ea4bfc46a81db"
-    },
-    {
-      "path": "touchbar-ui-concepts-v2.html",
-      "size": 10097,
-      "digest": "sha256:a159d57c014487edd9c89e3e4d0490dff03ec858197ba60c938d8e8fc7e0cdb8"
-    },
-    {
-      "path": "touchbar-ui-exploration-v3.html",
-      "size": 12060,
-      "digest": "sha256:bd34528c61b74899d1891f766dad5e994d1dfcbc6066d9c7b4a51452ed096400"
     }
   ],
   "pages": [
@@ -1510,6 +1525,7 @@
         "plugins/dockside/components/ui/icon.tsx",
         "plugins/dockside/components/ui/select.tsx",
         "plugins/dockside/hooks/use-lifecycle.ts",
+        "plugins/dockside/hooks/use-project-colors.ts",
         "plugins/dockside/hooks/use-retrying-read.ts",
         "plugins/dockside/hooks/use-settled-threads.ts",
         "plugins/dockside/lib/attention-state.ts",
@@ -1520,6 +1536,8 @@
         "plugins/dockside/lib/lifecycle.ts",
         "plugins/dockside/lib/portal-scope.ts",
         "plugins/dockside/lib/preferences.ts",
+        "plugins/dockside/lib/project-color-store.ts",
+        "plugins/dockside/lib/project-colors.ts",
         "plugins/dockside/lib/project-order.ts",
         "plugins/dockside/lib/provider-marks.ts",
         "plugins/dockside/lib/pull-request-presentation.ts",
@@ -1533,11 +1551,14 @@
         "plugins/dockside/server.ts",
         "plugins/dockside/test/attention-state.test.ts",
         "plugins/dockside/test/bulk-delete.test.ts",
+        "plugins/dockside/test/distribution-contract.test.ts",
         "plugins/dockside/test/family-order.test.ts",
         "plugins/dockside/test/family-status.test.ts",
         "plugins/dockside/test/inbox.test.ts",
         "plugins/dockside/test/lifecycle.test.ts",
         "plugins/dockside/test/preferences.test.ts",
+        "plugins/dockside/test/project-color-store.test.ts",
+        "plugins/dockside/test/project-colors.test.ts",
         "plugins/dockside/test/project-order.test.ts",
         "plugins/dockside/test/pull-request-presentation.test.ts",
         "plugins/dockside/test/relative-time.test.ts",
@@ -1728,12 +1749,9 @@
         "plugins/usage-tracker/server.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
-        "plugins/usage-tracker/types/css-modules.d.ts",
-        "touchbar-ui-concept.html",
-        "touchbar-ui-concepts-v2.html",
-        "touchbar-ui-exploration-v3.html"
+        "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:2991e73acc81e030b43c1c3829bb9c82dfcefdb7f89ac82e19aa61ce33a74afd",
+      "sourceDigest": "sha256:ae153a6f1bdcfcbed6d443d164dcec4b7f8be49280d34911fc64146de24b9177",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1748,8 +1766,12 @@
         "plugins/action-topbar/package.json",
         "plugins/dockside/README.md",
         "plugins/dockside/components/inbox/project-group.tsx",
+        "plugins/dockside/lib/project-color-store.ts",
+        "plugins/dockside/lib/project-colors.ts",
         "plugins/dockside/lib/project-order.ts",
         "plugins/dockside/package.json",
+        "plugins/dockside/test/project-color-store.test.ts",
+        "plugins/dockside/test/project-colors.test.ts",
         "plugins/dockside/test/project-order.test.ts",
         "plugins/host-monitor/README.md",
         "plugins/host-monitor/package.json",
@@ -1764,7 +1786,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:32fbd3c678027326b4369e9ce1d23de1b0fde49297a93952c906ff408bf83499",
+      "sourceDigest": "sha256:643e237a2c2d749d29b9dde3496aeee71758474550ca618a070a7eb3a6aca534",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1782,7 +1804,7 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:73330536db4bcc63c86c9734a31c4356375ffee89145e431d32ecb448406be82",
+      "sourceDigest": "sha256:8fd32a9de4f7188d35f381f4f9f33a316b27d29df616076834ba46ba92abc057",
       "digest": "sha256:6a3333fdbbcffff93c96400aab0596932dc23cce823061cdedacad5e44ef7bd7",
       "freshness": "fresh"
     },
@@ -1801,7 +1823,7 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:057f07db41d80ee6ffc428c7f3b12cb0a2f830455132d1c2e70b24b32eb00e16",
+      "sourceDigest": "sha256:d455bcfb550efe12a2e8527cdb8f59d97f18eec677c699906b11c99b572dc3a1",
       "digest": "sha256:06a7a6d07d2649e2d00a93cf62beef749d2f5dada25077c225726f81ec2eeed3",
       "freshness": "fresh"
     },
@@ -1825,5 +1847,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:6f4d9e7269efbefc3f6d2010f143c759dd55e830322cde9aa05e7f58467ffcf3"
+  "digest": "sha256:bfe283cd19d399652fc07ea1d34c15c4c1bd0b2f83ca6bbcad0130c7eac50c59"
 }

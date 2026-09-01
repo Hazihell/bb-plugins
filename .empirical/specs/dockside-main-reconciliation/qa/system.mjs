@@ -32,6 +32,7 @@ for (const plugin of [
   "host-monitor",
   "save-my-model",
   "taskboard",
+  "touchbar",
   "usage-tracker",
 ]) {
   assert.equal(
@@ -51,6 +52,7 @@ assert.deepEqual(trackedPlugins, [
   "host-monitor",
   "save-my-model",
   "taskboard",
+  "touchbar",
   "usage-tracker",
 ]);
 assert.equal(run("git", ["ls-files", "plugins/t3sidebar"]), "");
@@ -152,5 +154,5 @@ const conflicts = spawnSync(
 assert.equal(conflicts.status, 1, conflicts.stdout || conflicts.stderr);
 
 console.log(
-  "Dockside system check passed: normal main merge, five-plugin npm inventory, six semantic states, live activity colors, two-row cards, persistent guarded family order, semantic PR backgrounds, and no stale t3sidebar or conflict markers.",
+  "Dockside system check passed: normal main merge, six-plugin npm inventory, six semantic states, live activity colors, two-row cards, persistent guarded family order, semantic PR backgrounds, and no stale t3sidebar or conflict markers.",
 );

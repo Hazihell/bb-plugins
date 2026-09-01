@@ -18,6 +18,10 @@ import {
   type RootSelectionIntent,
 } from "@/lib/thread-management";
 import type { DocksidePreferences } from "@/lib/preferences";
+import {
+  projectBadgeLetter,
+  projectBadgePresentation,
+} from "@/lib/project-colors";
 
 export function ProjectGroup({
   group,
@@ -40,6 +44,7 @@ export function ProjectGroup({
   onProjectReorder,
   onProjectKeyboardMove,
   preferences,
+  projectColorOverrides,
 }: {
   group: ProjectThreadGroup;
   providerInfoById: ReadonlyMap<string, ProviderGlyphInfo>;
@@ -71,6 +76,7 @@ export function ProjectGroup({
   }) => void;
   onProjectKeyboardMove: (projectId: string, direction: -1 | 1) => void;
   preferences: DocksidePreferences;
+  projectColorOverrides: ReadonlyMap<string, string>;
 }) {
   const actions = useSidebarThreadActions();
   const projectDragStarted = useRef(false);
@@ -81,6 +87,10 @@ export function ProjectGroup({
     ...family.children,
   ]);
   const expanded = forceExpanded || expandedByUser;
+  const badge = projectBadgePresentation(
+    group.project.id,
+    projectColorOverrides.get(group.project.id),
+  );
 
   return (
     <section
@@ -167,9 +177,14 @@ export function ProjectGroup({
         />
         <span
           aria-hidden
-          className="pointer-events-none relative flex size-5 shrink-0 items-center justify-center rounded-md bg-sidebar-accent text-2xs font-semibold uppercase text-foreground"
+          data-dockside-project-badge={group.project.id}
+          className="pointer-events-none relative flex size-5 shrink-0 items-center justify-center rounded-md border border-black/15 text-2xs font-semibold uppercase shadow-sm"
+          style={{
+            backgroundColor: badge.backgroundColor,
+            color: badge.foregroundColor,
+          }}
         >
-          {projectInitial(group.project.name)}
+          {projectBadgeLetter(group.project.name)}
         </span>
         <span className="pointer-events-none relative min-w-0 flex-1 truncate text-xs font-semibold text-foreground/90">
           {group.project.name}
@@ -323,11 +338,6 @@ function parseDraggedProject(raw: string): { projectId: string } | null {
   } catch {
     return null;
   }
-}
-
-function projectInitial(name: string): string {
-  const first = Array.from(name.trim())[0];
-  return first?.toLocaleUpperCase() ?? "•";
 }
 
 function projectStatusLabel(threads: readonly PluginSidebarThread[]): string {
