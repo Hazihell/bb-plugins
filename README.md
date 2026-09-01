@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./plugins/taskboard/assets/icon.svg" width="64" height="64" alt="Taskboard ticket icon" />
+  <img src="./plugins/taskboard/assets/icon.svg" width="128" height="128" alt="Taskboard ticket icon" />
 </p>
 
 <h1 align="center">BB Plugins</h1>
@@ -20,13 +20,13 @@
 
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
-| <img src="./plugins/action-topbar/assets/icon.svg" width="64" height="64" alt="" /> | [Action Topbar](./plugins/action-topbar) | [Experimental Git install](#action-topbar-experimental-install) | Adds a compact main-thread topbar with draggable BB Actions and persistent, per-thread workspace panes. Requires the matching experimental BB core/SDK build. |
-| <img src="./plugins/dockside/assets/icon.svg" width="64" height="64" alt="" /> | [Dockside](./plugins/dockside) | [Git branch](#dockside-quick-start) | Replaces BB's thread list with a compact project-first sidebar, semantic status colors, filters, safe multi-select deletion, and child-agent families. |
-| <img src="./plugins/host-monitor/assets/icon.svg" width="64" height="64" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
-| <img src="./plugins/save-my-model/assets/icon.svg" width="64" height="64" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |
-| <img src="./plugins/taskboard/assets/icon.svg" width="64" height="64" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
-| <img src="./plugins/touchbar/assets/icon.svg" width="64" height="64" alt="" /> | [Touch Bar Agent Monitor](./plugins/touchbar) | [Git release](#touch-bar-agent-monitor-quick-start) | Adds a native persistent Control Strip badge and fullscreen BB agent panel to Touch Bar Macs. Requires BB 0.40+. |
-| <img src="./plugins/usage-tracker/assets/icon.svg" width="64" height="64" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
+| <img src="./plugins/action-topbar/assets/icon.svg" width="128" height="128" alt="" /> | [Action Topbar](./plugins/action-topbar) | [Experimental Git install](#action-topbar-experimental-install) | Adds a compact main-thread topbar with draggable BB Actions and persistent, per-thread workspace panes. Requires the matching experimental BB core/SDK build. |
+| <img src="./plugins/dockside/assets/icon.svg" width="128" height="128" alt="" /> | [Dockside](./plugins/dockside) | [Git branch](#dockside-quick-start) | Replaces BB's thread list with a compact project-first sidebar, semantic status colors, filters, safe multi-select deletion, and child-agent families. |
+| <img src="./plugins/host-monitor/assets/icon.svg" width="128" height="128" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
+| <img src="./plugins/save-my-model/assets/icon.svg" width="128" height="128" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |
+| <img src="./plugins/taskboard/assets/icon.svg" width="128" height="128" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
+| <img src="./plugins/touchbar/assets/icon.svg" width="128" height="128" alt="" /> | [Touch Bar Agent Monitor](./plugins/touchbar) | [Git release](#touch-bar-agent-monitor-quick-start) | Adds a native persistent Control Strip badge and fullscreen BB agent panel to Touch Bar Macs. Requires BB 0.40+. |
+| <img src="./plugins/usage-tracker/assets/icon.svg" width="128" height="128" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 
 ## Action Topbar experimental install
 
