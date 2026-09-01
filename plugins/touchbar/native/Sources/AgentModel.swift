@@ -251,6 +251,18 @@ final class AgentStore {
         }
     }
 
+    static func openHostMonitor(completion: @escaping (Bool) -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let opened = BBCommand.run(
+                ["host-monitor", "open"], timeout: 5
+            ) != nil
+            DispatchQueue.main.async {
+                if opened { activateBB() }
+                completion(opened)
+            }
+        }
+    }
+
     private static func activateBB() {
         let workspace = NSWorkspace.shared
         if let app = workspace.runningApplications.first(where: {

@@ -481,6 +481,14 @@ export type ExecuteTerminationResult = z.infer<
 >;
 
 export const rpcContract = defineRpcContract({
+  claimNativeOpen: {
+    input: z.null(),
+    output: z
+      .object({
+        open: z.boolean(),
+      })
+      .strict(),
+  },
   getPreferences: {
     input: z.null(),
     output: preferencesSchema,

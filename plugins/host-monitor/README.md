@@ -160,8 +160,13 @@ npm run check --workspace bb-plugin-host-monitor
 The compact machine snapshot is available as JSON:
 
 ```sh
+bb host-monitor open
 bb host-monitor snapshot [--pretty]
 ```
+
+`bb host-monitor open` sends one short-lived request to the installed BB
+desktop app and opens `/plugins/host-monitor/machines`. Native companions use
+this command so Host Monitor opens inside BB instead of in a browser.
 
 It exposes only the effective attention/critical thresholds plus host
 id/name/status, freshness, CPU/RAM/disk percentages, and aggregate

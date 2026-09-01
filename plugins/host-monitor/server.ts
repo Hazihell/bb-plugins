@@ -34,6 +34,7 @@ export const PROCESS_HOST_CALL_TIMEOUT_MS = 20_000;
 export const PROCESS_TERMINATION_HOST_CALL_TIMEOUT_MS = 30_000;
 const REALTIME_CHANNEL = "machines-changed";
 const HOST_SNAPSHOT_LIMIT = 100;
+const NATIVE_OPEN_REQUEST_TTL_MS = 15_000;
 
 export function compactHostDashboard(current: Dashboard) {
   return {
@@ -100,6 +101,7 @@ function nextCpuHighStreak(
 export default async function hostMonitorPlugin(
   bb: BbPluginApi,
 ): Promise<void> {
+  let nativeOpenRequestedAt: number | null = null;
   const settings = bb.settings.define({
     sidebarThresholdColors: {
       type: "boolean",
@@ -409,6 +411,15 @@ export default async function hostMonitorPlugin(
   }
 
   bb.rpc.register(rpcContract, {
+    async claimNativeOpen() {
+      const requestedAt = nativeOpenRequestedAt;
+      nativeOpenRequestedAt = null;
+      return {
+        open:
+          requestedAt !== null &&
+          Date.now() - requestedAt <= NATIVE_OPEN_REQUEST_TTL_MS,
+      };
+    },
     async getPreferences() {
       return { sidebarThresholdColors, thresholds };
     },
@@ -595,8 +606,13 @@ export default async function hostMonitorPlugin(
 
   bb.cli.register({
     name: "host-monitor",
-    summary: "Read the cached Host Monitor resource snapshot",
+    summary: "Open Host Monitor or read its cached resource snapshot",
     commands: [
+      {
+        name: "open",
+        summary: "Open Host Monitor in the BB desktop app",
+        usage: "bb host-monitor open",
+      },
       {
         name: "snapshot",
         summary: "Print bounded CPU, memory, disk, and network JSON",
@@ -605,13 +621,21 @@ export default async function hostMonitorPlugin(
     ],
     async run(argv, context) {
       const [command, ...args] = argv;
+      if (command === "open" && args.length === 0) {
+        nativeOpenRequestedAt = Date.now();
+        return {
+          exitCode: 0,
+          stdout: "Host Monitor open requested.\n",
+        };
+      }
       if (
         command !== "snapshot" ||
         args.some((argument) => argument !== "--pretty")
       ) {
         return {
           exitCode: 1,
-          stderr: "Usage: bb host-monitor snapshot [--pretty]",
+          stderr:
+            "Usage: bb host-monitor open | bb host-monitor snapshot [--pretty]",
         };
       }
       if (hosts.length === 0) await refreshAll(context.signal);

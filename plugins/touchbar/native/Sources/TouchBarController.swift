@@ -577,19 +577,22 @@ private final class SettingsControlButton: NSButton {
 
         if let image {
             let imageRect = NSRect(
-                x: floor((bounds.width - 13) / 2), y: 2,
-                width: 13, height: 13
+                x: floor((bounds.width - 16) / 2), y: 0.5,
+                width: 16, height: 16
             )
             if drawsLightImageTile {
                 NSColor.white.setFill()
-                NSBezierPath(roundedRect: imageRect, xRadius: 3, yRadius: 3).fill()
+                NSBezierPath(ovalIn: imageRect).fill()
             }
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(ovalIn: imageRect).addClip()
             image.draw(
                 in: imageRect,
                 from: .zero,
                 operation: .sourceOver,
                 fraction: isEnabled ? 1 : 0.4
             )
+            NSGraphicsContext.restoreGraphicsState()
         } else {
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: font ?? NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold),
@@ -736,7 +739,7 @@ private final class AgentButton: NSButton {
 
     override func layout() {
         super.layout()
-        iconView.frame = NSRect(x: 5, y: 4, width: 22, height: 22)
+        iconView.frame = NSRect(x: 3, y: 3, width: 24, height: 24)
         titleLabel.frame = NSRect(
             x: 31,
             y: 8,
@@ -761,11 +764,11 @@ private final class AgentButton: NSButton {
         iconView.image = ProviderIcon.image(for: entry.provider)
         let provider = entry.provider.lowercased()
         let needsLightTile = provider == "cursor" || provider == "acp-cursor"
-        iconView.layer?.cornerRadius = needsLightTile ? 4 : 0
+        iconView.layer?.cornerRadius = 12
+        iconView.layer?.masksToBounds = true
         iconView.layer?.backgroundColor = needsLightTile
             ? NSColor.white.cgColor
             : NSColor.clear.cgColor
-        iconView.layer?.cornerRadius = 5
         iconView.layer?.borderWidth = 2
         iconView.layer?.borderColor = color.cgColor
         titleLabel.stringValue = primary
@@ -837,6 +840,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private var tick = 0
     private var configurationVisible = false
     private var hostViewVisible = false
+    private var hostMonitorOpenPending = false
     private var showUsage = UserDefaults.standard.object(
         forKey: "BBTouchBarShowUsage"
     ) as? Bool ?? true
@@ -979,7 +983,9 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         nextProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
         hostMonitorButton.target = self
         hostMonitorButton.action = #selector(hostMonitorTapped(_:))
-        hostMonitorButton.setAccessibilityLabel("Show Host Monitor metrics")
+        hostMonitorButton.setAccessibilityLabel(
+            "Open Host Monitor in BB or show inline metrics"
+        )
         if let image = NSImage(
             systemSymbolName: "desktopcomputer",
             accessibilityDescription: "Host Monitor"
@@ -1249,9 +1255,21 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func hostMonitorTapped(_ sender: NSButton) {
-        hostViewVisible.toggle()
-        updateControlColors()
-        schedulePanelRender()
+        guard !hostMonitorOpenPending else { return }
+        hostMonitorOpenPending = true
+        AgentStore.openHostMonitor { [weak self] opened in
+            guard let self else { return }
+            self.hostMonitorOpenPending = false
+            if opened {
+                NativeLog.info("opened Host Monitor in BB")
+                self.closePanel()
+                return
+            }
+            self.hostViewVisible.toggle()
+            self.updateControlColors()
+            self.schedulePanelRender()
+            NativeLog.info("Host Monitor plugin unavailable; toggled inline metrics")
+        }
     }
 
     @objc private func usageVisibilityTapped(_ sender: NSButton) {
@@ -1508,7 +1526,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         color: NSColor
     ) -> SettingsControlButton {
         let button = settingControl(
-            title: "", width: 25, action: action,
+            title: "", width: 30, action: action,
             selected: selected, color: color
         )
         button.image = ProviderIcon.image(for: provider)

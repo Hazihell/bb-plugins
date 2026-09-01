@@ -176,6 +176,23 @@ test("CLI exposes the bounded cached dashboard used by Touch Bar", async (t) => 
   ]);
 });
 
+test("CLI open request is claimed exactly once by the desktop app", async (t) => {
+  const fake = createFakePluginHost({ pluginId: "host-monitor" });
+  t.after(() => fake.harness.lifecycle.dispose());
+  await plugin(fake.bb);
+
+  const requested = await fake.harness.behavior.runCli(["open"]);
+  assert.equal(requested.exitCode, 0);
+  assert.deepEqual(
+    await fake.harness.behavior.callRpc("claimNativeOpen", null),
+    { open: true },
+  );
+  assert.deepEqual(
+    await fake.harness.behavior.callRpc("claimNativeOpen", null),
+    { open: false },
+  );
+});
+
 test("a failed refresh preserves the last good reading", async (t) => {
   let shouldFail = false;
   const fake = createFakePluginHost({

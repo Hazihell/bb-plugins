@@ -20,6 +20,7 @@ const TRIGGER_ATTRIBUTE = "data-host-monitor-trigger";
 const FOOTER_ACTION_ID = "machines";
 const AUTO_REFRESH_MS = 30_000;
 const PREFERENCES_REFRESH_MS = 5_000;
+const NATIVE_OPEN_POLL_MS = 750;
 const DRAG_THRESHOLD_PX = 8;
 const FLOATING_WIDTH_PX = 352;
 const VIEWPORT_PADDING_PX = 8;
@@ -134,6 +135,23 @@ export function hostMonitorSidebarPreferencesRpcRequest(
     url: `/api/v1/plugins/${pluginId}/rpc/getPreferences`,
     body: "null",
   };
+}
+
+export function hostMonitorNativeOpenRpcRequest(
+  pluginId: string,
+): HostMonitorSidebarRpcRequest {
+  return {
+    url: `/api/v1/plugins/${pluginId}/rpc/claimNativeOpen`,
+    body: "null",
+  };
+}
+
+export function isBbDesktopWindow(value: unknown): boolean {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "bbDesktop" in value
+  );
 }
 
 export function resolveHostMonitorSidebarThresholdColors(
@@ -927,6 +945,7 @@ export function mountHostMonitorSidebar(
   let disposed = false;
   let requestController: AbortController | null = null;
   let preferencesController: AbortController | null = null;
+  let nativeOpenInFlight = false;
   let ensureFrame: number | null = null;
   let positionFrame: number | null = null;
   let dragFrame: number | null = null;
@@ -977,6 +996,36 @@ export function mountHostMonitorSidebar(
           width: visual.width,
           height: visual.height,
         };
+  }
+
+  async function claimNativeOpen(): Promise<void> {
+    if (disposed || nativeOpenInFlight || !isBbDesktopWindow(window)) return;
+    nativeOpenInFlight = true;
+    try {
+      const request = hostMonitorNativeOpenRpcRequest(pluginId);
+      const response = await fetch(request.url, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: request.body,
+        credentials: "same-origin",
+        signal: lifecycleSignal,
+      });
+      const payload = (await response.json()) as RpcEnvelope<unknown>;
+      if (
+        response.ok &&
+        payload.ok &&
+        typeof payload.result === "object" &&
+        payload.result !== null &&
+        "open" in payload.result &&
+        payload.result.open === true
+      ) {
+        navigateToHostMonitor(pluginId);
+      }
+    } catch {
+      // The native bridge is opportunistic; ordinary Host Monitor UI remains usable.
+    } finally {
+      nativeOpenInFlight = false;
+    }
   }
 
   function measuredFloatingSize(): HostMonitorFloatingSize {
@@ -1866,6 +1915,10 @@ export function mountHostMonitorSidebar(
     () => void syncPreferences(),
     PREFERENCES_REFRESH_MS,
   );
+  const nativeOpenInterval = isBbDesktopWindow(window)
+    ? window.setInterval(() => void claimNativeOpen(), NATIVE_OPEN_POLL_MS)
+    : null;
+  void claimNativeOpen();
   window.addEventListener("focus", () => void syncPreferences(), {
     signal: lifecycleSignal,
   });
@@ -1892,6 +1945,7 @@ export function mountHostMonitorSidebar(
     if (suppressionTimer !== null) window.clearTimeout(suppressionTimer);
     if (refreshTimer !== null) window.clearTimeout(refreshTimer);
     window.clearInterval(preferencesInterval);
+    if (nativeOpenInterval !== null) window.clearInterval(nativeOpenInterval);
     requestController?.abort();
     preferencesController?.abort();
     for (const row of markedRows) row.removeAttribute(NAV_ROW_ATTRIBUTE);

@@ -6,12 +6,14 @@ import {
   clampHostMonitorFloatingPosition,
   hostMonitorDragThresholdExceeded,
   hostMonitorFloatingDropPosition,
+  hostMonitorNativeOpenRpcRequest,
   hostMonitorSidebarMetricTones,
   hostMonitorSidebarPreferencesRpcRequest,
   hostMonitorSidebarRefreshDelay,
   hostMonitorSidebarRpcRequest,
   hostMonitorSidebarSummary,
   hostMonitorTriggerRectIsVisible,
+  isBbDesktopWindow,
   parseHostMonitorFloatingPositionCache,
   parseHostMonitorSidebarPreferencesCache,
   parseHostMonitorSidebarThresholdColorsCache,
@@ -224,6 +226,15 @@ describe("Host Monitor sidebar summary", () => {
 });
 
 describe("Host Monitor sidebar requests", () => {
+  it("claims native open requests only from BB desktop windows", () => {
+    assert.deepEqual(hostMonitorNativeOpenRpcRequest("host-monitor"), {
+      url: "/api/v1/plugins/host-monitor/rpc/claimNativeOpen",
+      body: "null",
+    });
+    assert.equal(isBbDesktopWindow({ bbDesktop: {} }), true);
+    assert.equal(isBbDesktopWindow({}), false);
+  });
+
   it("loads the declarative sidebar color preference", () => {
     assert.deepEqual(
       hostMonitorSidebarPreferencesRpcRequest("host-monitor"),

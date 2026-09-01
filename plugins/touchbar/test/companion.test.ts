@@ -253,8 +253,12 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /0x3B82C4/u);
   assert.match(controller, /0xD94B4B/u);
   assert.match(controller, /iconView\.layer\?\.borderColor = color\.cgColor/u);
+  assert.match(controller, /iconView\.layer\?\.cornerRadius = 12/u);
+  assert.match(controller, /iconView\.layer\?\.masksToBounds = true/u);
   assert.doesNotMatch(controller, /statusIconView/u);
   assert.match(controller, /hostMonitorTapped/u);
+  assert.match(controller, /AgentStore\.openHostMonitor/u);
+  assert.match(controller, /Host Monitor plugin unavailable; toggled inline metrics/u);
   assert.match(controller, /usageVisibilityTapped/u);
   assert.match(controller, /hostVisibilityTapped/u);
   assert.match(controller, /case \.bbUsage: return usageItem/u);
@@ -264,6 +268,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(model, /\["touchbar", "open", entry\.id\]/u);
   assert.match(model, /dev\.bb\.desktop/u);
   assert.match(model, /activateBB/u);
+  assert.match(model, /\["host-monitor", "open"\]/u);
+  assert.match(controller, /width: 30, action: action/u);
+  assert.match(controller, /width: 16, height: 16/u);
   assert.doesNotMatch(model, /\["touchbar", "stop"/u);
   for (const provider of ["opencode", "kimi", "deepseek", "qwen", "windsurf", "cline", "roocode"]) {
     assert.match(support, new RegExp(`"${provider}"`, "u"));
