@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 7,
+  "previousDigest": "sha256:0e42d25fdac4264ae3a857b85aad941e9a93045575085c72faa6d23e97cab74a",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Refreshed repository knowledge after the identity cleanup and screenshot documentation; all context pages are current, custom, and free of the removed comparison name.",
+  "createdAt": "2026-09-01T21:03:01.229Z",
+  "stateBeforeDigest": "sha256:6cdeaca281b849b257d7bb51bba34b883a280056db1cf4e285adce16f28f8d40",
+  "stateAfterDigest": "sha256:e9b60298cb2776e1fe316641f157488f7de81f350939c5496ae5a68fc64ce32e",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 7,
+    "activeFeature": "remove-every-mention-of-orca-from-action-topbar-source-metadata",
+    "request": "Remove every mention of Orca from Action Topbar source, metadata, tests, and documentation; capture real light-mode and dark-mode Action Topbar screenshots in BB; add those screenshots to the plugin documentation; verify the plugin and integrate the result into main.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Refreshed repository knowledge after the identity cleanup and screenshot documentation; all context pages are current, custom, and free of the removed comparison name.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:87a9ce3d69358b96cb8ba8cbf3718b5efa3b5dae05247bdd56518a8414165e6f",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:0b14c6c1e00612809954a7f405eb7f0682018642945a5b043e79d609ef028ddf",
+    "impactDigest": "sha256:dcf654b30757da6492dd4b96daac756470d900df956d15239ab609129dfc34e1",
+    "capabilityClaimId": "remove-every-mention-of-orca-from-action-topbar-source-metadata-a5a4ab46ed65",
+    "authorizationDigest": "sha256:d9b05475ae04a5dc902cca7da039d1e0b785a40e923900fb07b6e710cf3f937c",
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T21:03:01.229Z"
+  },
+  "digest": "sha256:c26c0ed1897621577375e2906ffb5af9661caae9a6e5dd5664624e7178e8d7a6"
+}

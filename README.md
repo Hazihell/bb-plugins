@@ -20,7 +20,7 @@
 
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
-| <img src="./plugins/action-topbar/assets/icon.svg" width="28" height="28" alt="" /> | [Action Topbar](./plugins/action-topbar) | [Experimental Git install](#action-topbar-experimental-install) | Adds draggable BB Actions as persistent, per-thread main-workspace panes with an Orca-style topbar. Requires the matching experimental BB core/SDK build. |
+| <img src="./plugins/action-topbar/assets/icon.svg" width="28" height="28" alt="" /> | [Action Topbar](./plugins/action-topbar) | [Experimental Git install](#action-topbar-experimental-install) | Adds a compact main-thread topbar with draggable BB Actions and persistent, per-thread workspace panes. Requires the matching experimental BB core/SDK build. |
 | <img src="./plugins/dockside/assets/icon.svg" width="28" height="28" alt="" /> | [Dockside](./plugins/dockside) | [Git branch](#dockside-quick-start) | Replaces BB's thread list with a compact project-first sidebar, semantic status colors, filters, safe multi-select deletion, and child-agent families. |
 | <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
 | <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |

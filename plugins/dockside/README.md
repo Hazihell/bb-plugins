@@ -16,7 +16,7 @@
 </div>
 
 Dockside replaces the scrolling thread list in bb's left sidebar with a
-compact project-first inbox inspired by Orca's navigation.
+compact project-first inbox designed for parallel agent work.
 
 Projects and complete root/child families stay where you put them. Drag the
 existing project header or a family's semantic status icon to sort, or use

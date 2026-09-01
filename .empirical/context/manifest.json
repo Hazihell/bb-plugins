@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:6c4cf89daba810c0119fdf2a3d7ed4c50eec9cee18da0101d701ded516b1d232",
+  "sourceDigest": "sha256:e8a1b0bfa9735380c8b1fb1051835b451e7f3eebf5ed7f32a3f0145c7a151421",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -75,8 +75,8 @@
     },
     {
       "path": "README.md",
-      "size": 10993,
-      "digest": "sha256:205a21f6add14dc65dfa27aa0e4f46f7b7962ce5a7fb6f7beb20eb4fa9410634"
+      "size": 10997,
+      "digest": "sha256:a2d067fd3419f9c5a9edce46ca26a1baa343e29eed614ffbadc03734e7fa232a"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -115,8 +115,8 @@
     },
     {
       "path": "plugins/action-topbar/README.md",
-      "size": 2652,
-      "digest": "sha256:0ff6e73789103639cfd5e3a2c6af35a7db7bf0776271e685e749cdee646648e3"
+      "size": 3017,
+      "digest": "sha256:a17d21986f137d8d899b7d11dd3b91af35d5036dddc85e101e5092401ca42b49"
     },
     {
       "path": "plugins/action-topbar/THIRD_PARTY_NOTICES.md",
@@ -155,8 +155,8 @@
     },
     {
       "path": "plugins/action-topbar/package.json",
-      "size": 2497,
-      "digest": "sha256:854cf4ad4db050c711f03ee2ecfa2b828ed3feab3318327813b0018cbd14b4df"
+      "size": 2499,
+      "digest": "sha256:25b4b5f1b1301e7d64a1272c26e4f8c106c2346a342b8c22996785025d09b244"
     },
     {
       "path": "plugins/action-topbar/server.ts",
@@ -200,8 +200,8 @@
     },
     {
       "path": "plugins/dockside/README.md",
-      "size": 10550,
-      "digest": "sha256:45cf083b5ab11d6f56bd0d5995653ba2a365fd933258ea3c60f8b18df7eb3b6f"
+      "size": 10553,
+      "digest": "sha256:291ccfdd7cdb4e347afdab1c3b539a648bad8126f74cba5fbbcde48dd23c8df0"
     },
     {
       "path": "plugins/dockside/THIRD_PARTY_NOTICES.md",
@@ -255,8 +255,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/project-group.tsx",
-      "size": 12249,
-      "digest": "sha256:512c53d5a0cbcefbdf1611194bf728b831b547d2b304956ee4e35686ed13131d"
+      "size": 12168,
+      "digest": "sha256:ecbd316fdca9810d7fcb97504c906493a175d20329085e7a3a6f4716d238d8d8"
     },
     {
       "path": "plugins/dockside/components/inbox/provider-glyph.tsx",
@@ -295,8 +295,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 25159,
-      "digest": "sha256:3b685f31b03fd02fdd5e37bed8de229ac449ab9827d1c902f5c59303769e9453"
+      "size": 24998,
+      "digest": "sha256:36ffeb28cbcebe6d6563780ef39526eb971306444a5e01c81a357c0f42c11a41"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
@@ -1457,7 +1457,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:6c4cf89daba810c0119fdf2a3d7ed4c50eec9cee18da0101d701ded516b1d232",
+      "sourceDigest": "sha256:e8a1b0bfa9735380c8b1fb1051835b451e7f3eebf5ed7f32a3f0145c7a151421",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1486,7 +1486,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:ea4f374974af65b4234c73b19fede0715af6f5823dff01c31596d7a441915e02",
+      "sourceDigest": "sha256:f5ea131a1c8b3d00cb3a98cfa8d6e2fc744f4e4d68f055e2f45d21fa3193a67f",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1503,7 +1503,7 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:8f9dd06ef3a1cb62e1bfe37026e6b32b7cf2e6be82b99cadb50808ba8d83ec5c",
+      "sourceDigest": "sha256:f6966218bdc323bc5754e8a00dad12963202917da272831197f852049eb8f9ab",
       "digest": "sha256:6a3333fdbbcffff93c96400aab0596932dc23cce823061cdedacad5e44ef7bd7",
       "freshness": "fresh"
     },
@@ -1521,7 +1521,7 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:9eef12377db29268653a6f2094d35573d6f624b58a5212a41257652a86169c5e",
+      "sourceDigest": "sha256:82a0dc75fd1a1969b07cb69e14c0f270b34fe96fe34279ecb63d093aacd8e891",
       "digest": "sha256:06a7a6d07d2649e2d00a93cf62beef749d2f5dada25077c225726f81ec2eeed3",
       "freshness": "fresh"
     },
@@ -1544,5 +1544,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:050fdd09c6e84aecc29294daf2af58821e26a3b9905c1883f5763a3493beda57"
+  "digest": "sha256:c811dd26d33335b7cb6d30507d4eab2cd67341ef085339a16b94a98181fc66c6"
 }

@@ -9,7 +9,7 @@
 
 Action Topbar projects BB Actions opened as main-workspace panes into the
 **main thread topbar**. Pane content stays under BB's ownership; the topbar
-adds an Orca-style strip and searchable **+** combobox while the right panel
+adds a compact tab strip and searchable **+** combobox while the right panel
 keeps its original New Tab / Actions launcher.
 
 Action-to-pane dragging requires BB's experimental thread Action split-drag
@@ -39,6 +39,16 @@ The plugin does not recreate Browser, Terminal, Recap, File Manager, Git
 History, Side Chat, Taskboard, Workflows, or third-party panels. Main panes
 stay host-rendered, and launcher rows still execute through their owning
 plugin.
+
+## Preview
+
+### Light mode
+
+![Action Topbar in BB light mode with the compact main-thread tab strip and searchable draggable Action launcher open](../../docs/media/action-topbar-light.png)
+
+### Dark mode
+
+![Action Topbar in BB dark mode with the compact main-thread tab strip and searchable draggable Action launcher open](../../docs/media/action-topbar-dark.png)
 
 ## Install
 

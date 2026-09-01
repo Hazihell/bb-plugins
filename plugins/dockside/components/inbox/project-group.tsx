@@ -19,7 +19,6 @@ import {
 } from "@/lib/thread-management";
 import type { DocksidePreferences } from "@/lib/preferences";
 
-/** A collapsible project section, modeled after Orca's durable outer groups. */
 export function ProjectGroup({
   group,
   providerInfoById,

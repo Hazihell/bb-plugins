@@ -33,10 +33,6 @@ import type { DocksidePreferences } from "@/lib/preferences";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
-/**
- * One project-root thread and its visible descendants. Quiet roots stay a
- * compact two-line row; active families open into an Orca-style agent stack.
- */
 export function ThreadCard({
   thread,
   childThreads,

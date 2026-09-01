@@ -1,7 +1,7 @@
 {
   "name": "bb-plugin-action-topbar",
   "version": "0.1.0",
-  "description": "An Orca-style main thread topbar for BB panel tabs and Actions.",
+  "description": "A compact main-thread topbar for BB panel tabs and draggable Actions.",
   "license": "MIT",
   "author": "Mateo Cerquetella",
   "homepage": "https://github.com/mateocerquetella/bb-plugins/tree/main/plugins/action-topbar",
@@ -31,7 +31,7 @@
   },
   "bb": {
     "name": "Action Topbar",
-    "description": "Mirror open thread-panel tabs in an Orca-style topbar with a searchable + launcher.",
+    "description": "Mirror open thread-panel tabs in a compact topbar with a searchable + launcher.",
     "branding": {
       "icon": "./assets/icon.svg"
     },

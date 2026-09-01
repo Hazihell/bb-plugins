@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 
 const read = (path) => readFileSync(path, "utf8");
@@ -17,6 +17,30 @@ assert.match(rootReadme, /Action Topbar is not being submitted to the BB Marketp
 assert.match(pluginReadme, /experimental Action split-drag API introduced in Plugin SDK 0\.4\.33/);
 assert.match(pluginReadme, /git:https:\/\/github\.com\/MateoCerquetella\/bb-plugins\.git@main/);
 assert.match(pluginReadme, /path:\/absolute\/path\/to\/bb-plugins\/plugins\/action-topbar/);
+assert.match(pluginReadme, /docs\/media\/action-topbar-light\.png/);
+assert.match(pluginReadme, /docs\/media\/action-topbar-dark\.png/);
+assert.doesNotMatch(manifest.description, /orca/i);
+assert.doesNotMatch(manifest.bb.description, /orca/i);
+
+for (const path of ["docs/media/action-topbar-light.png", "docs/media/action-topbar-dark.png"]) {
+  const png = readFileSync(path);
+  assert.equal(png.subarray(1, 4).toString(), "PNG");
+  assert.equal(png.readUInt32BE(16), 1450);
+  assert.equal(png.readUInt32BE(20), 720);
+}
+
+const textExtensions = new Set([".css", ".json", ".md", ".mjs", ".ts", ".tsx"]);
+const authoredFiles = [];
+const visit = (path) => {
+  for (const entry of readdirSync(path, { withFileTypes: true })) {
+    if ([".empirical", ".git", "dist", "node_modules"].includes(entry.name)) continue;
+    const child = path === "." ? entry.name : `${path}/${entry.name}`;
+    if (entry.isDirectory()) visit(child);
+    else if (textExtensions.has(child.slice(child.lastIndexOf(".")))) authoredFiles.push(child);
+  }
+};
+visit(".");
+for (const path of authoredFiles) assert.doesNotMatch(read(path), /orca/i, path);
 
 const packed = spawnSync("npm", ["pack", "--dry-run", "--json", "--workspace=bb-plugin-action-topbar"], {
   cwd: process.cwd(),
