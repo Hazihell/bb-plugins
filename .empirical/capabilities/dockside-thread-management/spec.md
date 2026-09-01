@@ -93,17 +93,16 @@ accessible status summary while row-level status remains authoritative.
 
 ### Requirement: Rows show semantic pull-request context
 
-Dockside MUST render PR number followed by a semantic state icon and MUST show
-state, number, and title in a themed hover/focus tooltip. In review uses Eye;
-Ready/Merged Check; Changes/Blocked/Closed CircleX; Checks Loading; Open/Draft
-GitBranch.
+Dockside MUST show one PR indicator per family on the root only. The root's
+trailing column MUST show elapsed time first and `#number` plus semantic icon
+directly beneath it. Child rows MUST NOT look up or render PR metadata.
 
-#### Scenario: PR awaits review
+#### Scenario: Root and three children share a branch PR
 
-- **Given** a quiet row has a review-requested PR
-- **When** it renders
-- **Then** the row ends in `#number` and an eye icon
-- **And** hover/focus reveals `In review · #number · title`
+- **Given** an expanded root has three children on the same PR branch
+- **When** Dockside renders the family
+- **Then** the root shows one PR number/icon below elapsed time
+- **And** no child repeats that PR metadata
 
 ### Requirement: Completed rows show only real bounded outcomes
 
