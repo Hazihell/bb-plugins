@@ -5,13 +5,17 @@ extension NSTouchBarItem.Identifier {
     static let bbList = NSTouchBarItem.Identifier("app.getbb.touchbar.list")
     static let bbSettings = NSTouchBarItem.Identifier("app.getbb.touchbar.settings")
     static let bbPriority = NSTouchBarItem.Identifier("app.getbb.touchbar.priority")
-    static let bbProject = NSTouchBarItem.Identifier("app.getbb.touchbar.project")
+    static let bbDock = NSTouchBarItem.Identifier("app.getbb.touchbar.dock")
+    static let bbCarousel = NSTouchBarItem.Identifier("app.getbb.touchbar.carousel")
+    static let bbPreviousProject = NSTouchBarItem.Identifier("app.getbb.touchbar.previous-project")
+    static let bbNextProject = NSTouchBarItem.Identifier("app.getbb.touchbar.next-project")
     static let bbClose = NSTouchBarItem.Identifier("app.getbb.touchbar.close")
 }
 
 private enum SortMode: String {
     case status
-    case project
+    case dock
+    case carousel
 }
 
 private enum StatusPalette {
@@ -167,6 +171,12 @@ private final class GroupDividerView: NSButton {
         bounds.contains(point) ? self : nil
     }
 
+    func setSelected(_ selected: Bool) {
+        guard compactProject else { return }
+        layer?.borderWidth = selected ? 2 : 0
+        layer?.borderColor = selected ? NSColor.white.cgColor : NSColor.clear.cgColor
+    }
+
     private static func projectInitials(_ project: String) -> String {
         guard let token = project.split(whereSeparator: {
             !$0.isLetter && !$0.isNumber
@@ -186,38 +196,6 @@ private final class GroupDividerView: NSButton {
             hash &*= 0x100000001b3
         }
         return palette[Int(hash % UInt64(palette.count))]
-    }
-}
-
-private final class ProjectGroupView: NSView {
-    private let stack: NSStackView
-    private let measuredWidth: CGFloat
-
-    init(views: [NSView]) {
-        let nestedStack = NSStackView(views: views)
-        nestedStack.orientation = .horizontal
-        nestedStack.spacing = 4
-        nestedStack.alignment = .centerY
-        stack = nestedStack
-        measuredWidth = nestedStack.fittingSize.width + 8
-        super.init(frame: .zero)
-        wantsLayer = true
-        layer?.cornerRadius = 6
-        layer?.borderWidth = 1
-        layer?.borderColor = NSColor(white: 0.28, alpha: 0.9).cgColor
-        layer?.backgroundColor = NSColor(white: 0.035, alpha: 0.98).cgColor
-        layer?.masksToBounds = true
-        addSubview(stack)
-    }
-
-    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize {
-        NSSize(width: measuredWidth, height: 30)
-    }
-
-    override func layout() {
-        super.layout()
-        stack.frame = NSRect(x: 4, y: 0, width: bounds.width - 8, height: 30)
     }
 }
 
@@ -323,11 +301,17 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let panelItem = NSCustomTouchBarItem(identifier: .bbList)
     private let settingsItem = NSCustomTouchBarItem(identifier: .bbSettings)
     private let priorityItem = NSCustomTouchBarItem(identifier: .bbPriority)
-    private let projectItem = NSCustomTouchBarItem(identifier: .bbProject)
+    private let dockItem = NSCustomTouchBarItem(identifier: .bbDock)
+    private let carouselItem = NSCustomTouchBarItem(identifier: .bbCarousel)
+    private let previousProjectItem = NSCustomTouchBarItem(identifier: .bbPreviousProject)
+    private let nextProjectItem = NSCustomTouchBarItem(identifier: .bbNextProject)
     private let closeItem = NSCustomTouchBarItem(identifier: .bbClose)
     private let settingsButton = NSButton(title: "", target: nil, action: nil)
     private let priorityButton = NSButton(title: "PRIORITY", target: nil, action: nil)
-    private let projectButton = NSButton(title: "PROJECT", target: nil, action: nil)
+    private let dockButton = NSButton(title: "DOCK", target: nil, action: nil)
+    private let carouselButton = NSButton(title: "CAROUSEL", target: nil, action: nil)
+    private let previousProjectButton = NSButton(title: "‹", target: nil, action: nil)
+    private let nextProjectButton = NSButton(title: "›", target: nil, action: nil)
     private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var panelTouchBar: NSTouchBar?
     private var panelVisible = false
@@ -337,9 +321,14 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var tick = 0
     private var configurationVisible = false
-    private var sortMode = SortMode(
-        rawValue: UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
-    ) ?? .status
+    private var selectedProject = UserDefaults.standard.string(
+        forKey: "BBTouchBarSelectedProject"
+    )
+    private var sortMode: SortMode = {
+        let stored = UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
+        if stored == "project" { return .dock }
+        return SortMode(rawValue: stored) ?? .status
+    }()
 
     private static let barHeight: CGFloat = 30
 
@@ -389,9 +378,18 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         priorityButton.target = self
         priorityButton.action = #selector(priorityTapped(_:))
         priorityButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
-        projectButton.target = self
-        projectButton.action = #selector(projectSortTapped(_:))
-        projectButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        dockButton.target = self
+        dockButton.action = #selector(dockTapped(_:))
+        dockButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        carouselButton.target = self
+        carouselButton.action = #selector(carouselTapped(_:))
+        carouselButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        previousProjectButton.target = self
+        previousProjectButton.action = #selector(previousProjectTapped(_:))
+        previousProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
+        nextProjectButton.target = self
+        nextProjectButton.action = #selector(nextProjectTapped(_:))
+        nextProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
         closeButton.target = self
         closeButton.action = #selector(closeTapped(_:))
         closeButton.bezelColor = NSColor(white: 0.18, alpha: 1)
@@ -399,7 +397,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
         settingsItem.view = settingsButton
         priorityItem.view = priorityButton
-        projectItem.view = projectButton
+        dockItem.view = dockButton
+        carouselItem.view = carouselButton
+        previousProjectItem.view = previousProjectButton
+        nextProjectItem.view = nextProjectButton
         closeItem.view = closeButton
         updateControlColors()
     }
@@ -411,8 +412,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         priorityButton.bezelColor = sortMode == .status
             ? .systemBlue
             : NSColor(white: 0.18, alpha: 1)
-        projectButton.bezelColor = sortMode == .project
+        dockButton.bezelColor = sortMode == .dock
             ? .systemTeal
+            : NSColor(white: 0.18, alpha: 1)
+        carouselButton.bezelColor = sortMode == .carousel
+            ? .systemPurple
             : NSColor(white: 0.18, alpha: 1)
     }
 
@@ -525,9 +529,17 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
-        var identifiers: [NSTouchBarItem.Identifier] = [.bbList, .flexibleSpace]
+        var identifiers: [NSTouchBarItem.Identifier] = []
+        if sortMode == .carousel {
+            identifiers.append(.bbPreviousProject)
+        }
+        identifiers.append(contentsOf: [.bbList])
+        if sortMode == .carousel {
+            identifiers.append(.bbNextProject)
+        }
+        identifiers.append(.flexibleSpace)
         if configurationVisible {
-            identifiers.append(contentsOf: [.bbPriority, .bbProject])
+            identifiers.append(contentsOf: [.bbPriority, .bbDock, .bbCarousel])
         }
         identifiers.append(contentsOf: [.bbSettings, .bbClose])
         return identifiers
@@ -564,8 +576,37 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         selectSortMode(.status)
     }
 
-    @objc private func projectSortTapped(_ sender: NSButton) {
-        selectSortMode(.project)
+    @objc private func dockTapped(_ sender: NSButton) {
+        selectSortMode(.dock)
+    }
+
+    @objc private func carouselTapped(_ sender: NSButton) {
+        selectSortMode(.carousel)
+    }
+
+    @objc private func previousProjectTapped(_ sender: NSButton) {
+        moveProject(by: -1)
+    }
+
+    @objc private func nextProjectTapped(_ sender: NSButton) {
+        moveProject(by: 1)
+    }
+
+    @objc private func projectDockTapped(_ sender: NSButton) {
+        guard let project = sender.identifier?.rawValue else { return }
+        selectedProject = project
+        UserDefaults.standard.set(project, forKey: "BBTouchBarSelectedProject")
+        schedulePanelRender()
+    }
+
+    private func moveProject(by offset: Int) {
+        let projects = orderedProjects(in: organized(store.snapshot.agents))
+        guard !projects.isEmpty else { return }
+        let current = selectedProject.flatMap { projects.firstIndex(of: $0) } ?? 0
+        let next = (current + offset + projects.count) % projects.count
+        selectedProject = projects[next]
+        UserDefaults.standard.set(projects[next], forKey: "BBTouchBarSelectedProject")
+        schedulePanelRender()
     }
 
     private func selectSortMode(_ mode: SortMode) {
@@ -598,7 +639,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         case .bbList: return panelItem
         case .bbSettings: return settingsItem
         case .bbPriority: return priorityItem
-        case .bbProject: return projectItem
+        case .bbDock: return dockItem
+        case .bbCarousel: return carouselItem
+        case .bbPreviousProject: return previousProjectItem
+        case .bbNextProject: return nextProjectItem
         case .bbClose: return closeItem
         default: return nil
         }
@@ -616,32 +660,39 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             views.append(message("No BB threads"))
         } else if sortMode == .status {
             views.append(contentsOf: entries.map { button(for: $0) })
-        } else {
-            var index = 0
-            while index < entries.count {
-                let first = entries[index]
-                var end = index + 1
-                while end < entries.count && entries[end].project == first.project {
-                    end += 1
+        } else if let project = resolvedProject(in: entries) {
+            let projectEntries = entries.filter { $0.project == project }
+            if sortMode == .dock {
+                for name in orderedProjects(in: entries) {
+                    guard let first = entries.first(where: { $0.project == name }) else {
+                        continue
+                    }
+                    let badge = GroupDividerView(
+                        status: first.status,
+                        project: name,
+                        count: entries.filter { $0.project == name }.count,
+                        projectFirst: true,
+                        threadId: name,
+                        target: self,
+                        action: #selector(projectDockTapped(_:))
+                    )
+                    badge.setSelected(name == project)
+                    views.append(badge)
                 }
-                let projectEntries = Array(entries[index..<end])
-                var nested: [NSView] = [GroupDividerView(
+            } else if let first = projectEntries.first {
+                let badge = GroupDividerView(
                     status: first.status,
-                    project: first.project,
+                    project: project,
                     count: projectEntries.count,
                     projectFirst: true,
                     threadId: first.id,
                     target: self,
                     action: #selector(agentTapped(_:))
-                )]
-                nested.append(contentsOf: projectEntries.map {
-                    button(for: $0, grouped: true)
-                })
-                views.append(ProjectGroupView(
-                    views: nested
-                ))
-                index = end
+                )
+                badge.setSelected(true)
+                views.append(badge)
             }
+            views.append(contentsOf: projectEntries.map { button(for: $0) })
         }
         panelItem.view = scrollContainer(views)
     }
@@ -669,7 +720,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             let left = rank[$0.status, default: 5]
             let right = rank[$1.status, default: 5]
             let projectOrder = $0.project.localizedCaseInsensitiveCompare($1.project)
-            if sortMode == .project {
+            if sortMode == .dock || sortMode == .carousel {
                 if projectOrder != .orderedSame { return projectOrder == .orderedAscending }
                 if left != right { return left < right }
             } else {
@@ -677,6 +728,24 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             }
             return $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending
         }
+    }
+
+    private func orderedProjects(in entries: [AgentEntry]) -> [String] {
+        var seen = Set<String>()
+        return entries.compactMap { entry in
+            seen.insert(entry.project).inserted ? entry.project : nil
+        }
+    }
+
+    private func resolvedProject(in entries: [AgentEntry]) -> String? {
+        let projects = orderedProjects(in: entries)
+        guard !projects.isEmpty else { return nil }
+        if let selectedProject, projects.contains(selectedProject) {
+            return selectedProject
+        }
+        selectedProject = projects[0]
+        UserDefaults.standard.set(projects[0], forKey: "BBTouchBarSelectedProject")
+        return projects[0]
     }
 
     private func repaint(_ entry: AgentEntry) {
