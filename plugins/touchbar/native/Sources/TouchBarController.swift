@@ -311,6 +311,151 @@ private final class HostMetricView: NSView {
     }
 }
 
+private final class UsageIconStripView: NSView {
+    private struct Item {
+        let id: String
+        let name: String
+        let percent: Double?
+    }
+
+    private var items: [Item] = []
+
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: CGFloat(max(items.count, 1) * 28), height: 30)
+    }
+
+    func update(entries: [UsageEntry], visibility: [String: Bool]) {
+        items = entries.compactMap { entry in
+            guard visibility[entry.id] == true else { return nil }
+            return Item(id: entry.id, name: entry.name, percent: entry.usedPercent)
+        }
+        let accessible = items.map { item in
+            item.percent.map { "\(item.name) \(Int($0.rounded())) percent used" }
+                ?? "\(item.name) unavailable"
+        }.joined(separator: ", ")
+        setAccessibilityLabel(accessible.isEmpty ? "Subscription usage hidden" : accessible)
+        invalidateIntrinsicContentSize()
+        frame.size = intrinsicContentSize
+        needsDisplay = true
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        if items.isEmpty {
+            NSColor(white: 0.35, alpha: 1).setStroke()
+            let path = NSBezierPath(ovalIn: NSRect(x: 6, y: 6, width: 18, height: 18))
+            path.lineWidth = 2
+            path.stroke()
+            return
+        }
+        for (index, item) in items.enumerated() {
+            let origin = CGFloat(index * 28)
+            let ringRect = NSRect(x: origin + 3, y: 3, width: 24, height: 24)
+            NSColor(white: 0.25, alpha: 1).setStroke()
+            let background = NSBezierPath(ovalIn: ringRect)
+            background.lineWidth = 2
+            background.stroke()
+
+            if let percent = item.percent {
+                let clamped = min(100, max(0, percent))
+                Self.color(for: clamped).setStroke()
+                let progress = NSBezierPath()
+                progress.appendArc(
+                    withCenter: NSPoint(x: ringRect.midX, y: ringRect.midY),
+                    radius: 12,
+                    startAngle: 90,
+                    endAngle: 90 - CGFloat(clamped * 3.6),
+                    clockwise: true
+                )
+                progress.lineWidth = 2.5
+                progress.lineCapStyle = .round
+                progress.stroke()
+            }
+
+            let provider = item.id == "claudeCode" ? "claude-code" : item.id
+            if item.id == "cursor" {
+                NSColor.white.setFill()
+                NSBezierPath(roundedRect: NSRect(x: origin + 8, y: 8, width: 14, height: 14), xRadius: 3, yRadius: 3).fill()
+            }
+            ProviderIcon.image(for: provider).draw(
+                in: NSRect(x: origin + 8, y: 8, width: 14, height: 14),
+                from: .zero,
+                operation: .sourceOver,
+                fraction: item.percent == nil ? 0.45 : 1
+            )
+        }
+    }
+
+    private static func color(for percent: Double) -> NSColor {
+        if percent >= 90 { return .systemRed }
+        if percent >= 75 { return .systemOrange }
+        return .systemGreen
+    }
+}
+
+private final class SettingsControlButton: NSButton {
+    private let fixedWidth: CGFloat
+
+    init(title: String, width: CGFloat) {
+        fixedWidth = width
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 17))
+        self.title = title
+        isBordered = true
+        bezelStyle = .texturedRounded
+        refusesFirstResponder = true
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 17) }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard isEnabled, let action else { return }
+        NSApp.sendAction(action, to: target, from: self)
+    }
+}
+
+private final class SettingsGroupView: NSView {
+    private let sectionLabel = NSTextField(labelWithString: "")
+    private let controls: [SettingsControlButton]
+    private let measuredWidth: CGFloat
+
+    init(title: String, controls: [SettingsControlButton]) {
+        self.controls = controls
+        measuredWidth = controls.reduce(CGFloat(8)) { $0 + $1.intrinsicContentSize.width } +
+            CGFloat(max(controls.count - 1, 0) * 3)
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = 6
+        layer?.borderWidth = 1
+        layer?.borderColor = NSColor(white: 0.30, alpha: 0.9).cgColor
+        layer?.backgroundColor = NSColor(white: 0.045, alpha: 0.98).cgColor
+        sectionLabel.stringValue = title
+        sectionLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
+        sectionLabel.textColor = NSColor(white: 0.62, alpha: 1)
+        addSubview(sectionLabel)
+        for control in controls { addSubview(control) }
+        setAccessibilityLabel("\(title) settings")
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: measuredWidth, height: 30) }
+
+    override func layout() {
+        super.layout()
+        sectionLabel.frame = NSRect(x: 6, y: 20, width: bounds.width - 12, height: 7)
+        var x: CGFloat = 4
+        for control in controls {
+            let width = control.intrinsicContentSize.width
+            control.frame = NSRect(x: x, y: 1, width: width, height: 17)
+            x += width + 3
+        }
+    }
+}
+
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
@@ -427,19 +572,19 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let cursorToggleItem = NSCustomTouchBarItem(identifier: .bbCursorToggle)
     private let closeItem = NSCustomTouchBarItem(identifier: .bbClose)
     private let settingsButton = NSButton(title: "", target: nil, action: nil)
-    private let priorityButton = NSButton(title: "PRIORITY", target: nil, action: nil)
-    private let projectButton = NSButton(title: "PROJECT", target: nil, action: nil)
-    private let dockButton = NSButton(title: "DOCK", target: nil, action: nil)
-    private let carouselButton = NSButton(title: "CAROUSEL", target: nil, action: nil)
+    private let priorityButton = SettingsControlButton(title: "PRIORITY", width: 52)
+    private let projectButton = SettingsControlButton(title: "PROJECT", width: 48)
+    private let dockButton = SettingsControlButton(title: "DOCK", width: 36)
+    private let carouselButton = SettingsControlButton(title: "CAROUSEL", width: 54)
     private let previousProjectButton = NSButton(title: "‹", target: nil, action: nil)
     private let nextProjectButton = NSButton(title: "›", target: nil, action: nil)
-    private let usageButton = NSButton(title: "USAGE —", target: nil, action: nil)
-    private let hostMonitorButton = NSButton(title: "HOSTS —", target: nil, action: nil)
-    private let usageToggleButton = NSButton(title: "USAGE", target: nil, action: nil)
-    private let hostToggleButton = NSButton(title: "HOST", target: nil, action: nil)
-    private let codexToggleButton = NSButton(title: "CODEX", target: nil, action: nil)
-    private let claudeToggleButton = NSButton(title: "CLAUDE", target: nil, action: nil)
-    private let cursorToggleButton = NSButton(title: "CURSOR", target: nil, action: nil)
+    private let usageIconsView = UsageIconStripView()
+    private let hostMonitorButton = NSButton(title: "", target: nil, action: nil)
+    private let usageToggleButton = SettingsControlButton(title: "SHOW", width: 38)
+    private let hostToggleButton = SettingsControlButton(title: "SHOW", width: 38)
+    private let codexToggleButton = SettingsControlButton(title: "", width: 25)
+    private let claudeToggleButton = SettingsControlButton(title: "", width: 25)
+    private let cursorToggleButton = SettingsControlButton(title: "", width: 25)
     private let closeButton = NSButton(title: "✕", target: nil, action: nil)
     private var panelTouchBar: NSTouchBar?
     private var panelVisible = false
@@ -516,33 +661,41 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
         priorityButton.target = self
         priorityButton.action = #selector(priorityTapped(_:))
-        priorityButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        priorityButton.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
         projectButton.target = self
         projectButton.action = #selector(projectTapped(_:))
-        projectButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        projectButton.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
         dockButton.target = self
         dockButton.action = #selector(dockTapped(_:))
-        dockButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        dockButton.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
         carouselButton.target = self
         carouselButton.action = #selector(carouselTapped(_:))
-        carouselButton.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
+        carouselButton.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
         previousProjectButton.target = self
         previousProjectButton.action = #selector(previousProjectTapped(_:))
         previousProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
         nextProjectButton.target = self
         nextProjectButton.action = #selector(nextProjectTapped(_:))
         nextProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
-        usageButton.font = .monospacedDigitSystemFont(ofSize: 7.5, weight: .bold)
-        usageButton.setAccessibilityLabel("Agent subscription usage")
         hostMonitorButton.target = self
         hostMonitorButton.action = #selector(hostMonitorTapped(_:))
-        hostMonitorButton.font = .monospacedDigitSystemFont(ofSize: 7.5, weight: .bold)
         hostMonitorButton.setAccessibilityLabel("Show Host Monitor metrics")
+        if let image = NSImage(
+            systemSymbolName: "desktopcomputer",
+            accessibilityDescription: "Host Monitor"
+        ) {
+            hostMonitorButton.image = image
+            hostMonitorButton.imagePosition = .imageOnly
+            hostMonitorButton.imageScaling = .scaleProportionallyDown
+            hostMonitorButton.contentTintColor = .white
+        } else {
+            hostMonitorButton.title = "▣"
+        }
         for button in [
             usageToggleButton, hostToggleButton, codexToggleButton,
             claudeToggleButton, cursorToggleButton,
         ] {
-            button.font = .monospacedSystemFont(ofSize: 7, weight: .bold)
+            button.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
         }
         usageToggleButton.target = self
         usageToggleButton.action = #selector(usageVisibilityTapped(_:))
@@ -554,25 +707,23 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         claudeToggleButton.action = #selector(claudeVisibilityTapped(_:))
         cursorToggleButton.target = self
         cursorToggleButton.action = #selector(cursorVisibilityTapped(_:))
+        codexToggleButton.image = ProviderIcon.image(for: "codex")
+        claudeToggleButton.image = ProviderIcon.image(for: "claude-code")
+        cursorToggleButton.image = ProviderIcon.image(for: "cursor")
+        for button in [codexToggleButton, claudeToggleButton, cursorToggleButton] {
+            button.imagePosition = .imageOnly
+            button.imageScaling = .scaleProportionallyDown
+        }
         closeButton.target = self
         closeButton.action = #selector(closeTapped(_:))
         closeButton.bezelColor = NSColor(white: 0.18, alpha: 1)
         closeButton.setAccessibilityLabel("Close BB agent panel")
 
         settingsItem.view = settingsButton
-        priorityItem.view = priorityButton
-        projectItem.view = projectButton
-        dockItem.view = dockButton
-        carouselItem.view = carouselButton
         previousProjectItem.view = previousProjectButton
         nextProjectItem.view = nextProjectButton
-        usageItem.view = usageButton
+        usageItem.view = usageIconsView
         hostMonitorItem.view = hostMonitorButton
-        usageToggleItem.view = usageToggleButton
-        hostToggleItem.view = hostToggleButton
-        codexToggleItem.view = codexToggleButton
-        claudeToggleItem.view = claudeToggleButton
-        cursorToggleItem.view = cursorToggleButton
         closeItem.view = closeButton
         updateControlColors()
     }
@@ -593,9 +744,9 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         carouselButton.bezelColor = sortMode == .carousel
             ? .systemPurple
             : NSColor(white: 0.18, alpha: 1)
-        usageToggleButton.title = showUsage ? "USAGE ON" : "USAGE OFF"
+        usageToggleButton.title = showUsage ? "ON" : "OFF"
         usageToggleButton.bezelColor = showUsage ? .systemBlue : NSColor(white: 0.18, alpha: 1)
-        hostToggleButton.title = showHostMonitor ? "HOST ON" : "HOST OFF"
+        hostToggleButton.title = showHostMonitor ? "ON" : "OFF"
         hostToggleButton.bezelColor = showHostMonitor ? .systemGreen : NSColor(white: 0.18, alpha: 1)
         codexToggleButton.bezelColor = usageProviderVisibility["codex"] == true
             ? .systemBlue : NSColor(white: 0.18, alpha: 1)
@@ -639,7 +790,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         renderStrip(snapshot)
         updateAccessoryButtons(snapshot)
         if panelVisible {
-            if !hostViewVisible,
+            if !configurationVisible,
+               !hostViewVisible,
                snapshot.connected,
                organized(snapshot.agents).map(\.id) == onScreenOrder,
                !snapshot.agents.isEmpty {
@@ -652,18 +804,16 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func updateAccessoryButtons(_ snapshot: AgentSnapshot) {
-        let abbreviations = ["codex": "CX", "claudeCode": "CL", "cursor": "CR"]
-        let labels = snapshot.usage.compactMap { entry -> String? in
-            guard usageProviderVisibility[entry.id] == true else { return nil }
-            let value = entry.usedPercent.map { "\(Int($0.rounded()))%" } ?? "—"
-            return "\(abbreviations[entry.id] ?? entry.name.prefix(2).uppercased()) \(value)"
-        }
-        usageButton.title = labels.isEmpty ? "USAGE —" : labels.joined(separator: "  ")
-        usageButton.setAccessibilityLabel("Subscription used: \(usageButton.title)")
+        usageIconsView.update(
+            entries: snapshot.usage,
+            visibility: usageProviderVisibility
+        )
         let connected = snapshot.hosts.filter { $0.status == "connected" }.count
-        hostMonitorButton.title = snapshot.hosts.isEmpty
-            ? "HOSTS —"
-            : "HOSTS \(connected)/\(snapshot.hosts.count)"
+        hostMonitorButton.setAccessibilityLabel(
+            snapshot.hosts.isEmpty
+                ? "Host Monitor, metrics loading"
+                : "Host Monitor, \(connected) of \(snapshot.hosts.count) hosts connected"
+        )
     }
 
     private func syncSpinner(_ snapshot: AgentSnapshot) {
@@ -734,21 +884,15 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
         var identifiers: [NSTouchBarItem.Identifier] = []
-        if sortMode == .carousel {
+        if !configurationVisible && sortMode == .carousel {
             identifiers.append(.bbPreviousProject)
         }
         identifiers.append(contentsOf: [.bbList])
-        if sortMode == .carousel {
+        if !configurationVisible && sortMode == .carousel {
             identifiers.append(.bbNextProject)
         }
         identifiers.append(.flexibleSpace)
-        if configurationVisible {
-            identifiers.append(contentsOf: [
-                .bbPriority, .bbProject, .bbDock, .bbCarousel,
-                .bbUsageToggle, .bbCodexToggle, .bbClaudeToggle,
-                .bbCursorToggle, .bbHostToggle,
-            ])
-        } else {
+        if !configurationVisible {
             if showUsage { identifiers.append(.bbUsage) }
             if showHostMonitor { identifiers.append(.bbHostMonitor) }
         }
@@ -780,6 +924,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         configurationVisible.toggle()
         updateControlColors()
         panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
+        schedulePanelRender()
         NativeLog.info("settings controls \(configurationVisible ? "opened" : "closed")")
     }
 
@@ -917,6 +1062,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         let entries = organized(snapshot.agents)
         onScreenOrder = entries.map(\.id)
 
+        if configurationVisible {
+            panelItem.view = scrollContainer(settingsGroups())
+            return
+        }
+
         if hostViewVisible {
             let views: [NSView] = snapshot.hosts.isEmpty
                 ? [message("Host metrics are loading…")]
@@ -972,6 +1122,26 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             }
         }
         panelItem.view = scrollContainer(views)
+    }
+
+    private func settingsGroups() -> [NSView] {
+        [
+            SettingsGroupView(
+                title: "FILTERS",
+                controls: [priorityButton, projectButton, dockButton, carouselButton]
+            ),
+            SettingsGroupView(
+                title: "SUBSCRIPTIONS",
+                controls: [
+                    usageToggleButton, codexToggleButton,
+                    claudeToggleButton, cursorToggleButton,
+                ]
+            ),
+            SettingsGroupView(
+                title: "HOST MONITOR",
+                controls: [hostToggleButton]
+            ),
+        ]
     }
 
     private func projectGroups(for entries: [AgentEntry]) -> [NSView] {

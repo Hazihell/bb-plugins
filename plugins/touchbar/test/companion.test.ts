@@ -201,6 +201,18 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(model, /struct UsageEntry/u);
   assert.match(model, /struct HostMetricEntry/u);
   assert.match(controller, /private final class HostMetricView/u);
+  assert.match(controller, /private final class UsageIconStripView/u);
+  assert.match(controller, /private final class SettingsControlButton/u);
+  assert.match(controller, /private final class SettingsGroupView/u);
+  assert.match(controller, /title: "FILTERS"/u);
+  assert.match(controller, /title: "SUBSCRIPTIONS"/u);
+  assert.match(controller, /title: "HOST MONITOR"/u);
+  assert.match(controller, /systemSymbolName: "desktopcomputer"/u);
+  assert.match(controller, /appendArc/u);
+  assert.match(controller, /progress\.lineCapStyle = \.round/u);
+  assert.match(controller, /usageItem\.view = usageIconsView/u);
+  assert.match(controller, /scrollContainer\(settingsGroups\(\)\)/u);
+  assert.doesNotMatch(controller, /usageButton\.title/u);
   assert.match(controller, /BBTouchBarShowUsage/u);
   assert.match(controller, /BBTouchBarShowHostMonitor/u);
   assert.match(controller, /BBTouchBarUsageCodex/u);
