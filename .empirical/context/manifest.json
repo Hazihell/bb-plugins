@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:7382be4adf955a0be4f996fc673b329b97d00ed4b5f14ee1def3f58795bdc1c9",
+  "sourceDigest": "sha256:3ac2af137ba54709c55cbf64a237e423f7d40bc03361b05725f0fa357f69e03d",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -80,8 +80,8 @@
     },
     {
       "path": "README.md",
-      "size": 12269,
-      "digest": "sha256:fd374edcd1b6bc4c3e91754aa0429655cb9cbd670b76e6377cb6b790e04b4d8a"
+      "size": 12412,
+      "digest": "sha256:6d2a7bf514a6c27a4c74d524394fb9e565641f2c429c9dde8886723abc7d926c"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -220,8 +220,8 @@
     },
     {
       "path": "plugins/dockside/assets/icon.svg",
-      "size": 639,
-      "digest": "sha256:69e9184bed2c45d3b41ecfd4ca07439e7e76f4e214b3a28a143eafd06e0c88f8"
+      "size": 571,
+      "digest": "sha256:49489ca2d2eecd8b54e40c52722217177ee350dad698af534c009a0f82a9a021"
     },
     {
       "path": "plugins/dockside/assets/logo-dark.svg",
@@ -590,8 +590,8 @@
     },
     {
       "path": "plugins/host-monitor/assets/icon.svg",
-      "size": 1031,
-      "digest": "sha256:b127ff767b915de80843a68a855684c8b9a6709d6961eeac1acd98151717c5c9"
+      "size": 963,
+      "digest": "sha256:e1143dae9796604bcdb0d864b27d2941b3558c81d1fde8f7d317f2a39b6358ff"
     },
     {
       "path": "plugins/host-monitor/assets/logo-dark.svg",
@@ -1355,8 +1355,8 @@
     },
     {
       "path": "plugins/usage-tracker/CHANGELOG.md",
-      "size": 2215,
-      "digest": "sha256:d1f229be3d170d1a35a564d3cfa8ea4e2ea3c398c6374a6b5bdcfc7a08543854"
+      "size": 2493,
+      "digest": "sha256:febeb6fab0e6b5229cd25d0d5e988b3ad70ff13d39887c111a08e258b0250a81"
     },
     {
       "path": "plugins/usage-tracker/LICENSE",
@@ -1365,8 +1365,8 @@
     },
     {
       "path": "plugins/usage-tracker/README.md",
-      "size": 4779,
-      "digest": "sha256:bad2d064677c50c90fa3f7243bcb3867fa5a503919e2bc5331cfba46a63f68fd"
+      "size": 5330,
+      "digest": "sha256:10b8823bb0a2c978979e354b4f4069f2ffec69d5b60efd7858d1a106b309689f"
     },
     {
       "path": "plugins/usage-tracker/THIRD_PARTY_NOTICES.md",
@@ -1375,8 +1375,8 @@
     },
     {
       "path": "plugins/usage-tracker/app.css",
-      "size": 11641,
-      "digest": "sha256:e820313f86e6abc3f10eb0895f7b276632a4bb5dfed1c47aa02aed9303a88a7e"
+      "size": 14942,
+      "digest": "sha256:47547442b2dc5d5fe798a673e16943550c485e45a64ad06e8692c21e8143d8dc"
     },
     {
       "path": "plugins/usage-tracker/app.tsx",
@@ -1399,6 +1399,11 @@
       "digest": "sha256:fad229f3ce61e7b3702571b889d619fef51be7f1f498624c7b45f31d3110a7d2"
     },
     {
+      "path": "plugins/usage-tracker/lib/codex-reset-credits.ts",
+      "size": 5747,
+      "digest": "sha256:68053aaf9525b030a63fe6df093c10d265885c60d75df1602036b21c7461aaf6"
+    },
+    {
       "path": "plugins/usage-tracker/lib/load-usage.ts",
       "size": 1658,
       "digest": "sha256:4e686c5707b8d5621d9676c32466c1a782efff46a24150c73f7a34a1dc92c425"
@@ -1414,19 +1419,24 @@
       "digest": "sha256:eae449f52ce1780b0c8784899ca582ce0c18d0179cf7bf324afc756207010241"
     },
     {
+      "path": "plugins/usage-tracker/lib/reset-action-gate.ts",
+      "size": 3306,
+      "digest": "sha256:6283d5eebe1256da7a9e5ae0632cedc307b9f25b09025a65c76d6cdc4f5ac716"
+    },
+    {
       "path": "plugins/usage-tracker/lib/sidebar-strip.ts",
-      "size": 22889,
-      "digest": "sha256:d5358da3f19d94fbb5c2588db74a978b96dd82f6de6ae4171fb53a08b0b3cc1b"
+      "size": 33534,
+      "digest": "sha256:6a639fef9d99a7085cde3da7e5e9925e9d5a2d05417062074fcbfc069beaed40"
     },
     {
       "path": "plugins/usage-tracker/lib/sidebar-usage.ts",
-      "size": 7097,
-      "digest": "sha256:592f768310cc29ff92666784b41be2513a99ff1d05a4c54c020587a59c901dc7"
+      "size": 7602,
+      "digest": "sha256:049a2b0e262f0d9ab1e4ab642adae31c7430ff8f2c144b8d0ac6b0b654c55f8f"
     },
     {
       "path": "plugins/usage-tracker/lib/usage.ts",
-      "size": 6791,
-      "digest": "sha256:9d5ce285b7bb34df5d0053a31f4fd384ce21390060acba1ba64dd09dc727226c"
+      "size": 7721,
+      "digest": "sha256:a3ed469c546e74c476ea4c0374d6eef5dc9fdd62688a0be2d8a9b67b105631d5"
     },
     {
       "path": "plugins/usage-tracker/package.json",
@@ -1435,13 +1445,23 @@
     },
     {
       "path": "plugins/usage-tracker/server.ts",
-      "size": 2832,
-      "digest": "sha256:796544a8d3f27cb632edf7a29af4170a8bb5422d0008129234cf233f5af9839e"
+      "size": 5138,
+      "digest": "sha256:d3f1db541a05729c7d12019cc797f8d1f72a885008cd6a9048bbceb5518df977"
+    },
+    {
+      "path": "plugins/usage-tracker/test/reset-action.test.ts",
+      "size": 2253,
+      "digest": "sha256:754da56fe6da738bb2d45de771b221fcccbb898bc2347fee42b46ef53205d466"
+    },
+    {
+      "path": "plugins/usage-tracker/test/reset-credits.test.ts",
+      "size": 1865,
+      "digest": "sha256:41fc9d311f86826945c80da843bb60257cf7e281fd614d3b8a8bb3ddf7ab78b7"
     },
     {
       "path": "plugins/usage-tracker/test/usage.test.ts",
-      "size": 21810,
-      "digest": "sha256:627edda7a8be74de72d8404abf0c0f925440151b722f9a5c67be9ce90a0acc23"
+      "size": 22619,
+      "digest": "sha256:c9697020a7ef6cd4a0238816054c00691e612f375740f84483e85ce423a9d296"
     },
     {
       "path": "plugins/usage-tracker/tsconfig.json",
@@ -1754,14 +1774,18 @@
         "plugins/usage-tracker/assets/icon.svg",
         "plugins/usage-tracker/assets/logo-dark.svg",
         "plugins/usage-tracker/assets/logo.svg",
+        "plugins/usage-tracker/lib/codex-reset-credits.ts",
         "plugins/usage-tracker/lib/load-usage.ts",
         "plugins/usage-tracker/lib/preferences.ts",
         "plugins/usage-tracker/lib/provider-marks.ts",
+        "plugins/usage-tracker/lib/reset-action-gate.ts",
         "plugins/usage-tracker/lib/sidebar-strip.ts",
         "plugins/usage-tracker/lib/sidebar-usage.ts",
         "plugins/usage-tracker/lib/usage.ts",
         "plugins/usage-tracker/package.json",
         "plugins/usage-tracker/server.ts",
+        "plugins/usage-tracker/test/reset-action.test.ts",
+        "plugins/usage-tracker/test/reset-credits.test.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts",
@@ -1769,7 +1793,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:7382be4adf955a0be4f996fc673b329b97d00ed4b5f14ee1def3f58795bdc1c9",
+      "sourceDigest": "sha256:3ac2af137ba54709c55cbf64a237e423f7d40bc03361b05725f0fa357f69e03d",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1804,7 +1828,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:d28318fd907d201ebe088a051f15082ff970af54e05eacb12d8615ebe700d8a6",
+      "sourceDigest": "sha256:ee443a5c7099ae01022592835efbcd944f79aaa7d853a427ca1072365c335e58",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1865,5 +1889,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:ce8486308d4df33a089c84408af8cc722f25a3a2402cec153d5fe429d35f246c"
+  "digest": "sha256:6bc1886d6daa0b568394fa185426b29cd36b1782368bbc6bc03ace8a27504678"
 }
