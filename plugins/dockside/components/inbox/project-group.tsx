@@ -17,6 +17,7 @@ import {
   bulkEligibility,
   type RootSelectionIntent,
 } from "@/lib/thread-management";
+import type { DocksidePreferences } from "@/lib/preferences";
 
 /** A collapsible project section, modeled after Orca's durable outer groups. */
 export function ProjectGroup({
@@ -31,6 +32,7 @@ export function ProjectGroup({
   selectedRootIds,
   selectionHintId,
   onToggleRoot,
+  preferences,
 }: {
   group: ProjectThreadGroup;
   providerInfoById: ReadonlyMap<string, ProviderGlyphInfo>;
@@ -43,6 +45,7 @@ export function ProjectGroup({
   selectedRootIds: ReadonlySet<string>;
   selectionHintId: string;
   onToggleRoot: (threadId: string, intent: RootSelectionIntent) => void;
+  preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
   const [expandedByUser, setExpandedByUser] = useState(true);
@@ -130,6 +133,7 @@ export function ProjectGroup({
                 onToggleSelected={(intent) =>
                   onToggleRoot(family.root.id, intent)
                 }
+                preferences={preferences}
               />
             );
           })}

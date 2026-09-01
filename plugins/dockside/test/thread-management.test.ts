@@ -343,4 +343,34 @@ describe("resolveFamilyExpanded", () => {
       false,
     );
   });
+
+  it("uses the configured default until search or a user override wins", () => {
+    assert.equal(
+      resolveFamilyExpanded({
+        childCount: 3,
+        forceExpanded: false,
+        override: null,
+        defaultExpanded: false,
+      }),
+      false,
+    );
+    assert.equal(
+      resolveFamilyExpanded({
+        childCount: 3,
+        forceExpanded: true,
+        override: null,
+        defaultExpanded: false,
+      }),
+      true,
+    );
+    assert.equal(
+      resolveFamilyExpanded({
+        childCount: 3,
+        forceExpanded: false,
+        override: true,
+        defaultExpanded: false,
+      }),
+      true,
+    );
+  });
 });

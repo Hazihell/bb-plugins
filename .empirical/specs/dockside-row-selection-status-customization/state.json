@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 5,
+  "revision": 7,
+  "activeFeature": "dockside-row-selection-status-customization",
+  "request": "Fix Dockside Shift selection so ordinary click and Shift+click work anywhere on an eligible root thread row while selection mode is active, not only on the checkbox; protected rows must never select or navigate accidentally. Make thread-state icon colors customizable from a Dockside settings page with clear defaults for working, stalled/waiting, unread/waiting-to-read, error, and idle/stale, plus PR review/checks/ready/merged/draft/blocked/closed colors. Add Default, High contrast, and colorblind-friendly presets, reset controls, persistent validated preferences, and additional settings for row density, default child expansion, provider icon visibility, PR metadata visibility, and relative-time visibility. Changes must apply live across the Dockside sidebar, preserve accessible non-color labels/shape/animation, and keep current behavior as defaults.",
+  "profile": "complex",
+  "workflow": "complex",
+  "mode": "normal",
+  "phase": "review",
+  "status": "waiting",
+  "repairAttempts": 0,
+  "message": "Verified Dockside row-wide selection and persistent customization with 172 focused tests, TypeScript contract, strict invalid-setting paths, live BB settings/sidebar evidence, isolated packaging/clean-clone/cross-platform checks, security advisory, screenshots, and fresh-context UI QA.",
+  "implementationActor": "agent",
+  "workStartedAt": null,
+  "specDigest": "sha256:11ccc7b0d4ae2b10c36685b55bfa765515c5437ad529a777cccbbaa9f2c8373e",
+  "approvedSpecRevision": 2,
+  "capabilityArchiveRequired": true,
+  "capabilityDeltaDigest": "sha256:424051528498481aac53795b4f2b46e3b632721a2ef59f33f0d38d18d9525c9c",
+  "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+  "capabilityClaimId": "dockside-row-selection-status-customization-b40841a02be2",
+  "authorizationDigest": null,
+  "evidence": [],
+  "evidenceReceiptIds": [
+    "collected-3ca9d6f16c15f139e4ea81e0",
+    "qa-ca08d5c3d3d85df248e8ac79",
+    "qa-cd27f4352d2b2e2f70449ed4",
+    "qa-e28c51f94a0a6b6a7253224f",
+    "qa-3248c756f09364e41be1ab63",
+    "qa-6be44318e66b39ece2cee920",
+    "qa-117d1e63cc2b4a3e9ce1b20f",
+    "qa-cd8e8ae53ff5a6ac3c7c2d39",
+    "qa-9e2545049ab5b5d6a2a7e1e1",
+    "qa-15df646f0bafd8da252bcb30"
+  ],
+  "legacyEvidenceCount": 0,
+  "completion": {
+    "implemented": true,
+    "verified": true,
+    "integrated": false,
+    "delivered": false,
+    "published": false,
+    "highest": "verified",
+    "reasons": {
+      "integrated": "integrated has not been proven by a durable receipt.",
+      "delivered": "delivered has not been proven by a durable receipt.",
+      "published": "published has not been proven by a durable receipt."
+    }
+  },
+  "updatedAt": "2026-09-01T05:25:02.152Z"
+}

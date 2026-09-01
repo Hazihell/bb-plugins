@@ -22,6 +22,7 @@ import { familyWaitingForAgents } from "@/lib/attention-state";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
 import type { RootSelectionIntent } from "@/lib/thread-management";
+import type { DocksidePreferences } from "@/lib/preferences";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
@@ -45,6 +46,7 @@ export function ThreadCard({
   selectionDisabledReason,
   selectionHintId,
   onToggleSelected,
+  preferences,
 }: {
   thread: PluginSidebarThread;
   childThreads: readonly PluginSidebarThread[];
@@ -64,6 +66,7 @@ export function ThreadCard({
   selectionDisabledReason: string | null;
   selectionHintId: string;
   onToggleSelected: (intent: RootSelectionIntent) => void;
+  preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -86,6 +89,7 @@ export function ThreadCard({
     childCount: childThreads.length,
     forceExpanded,
     override: expandedOverride,
+    defaultExpanded: preferences.defaultChildrenExpanded,
   });
   const waitingForAgents = familyWaitingForAgents(childThreads);
   const childProviderIds = useMemo(
@@ -110,7 +114,10 @@ export function ThreadCard({
           <div
             data-dockside-root-card=""
             className={cn(
-              "group/root relative flex min-h-12 items-start gap-2 rounded-lg px-2 py-1.5",
+              "group/root relative flex items-start gap-2 rounded-lg px-2",
+              preferences.density === "compact"
+                ? "min-h-10 py-1"
+                : "min-h-12 py-1.5",
               rootIsActive
                 ? "bg-sidebar-accent"
                 : "hover:bg-sidebar-accent/60",
@@ -124,17 +131,42 @@ export function ThreadCard({
               data-sidebar-thread-shortcut-target=""
               data-sidebar-thread-id={thread.id}
               href="#"
-              aria-label={threadDisplayTitle(thread)}
+              aria-label={
+                selectionMode
+                  ? selectionDisabledReason === null
+                    ? `${selected ? "Deselect" : "Select"} ${threadDisplayTitle(thread)}`
+                    : `${threadDisplayTitle(thread)} cannot be selected: ${selectionDisabledReason}`
+                  : threadDisplayTitle(thread)
+              }
               aria-current={rootIsActive ? "page" : undefined}
+              aria-disabled={
+                selectionMode && selectionDisabledReason !== null
+                  ? true
+                  : undefined
+              }
               {...splitProps}
               onClick={(event) => {
                 event.preventDefault();
+                if (selectionMode) {
+                  if (selectionDisabledReason === null) {
+                    onToggleSelected({
+                      selected: !selected,
+                      shiftKey: event.shiftKey,
+                    });
+                  }
+                  return;
+                }
                 actions.open(thread.id, {
                   split: event.metaKey || event.ctrlKey,
                 });
                 onNavigate();
               }}
-              className="absolute inset-0 cursor-pointer rounded-lg"
+              className={cn(
+                "absolute inset-0 rounded-lg",
+                selectionMode && selectionDisabledReason !== null
+                  ? "cursor-not-allowed"
+                  : "cursor-pointer",
+              )}
             />
 
             {selectionMode ? (
@@ -230,7 +262,9 @@ export function ThreadCard({
                   canPark && !selectionMode && "group-hover/root:hidden",
                 )}
               >
-                <ThreadStatusLabel thread={thread} now={now} />
+                {preferences.showRelativeTime ? (
+                  <ThreadStatusLabel thread={thread} now={now} />
+                ) : null}
               </span>
               {canPark && !selectionMode ? (
                 <span className="hidden h-4 items-center gap-0.5 group-hover/root:flex">
@@ -255,7 +289,7 @@ export function ThreadCard({
                 data-dockside-root-metadata=""
                 className="flex h-4 items-center justify-end gap-1"
               >
-                {pullRequest ? (
+                {preferences.showPullRequestMetadata && pullRequest ? (
                   <PullRequestMetadata pullRequest={pullRequest} />
                 ) : null}
                 {childThreads.length > 0 ? (
@@ -284,16 +318,18 @@ export function ThreadCard({
                       aria-hidden
                     />
                     <span className="tabular-nums">{childThreads.length}</span>
-                    <span className="flex items-center -space-x-0.5">
-                      {childProviderIds.map((providerId) => (
-                        <ProviderGlyph
-                          key={providerId}
-                          providerId={providerId}
-                          provider={providerInfoById.get(providerId)}
-                          className="size-3 opacity-80"
-                        />
-                      ))}
-                    </span>
+                    {preferences.showProviderIcons ? (
+                      <span className="flex items-center -space-x-0.5">
+                        {childProviderIds.map((providerId) => (
+                          <ProviderGlyph
+                            key={providerId}
+                            providerId={providerId}
+                            provider={providerInfoById.get(providerId)}
+                            className="size-3 opacity-80"
+                          />
+                        ))}
+                      </span>
+                    ) : null}
                     <span
                       role="tooltip"
                       className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/children:translate-y-0 group-hover/children:opacity-100 group-focus-visible/children:translate-y-0 group-focus-visible/children:opacity-100"
@@ -314,9 +350,14 @@ export function ThreadCard({
               className={cn(
                 "ml-[14px] border-l pb-0.5 pl-3 transition-colors",
                 waitingForAgents
-                  ? "border-primary/60"
+                  ? "border-current"
                   : "border-sidebar-border",
               )}
+              style={
+                waitingForAgents
+                  ? { borderColor: "var(--dockside-status-working)" }
+                  : undefined
+              }
             >
               {childThreads.map((child) => (
                 <ChildThreadRow
@@ -326,6 +367,7 @@ export function ThreadCard({
                   isActive={child.id === activeThreadId}
                   onNavigate={onNavigate}
                   now={now}
+                  preferences={preferences}
                 />
               ))}
             </ul>
@@ -342,12 +384,14 @@ function ChildThreadRow({
   isActive,
   onNavigate,
   now,
+  preferences,
 }: {
   thread: PluginSidebarThread;
   provider?: ProviderGlyphInfo;
   isActive: boolean;
   onNavigate: () => void;
   now: number;
+  preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -361,12 +405,20 @@ function ChildThreadRow({
           aria-hidden
           className={cn(
             "absolute -left-3 top-1/2 h-px w-3 transition-colors",
-            isWorking ? "bg-primary/60" : "bg-sidebar-border",
+            !isWorking && "bg-sidebar-border",
           )}
+          style={
+            isWorking
+              ? { backgroundColor: "var(--dockside-status-working)" }
+              : undefined
+          }
         />
         <div
           className={cn(
-            "group/child relative flex min-h-10 items-start gap-1.5 rounded-md px-1.5 py-1",
+            "group/child relative flex items-start gap-1.5 rounded-md px-1.5",
+            preferences.density === "compact"
+              ? "min-h-9 py-0.5"
+              : "min-h-10 py-1",
             isActive ? "bg-sidebar-accent" : "hover:bg-sidebar-accent/60",
             !isActive && layout !== null && "bg-sidebar-accent/25",
           )}
@@ -389,11 +441,13 @@ function ChildThreadRow({
             }}
             className="absolute inset-0 cursor-pointer rounded-md"
           />
-          <ProviderGlyph
-            providerId={thread.providerId}
-            provider={provider}
-            className="relative mt-0.5"
-          />
+          {preferences.showProviderIcons ? (
+            <ProviderGlyph
+              providerId={thread.providerId}
+              provider={provider}
+              className="relative mt-0.5"
+            />
+          ) : null}
           {status !== null ? (
             <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
           ) : null}
@@ -410,9 +464,11 @@ function ChildThreadRow({
               >
                 {threadDisplayTitle(thread)}
               </span>
-              <span className="shrink-0 tabular-nums text-2xs text-muted-foreground/70">
-                {relativeTimeLabel(thread.updatedAt, now)}
-              </span>
+              {preferences.showRelativeTime ? (
+                <span className="shrink-0 tabular-nums text-2xs text-muted-foreground/70">
+                  {relativeTimeLabel(thread.updatedAt, now)}
+                </span>
+              ) : null}
             </div>
             <div className="mt-0.5 flex h-3.5 min-w-0 items-center gap-1.5 text-2xs">
               <ThreadLocation thread={thread} />
@@ -442,7 +498,13 @@ function ThreadStateGlyph({
           className,
         )}
       >
-        <span className="size-2 rounded-full bg-muted-foreground/30" />
+        <span
+          className="size-2 rounded-full opacity-50"
+          style={{
+            backgroundColor:
+              "var(--dockside-status-idle, var(--muted-foreground))",
+          }}
+        />
       </span>
     );
   }

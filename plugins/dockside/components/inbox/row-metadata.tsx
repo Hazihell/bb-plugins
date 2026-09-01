@@ -26,6 +26,9 @@ export function PullRequestMetadata({
       </span>
       <span
         className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass(presentation.tone)}`}
+        style={{
+          color: `var(--dockside-pr-${presentation.colorRole}, currentColor)`,
+        }}
       >
         <Icon name={presentation.icon} className="size-3" aria-hidden />
       </span>
@@ -49,6 +52,10 @@ export function WaitingForAgentsMetadata() {
     <span
       title="Agents working"
       className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass("primary")}`}
+      style={{
+        color:
+          "var(--dockside-status-working, var(--success-foreground, var(--primary)))",
+      }}
     >
       <Icon name="Loading" className="size-3 animate-spin" aria-hidden />
       <span className="sr-only">Agents working</span>

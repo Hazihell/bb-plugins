@@ -1,8 +1,16 @@
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   experimental_useProviders as useProviders,
   experimental_useSidebarThreads as useSidebarThreads,
   useRpc,
+  useSettings,
   type PluginSidebarThread,
   type PluginThreadListProps,
 } from "@bb/plugin-sdk/app";
@@ -40,6 +48,10 @@ import {
   type ThreadFilterPreset,
   type RootSelectionIntent,
 } from "@/lib/thread-management";
+import {
+  docksidePreferenceStyle,
+  resolveDocksidePreferences,
+} from "@/lib/preferences";
 
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
 
@@ -55,6 +67,11 @@ export function ThreadInbox({
   const { status, threads: hostThreads, projects } = useSidebarThreads();
   const { providers } = useProviders();
   const rpc = useRpc<typeof docksideRpcContract>();
+  const settings = useSettings();
+  const preferences = useMemo(
+    () => resolveDocksidePreferences(settings.values),
+    [settings.values],
+  );
   const inboxRef = useRef<HTMLDivElement>(null);
   const selectionAnchorRootId = useRef<string | null>(null);
   const selectionHintId = useId();
@@ -365,7 +382,13 @@ export function ThreadInbox({
   };
 
   return (
-    <div ref={inboxRef} className="flex min-h-0 flex-1 flex-col">
+    <div
+      ref={inboxRef}
+      data-dockside-palette={preferences.palettePreset}
+      data-dockside-density={preferences.density}
+      style={docksidePreferenceStyle(preferences) as CSSProperties}
+      className="flex min-h-0 flex-1 flex-col"
+    >
       <div className="shrink-0">
         <div className="flex h-8 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
           <Icon name="Folder" className="size-3.5" aria-hidden />
@@ -515,6 +538,7 @@ export function ThreadInbox({
                 selectedRootIds={selectedRootIds}
                 selectionHintId={selectionHintId}
                 onToggleRoot={changeSelectedRoot}
+                preferences={preferences}
               />
             ))}
             {showParkedShelves ? (

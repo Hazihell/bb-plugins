@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:c3ced9fa6ca84412d192f0fc3f88f426631896368456f3e43c4bae8f4a8f1d16",
+  "sourceDigest": "sha256:17b3898cd9bbd48a2e344e584b954d4836fde64aea7e351a34f9bf7920a50b72",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -930,8 +930,8 @@
     },
     {
       "path": "plugins/dockside/app.tsx",
-      "size": 943,
-      "digest": "sha256:2b5f1fee475e2b94db145bd08fedf8d0ccb25e0dc5a6ae81febfaee9ce085b01"
+      "size": 1241,
+      "digest": "sha256:346664a11e4526d21e9f50c72c068f85a2e1d8eea3ceb364381cfa12b2d00c7d"
     },
     {
       "path": "plugins/dockside/assets/icon.svg",
@@ -970,8 +970,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/project-group.tsx",
-      "size": 5816,
-      "digest": "sha256:aad8d4869e615109453d40fefea19dd1aa848ed72ac14b74d9bd4be098ba87e4"
+      "size": 5971,
+      "digest": "sha256:ab34e7e74f0007644ff8ac112e40315393f5d3fe035bceb85bc9352465698210"
     },
     {
       "path": "plugins/dockside/components/inbox/provider-glyph.tsx",
@@ -985,8 +985,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/row-metadata.tsx",
-      "size": 2378,
-      "digest": "sha256:80f1575192c2b39aa9dd8f84ee5790b2b8a4d12aec35e02f70cd094ff91524bf"
+      "size": 2611,
+      "digest": "sha256:c042842ed72d07dc7b544b741746713ff155627c17cf7d3f2e9d479604e2a465"
     },
     {
       "path": "plugins/dockside/components/inbox/slim-row.tsx",
@@ -995,8 +995,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/status-glyph.tsx",
-      "size": 3929,
-      "digest": "sha256:e73c81143cedc33e58ac5bc60fd374af6f3264687b19db265617e18a7d47e12f"
+      "size": 4701,
+      "digest": "sha256:4a8b5374091dfc1ef0d9508a62e2f034874f3bb6f8b7820f43cab7c9c9ebb6d7"
     },
     {
       "path": "plugins/dockside/components/inbox/status-slot.tsx",
@@ -1010,18 +1010,23 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 19001,
-      "digest": "sha256:b646dfcd6db7a615c85cf0f0e238417ddcb723e7ba2cd5d0bf44e681cbbc82ec"
+      "size": 21239,
+      "digest": "sha256:798b9e1e30d23e7196ac4f55ba5b9b5e0005c5133c6e47a64a551a45a535ffcb"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
-      "size": 22384,
-      "digest": "sha256:ba63fa36d974b88312aa81ddff31bba0e72411d5b86de8608747040ddb0138d8"
+      "size": 22907,
+      "digest": "sha256:259f3de354975e1e5a1e35cc3c6028cd2b16dea9fc8ab54758638a7e40f48170"
+    },
+    {
+      "path": "plugins/dockside/components/settings/dockside-settings.tsx",
+      "size": 3260,
+      "digest": "sha256:1d28523cd71e45e38027315410779df0eb6647495f7074d883c8d2decbbcbc0f"
     },
     {
       "path": "plugins/dockside/components/ui/icon.tsx",
-      "size": 2126,
-      "digest": "sha256:15ac0023ff6dfc5481f54f13e250ea1ee136d790b36200b80ea193e48ebf327e"
+      "size": 2224,
+      "digest": "sha256:722014ba9d538747f8e31caf46f3dfbd47c6d7dac459244d526cf49aa86920ab"
     },
     {
       "path": "plugins/dockside/components/ui/select.tsx",
@@ -1069,14 +1074,19 @@
       "digest": "sha256:f7fed3962adc51b21817a0848c2cd8f0b9ef5390258da4d1ace3dfb690da13a9"
     },
     {
+      "path": "plugins/dockside/lib/preferences.ts",
+      "size": 5970,
+      "digest": "sha256:09167977b53e59775464988f5bd7bc424c24deeb1f6c012079c9e8cc98d1b366"
+    },
+    {
       "path": "plugins/dockside/lib/provider-marks.ts",
       "size": 26854,
       "digest": "sha256:b5ba8ca3f9874010296174bdd8fa55867fd68ceae190eadffaac1df81fb61866"
     },
     {
       "path": "plugins/dockside/lib/pull-request-presentation.ts",
-      "size": 1860,
-      "digest": "sha256:163f1a562ac21a50323ccc2b9c3ff643f3537c9dbdebdf33feaeaf94d6c56ee5"
+      "size": 2464,
+      "digest": "sha256:4b5e4217b58bd6ef4709ddfb488cd0f8b6f51a8031e0521deac8dbd586f756ae"
     },
     {
       "path": "plugins/dockside/lib/relative-time.ts",
@@ -1089,9 +1099,14 @@
       "digest": "sha256:0dbc78505c453e773ffffa9cbd3b71df774f706d0586fc0cc639576fc8e7c99d"
     },
     {
+      "path": "plugins/dockside/lib/status-presentation.ts",
+      "size": 739,
+      "digest": "sha256:efe352f2a29711fcdb357c51ecd6dba5c87d6e58576b407acda1ef8059d4c2a9"
+    },
+    {
       "path": "plugins/dockside/lib/thread-management.ts",
-      "size": 7671,
-      "digest": "sha256:997bf6294f64b20f6eaf80ba6750e57153b519051b66c3f4aee9b3c8cba51f16"
+      "size": 7737,
+      "digest": "sha256:300e06811bb7771959908ed7569b2491b2d2f219302a3a4d92f87ccc828385dc"
     },
     {
       "path": "plugins/dockside/lib/utils.ts",
@@ -1110,8 +1125,8 @@
     },
     {
       "path": "plugins/dockside/server.ts",
-      "size": 23013,
-      "digest": "sha256:ab0a93a637986a8d6e86803cc7abbedf96a91d0c5a628025da7889d3d6921b83"
+      "size": 25601,
+      "digest": "sha256:45de4543d7be734c9ff6b3c8762978dd12536d7da6b9e38124df378d2b4b5423"
     },
     {
       "path": "plugins/dockside/test/attention-state.test.ts",
@@ -1134,9 +1149,14 @@
       "digest": "sha256:cc230cd11c63f9ba5934366441a327027deb1fff7fe055718cdb6eb915a7d6ad"
     },
     {
+      "path": "plugins/dockside/test/preferences.test.ts",
+      "size": 3893,
+      "digest": "sha256:aae1b9c0f78f1886e1a9640bea4bec174d5cd8933146bbb3986f8b8b9c45e6ff"
+    },
+    {
       "path": "plugins/dockside/test/pull-request-presentation.test.ts",
-      "size": 1735,
-      "digest": "sha256:0fe0d4e5953605fd7618c4ae87a87296fe3859950e48b3c659ad02776e3c11e3"
+      "size": 2031,
+      "digest": "sha256:c794ff6d5217d351af30d1f22c4cc739ca89d14574d530fafc224bf39faef4b0"
     },
     {
       "path": "plugins/dockside/test/relative-time.test.ts",
@@ -1144,9 +1164,19 @@
       "digest": "sha256:fe708735069d623905f01886c3638614f849e8ee92ebd3b6b3f8b68e81e8d874"
     },
     {
+      "path": "plugins/dockside/test/settings-contract.test.ts",
+      "size": 2601,
+      "digest": "sha256:3b477e56d6b8003830c2ed7e2830c66587a1e8537605ad4899fadb11911e6fa0"
+    },
+    {
       "path": "plugins/dockside/test/settled-threads.test.ts",
       "size": 10266,
       "digest": "sha256:5c6b68431dd50a702c2d570e06c46ad97caddd40d662b139ed9868d4958e4545"
+    },
+    {
+      "path": "plugins/dockside/test/status-glyph.test.ts",
+      "size": 855,
+      "digest": "sha256:1732a0c8f79e64effc449b8cce8a7f96553354656f4128a9c4408d7c39360039"
     },
     {
       "path": "plugins/dockside/test/thread-card-layout.test.ts",
@@ -1155,8 +1185,8 @@
     },
     {
       "path": "plugins/dockside/test/thread-management.test.ts",
-      "size": 9945,
-      "digest": "sha256:fe5e1525142d1e63a8e8669f9abf10643f349d8b282d05eeb15dd097fe9d4fbc"
+      "size": 10591,
+      "digest": "sha256:aee622db66469f87d67d93c2f47d99b757f62cc215bc350a69f4e53bbe69e5f8"
     },
     {
       "path": "plugins/dockside/test/warm-start.test.ts",
@@ -2843,6 +2873,7 @@
         "plugins/dockside/components/inbox/subagents-chip.tsx",
         "plugins/dockside/components/inbox/thread-card.tsx",
         "plugins/dockside/components/inbox/thread-inbox.tsx",
+        "plugins/dockside/components/settings/dockside-settings.tsx",
         "plugins/dockside/components/ui/icon.tsx",
         "plugins/dockside/components/ui/select.tsx",
         "plugins/dockside/hooks/use-lifecycle.ts",
@@ -2853,10 +2884,12 @@
         "plugins/dockside/lib/inbox.ts",
         "plugins/dockside/lib/lifecycle.ts",
         "plugins/dockside/lib/portal-scope.ts",
+        "plugins/dockside/lib/preferences.ts",
         "plugins/dockside/lib/provider-marks.ts",
         "plugins/dockside/lib/pull-request-presentation.ts",
         "plugins/dockside/lib/relative-time.ts",
         "plugins/dockside/lib/settled-threads.ts",
+        "plugins/dockside/lib/status-presentation.ts",
         "plugins/dockside/lib/thread-management.ts",
         "plugins/dockside/lib/utils.ts",
         "plugins/dockside/lib/warm-start.ts",
@@ -2866,9 +2899,12 @@
         "plugins/dockside/test/bulk-delete.test.ts",
         "plugins/dockside/test/inbox.test.ts",
         "plugins/dockside/test/lifecycle.test.ts",
+        "plugins/dockside/test/preferences.test.ts",
         "plugins/dockside/test/pull-request-presentation.test.ts",
         "plugins/dockside/test/relative-time.test.ts",
+        "plugins/dockside/test/settings-contract.test.ts",
         "plugins/dockside/test/settled-threads.test.ts",
+        "plugins/dockside/test/status-glyph.test.ts",
         "plugins/dockside/test/thread-card-layout.test.ts",
         "plugins/dockside/test/thread-management.test.ts",
         "plugins/dockside/test/warm-start.test.ts",
@@ -3167,8 +3203,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:c3ced9fa6ca84412d192f0fc3f88f426631896368456f3e43c4bae8f4a8f1d16",
-      "digest": "sha256:e40741debe5e8fc9077f688915cf8dfc93f3e6de067098b3d012678a744e6bc0",
+      "sourceDigest": "sha256:17b3898cd9bbd48a2e344e584b954d4836fde64aea7e351a34f9bf7920a50b72",
+      "digest": "sha256:06eb7db0c7da539b2e4c657eb7a2d99356b425c557e8038d155d1646e223fcdf",
       "freshness": "fresh"
     },
     {
@@ -3207,7 +3243,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:9113820371b438fcf13ac343b6604805b47624a879758d04beb452731416cfdc",
+      "sourceDigest": "sha256:59e58be40f6b42c0953fb21a14cad47760aaece886aba6fcf48a0bf1286f1687",
       "digest": "sha256:4d1ac1c46f02d21bb2582e2f444d6a2c6f1f5e482225533564e5146a75bde943",
       "freshness": "fresh"
     },
@@ -3304,5 +3340,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:9482bb0034906b7071d439b786fcbfd58d8973de8c3b9b47f8a61fbfc9b7a234"
+  "digest": "sha256:bc34291a537e51ac6236d492fcda6f3c6f70dbcbefa2369a9a3379c674aedf4d"
 }

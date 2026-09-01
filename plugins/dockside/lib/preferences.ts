@@ -1,0 +1,211 @@
+export const PALETTE_PRESET_OPTIONS = [
+  "Default",
+  "High contrast",
+  "Colorblind-friendly",
+  "Custom",
+] as const;
+
+export const ROW_DENSITY_OPTIONS = ["Comfortable", "Compact"] as const;
+export const CHILD_EXPANSION_OPTIONS = ["Expanded", "Collapsed"] as const;
+
+export type PalettePreset = (typeof PALETTE_PRESET_OPTIONS)[number];
+export type RowDensity = "comfortable" | "compact";
+
+export const SEMANTIC_COLOR_ROLES = [
+  "working",
+  "waiting",
+  "unread",
+  "error",
+  "idle",
+  "prReview",
+  "prChecks",
+  "prReady",
+  "prMerged",
+  "prDraft",
+  "prBlocked",
+  "prClosed",
+] as const;
+
+export type SemanticColorRole = (typeof SEMANTIC_COLOR_ROLES)[number];
+export type SemanticPalette = Readonly<Record<SemanticColorRole, string>>;
+
+export interface DocksidePreferences {
+  palettePreset: PalettePreset;
+  colors: SemanticPalette;
+  density: RowDensity;
+  defaultChildrenExpanded: boolean;
+  showProviderIcons: boolean;
+  showPullRequestMetadata: boolean;
+  showRelativeTime: boolean;
+}
+
+export const CUSTOM_COLOR_DEFAULTS = {
+  working: "#22C55E",
+  waiting: "#F59E0B",
+  unread: "#3B82F6",
+  error: "#EF4444",
+  idle: "#94A3B8",
+  prReview: "#3B82F6",
+  prChecks: "#F59E0B",
+  prReady: "#22C55E",
+  prMerged: "#A855F7",
+  prDraft: "#94A3B8",
+  prBlocked: "#EF4444",
+  prClosed: "#64748B",
+} as const satisfies SemanticPalette;
+
+const DEFAULT_PALETTE = {
+  working: "var(--success-foreground, #22C55E)",
+  waiting: "var(--warning-text, var(--warning, #F59E0B))",
+  unread: "var(--primary, #3B82F6)",
+  error: "var(--destructive, #EF4444)",
+  idle: "var(--muted-foreground, #94A3B8)",
+  prReview: "var(--primary, #3B82F6)",
+  prChecks: "var(--warning-text, var(--warning, #F59E0B))",
+  prReady: "var(--success-foreground, #22C55E)",
+  prMerged: "var(--pr-merged, #A855F7)",
+  prDraft: "var(--muted-foreground, #94A3B8)",
+  prBlocked: "var(--destructive, #EF4444)",
+  prClosed: "var(--muted-foreground, #64748B)",
+} as const satisfies SemanticPalette;
+
+const HIGH_CONTRAST_PALETTE = {
+  working: "#00C853",
+  waiting: "#FFAB00",
+  unread: "#2979FF",
+  error: "#FF1744",
+  idle: "#A0A0A0",
+  prReview: "#2979FF",
+  prChecks: "#FFAB00",
+  prReady: "#00C853",
+  prMerged: "#D500F9",
+  prDraft: "#A0A0A0",
+  prBlocked: "#FF1744",
+  prClosed: "#707070",
+} as const satisfies SemanticPalette;
+
+const COLORBLIND_FRIENDLY_PALETTE = {
+  working: "#009E73",
+  waiting: "#E69F00",
+  unread: "#0072B2",
+  error: "#D55E00",
+  idle: "#7F7F7F",
+  prReview: "#56B4E9",
+  prChecks: "#E69F00",
+  prReady: "#009E73",
+  prMerged: "#CC79A7",
+  prDraft: "#999999",
+  prBlocked: "#D55E00",
+  prClosed: "#4D4D4D",
+} as const satisfies SemanticPalette;
+
+const COLOR_SETTING_KEYS: Readonly<Record<SemanticColorRole, string>> = {
+  working: "workingColor",
+  waiting: "waitingColor",
+  unread: "unreadColor",
+  error: "errorColor",
+  idle: "idleColor",
+  prReview: "prReviewColor",
+  prChecks: "prChecksColor",
+  prReady: "prReadyColor",
+  prMerged: "prMergedColor",
+  prDraft: "prDraftColor",
+  prBlocked: "prBlockedColor",
+  prClosed: "prClosedColor",
+};
+
+const HEX_COLOR = /^#[0-9A-F]{6}$/i;
+
+export function resolveDocksidePreferences(
+  values: Readonly<Record<string, string | boolean>> | undefined,
+): DocksidePreferences {
+  const palettePreset = readOption(
+    values?.palettePreset,
+    PALETTE_PRESET_OPTIONS,
+    "Default",
+  );
+  const colors = resolvePalette(palettePreset, values);
+
+  return {
+    palettePreset,
+    colors,
+    density:
+      readOption(values?.rowDensity, ROW_DENSITY_OPTIONS, "Comfortable") ===
+      "Compact"
+        ? "compact"
+        : "comfortable",
+    defaultChildrenExpanded:
+      readOption(
+        values?.defaultChildExpansion,
+        CHILD_EXPANSION_OPTIONS,
+        "Expanded",
+      ) === "Expanded",
+    showProviderIcons: readBoolean(values?.showProviderIcons, true),
+    showPullRequestMetadata: readBoolean(
+      values?.showPullRequestMetadata,
+      true,
+    ),
+    showRelativeTime: readBoolean(values?.showRelativeTime, true),
+  };
+}
+
+function resolvePalette(
+  preset: PalettePreset,
+  values: Readonly<Record<string, string | boolean>> | undefined,
+): SemanticPalette {
+  switch (preset) {
+    case "High contrast":
+      return HIGH_CONTRAST_PALETTE;
+    case "Colorblind-friendly":
+      return COLORBLIND_FRIENDLY_PALETTE;
+    case "Custom":
+      return Object.fromEntries(
+        SEMANTIC_COLOR_ROLES.map((role) => [
+          role,
+          readHex(values?.[COLOR_SETTING_KEYS[role]], CUSTOM_COLOR_DEFAULTS[role]),
+        ]),
+      ) as Record<SemanticColorRole, string>;
+    case "Default":
+      return DEFAULT_PALETTE;
+  }
+}
+
+function readHex(value: string | boolean | undefined, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const normalized = value.trim().toUpperCase();
+  return HEX_COLOR.test(normalized) ? normalized : fallback;
+}
+
+function readBoolean(value: string | boolean | undefined, fallback: boolean) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function readOption<const Options extends readonly string[]>(
+  value: string | boolean | undefined,
+  options: Options,
+  fallback: Options[number],
+): Options[number] {
+  return typeof value === "string" && options.includes(value)
+    ? (value as Options[number])
+    : fallback;
+}
+
+export function docksidePreferenceStyle(
+  preferences: DocksidePreferences,
+): Readonly<Record<string, string>> {
+  const { colors } = preferences;
+  return {
+    "--dockside-status-working": colors.working,
+    "--dockside-status-waiting": colors.waiting,
+    "--dockside-status-unread": colors.unread,
+    "--dockside-status-error": colors.error,
+    "--dockside-status-idle": colors.idle,
+    "--dockside-pr-review": colors.prReview,
+    "--dockside-pr-checks": colors.prChecks,
+    "--dockside-pr-ready": colors.prReady,
+    "--dockside-pr-merged": colors.prMerged,
+    "--dockside-pr-draft": colors.prDraft,
+    "--dockside-pr-blocked": colors.prBlocked,
+    "--dockside-pr-closed": colors.prClosed,
+  };
+}

@@ -20,6 +20,12 @@ import {
   type BulkDeleteFamilySnapshot,
   type BulkDeleteThreadSnapshot,
 } from "./lib/bulk-delete.ts";
+import {
+  CHILD_EXPANSION_OPTIONS,
+  CUSTOM_COLOR_DEFAULTS,
+  PALETTE_PRESET_OPTIONS,
+  ROW_DENSITY_OPTIONS,
+} from "./lib/preferences.ts";
 
 const migrations = [
   `CREATE TABLE IF NOT EXISTS thread_lifecycle (
@@ -220,6 +226,84 @@ export const docksideRpcContract = defineRpcContract({
 export const LIFECYCLE_CHANNEL = "lifecycle";
 
 export default function plugin(bb: BbPluginApi) {
+  bb.settings.define({
+    palettePreset: {
+      type: "select",
+      label: "Palette preset",
+      description:
+        "Default resets the active palette. Custom uses the hex fields below.",
+      options: [...PALETTE_PRESET_OPTIONS],
+      default: "Default",
+    },
+    workingColor: colorSetting("Custom · Working", CUSTOM_COLOR_DEFAULTS.working),
+    waitingColor: colorSetting(
+      "Custom · Stalled / waiting",
+      CUSTOM_COLOR_DEFAULTS.waiting,
+    ),
+    unreadColor: colorSetting(
+      "Custom · Waiting to read",
+      CUSTOM_COLOR_DEFAULTS.unread,
+    ),
+    errorColor: colorSetting("Custom · Error", CUSTOM_COLOR_DEFAULTS.error),
+    idleColor: colorSetting("Custom · Stale / idle", CUSTOM_COLOR_DEFAULTS.idle),
+    prReviewColor: colorSetting(
+      "Custom · PR review",
+      CUSTOM_COLOR_DEFAULTS.prReview,
+    ),
+    prChecksColor: colorSetting(
+      "Custom · PR checks",
+      CUSTOM_COLOR_DEFAULTS.prChecks,
+    ),
+    prReadyColor: colorSetting(
+      "Custom · PR ready",
+      CUSTOM_COLOR_DEFAULTS.prReady,
+    ),
+    prMergedColor: colorSetting(
+      "Custom · PR merged",
+      CUSTOM_COLOR_DEFAULTS.prMerged,
+    ),
+    prDraftColor: colorSetting(
+      "Custom · PR draft",
+      CUSTOM_COLOR_DEFAULTS.prDraft,
+    ),
+    prBlockedColor: colorSetting(
+      "Custom · PR blocked",
+      CUSTOM_COLOR_DEFAULTS.prBlocked,
+    ),
+    prClosedColor: colorSetting(
+      "Custom · PR closed",
+      CUSTOM_COLOR_DEFAULTS.prClosed,
+    ),
+    rowDensity: {
+      type: "select",
+      label: "Row density",
+      options: [...ROW_DENSITY_OPTIONS],
+      default: "Comfortable",
+    },
+    defaultChildExpansion: {
+      type: "select",
+      label: "Default child expansion",
+      description: "Search still reveals matching child threads.",
+      options: [...CHILD_EXPANSION_OPTIONS],
+      default: "Expanded",
+    },
+    showProviderIcons: {
+      type: "boolean",
+      label: "Show provider icons",
+      default: true,
+    },
+    showPullRequestMetadata: {
+      type: "boolean",
+      label: "Show parent PR metadata",
+      default: true,
+    },
+    showRelativeTime: {
+      type: "boolean",
+      label: "Show relative time",
+      default: true,
+    },
+  });
+
   const db = bb.storage.database();
   bb.storage.migrate(db, migrations);
 
@@ -643,4 +727,13 @@ export default function plugin(bb: BbPluginApi) {
   bb.events.on("thread.active", republishIfSettled);
   bb.events.on("thread.idle", republishIfSettled);
   bb.events.on("thread.failed", republishIfSettled);
+}
+
+function colorSetting(label: string, defaultColor: string) {
+  return {
+    type: "string" as const,
+    label,
+    description: "Six-digit hex color (#RRGGBB); used only by Custom palette.",
+    default: defaultColor,
+  };
 }

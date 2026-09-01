@@ -32,6 +32,7 @@ import {
   WorkflowCircle03Icon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
+import type { CSSProperties } from "react";
 
 const ICON_MAP = {
   Add: Add01Icon,
@@ -73,11 +74,13 @@ export function Icon({
   className,
   "aria-hidden": ariaHidden,
   "aria-label": ariaLabel,
+  style,
 }: {
   name: IconName;
   className?: string;
   "aria-hidden"?: boolean | "true" | "false";
   "aria-label"?: string;
+  style?: CSSProperties;
 }) {
   return (
     <HugeiconsIcon
@@ -85,6 +88,7 @@ export function Icon({
       className={cn(className)}
       aria-hidden={ariaHidden}
       aria-label={ariaLabel}
+      style={style}
       data-icon={name}
     />
   );

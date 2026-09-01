@@ -62,14 +62,16 @@ export function resolveFamilyExpanded({
   childCount,
   forceExpanded,
   override,
+  defaultExpanded = true,
 }: {
   childCount: number;
   forceExpanded: boolean;
   override: boolean | null;
+  defaultExpanded?: boolean;
 }): boolean {
   if (childCount === 0) return false;
   if (forceExpanded) return true;
-  return override ?? true;
+  return override ?? defaultExpanded;
 }
 
 export function familyMembers(

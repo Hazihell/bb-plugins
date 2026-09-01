@@ -55,7 +55,7 @@
         "id": "dockside-system",
         "argv": [
           "node",
-          ".empirical/specs/dockside-shift-click-range-selection/qa/system.mjs"
+          ".empirical/specs/dockside-row-selection-status-customization/qa/system.mjs"
         ],
         "cwd": ".",
         "timeoutMs": 60000,

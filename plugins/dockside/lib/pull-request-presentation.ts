@@ -13,6 +13,14 @@ export interface PullRequestPresentation {
     | "GitPullRequestDraft"
     | "Hourglass";
   tone: SemanticStateTone;
+  colorRole:
+    | "blocked"
+    | "checks"
+    | "closed"
+    | "draft"
+    | "merged"
+    | "ready"
+    | "review";
 }
 
 /**
@@ -26,7 +34,12 @@ export function pullRequestPresentation(
     pullRequest.state === "merged" ||
     pullRequest.attention === "merged"
   ) {
-    return { label: "MERGED", icon: "GitMerge", tone: "merged" };
+    return {
+      label: "MERGED",
+      icon: "GitMerge",
+      tone: "merged",
+      colorRole: "merged",
+    };
   }
   if (
     pullRequest.state === "closed" ||
@@ -36,29 +49,65 @@ export function pullRequestPresentation(
       label: "CLOSED",
       icon: "GitPullRequestClosed",
       tone: "closed",
+      colorRole: "closed",
     };
   }
   if (
     pullRequest.state === "draft" ||
     pullRequest.attention === "draft"
   ) {
-    return { label: "DRAFT", icon: "GitPullRequestDraft", tone: "muted" };
+    return {
+      label: "DRAFT",
+      icon: "GitPullRequestDraft",
+      tone: "muted",
+      colorRole: "draft",
+    };
   }
 
   switch (pullRequest.attention) {
     case "changes_requested":
-      return { label: "CHANGES", icon: "CircleX", tone: "destructive" };
+      return {
+        label: "CHANGES",
+        icon: "CircleX",
+        tone: "destructive",
+        colorRole: "blocked",
+      };
     case "blocked":
     case "checks_failed":
     case "conflicts":
-      return { label: "BLOCKED", icon: "CircleX", tone: "destructive" };
+      return {
+        label: "BLOCKED",
+        icon: "CircleX",
+        tone: "destructive",
+        colorRole: "blocked",
+      };
     case "checks_pending":
-      return { label: "CHECKS", icon: "Hourglass", tone: "warning" };
+      return {
+        label: "CHECKS",
+        icon: "Hourglass",
+        tone: "warning",
+        colorRole: "checks",
+      };
     case "review_requested":
-      return { label: "IN REVIEW", icon: "Eye", tone: "primary" };
+      return {
+        label: "IN REVIEW",
+        icon: "Eye",
+        tone: "primary",
+        colorRole: "review",
+      };
     case "ready_to_merge":
-      return { label: "READY", icon: "Check", tone: "success" };
+      return {
+        label: "READY",
+        icon: "Check",
+        tone: "success",
+        colorRole: "ready",
+      };
     default:
-      return { label: "OPEN", icon: "GitPullRequest", tone: "muted" };
+      return {
+        label: "OPEN",
+        icon: "GitPullRequest",
+        tone: "muted",
+        colorRole: "draft",
+      };
   }
 }

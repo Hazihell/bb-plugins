@@ -1,6 +1,24 @@
 import type { PluginSidebarThreadIndicator } from "@bb/plugin-sdk";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
+import {
+  statusColorRole,
+  type ThreadStatusColorRole,
+} from "@/lib/status-presentation";
+
+function statusColor(role: ThreadStatusColorRole): string {
+  const fallback =
+    role === "error"
+      ? "var(--destructive)"
+      : role === "waiting"
+        ? "var(--warning-text, var(--warning))"
+        : role === "unread"
+          ? "var(--primary)"
+          : role === "working"
+            ? "var(--success-foreground, var(--primary))"
+            : "var(--muted-foreground)";
+  return `var(--dockside-status-${role}, ${fallback})`;
+}
 
 /**
  * This plugin's status glyphs, matching bb's own sidebar shape for shape: the
@@ -56,6 +74,8 @@ export function StatusGlyph({
 }) {
   const shared = cn("size-3.5 shrink-0", className);
   const aria = label ?? undefined;
+  const role = statusColorRole(indicator);
+  const style = role === null ? undefined : { color: statusColor(role) };
 
   switch (indicator) {
     case "unread-error":
@@ -63,7 +83,8 @@ export function StatusGlyph({
         <Icon
           name="CircleX"
           aria-label={aria}
-          className={cn(shared, "text-destructive")}
+          className={shared}
+          style={style}
         />
       );
     case "waiting-for-input":
@@ -71,7 +92,8 @@ export function StatusGlyph({
         <Icon
           name="CircleQuestion"
           aria-label={aria}
-          className={cn(shared, "text-primary")}
+          className={shared}
+          style={style}
         />
       );
     case "runtime":
@@ -79,7 +101,8 @@ export function StatusGlyph({
         <Icon
           name="Loading"
           aria-label={aria}
-          className={cn(shared, "animate-spin text-primary")}
+          className={cn(shared, "animate-spin")}
+          style={style}
         />
       );
     case "workflow":
@@ -98,7 +121,8 @@ export function StatusGlyph({
         <Icon
           name="Edit"
           aria-label={aria}
-          className={cn(shared, "text-muted-foreground")}
+          className={shared}
+          style={style}
         />
       );
     case "unread-success":
@@ -110,7 +134,10 @@ export function StatusGlyph({
           title={aria}
           className={cn("flex items-center justify-center", shared)}
         >
-          <span className="size-2.5 rounded-full border-2 border-primary" />
+          <span
+            className="size-2.5 rounded-full border-2"
+            style={{ borderColor: statusColor("unread") }}
+          />
         </span>
       );
     case "none":
@@ -133,7 +160,8 @@ function ShineIcon({
     <Icon
       name={name}
       aria-label={label}
-      className={cn("animate-shine-icon text-primary", className)}
+      className={cn("animate-shine-icon", className)}
+      style={{ color: statusColor("working") }}
     />
   );
 }

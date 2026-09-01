@@ -4,8 +4,16 @@
 import { definePluginApp } from "@bb/plugin-sdk/app";
 import { ThreadInbox } from "@/components/inbox/thread-inbox";
 import { ParentChip } from "@/components/inbox/parent-chip";
+import { DocksideSettingsSection } from "@/components/settings/dockside-settings";
 
 export default definePluginApp((app) => {
+  app.slots.settingsSection({
+    id: "appearance",
+    title: "Appearance & behavior",
+    description: "Preview the effective Dockside palette and layout settings.",
+    component: DocksideSettingsSection,
+  });
+
   app.slots.experimental_threadList({
     id: "inbox",
     title: "Dockside (projects)",
