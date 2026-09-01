@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 11,
+  "revision": 12,
   "activeFeature": "dockside-icon-only-agent-states",
   "request": "Replace Dockside's visible state text with compact accessible icons and remove Done completion state from all child/sub-agent rows. Keep PR state understandable through a colored semantic icon plus number and accessible label/tooltip, keep root output-verified completion as an icon only, use an activity icon plus connector tint for working child families, rely on existing row glyphs for child live status, and preserve all filters, hierarchy, deletion, project creation, navigation, and compact behavior.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 1,
-  "message": "Re-verified repaired icon states with exhaustive PR icon tests, provider-after-count and quiet-child provider-first live evidence, focused/fault/type/clean portability/system receipts, passing fresh-context QA, browser screenshots, and security advisory.",
+  "message": "The isolated reviewer approved the repaired exact diff after exhaustive PR icon assertions and provider identity refinement, with all criteria passing and no blocking security, correctness, design, or maintainability findings.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:51e6351c52762c208ed8b11ca7d4a4c56fd460b026a50e86981de183e350868e",
@@ -27,7 +27,8 @@
     "qa-3638edb40f8eb945fa4207b2",
     "qa-3e2ed33a576de16487f34d00",
     "qa-f1e57f2da06ae88f0db3870e",
-    "collected-fb277fc864c1dc17b8ce3ef8"
+    "collected-fb277fc864c1dc17b8ce3ef8",
+    "collected-2b5bc8b253ce35397b324c3f"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -43,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T01:02:26.878Z"
+  "updatedAt": "2026-09-01T01:05:14.207Z"
 }
