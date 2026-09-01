@@ -24,40 +24,23 @@ project order, root context for matching children, and existing status styling.
 
 ### Requirement: Bulk deletion is explicit and state-safe
 
-Dockside MUST allow ordinary checkbox toggling and Shift+click range selection
-for visible eligible root families. An ordinary click MUST establish the range
-anchor. A Shift+click MUST apply the clicked checkbox's intended checked state
-to the inclusive visible eligible range. Missing or hidden anchors MUST fall
-back to an ordinary toggle. Protected families MUST remain unselectable, and
-range anchors MUST remain ephemeral to the current visible selection session.
+During selection mode, the complete eligible root row MUST act as the native
+checkbox selection target. Ordinary row click MUST toggle one family and set
+the anchor. Shift+click MUST apply the target's intended selected state across
+the inclusive visible eligible range. Checkbox clicks MUST retain identical
+behavior. Protected row clicks MUST neither select nor navigate.
 
-All existing preview, confirmation, one-use token, descendant binding,
-revalidation, partial outcome, and protected-family guarantees remain.
+All preview, confirmation, one-use token, descendant binding, revalidation,
+partial outcome, filter/search/order, and protected-family guarantees remain.
 
-#### Scenario: User Shift-selects across visible roots
+#### Scenario: User Shift-selects by clicking row titles
 
-- **Given** selection mode shows eligible roots A, B, and C in that order
-- **And** the user ordinarily checks A
-- **When** the user Shift+clicks unchecked C
-- **Then** A, B, and C are selected
-- **And** A remains the range anchor
-
-#### Scenario: User Shift-deselects a range containing a protected gap
-
-- **Given** eligible A and C are selected with protected B between them
-- **And** A is the visible anchor
-- **When** the user Shift+clicks checked C
-- **Then** A and C are deselected
-- **And** B remains unselected and disabled
-
-#### Scenario: The anchor is no longer visible
-
-- **Given** A was the range anchor
-- **And** a filter, search, project collapse, deletion, or protection change
-  removes A from the visible eligible checkbox order
-- **When** the user Shift+clicks B
-- **Then** only B is toggled
-- **And** B becomes the new anchor
+- **Given** selection mode shows eligible A, protected B, and eligible C
+- **And** the user clicks anywhere on A's root row
+- **When** the user Shift+clicks anywhere on C's root row
+- **Then** A and C are selected
+- **And** B remains disabled and unselected
+- **And** no thread opens
 
 ### Requirement: Every project can start a native project-scoped thread
 
@@ -142,3 +125,37 @@ status glyph and MUST NOT add a second live-status word or icon.
 - **Then** the root shows one accessible activity icon
 - **And** the connector is tinted
 - **And** no Agents working or Working text is added
+
+### Requirement: Semantic presentation is persistently customizable
+
+Dockside MUST expose persistent plugin settings for semantic status/PR palette,
+row density, default child expansion, provider marks, root PR metadata, and
+relative time. Default values MUST preserve existing behavior. Palette options
+MUST include Default, High contrast, Colorblind-friendly, and validated Custom
+colors. Invalid values MUST fall back without applying arbitrary CSS.
+
+Color customization MUST NOT remove state labels, icon shapes, animation,
+tooltips, disabled semantics, or PR precedence.
+
+#### Scenario: User chooses the colorblind-friendly preset
+
+- **Given** Dockside settings are open
+- **When** the user chooses Colorblind-friendly
+- **Then** working, stalled/waiting, unread, error, idle, and PR icon colors use
+  the documented preset
+- **And** the sidebar updates without a reload
+- **And** each state retains its original icon, label, and animation
+
+#### Scenario: User supplies an invalid custom color
+
+- **Given** Custom palette is selected
+- **When** a color field is not a valid six-digit hex value
+- **Then** Dockside uses that role's safe default
+- **And** the invalid value is never projected into inline CSS
+
+#### Scenario: User hides optional metadata
+
+- **Given** provider icons, PR metadata, and relative time are visible by default
+- **When** the user disables one or more settings
+- **Then** only those optional elements disappear
+- **And** status, title, branch, hierarchy, selection, and navigation remain

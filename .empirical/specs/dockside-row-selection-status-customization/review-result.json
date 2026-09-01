@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "packetDigest": "sha256:d7f77251495121e819db6d9a1a63f29e0eaa83e1285c1e5eeda5bda2677f1b45",
-  "resultPath": ".empirical/specs/dockside-row-selection-status-customization/reviews/2bfd64a8c36f9eecf0814664.json",
-  "resultDigest": "sha256:2bfd64a8c36f9eecf08146645e8a100e6e9a9eaae07d768a10c13a399b3fb6b6",
-  "receiptId": "collected-831c6dcef73fc1daeebbc999"
+  "packetDigest": "sha256:ebe412df36723c105263d72b7e260c395223dac6cea87abac98e8c6bb88bcfc1",
+  "resultPath": ".empirical/specs/dockside-row-selection-status-customization/reviews/8166fbdbf162f8494008301b.json",
+  "resultDigest": "sha256:8166fbdbf162f8494008301b6e0047fa5144961a0c91c1f7401d0f00a1a176d1",
+  "receiptId": "collected-1bb86fe13eda14817aa60857"
 }
