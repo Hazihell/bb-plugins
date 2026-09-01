@@ -81,7 +81,7 @@ export function FamilyStatusBadge({
     <span
       data-dockside-family-status={status.kind}
       className={cn(
-        "inline-flex h-4 w-[5.5rem] shrink-0 items-center justify-center rounded px-1.5 text-[10px] font-semibold leading-none",
+        "inline-flex h-4 w-[4.5rem] shrink-0 items-center justify-center rounded px-1 text-[10px] font-semibold leading-none",
         status.receded ? "bg-muted/45" : "bg-current/10",
         preview && "h-5 px-2 text-2xs",
       )}
