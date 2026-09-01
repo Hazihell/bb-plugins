@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 8,
   "activeFeature": "carry-forward-the-verified-dockside-managed-install-dependency-fix-by",
   "request": "Carry forward the verified Dockside managed-install dependency fix by classifying @hugeicons/react, @hugeicons/core-free-icons, and runtime-imported zod as production dependencies with lockfile regression coverage. Also color the project letter badges in Dockside's sidebar using stable deterministic per-project fallback colors, and let users choose and persist an individual color for each project from Dockside's settings page. Key overrides by stable project ID so project renames retain the color. Validate untrusted persisted values, preserve accessible contrast, add focused logic/UI contract tests, build, and verify via local install/reload and browser screenshot.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Verified all criteria with 202 Dockside tests, adjacent and full workspace checks, both configured system checks, production-only isolated resolution/build, local install/reload, real Chromium save/sidebar/reset behavior, and dark/light screenshots.",
+  "message": "Fresh-context review approved all seven criteria and found no push-blocking security, correctness, or maintainability issues.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:de47219b2e33db5a0ed9fdd674bffa6d0ea3ec10d0228534d7143564e6090b70",
@@ -27,7 +27,8 @@
     "qa-8a974c414e41d498fbb0baac",
     "qa-62d68ec13fb5d3f6c923a2f4",
     "collected-5672d98363ffe615e3a41b20",
-    "qa-092b9899a93aae5a5c3247e2"
+    "qa-092b9899a93aae5a5c3247e2",
+    "collected-7bae25a528ab0e26e428fc6b"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -43,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T22:04:39.500Z"
+  "updatedAt": "2026-09-01T22:10:29.758Z"
 }
