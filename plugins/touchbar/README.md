@@ -51,6 +51,29 @@ bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 
 
 ## Install the native app
 
+### Homebrew Cask
+
+After a `touchbar/vX.Y.Z` release is published with its universal archive, add
+this repository as a tap and install the macOS app:
+
+```sh
+brew tap mateocerquetella/bb-plugins \
+  https://github.com/MateoCerquetella/bb-plugins.git
+brew install --cask mateocerquetella/bb-plugins/bb-touch-bar
+```
+
+Homebrew installs `BB Touch Bar.app` in `/Applications`, records the active
+`bb` CLI path, installs the per-user LaunchAgent, and starts the accessory app.
+Upgrades preserve Touch Bar preferences. `brew uninstall --cask bb-touch-bar`
+removes the app and login job; add `--zap` to remove its support data, log, and
+preferences too.
+
+Public Cask archives must be Developer ID signed and Apple-notarized because
+current Homebrew preserves Gatekeeper quarantine and no longer offers a
+`--no-quarantine` install option.
+
+### Source install
+
 On the Touch Bar Mac, from the extracted package:
 
 ```sh
@@ -148,6 +171,28 @@ BB_TOUCHBAR_APP="$PWD/plugins/touchbar/native/build/BBTouchBar.app" \
 ```
 
 Generated `build/`, `dist/`, and `node_modules/` directories remain untracked.
+
+## Prepare a macOS release
+
+Create the universal ZIP and matching Cask checksum on a Mac:
+
+```sh
+./plugins/touchbar/native/package.sh 0.1.0
+```
+
+For a public release, sign and notarize with Keychain-managed credentials:
+
+```sh
+BB_TOUCHBAR_SIGN_IDENTITY="Developer ID Application: Example (TEAMID)" \
+BB_TOUCHBAR_NOTARY_PROFILE="bb-touchbar" \
+  ./plugins/touchbar/native/package.sh 0.1.0
+```
+
+`package.sh` prints the archive path and SHA-256. Put that exact SHA in
+[`Casks/bb-touch-bar.rb`](../../Casks/bb-touch-bar.rb), commit it, create the
+matching `touchbar/v0.1.0` tag, and attach the unchanged ZIP as
+`BBTouchBar-0.1.0-universal.zip`. Publishing the tag/release remains a separate
+remote action.
 
 ## License
 
