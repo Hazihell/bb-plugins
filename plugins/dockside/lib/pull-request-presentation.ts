@@ -3,6 +3,7 @@ import type { SemanticStateTone } from "./attention-state.ts";
 
 export interface PullRequestPresentation {
   label: string;
+  icon: "Check" | "CircleX" | "GitBranch" | "Loading" | "Target";
   tone: SemanticStateTone;
 }
 
@@ -17,35 +18,35 @@ export function pullRequestPresentation(
     pullRequest.state === "merged" ||
     pullRequest.attention === "merged"
   ) {
-    return { label: "MERGED", tone: "merged" };
+    return { label: "MERGED", icon: "Check", tone: "merged" };
   }
   if (
     pullRequest.state === "closed" ||
     pullRequest.attention === "closed"
   ) {
-    return { label: "CLOSED", tone: "muted" };
+    return { label: "CLOSED", icon: "CircleX", tone: "muted" };
   }
   if (
     pullRequest.state === "draft" ||
     pullRequest.attention === "draft"
   ) {
-    return { label: "DRAFT", tone: "muted" };
+    return { label: "DRAFT", icon: "GitBranch", tone: "muted" };
   }
 
   switch (pullRequest.attention) {
     case "changes_requested":
-      return { label: "CHANGES", tone: "destructive" };
+      return { label: "CHANGES", icon: "CircleX", tone: "destructive" };
     case "blocked":
     case "checks_failed":
     case "conflicts":
-      return { label: "BLOCKED", tone: "destructive" };
+      return { label: "BLOCKED", icon: "CircleX", tone: "destructive" };
     case "checks_pending":
-      return { label: "CHECKS", tone: "primary" };
+      return { label: "CHECKS", icon: "Loading", tone: "primary" };
     case "review_requested":
-      return { label: "IN REVIEW", tone: "primary" };
+      return { label: "IN REVIEW", icon: "Target", tone: "primary" };
     case "ready_to_merge":
-      return { label: "READY", tone: "success" };
+      return { label: "READY", icon: "Check", tone: "success" };
     default:
-      return { label: "OPEN", tone: "muted" };
+      return { label: "OPEN", icon: "GitBranch", tone: "muted" };
   }
 }

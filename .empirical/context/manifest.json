@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:bd95783c515cd595b2a46ae06fbfa2759509eeb2e1ea33519b3f466d7dac5fe3",
+  "sourceDigest": "sha256:b296e5b9842663688502491740eb21221bcb17a118e0109dc46f663f1ef95229",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -985,8 +985,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/row-metadata.tsx",
-      "size": 1553,
-      "digest": "sha256:14f36381fb6bbde9b51b9aca5d1237f35a1c4884d99d47128d27e792bf52fde5"
+      "size": 1906,
+      "digest": "sha256:3648025405f1c37bbca543feae4ca56eee2c563b8dcef2a52987d3fe734d0059"
     },
     {
       "path": "plugins/dockside/components/inbox/slim-row.tsx",
@@ -1010,8 +1010,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 18045,
-      "digest": "sha256:b38cedc7d0d80b86db6f23027496f4b1d8efedd61ffe88c72235f1f5bcb4c28f"
+      "size": 17178,
+      "digest": "sha256:2b745ea65237d08cfe7ed1d56175339a0e60fa4e622c09fa819c3b9936ef19f6"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
@@ -1050,8 +1050,8 @@
     },
     {
       "path": "plugins/dockside/lib/attention-state.ts",
-      "size": 1304,
-      "digest": "sha256:c976af6f45b847179e17b9ca57ed2137b7b2e58eaad182ee564555da6788c2f8"
+      "size": 1243,
+      "digest": "sha256:e0dc6d14c86906a9c7702c116b4eabdf01195966fdb53576fff0f4d59f587139"
     },
     {
       "path": "plugins/dockside/lib/bulk-delete.ts",
@@ -1080,8 +1080,8 @@
     },
     {
       "path": "plugins/dockside/lib/pull-request-presentation.ts",
-      "size": 1488,
-      "digest": "sha256:be67121b3f8257ab70ea3d44a705e39bd59bd1b556d6a776757683fe18a44434"
+      "size": 1706,
+      "digest": "sha256:2213aa14a5354462e5275d695bf7d1c6847b765fd1be42f44e9f1c4ca79b0750"
     },
     {
       "path": "plugins/dockside/lib/relative-time.ts",
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "plugins/dockside/test/attention-state.test.ts",
-      "size": 2424,
-      "digest": "sha256:7118e89dbd43083087d07b88712330f7af7fbd61152b82c78d7561ea1c2d761a"
+      "size": 2343,
+      "digest": "sha256:3e440fb9a966004a9e4f4ee64d878a47aca182f75f1f4a4096f825e364d25acf"
     },
     {
       "path": "plugins/dockside/test/bulk-delete.test.ts",
@@ -1145,8 +1145,8 @@
     },
     {
       "path": "plugins/dockside/test/pull-request-presentation.test.ts",
-      "size": 1484,
-      "digest": "sha256:eccfaf3361ed6d2a68a1a99b6101c9f74d15903ebdaaf625df1b8cea9f0c7457"
+      "size": 1535,
+      "digest": "sha256:0a5d7655050c1318d5b79927a4ee77a26465e8aa988cf1106467a9428ebe15e6"
     },
     {
       "path": "plugins/dockside/test/relative-time.test.ts",
@@ -3179,8 +3179,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:bd95783c515cd595b2a46ae06fbfa2759509eeb2e1ea33519b3f466d7dac5fe3",
-      "digest": "sha256:a25f3bd36dc63db578fcac15da7670ca7a8b2ce1c2e5ff908138144ed3c03a52",
+      "sourceDigest": "sha256:b296e5b9842663688502491740eb21221bcb17a118e0109dc46f663f1ef95229",
+      "digest": "sha256:36b46ddb42dd52f3911d52bac2d0c64e1d45862bf99eba4777dd8e4f4d048847",
       "freshness": "fresh"
     },
     {
@@ -3316,5 +3316,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:c305bdbb79bdf113b2672da02689eabdabecb02f658fdd74848a8897d6c6eaa5"
+  "digest": "sha256:a0e31c42903322355339f50b115730270e1c71e53941f399541eafd1776e4251"
 }

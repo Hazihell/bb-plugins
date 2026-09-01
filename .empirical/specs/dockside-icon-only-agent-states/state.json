@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 5,
+  "revision": 6,
+  "activeFeature": "dockside-icon-only-agent-states",
+  "request": "Replace Dockside's visible state text with compact accessible icons and remove Done completion state from all child/sub-agent rows. Keep PR state understandable through a colored semantic icon plus number and accessible label/tooltip, keep root output-verified completion as an icon only, use an activity icon plus connector tint for working child families, rely on existing row glyphs for child live status, and preserve all filters, hierarchy, deletion, project creation, navigation, and compact behavior.",
+  "profile": "complex",
+  "workflow": "complex",
+  "mode": "normal",
+  "phase": "verify",
+  "status": "waiting",
+  "repairAttempts": 0,
+  "message": "Refreshed repository knowledge after icon-only metadata, child completion removal, tests, and QA; all context pages remain current without stale, missing, invalid, or refinement-required topics.",
+  "implementationActor": "agent",
+  "workStartedAt": null,
+  "specDigest": "sha256:51e6351c52762c208ed8b11ca7d4a4c56fd460b026a50e86981de183e350868e",
+  "approvedSpecRevision": 2,
+  "capabilityArchiveRequired": true,
+  "capabilityDeltaDigest": "sha256:4e745ee4e1da52e939ffa132a6312a2d2e831bf5517f19fba953638791d77a68",
+  "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+  "capabilityClaimId": "dockside-icon-only-agent-states-b40841a02be2",
+  "authorizationDigest": null,
+  "evidence": [],
+  "evidenceReceiptIds": [],
+  "legacyEvidenceCount": 0,
+  "completion": {
+    "implemented": true,
+    "verified": false,
+    "integrated": false,
+    "delivered": false,
+    "published": false,
+    "highest": "implemented",
+    "reasons": {
+      "verified": "verified has not been proven by a durable receipt.",
+      "integrated": "integrated has not been proven by a durable receipt.",
+      "delivered": "delivered has not been proven by a durable receipt.",
+      "published": "published has not been proven by a durable receipt."
+    }
+  },
+  "updatedAt": "2026-09-01T00:47:17.610Z"
+}

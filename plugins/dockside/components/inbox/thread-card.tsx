@@ -92,10 +92,7 @@ export function ThreadCard({
     override: expandedOverride,
   });
   const waitingForAgents = familyWaitingForAgents(childThreads);
-  const summaryThreads = useMemo(
-    () => (expanded ? [thread, ...childThreads] : [thread]),
-    [childThreads, expanded, thread],
-  );
+  const summaryThreads = useMemo(() => [thread], [thread]);
   const summaries = useThreadSummaries(summaryThreads);
   const secondaryState = rootSecondaryState({
     waitingForAgents,
@@ -295,7 +292,6 @@ export function ThreadCard({
                   isActive={child.id === activeThreadId}
                   onNavigate={onNavigate}
                   now={now}
-                  hasDone={summaries.has(child.id)}
                 />
               ))}
             </ul>
@@ -312,14 +308,12 @@ function ChildThreadRow({
   isActive,
   onNavigate,
   now,
-  hasDone,
 }: {
   thread: PluginSidebarThread;
   provider?: ProviderGlyphInfo;
   isActive: boolean;
   onNavigate: () => void;
   now: number;
-  hasDone: boolean;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -330,7 +324,6 @@ function ChildThreadRow({
   const secondaryState = childSecondaryState({
     hasStatus: status !== null,
     hasPullRequest: pullRequest !== null,
-    hasDone: !isPullRequestLoading && hasDone,
   });
 
   return (
@@ -392,19 +385,10 @@ function ChildThreadRow({
             </div>
             <div className="mt-0.5 flex h-3.5 min-w-0 items-center gap-1.5 text-2xs">
               <ThreadLocation thread={thread} />
-              {secondaryState === "status" && status ? (
-                <span
-                  className={cn(
-                    "shrink-0 rounded px-1 font-semibold",
-                    status.tone,
-                  )}
-                >
-                  {status.label}
-                </span>
-              ) : secondaryState === "pull-request" && pullRequest ? (
+              {secondaryState === "pull-request" &&
+              !isPullRequestLoading &&
+              pullRequest ? (
                 <PullRequestMetadata pullRequest={pullRequest} />
-              ) : secondaryState === "done" ? (
-                <DoneMetadata />
               ) : null}
             </div>
           </div>
@@ -451,20 +435,6 @@ function ThreadStatusLabel({
   thread: PluginSidebarThread;
   now: number;
 }) {
-  const status = threadStatus(thread);
-  if (status !== null) {
-    return (
-      <span
-        aria-label={thread.indicatorLabel ?? status.label}
-        className={cn(
-          "max-w-16 truncate rounded px-1 text-2xs font-semibold",
-          status.tone,
-        )}
-      >
-        {status.label}
-      </span>
-    );
-  }
   return (
     <span className="tabular-nums text-2xs text-muted-foreground/70">
       {relativeTimeLabel(thread.updatedAt, now)}

@@ -35,12 +35,11 @@ describe("attention-first secondary state", () => {
     );
   });
 
-  it("selects child live status before PR and Done", () => {
+  it("selects child live status before PR and never selects Done", () => {
     assert.equal(
       childSecondaryState({
         hasStatus: true,
         hasPullRequest: true,
-        hasDone: true,
       }),
       "status",
     );
@@ -48,7 +47,6 @@ describe("attention-first secondary state", () => {
       childSecondaryState({
         hasStatus: false,
         hasPullRequest: true,
-        hasDone: true,
       }),
       "pull-request",
     );
@@ -56,9 +54,8 @@ describe("attention-first secondary state", () => {
       childSecondaryState({
         hasStatus: false,
         hasPullRequest: false,
-        hasDone: true,
       }),
-      "done",
+      null,
     );
   });
 
@@ -75,7 +72,6 @@ describe("attention-first secondary state", () => {
       childSecondaryState({
         hasStatus: false,
         hasPullRequest: false,
-        hasDone: false,
       }),
       null,
     );

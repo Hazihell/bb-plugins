@@ -30,15 +30,12 @@ export function rootSecondaryState({
 export function childSecondaryState({
   hasStatus,
   hasPullRequest,
-  hasDone,
 }: {
   hasStatus: boolean;
   hasPullRequest: boolean;
-  hasDone: boolean;
 }): RowSecondaryState {
   if (hasStatus) return "status";
   if (hasPullRequest) return "pull-request";
-  if (hasDone) return "done";
   return null;
 }
 

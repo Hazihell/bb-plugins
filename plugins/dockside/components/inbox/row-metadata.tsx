@@ -2,6 +2,7 @@ import {
   UrlLink,
   type PluginSidebarPullRequest,
 } from "@bb/plugin-sdk/app";
+import { Icon } from "@/components/ui/icon";
 import { semanticStateToneClass } from "@/lib/attention-state";
 import { pullRequestPresentation } from "@/lib/pull-request-presentation";
 
@@ -17,12 +18,12 @@ export function PullRequestMetadata({
       onClick={(event) => event.stopPropagation()}
       className="pointer-events-auto relative flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground hover:text-foreground"
       aria-label={`${presentation.label} pull request ${pullRequest.number}: ${pullRequest.title}`}
-      title={pullRequest.title}
+      title={`${presentation.label}: ${pullRequest.title}`}
     >
       <span
-        className={`inline-flex h-4 shrink-0 items-center rounded px-1 font-semibold tracking-wide ${semanticStateToneClass(presentation.tone)}`}
+        className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass(presentation.tone)}`}
       >
-        {presentation.label}
+        <Icon name={presentation.icon} className="size-3" aria-hidden />
       </span>
       <span className="shrink-0 font-mono text-muted-foreground/80">
         #{pullRequest.number}
@@ -34,9 +35,11 @@ export function PullRequestMetadata({
 export function DoneMetadata() {
   return (
     <span
-      className={`inline-flex h-4 shrink-0 items-center rounded px-1 text-2xs font-semibold tracking-wide ${semanticStateToneClass("success")}`}
+      title="Done"
+      className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass("success")}`}
     >
-      DONE
+      <Icon name="Check" className="size-3" aria-hidden />
+      <span className="sr-only">Done</span>
     </span>
   );
 }
@@ -44,9 +47,11 @@ export function DoneMetadata() {
 export function WaitingForAgentsMetadata() {
   return (
     <span
-      className={`shrink-0 rounded px-1 font-semibold ${semanticStateToneClass("primary")}`}
+      title="Agents working"
+      className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass("primary")}`}
     >
-      Agents working
+      <Icon name="Loading" className="size-3 animate-spin" aria-hidden />
+      <span className="sr-only">Agents working</span>
     </span>
   );
 }
