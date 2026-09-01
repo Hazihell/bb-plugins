@@ -1,7 +1,7 @@
 import AppKit
 
 enum AgentStatus: String, Decodable {
-    case blocked, working, done, idle, waiting, unknown
+    case blocked, error, working, done, idle, waiting, unknown
 
     var isBusy: Bool { self == .working }
 }
@@ -32,6 +32,8 @@ struct HostMetricEntry: Equatable {
     let diskPercent: Double?
     let receiveBytesPerSecond: Double?
     let sendBytesPerSecond: Double?
+    let attentionThresholdPercent: Double
+    let criticalThresholdPercent: Double
 }
 
 struct AgentSnapshot: Equatable {
@@ -41,7 +43,10 @@ struct AgentSnapshot: Equatable {
     var connected = false
 
     var working: Int { agents.filter { $0.status == .working }.count }
-    var blocked: Int { agents.filter { $0.status == .blocked }.count }
+    var errors: Int { agents.filter { $0.status == .error }.count }
+    var blocked: Int {
+        agents.filter { $0.status == .blocked || $0.status == .error }.count
+    }
     var done: Int { agents.filter { $0.status == .done }.count }
 }
 
@@ -77,6 +82,11 @@ private struct BBSnapshot: Decodable {
 }
 
 private struct BBHostSnapshot: Decodable {
+    struct Thresholds: Decodable {
+        let attentionPercent: Double
+        let criticalPercent: Double
+    }
+
     struct Host: Decodable {
         let id: String
         let name: String
@@ -90,6 +100,7 @@ private struct BBHostSnapshot: Decodable {
     }
 
     let schemaVersion: Int
+    let thresholds: Thresholds
     let hosts: [Host]
 }
 
@@ -214,13 +225,16 @@ final class AgentStore {
                 memoryPercent: $0.memoryPercent,
                 diskPercent: $0.diskPercent,
                 receiveBytesPerSecond: $0.receiveBytesPerSecond,
-                sendBytesPerSecond: $0.sendBytesPerSecond
+                sendBytesPerSecond: $0.sendBytesPerSecond,
+                attentionThresholdPercent: payload.thresholds.attentionPercent,
+                criticalThresholdPercent: payload.thresholds.criticalPercent
             )
         }
     }
 
     private static func status(for thread: BBSnapshot.Thread) -> AgentStatus {
-        if thread.attention == "input" || thread.status == "error" { return .blocked }
+        if thread.status == "error" { return .error }
+        if thread.attention == "input" { return .blocked }
         if thread.status == "active" || thread.status == "stopping" { return .working }
         if thread.status == "waiting" { return .waiting }
         if thread.unread || thread.attention == "unread" { return .done }

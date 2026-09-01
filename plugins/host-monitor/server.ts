@@ -39,6 +39,7 @@ export function compactHostDashboard(current: Dashboard) {
   return {
     schemaVersion: 1 as const,
     generatedAtMs: current.generatedAtMs,
+    thresholds: current.thresholds,
     hosts: current.machines.slice(0, HOST_SNAPSHOT_LIMIT).map((machine) => ({
       id: machine.host.id,
       name: machine.host.name,

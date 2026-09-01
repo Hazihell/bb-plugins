@@ -163,9 +163,10 @@ The compact machine snapshot is available as JSON:
 bb host-monitor snapshot [--pretty]
 ```
 
-It exposes only host id/name/status, freshness, CPU/RAM/disk percentages, and
-aggregate download/upload rates. It excludes IPs, interfaces, processes, and
-other detailed system fields.
+It exposes only the effective attention/critical thresholds plus host
+id/name/status, freshness, CPU/RAM/disk percentages, and aggregate
+download/upload rates. It excludes IPs, interfaces, processes, and other
+detailed system fields.
 
 ## License
 

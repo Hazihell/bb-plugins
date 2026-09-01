@@ -153,9 +153,14 @@ test("CLI exposes the bounded cached dashboard used by Touch Bar", async (t) => 
   assert.equal(result.exitCode, 0);
   const parsed = JSON.parse(result.stdout ?? "") as {
     schemaVersion: number;
+    thresholds: { attentionPercent: number; criticalPercent: number };
     hosts: Array<Record<string, unknown>>;
   };
   assert.equal(parsed.schemaVersion, 1);
+  assert.deepEqual(parsed.thresholds, {
+    attentionPercent: 85,
+    criticalPercent: 95,
+  });
   assert.deepEqual(parsed.hosts, [
     {
       id: "host-alpha",

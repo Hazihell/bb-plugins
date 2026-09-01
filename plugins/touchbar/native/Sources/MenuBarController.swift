@@ -1,5 +1,46 @@
 import AppKit
 
+private enum LoginStartup {
+    private static var launchAgents: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/LaunchAgents", isDirectory: true)
+    }
+
+    static var plist: URL {
+        launchAgents.appendingPathComponent("app.getbb.touchbar.native.plist")
+    }
+
+    static var isEnabled: Bool {
+        FileManager.default.fileExists(atPath: plist.path)
+    }
+
+    static func setEnabled(_ enabled: Bool) throws {
+        if !enabled {
+            if isEnabled { try FileManager.default.removeItem(at: plist) }
+            return
+        }
+        guard let executable = Bundle.main.executableURL else {
+            throw CocoaError(.fileNoSuchFile)
+        }
+        try FileManager.default.createDirectory(
+            at: launchAgents,
+            withIntermediateDirectories: true
+        )
+        let payload: [String: Any] = [
+            "Label": "app.getbb.touchbar.native",
+            "ProgramArguments": [executable.path],
+            "RunAtLoad": true,
+            "ProcessType": "Interactive",
+        ]
+        let data = try PropertyListSerialization.data(
+            fromPropertyList: payload,
+            format: .xml,
+            options: 0
+        )
+        try data.write(to: plist, options: .atomic)
+    }
+}
+
 final class MenuBarController: NSObject, NSMenuDelegate {
     private let touchBarController: TouchBarController
     private let statusItem: NSStatusItem
@@ -56,6 +97,13 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             action: #selector(refreshTouchBar),
             symbol: "arrow.clockwise"
         ))
+        let openAtLogin = item(
+            "Open at Login",
+            action: #selector(toggleOpenAtLogin),
+            symbol: "power"
+        )
+        openAtLogin.state = LoginStartup.isEnabled ? .on : .off
+        menu.addItem(openAtLogin)
         menu.addItem(.separator())
 
         menu.addItem(section("LAYOUT FILTER"))
@@ -152,6 +200,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
     @objc private func toggleHost() {
         let state = touchBarController.menuState()
         touchBarController.setHostVisibilityFromMenu(!state.showHostMonitor)
+    }
+
+    @objc private func toggleOpenAtLogin() {
+        do {
+            try LoginStartup.setEnabled(!LoginStartup.isEnabled)
+        } catch {
+            NativeLog.error("could not update login startup: \(error.localizedDescription)")
+        }
+        rebuildMenu()
     }
 
     @objc private func quit() {

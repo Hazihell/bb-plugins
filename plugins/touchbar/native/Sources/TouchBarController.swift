@@ -30,18 +30,19 @@ private enum SortMode: String {
 private enum StatusPalette {
     static func bezel(for status: AgentStatus) -> NSColor {
         switch status {
-        case .blocked: return .systemRed
-        case .working: return .systemBlue
-        case .done: return .systemGreen
-        case .waiting: return .systemPurple
-        case .idle: return NSColor(white: 0.20, alpha: 1)
-        case .unknown: return NSColor(white: 0.14, alpha: 1)
+        case .working: return color(0x34A853)
+        case .blocked, .waiting: return color(0xD9911A)
+        case .done: return color(0x3B82C4)
+        case .error: return color(0xD94B4B)
+        case .idle: return color(0xA1A8B3)
+        case .unknown: return color(0x69717D)
         }
     }
 
     static func badge(for status: AgentStatus) -> String {
         switch status {
         case .blocked: return "INPUT"
+        case .error: return "ERROR"
         case .working: return "RUN"
         case .done: return "UNREAD"
         case .waiting: return "WAIT"
@@ -53,12 +54,22 @@ private enum StatusPalette {
     static func section(for status: AgentStatus) -> String {
         switch status {
         case .blocked: return "NEEDS YOU"
+        case .error: return "FAILED"
         case .working: return "ACTIVE"
         case .waiting: return "WAITING"
         case .done: return "UNREAD"
         case .idle: return "IDLE"
         case .unknown: return "OTHER"
         }
+    }
+
+    private static func color(_ rgb: Int) -> NSColor {
+        NSColor(
+            calibratedRed: CGFloat((rgb >> 16) & 0xff) / 255,
+            green: CGFloat((rgb >> 8) & 0xff) / 255,
+            blue: CGFloat(rgb & 0xff) / 255,
+            alpha: 1
+        )
     }
 }
 
@@ -245,38 +256,77 @@ private final class ProjectGroupView: NSView {
     }
 }
 
-private final class HostMetricTile: NSView {
-    private let titleLabel = NSTextField(labelWithString: "")
-    private let valueLabel = NSTextField(labelWithString: "")
-    private let fixedWidth: CGFloat
+private final class HostMetricCircle: NSView {
+    private let title: String
+    private let value: String
+    private let color: NSColor
+    private let progress: Double?
 
-    init(title: String, value: String, color: NSColor, width: CGFloat) {
-        fixedWidth = width
+    init(title: String, value: String, color: NSColor, progress: Double?) {
+        self.title = title
+        self.value = value
+        self.color = color
+        self.progress = progress
         super.init(frame: .zero)
-        wantsLayer = true
-        layer?.cornerRadius = 5
-        layer?.borderWidth = 1
-        layer?.borderColor = color.withAlphaComponent(0.55).cgColor
-        layer?.backgroundColor = color.withAlphaComponent(0.14).cgColor
-        titleLabel.stringValue = title
-        titleLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
-        titleLabel.textColor = color
-        titleLabel.alignment = .center
-        valueLabel.stringValue = value
-        valueLabel.font = .monospacedDigitSystemFont(ofSize: 8, weight: .semibold)
-        valueLabel.textColor = .white
-        valueLabel.alignment = .center
-        addSubview(titleLabel)
-        addSubview(valueLabel)
+        setAccessibilityLabel("\(title), \(value)")
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 26) }
+    override var intrinsicContentSize: NSSize { NSSize(width: 32, height: 30) }
 
-    override func layout() {
-        super.layout()
-        titleLabel.frame = NSRect(x: 2, y: 15, width: bounds.width - 4, height: 7)
-        valueLabel.frame = NSRect(x: 2, y: 4, width: bounds.width - 4, height: 10)
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        let ring = NSRect(x: 3, y: 2, width: 26, height: 26)
+        color.withAlphaComponent(0.12).setFill()
+        NSBezierPath(ovalIn: ring).fill()
+        NSColor(white: 0.25, alpha: 1).setStroke()
+        let background = NSBezierPath(ovalIn: ring)
+        background.lineWidth = 1.5
+        background.stroke()
+
+        color.setStroke()
+        if let progress {
+            let clamped = min(100, max(0, progress))
+            let arc = NSBezierPath()
+            arc.appendArc(
+                withCenter: NSPoint(x: ring.midX, y: ring.midY),
+                radius: 13,
+                startAngle: 90,
+                endAngle: 90 - CGFloat(clamped * 3.6),
+                clockwise: true
+            )
+            arc.lineWidth = 2.5
+            arc.lineCapStyle = .round
+            arc.stroke()
+        } else {
+            let outline = NSBezierPath(ovalIn: ring)
+            outline.lineWidth = 2
+            outline.stroke()
+        }
+
+        let titleAttributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 5, weight: .bold),
+            .foregroundColor: color,
+        ]
+        let valueAttributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedDigitSystemFont(ofSize: 6.5, weight: .semibold),
+            .foregroundColor: NSColor.white,
+        ]
+        drawCentered(title, y: 16, attributes: titleAttributes)
+        drawCentered(value, y: 7, attributes: valueAttributes)
+    }
+
+    private func drawCentered(
+        _ text: String,
+        y: CGFloat,
+        attributes: [NSAttributedString.Key: Any]
+    ) {
+        let string = text as NSString
+        let size = string.size(withAttributes: attributes)
+        string.draw(
+            at: NSPoint(x: floor((bounds.width - size.width) / 2), y: y),
+            withAttributes: attributes
+        )
     }
 }
 
@@ -284,45 +334,45 @@ private final class HostMetricView: NSView {
     private let iconView = NSImageView()
     private let stateLabel = NSTextField(labelWithString: "")
     private let nameLabel = NSTextField(labelWithString: "")
-    private let tiles: [HostMetricTile]
+    private let circles: [HostMetricCircle]
     private let measuredWidth: CGFloat
 
     init(entry: HostMetricEntry) {
         let connected = entry.status == "connected"
-        let cpu = HostMetricTile(
-            title: "CPU",
+        let cpu = HostMetricCircle(
+            title: "C",
             value: Self.percent(entry.cpuPercent),
-            color: Self.resourceColor(entry.cpuPercent, connected: connected),
-            width: 42
+            color: Self.resourceColor(entry.cpuPercent, entry: entry, connected: connected),
+            progress: entry.cpuPercent
         )
-        let memory = HostMetricTile(
-            title: "RAM",
+        let memory = HostMetricCircle(
+            title: "R",
             value: Self.percent(entry.memoryPercent),
-            color: Self.resourceColor(entry.memoryPercent, connected: connected),
-            width: 42
+            color: Self.resourceColor(entry.memoryPercent, entry: entry, connected: connected),
+            progress: entry.memoryPercent
         )
-        let disk = HostMetricTile(
-            title: "DISK",
+        let disk = HostMetricCircle(
+            title: "D",
             value: Self.percent(entry.diskPercent),
-            color: Self.resourceColor(entry.diskPercent, connected: connected),
-            width: 42
+            color: Self.resourceColor(entry.diskPercent, entry: entry, connected: connected),
+            progress: entry.diskPercent
         )
-        let download = HostMetricTile(
-            title: "DOWN",
+        let download = HostMetricCircle(
+            title: "↓",
             value: Self.rate(entry.receiveBytesPerSecond),
             color: connected ? .systemRed : NSColor(white: 0.4, alpha: 1),
-            width: 52
+            progress: nil
         )
-        let upload = HostMetricTile(
-            title: "UP",
+        let upload = HostMetricCircle(
+            title: "↑",
             value: Self.rate(entry.sendBytesPerSecond),
             color: connected ? .systemBlue : NSColor(white: 0.4, alpha: 1),
-            width: 52
+            progress: nil
         )
-        tiles = [cpu, memory, disk, download, upload]
-        measuredWidth = 105 + tiles.reduce(CGFloat(0)) {
+        circles = [cpu, memory, disk, download, upload]
+        measuredWidth = 82 + circles.reduce(CGFloat(0)) {
             $0 + $1.intrinsicContentSize.width
-        } + CGFloat((tiles.count - 1) * 3) + 5
+        } + CGFloat((circles.count - 1) * 2) + 4
         super.init(frame: .zero)
         wantsLayer = true
         layer?.cornerRadius = 7
@@ -347,7 +397,7 @@ private final class HostMetricView: NSView {
         addSubview(iconView)
         addSubview(stateLabel)
         addSubview(nameLabel)
-        for tile in tiles { addSubview(tile) }
+        for circle in circles { addSubview(circle) }
         setAccessibilityLabel("\(entry.name), \(Self.accessibleMetrics(entry))")
     }
 
@@ -357,13 +407,13 @@ private final class HostMetricView: NSView {
     override func layout() {
         super.layout()
         iconView.frame = NSRect(x: 6, y: 8, width: 15, height: 15)
-        stateLabel.frame = NSRect(x: 25, y: 17, width: 73, height: 7)
-        nameLabel.frame = NSRect(x: 25, y: 5, width: 73, height: 10)
-        var x: CGFloat = 104
-        for tile in tiles {
-            let width = tile.intrinsicContentSize.width
-            tile.frame = NSRect(x: x, y: 2, width: width, height: 26)
-            x += width + 3
+        stateLabel.frame = NSRect(x: 25, y: 17, width: 50, height: 7)
+        nameLabel.frame = NSRect(x: 25, y: 5, width: 50, height: 10)
+        var x: CGFloat = 79
+        for circle in circles {
+            let width = circle.intrinsicContentSize.width
+            circle.frame = NSRect(x: x, y: 0, width: width, height: 30)
+            x += width + 2
         }
     }
 
@@ -373,7 +423,7 @@ private final class HostMetricView: NSView {
 
     private static func rate(_ value: Double?) -> String {
         guard var current = value else { return "—" }
-        let units = ["B/s", "K/s", "M/s", "G/s"]
+        let units = ["B", "K", "M", "G"]
         var index = 0
         while current >= 1_024, index < units.count - 1 {
             current /= 1_024
@@ -384,10 +434,14 @@ private final class HostMetricView: NSView {
             : String(format: "%.1f%@", current, units[index])
     }
 
-    private static func resourceColor(_ value: Double?, connected: Bool) -> NSColor {
+    private static func resourceColor(
+        _ value: Double?,
+        entry: HostMetricEntry,
+        connected: Bool
+    ) -> NSColor {
         guard connected, let value else { return NSColor(white: 0.4, alpha: 1) }
-        if value >= 95 { return .systemRed }
-        if value >= 85 { return .systemOrange }
+        if value >= entry.criticalThresholdPercent { return .systemRed }
+        if value >= entry.attentionThresholdPercent { return .systemOrange }
         return .systemGreen
     }
 
@@ -396,7 +450,7 @@ private final class HostMetricView: NSView {
         let peak = [entry.cpuPercent, entry.memoryPercent, entry.diskPercent]
             .compactMap { $0 }
             .max() ?? 0
-        return resourceColor(peak, connected: true)
+        return resourceColor(peak, entry: entry, connected: true)
     }
 
     private static func accessibleMetrics(_ entry: HostMetricEntry) -> String {
@@ -579,9 +633,8 @@ private final class TouchBarScrollView: NSScrollView {
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
-    private let badgeLabel = NSTextField(labelWithString: "")
+    private let statusIconView = NSImageView()
     private let accentLayer = CALayer()
-    private var badgeWidth: CGFloat = 30
     private var grouped = false
 
     init(target: AnyObject?, action: Selector?) {
@@ -600,16 +653,11 @@ private final class AgentButton: NSButton {
         iconView.wantsLayer = true
         titleLabel.font = .monospacedSystemFont(ofSize: 9.5, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingTail
-        badgeLabel.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
-        badgeLabel.alignment = .center
-        badgeLabel.textColor = .white
-        badgeLabel.wantsLayer = true
-        badgeLabel.layer?.cornerRadius = 4
-        badgeLabel.layer?.masksToBounds = true
+        statusIconView.imageScaling = .scaleProportionallyDown
 
         accentLayer.cornerRadius = 1
         layer?.addSublayer(accentLayer)
-        for view in [iconView, titleLabel, badgeLabel] { addSubview(view) }
+        for view in [iconView, titleLabel, statusIconView] { addSubview(view) }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
@@ -619,16 +667,11 @@ private final class AgentButton: NSButton {
     override func layout() {
         super.layout()
         iconView.frame = NSRect(x: 5, y: 4, width: 22, height: 22)
-        badgeLabel.frame = NSRect(
-            x: bounds.width - badgeWidth - 6,
-            y: 10,
-            width: badgeWidth,
-            height: 10
-        )
+        statusIconView.frame = NSRect(x: bounds.width - 23, y: 7, width: 16, height: 16)
         titleLabel.frame = NSRect(
             x: 31,
             y: 8,
-            width: bounds.width - badgeWidth - 43,
+            width: bounds.width - 61,
             height: 14
         )
         accentLayer.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 2)
@@ -655,9 +698,11 @@ private final class AgentButton: NSButton {
             : NSColor.clear.cgColor
         titleLabel.stringValue = primary
         titleLabel.textColor = .white
-        badgeWidth = entry.status == .done ? 40 : 30
-        badgeLabel.stringValue = StatusPalette.badge(for: entry.status)
-        badgeLabel.layer?.backgroundColor = color.withAlphaComponent(0.92).cgColor
+        statusIconView.image = NSImage(
+            systemSymbolName: Self.statusSymbol(entry.status),
+            accessibilityDescription: StatusPalette.badge(for: entry.status)
+        )
+        statusIconView.contentTintColor = color
         layer?.backgroundColor = NSColor(
             white: grouped ? 0.075 : 0.055,
             alpha: 0.96
@@ -668,6 +713,18 @@ private final class AgentButton: NSButton {
         accentLayer.backgroundColor = color.cgColor
         setAccessibilityLabel("\(entry.title), \(entry.project), \(entry.status.rawValue)")
         needsLayout = true
+    }
+
+    private static func statusSymbol(_ status: AgentStatus) -> String {
+        switch status {
+        case .blocked: return "questionmark.circle.fill"
+        case .error: return "xmark.circle.fill"
+        case .working: return "arrow.triangle.2.circlepath"
+        case .done: return "circle"
+        case .waiting: return "clock.fill"
+        case .idle: return "circle.fill"
+        case .unknown: return "questionmark.circle"
+        }
     }
 }
 
@@ -1037,18 +1094,21 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         let spin = Spinner.frame(tick)
         let text: String
         let color: NSColor
-        if snapshot.blocked > 0 && snapshot.working > 0 {
+        if snapshot.errors > 0 {
+            text = "✕ \(snapshot.errors)"
+            color = StatusPalette.bezel(for: .error)
+        } else if snapshot.blocked > 0 && snapshot.working > 0 {
             text = "⏸\(snapshot.blocked) \(spin)\(snapshot.working)"
-            color = .systemRed
+            color = StatusPalette.bezel(for: .blocked)
         } else if snapshot.blocked > 0 {
             text = "⏸ \(snapshot.blocked)"
-            color = .systemRed
+            color = StatusPalette.bezel(for: .blocked)
         } else if snapshot.working > 0 {
             text = "\(spin) \(snapshot.working)"
-            color = .systemBlue
+            color = StatusPalette.bezel(for: .working)
         } else if snapshot.done > 0 {
             text = "✓ \(snapshot.done)"
-            color = .systemGreen
+            color = StatusPalette.bezel(for: .done)
         } else {
             text = "⠿ \(snapshot.agents.count)"
             color = NSColor(white: 0.22, alpha: 1)
@@ -1369,10 +1429,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func organized(_ entries: [AgentEntry]) -> [AgentEntry] {
-        let rank: [AgentStatus: Int] = [.blocked: 0, .done: 1, .working: 2, .waiting: 3, .idle: 4, .unknown: 5]
+        let rank: [AgentStatus: Int] = [
+            .error: 0, .blocked: 1, .done: 2, .working: 3,
+            .waiting: 4, .idle: 5, .unknown: 6,
+        ]
         return entries.sorted {
-            let left = rank[$0.status, default: 5]
-            let right = rank[$1.status, default: 5]
+            let left = rank[$0.status, default: 6]
+            let right = rank[$1.status, default: 6]
             let projectOrder = $0.project.localizedCaseInsensitiveCompare($1.project)
             if sortMode == .project || sortMode == .dock || sortMode == .carousel {
                 if projectOrder != .orderedSame { return projectOrder == .orderedAscending }
@@ -1412,6 +1475,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         switch entry.status {
         case .working: prefix = Spinner.frame(tick) + " "
         case .blocked: prefix = "⏸ "
+        case .error: prefix = "✕ "
         case .done: prefix = ""
         case .waiting: prefix = "↻ "
         case .idle, .unknown: prefix = ""

@@ -14,8 +14,8 @@ Swift/AppKit background app owns the physical Touch Bar:
 - optional right-side circular ChatGPT, Claude Code, and Cursor icons with usage
   progress rings instead of percentage text;
 - an optional icon-only Host Monitor button that swaps the thread lane for bounded
-  host cards containing separate, readable CPU, RAM, disk, download, and upload
-  metric tiles for every enrolled host;
+  host cards containing compact circular CPU, RAM, disk, download, and upload
+  gauges for every enrolled host;
 - tap ✕ to collapse to the ordinary Control Strip;
 - automatic restoration after login and wake.
 
@@ -70,6 +70,12 @@ Upgrades preserve Touch Bar preferences. `brew uninstall --cask bb-touch-bar`
 removes the app and login job; add `--zap` to remove its support data, log, and
 preferences too.
 
+The Cask keeps the archive in Homebrew's Caskroom, moves the `.app` into
+`/Applications`, records the `bb` CLI path, and creates the per-user
+`app.getbb.touchbar.native` LaunchAgent with `RunAtLoad`. The app therefore
+starts after login without a Dock icon. **Open at Login** in the menu-bar
+settings can remove or recreate that next-login registration.
+
 Public Cask archives must be Developer ID signed and Apple-notarized because
 current Homebrew preserves Gatekeeper quarantine and no longer offers a
 `--no-quarantine` install option.
@@ -104,6 +110,13 @@ menu after safely collapsing the system-modal panel. Toggle Usage and Host Monit
 choose Codex, Claude Code, and/or Cursor, and select the thread layout. These
 native preferences persist per macOS user. Tap the computer icon on the main
 bar to switch between threads and host metrics.
+
+Agent cards match Dockside's default semantic colors and glyphs: green
+working, amber needs-you/waiting, blue unread, red error, and gray inactive.
+
+Host CPU, RAM, and disk rings use Host Monitor's current configurable yellow
+and red thresholds. Changing those settings automatically changes Touch Bar
+gauge colors on the next sample; download remains red and upload blue.
 
 The fixed ‹ and › controls page the horizontally scrollable card lane in every
 normal layout. In Carousel mode, those same controls switch projects. Trackpad
