@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "packetDigest": "sha256:52fddffdd9ed3a9c164756f0650df8e1063510435ddc425d4b1e4030d64fbde3",
-  "resultPath": ".empirical/specs/integrate-the-already-implemented-and-verified-action-topbar-plugin-into/reviews/8982194ba66657570c9f0e48.json",
-  "resultDigest": "sha256:8982194ba66657570c9f0e480e07e91cb34c4f92c9c6586adea046f51689f3e0",
-  "receiptId": "collected-a8daf51c539daea8d6aad7ec"
+  "packetDigest": "sha256:822e6f5a5404b1b9175375815a09b7a0ceab309c4d9ea6bd337867b55796f080",
+  "resultPath": ".empirical/specs/integrate-the-already-implemented-and-verified-action-topbar-plugin-into/reviews/8d2fa97fcc9fe5760bb415a1.json",
+  "resultDigest": "sha256:8d2fa97fcc9fe5760bb415a1df8f28a8f5b76f6e3e2f45e9641d5c3c080b48a3",
+  "receiptId": "collected-3fa5652873e5fd4522c40ca5"
 }

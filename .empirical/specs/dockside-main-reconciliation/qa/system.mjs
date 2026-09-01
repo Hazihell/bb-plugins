@@ -27,6 +27,7 @@ const mergeParents = run("git", ["show", "-s", "--format=%P", merge]).split(" ")
 assert.ok(mergeParents.includes(MAIN), "merge contains current main parent");
 
 for (const plugin of [
+  "action-topbar",
   "dockside",
   "host-monitor",
   "save-my-model",
@@ -45,6 +46,7 @@ const trackedPlugins = run("git", ["ls-files", "plugins/*/package.json"])
   .map((path) => path.split("/")[1])
   .sort();
 assert.deepEqual(trackedPlugins, [
+  "action-topbar",
   "dockside",
   "host-monitor",
   "save-my-model",
