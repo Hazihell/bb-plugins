@@ -118,6 +118,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   const controller = readFileSync(join(native, "Sources/TouchBarController.swift"), "utf8");
   const model = readFileSync(join(native, "Sources/AgentModel.swift"), "utf8");
   const support = readFileSync(join(native, "Sources/Support.swift"), "utf8");
+  const menuBar = readFileSync(join(native, "Sources/MenuBarController.swift"), "utf8");
   const main = readFileSync(join(native, "Sources/main.swift"), "utf8");
   const build = readFileSync(join(native, "build.sh"), "utf8");
   const installer = readFileSync(join(native, "install.sh"), "utf8");
@@ -148,7 +149,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /slider\.horizontal\.3/u);
   assert.match(controller, /schedulePanelRender/u);
   assert.match(controller, /DispatchQueue\.main\.async/u);
-  assert.match(controller, /settings controls/u);
+  assert.match(controller, /menu bar settings requested/u);
+  assert.doesNotMatch(controller, /configurationVisible\.toggle\(\)/u);
   assert.doesNotMatch(controller, /⚙/u);
   assert.match(controller, /priorityTapped/u);
   assert.match(controller, /projectTapped/u);
@@ -241,6 +243,15 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(support, /"codex": "openai"/u);
   assert.match(support, /circularChatGPT/u);
   assert.match(main, /setActivationPolicy\(\.accessory\)/u);
+  assert.match(main, /MenuBarController/u);
+  assert.match(main, /onSettingsRequested/u);
+  assert.match(menuBar, /NSStatusBar\.system\.statusItem/u);
+  assert.match(menuBar, /LAYOUT FILTER/u);
+  assert.match(menuBar, /SUBSCRIPTIONS/u);
+  assert.match(menuBar, /HOST MONITOR/u);
+  assert.match(menuBar, /Show usage rings/u);
+  assert.match(menuBar, /Show host button/u);
+  assert.match(menuBar, /Quit BB Touch Bar/u);
   assert.match(main, /applicationWillTerminate/u);
   assert.match(build, /DFRFoundation/u);
   assert.match(build, /codesign --force --sign -/u);

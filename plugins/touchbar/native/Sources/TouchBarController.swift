@@ -645,7 +645,15 @@ private final class AgentButton: NSButton {
     }
 }
 
+struct TouchBarMenuState {
+    let layout: String
+    let showUsage: Bool
+    let showHostMonitor: Bool
+    let providerVisibility: [String: Bool]
+}
+
 final class TouchBarController: NSObject, NSTouchBarDelegate {
+    var onSettingsRequested: (() -> Void)?
     private let store = AgentStore()
     private let stripItem = NSCustomTouchBarItem(identifier: .bbStrip)
     private let stripButton = NSButton(title: "", target: nil, action: nil)
@@ -709,6 +717,62 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }()
 
     private static let barHeight: CGFloat = 30
+
+    func menuState() -> TouchBarMenuState {
+        TouchBarMenuState(
+            layout: sortMode.rawValue,
+            showUsage: showUsage,
+            showHostMonitor: showHostMonitor,
+            providerVisibility: usageProviderVisibility
+        )
+    }
+
+    func openFromMenu() {
+        if !panelVisible { openPanel() }
+    }
+
+    func refreshFromMenu() {
+        if panelVisible { closePanel(teardown: true) }
+        openPanel()
+    }
+
+    func selectLayoutFromMenu(_ rawValue: String) {
+        guard let mode = SortMode(rawValue: rawValue) else { return }
+        selectSortMode(mode)
+    }
+
+    func setUsageVisibilityFromMenu(_ visible: Bool) {
+        showUsage = visible
+        UserDefaults.standard.set(visible, forKey: "BBTouchBarShowUsage")
+        refreshAccessoryLayout()
+    }
+
+    func setHostVisibilityFromMenu(_ visible: Bool) {
+        showHostMonitor = visible
+        if !visible { hostViewVisible = false }
+        UserDefaults.standard.set(visible, forKey: "BBTouchBarShowHostMonitor")
+        refreshAccessoryLayout()
+        schedulePanelRender()
+    }
+
+    func setProviderVisibilityFromMenu(_ id: String, visible: Bool) {
+        let keys = [
+            "codex": "BBTouchBarUsageCodex",
+            "claudeCode": "BBTouchBarUsageClaude",
+            "cursor": "BBTouchBarUsageCursor",
+        ]
+        guard let defaultsKey = keys[id] else { return }
+        usageProviderVisibility[id] = visible
+        UserDefaults.standard.set(visible, forKey: defaultsKey)
+        updateControlColors()
+        updateAccessoryButtons(store.snapshot)
+    }
+
+    private func refreshAccessoryLayout() {
+        updateControlColors()
+        updateAccessoryButtons(store.snapshot)
+        panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
+    }
 
     func install() {
         stripButton.target = self
@@ -1015,11 +1079,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func settingsTapped(_ sender: NSButton) {
-        configurationVisible.toggle()
-        updateControlColors()
-        panelTouchBar?.defaultItemIdentifiers = panelIdentifiers()
-        schedulePanelRender()
-        NativeLog.info("settings controls \(configurationVisible ? "opened" : "closed")")
+        onSettingsRequested?()
+        NativeLog.info("menu bar settings requested")
     }
 
     @objc private func priorityTapped(_ sender: NSButton) {
@@ -1045,37 +1106,28 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func usageVisibilityTapped(_ sender: NSButton) {
-        showUsage.toggle()
-        UserDefaults.standard.set(showUsage, forKey: "BBTouchBarShowUsage")
-        updateControlColors()
+        setUsageVisibilityFromMenu(!showUsage)
     }
 
     @objc private func hostVisibilityTapped(_ sender: NSButton) {
-        showHostMonitor.toggle()
-        if !showHostMonitor { hostViewVisible = false }
-        UserDefaults.standard.set(showHostMonitor, forKey: "BBTouchBarShowHostMonitor")
-        updateControlColors()
-        schedulePanelRender()
+        setHostVisibilityFromMenu(!showHostMonitor)
     }
 
     @objc private func codexVisibilityTapped(_ sender: NSButton) {
-        toggleUsageProvider("codex", defaultsKey: "BBTouchBarUsageCodex")
+        toggleUsageProvider("codex")
     }
 
     @objc private func claudeVisibilityTapped(_ sender: NSButton) {
-        toggleUsageProvider("claudeCode", defaultsKey: "BBTouchBarUsageClaude")
+        toggleUsageProvider("claudeCode")
     }
 
     @objc private func cursorVisibilityTapped(_ sender: NSButton) {
-        toggleUsageProvider("cursor", defaultsKey: "BBTouchBarUsageCursor")
+        toggleUsageProvider("cursor")
     }
 
-    private func toggleUsageProvider(_ id: String, defaultsKey: String) {
+    private func toggleUsageProvider(_ id: String) {
         let next = usageProviderVisibility[id] != true
-        usageProviderVisibility[id] = next
-        UserDefaults.standard.set(next, forKey: defaultsKey)
-        updateControlColors()
-        updateAccessoryButtons(store.snapshot)
+        setProviderVisibilityFromMenu(id, visible: next)
     }
 
     @objc private func previousProjectTapped(_ sender: NSButton) {

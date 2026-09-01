@@ -7,6 +7,7 @@ signal(SIGINT, SIG_IGN)
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let controller = TouchBarController()
+    private var menuBarController: MenuBarController?
     private var terminationSources: [DispatchSourceSignal] = []
 
     private var readinessURL: URL {
@@ -25,6 +26,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             at: NativeConfig.applicationSupport,
             withIntermediateDirectories: true
         )
+        menuBarController = MenuBarController(touchBarController: controller)
+        controller.onSettingsRequested = { [weak self] in
+            self?.menuBarController?.showMenu()
+        }
         controller.install()
         try? "\(ProcessInfo.processInfo.processIdentifier)\n".write(
             to: readinessURL,
@@ -35,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         try? FileManager.default.removeItem(at: readinessURL)
+        controller.onSettingsRequested = nil
         controller.uninstall()
     }
 }

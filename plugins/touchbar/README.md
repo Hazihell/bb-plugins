@@ -98,11 +98,12 @@ The app has no Dock icon. Its BB badge appears in the Touch Bar's Control Strip.
 Install and enable the repository's `host-monitor` plugin to populate the host
 cards; subscription usage comes directly from BB's provider usage API.
 
-Open the slider button on the Touch Bar for scrollable FILTERS, SUBSCRIPTIONS,
-and HOST MONITOR setting cards. Toggle Usage and Host Monitor, choose Codex,
-Claude Code, and/or Cursor, and select the thread layout. These native
-preferences persist per macOS user. Tap the computer icon on the main bar to
-switch between threads and host metrics.
+Use the BB Touch Bar menu-bar icon for grouped LAYOUT FILTER, SUBSCRIPTIONS,
+and HOST MONITOR settings. The slider button on the Touch Bar opens that same
+menu without replacing the live Touch Bar view. Toggle Usage and Host Monitor,
+choose Codex, Claude Code, and/or Cursor, and select the thread layout. These
+native preferences persist per macOS user. Tap the computer icon on the main
+bar to switch between threads and host metrics.
 
 ## Controls
 
