@@ -26,6 +26,8 @@ describe("compact root card contract", () => {
     );
     assert.match(rootSource, /grid-cols-\[auto_minmax\(0,1fr\)_auto\]/);
     assert.match(rootSource, /grid-rows-\[1rem_1rem\]/);
+    assert.match(rootSource, /bg-sidebar-accent\/35 py-1/);
+    assert.doesNotMatch(rootSource, /bg-sidebar-accent\/35 p-1/);
     assert.doesNotMatch(rootSource, /Done/);
   });
 

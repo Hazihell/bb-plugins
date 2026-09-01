@@ -20,22 +20,21 @@
   },
   "realSidebar": {
     "actualKindsBeforeFixture": [
-      "working",
       "inactive",
-      "unread"
+      "working"
     ],
     "projectName": "Naranja",
     "dragInitialOrder": [
+      "thr_nv9anpbjt9",
+      "thr_7ahr5hjsd4"
+    ],
+    "dragResultOrder": [
       "thr_7ahr5hjsd4",
       "thr_nv9anpbjt9"
     ],
-    "dragResultOrder": [
-      "thr_nv9anpbjt9",
-      "thr_7ahr5hjsd4"
-    ],
     "persistedOrder": [
-      "thr_nv9anpbjt9",
-      "thr_7ahr5hjsd4"
+      "thr_7ahr5hjsd4",
+      "thr_nv9anpbjt9"
     ],
     "orderStored": true,
     "projectDragInitialOrder": [
@@ -71,8 +70,8 @@
       {
         "kind": "working",
         "cardHeight": 48,
-        "titleY": 79,
-        "detailY": 97,
+        "titleY": 83,
+        "detailY": 101,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -81,8 +80,8 @@
       {
         "kind": "needs-you",
         "cardHeight": 48,
-        "titleY": 133,
-        "detailY": 151,
+        "titleY": 223,
+        "detailY": 241,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -91,8 +90,8 @@
       {
         "kind": "unread",
         "cardHeight": 48,
-        "titleY": 187,
-        "detailY": 205,
+        "titleY": 277,
+        "detailY": 295,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -101,8 +100,8 @@
       {
         "kind": "failed",
         "cardHeight": 48,
-        "titleY": 241,
-        "detailY": 259,
+        "titleY": 331,
+        "detailY": 349,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -111,8 +110,8 @@
       {
         "kind": "inactive",
         "cardHeight": 48,
-        "titleY": 295,
-        "detailY": 313,
+        "titleY": 385,
+        "detailY": 403,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -121,8 +120,8 @@
       {
         "kind": "stale",
         "cardHeight": 48,
-        "titleY": 349,
-        "detailY": 367,
+        "titleY": 439,
+        "detailY": 457,
         "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
@@ -176,13 +175,13 @@
         "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
-        "branchOverflow": true
+        "branchOverflow": false
       }
     ],
     "badgeWidthSpread": 0,
     "badgeRightSpread": 0,
     "dedicatedDragIcons": 0,
-    "statusDragTargets": 6,
+    "statusDragTargets": 8,
     "readyBackground": "color(srgb 0.203922 0.658824 0.32549 / 0.24)",
     "readyColor": "rgb(52, 168, 83)"
   }

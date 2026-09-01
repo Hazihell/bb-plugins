@@ -64,6 +64,15 @@ async function evaluate(expression) {
   return result.result.value;
 }
 
+async function waitForSelector(selector, timeoutMs = 12_000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (await evaluate(`Boolean(document.querySelector(${JSON.stringify(selector)}))`)) return;
+    await sleep(200);
+  }
+  throw new Error(`Timed out waiting for ${selector}`);
+}
+
 async function screenshot(filename, clip) {
   const capture = await send("Page.captureScreenshot", {
     format: "png",
@@ -106,6 +115,7 @@ const settings = await evaluate(`(() => {
 })()`);
 
 await navigate(appUrl);
+await waitForSelector('[data-dockside-root-card]');
 const projectBefore = await evaluate(`(() => {
   const projects = [...document.querySelectorAll('section[data-dockside-project]')];
   const initial = projects.map((section) => section.getAttribute('data-dockside-project'));
@@ -137,6 +147,7 @@ const projectAfter = await evaluate(`(() => ({
   stored: localStorage.getItem('bb.dockside.project-order.v1'),
 }))()`);
 await navigate(appUrl);
+await waitForSelector('[data-dockside-root-card]');
 const projectPersisted = await evaluate(`(() => ({
   order: [...document.querySelectorAll('section[data-dockside-project]')]
     .map((section) => section.getAttribute('data-dockside-project')),
@@ -173,6 +184,10 @@ const realBefore = await evaluate(`(() => {
   return {
     initial,
     projectName: project?.getAttribute('aria-label') ?? null,
+    prTemplates: Object.fromEntries(['ready', 'merged', 'blocked'].map((kind) => {
+      const state = document.querySelector('[data-dockside-pr-state="' + kind + '"]');
+      return [kind, state?.closest('a')?.outerHTML ?? ''];
+    })),
     actualKinds: [...document.querySelectorAll('[data-dockside-family-status]')]
       .map((node) => node.getAttribute('data-dockside-family-status')),
   };
@@ -187,6 +202,7 @@ const afterDrag = await evaluate(`(() => ({
 }))()`);
 
 await navigate(appUrl);
+await waitForSelector('[data-dockside-root-card]');
 const persistedOrder = await evaluate(`(() => ({
   order: [...document.querySelectorAll('section[aria-label="' + ${JSON.stringify(
     realBefore.projectName,
@@ -197,13 +213,15 @@ const persistedOrder = await evaluate(`(() => ({
 
 const fixture = await evaluate(`(() => {
   const templates = ${JSON.stringify(settings.templates)};
+  const prTemplates = ${JSON.stringify({})};
+  Object.assign(prTemplates, ${JSON.stringify(realBefore.prTemplates)});
   const states = [
-    ["working", "Run release workflow across every production environment", "feature/release-workflow-all-production-environments", "now"],
-    ["needs-you", "Approve production deployment after security review", "feature/deploy-approval-security-review", "4m"],
-    ["unread", "Review completed accessibility audit recommendations", "feature/accessibility-audit-recommendations", "18m"],
-    ["failed", "Repair failed integration checks for provider bridge", "fix/provider-bridge-integration-failure", "31m"],
-    ["inactive", "Prepare next sprint outline and dependency inventory", "chore/sprint-outline-dependency-inventory", "2h"],
-    ["stale", "Archive old migration experiment and compatibility notes", "archive/migration-v1-compatibility-notes", "3w"],
+    ["working", "Run release workflow across every production environment", "feature/release-workflow-all-production-environments", "now", "ready"],
+    ["needs-you", "Approve production deployment after security review", "feature/deploy-approval-security-review", "4m", null],
+    ["unread", "Review completed accessibility audit recommendations", "feature/accessibility-audit-recommendations", "18m", "merged"],
+    ["failed", "Repair failed integration checks for provider bridge", "fix/provider-bridge-integration-failure", "31m", "blocked"],
+    ["inactive", "Prepare next sprint outline and dependency inventory", "chore/sprint-outline-dependency-inventory", "2h", null],
+    ["stale", "Archive old migration experiment and compatibility notes", "archive/migration-v1-compatibility-notes", "3w", null],
   ];
   const dockside = document.querySelector('[data-dockside-palette]');
   const scroller = dockside?.querySelector('.overflow-y-auto');
@@ -219,7 +237,7 @@ const fixture = await evaluate(`(() => {
   const list = document.createElement('ul');
   list.className = 'mt-0.5 flex flex-col gap-1';
   const parser = document.createElement('template');
-  states.forEach(([kind, title, branch, age], index) => {
+  states.forEach(([kind, title, branch, age, prKind], index) => {
     const row = base.closest('li').cloneNode(true);
     row.querySelectorAll('ul').forEach((node) => node.remove());
     row.querySelectorAll('[id]').forEach((node) => node.removeAttribute('id'));
@@ -234,12 +252,59 @@ const fixture = await evaluate(`(() => {
     oldBadge?.replaceWith(parser.content.firstElementChild.cloneNode(true));
     const titleNode = row.querySelector('[data-dockside-root-title-row] span[title]');
     if (titleNode) { titleNode.textContent = title; titleNode.setAttribute('title', title); }
-    const branchNode = row.querySelector('[data-dockside-root-detail-row] .font-mono');
+    let branchNode = row.querySelector('[data-dockside-root-detail-row] .font-mono');
+    if (!branchNode) {
+      const detail = row.querySelector('[data-dockside-root-detail-row]');
+      if (detail) {
+        detail.innerHTML = '<span aria-hidden>⑂</span><span class="min-w-0 flex-1 truncate font-mono"></span>';
+        branchNode = detail.querySelector('.font-mono');
+      }
+    }
     if (branchNode) branchNode.textContent = branch;
     const timeNode = row.querySelector('[data-dockside-root-time] span');
     if (timeNode) timeNode.textContent = age;
-    if (kind !== 'working') {
-      row.querySelector('[data-dockside-pr-state]')?.closest('a')?.remove();
+    const currentPr = row.querySelector('[data-dockside-pr-state]')?.closest('a');
+    if (prKind && prTemplates[prKind]) {
+      parser.innerHTML = prTemplates[prKind];
+      const replacement = parser.content.firstElementChild.cloneNode(true);
+      if (currentPr) currentPr.replaceWith(replacement);
+      else row.querySelector('[data-dockside-family-status]')?.before(replacement);
+    } else {
+      currentPr?.remove();
+    }
+    if (kind === 'working') {
+      const metadata = row.querySelector('[data-dockside-root-metadata]');
+      const badge = row.querySelector('[data-dockside-family-status]');
+      const disclosure = document.createElement('button');
+      disclosure.type = 'button';
+      disclosure.setAttribute('aria-label', 'Show 2 child threads');
+      disclosure.className = 'flex h-4 items-center gap-0.5 rounded px-0.5 text-2xs font-medium text-muted-foreground';
+      disclosure.innerHTML = '<span aria-hidden>⌃</span><span class="tabular-nums">2</span>';
+      metadata?.insertBefore(disclosure, badge);
+      const agents = document.createElement('ul');
+      agents.setAttribute('aria-label', 'Agents for Run release workflow');
+      agents.className = 'ml-[14px] border-l border-[color:var(--dockside-status-working)] pb-0.5 pl-3';
+      [
+        ['working', 'Agent · run test matrix', 'agent/test-matrix', '1m'],
+        ['inactive', 'Agent · audit accessibility', 'agent/accessibility-audit', '6m'],
+      ].forEach(([agentKind, agentTitle, agentBranch, agentAge]) => {
+        const child = document.createElement('li');
+        child.className = 'relative list-none';
+        parser.innerHTML = templates[agentKind].icon;
+        const childIcon = parser.content.firstElementChild.outerHTML;
+        child.innerHTML = '<span class="absolute -left-3 top-1/2 h-px w-3 bg-sidebar-border"></span>' +
+          '<div class="relative grid min-h-10 grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[1rem_1rem] items-center gap-x-1.5 rounded-md px-1.5 py-1">' +
+          childIcon +
+          '<span class="col-start-2 row-start-1 truncate text-xs text-foreground">' + agentTitle + '</span>' +
+          '<span class="col-start-3 row-start-1 tabular-nums text-2xs text-muted-foreground">' + agentAge + '</span>' +
+          '<span class="col-start-2 row-start-2 truncate font-mono text-2xs text-muted-foreground">' + agentBranch + '</span>' +
+          '<span class="col-start-3 row-start-2 text-2xs text-muted-foreground">Codex</span>' +
+          '</div>';
+        agents.append(child);
+      });
+      row.querySelector('[data-dockside-root-card]')?.parentElement?.append(agents);
+      const shell = row.querySelector('[data-dockside-root-card]')?.parentElement;
+      shell?.classList.add('rounded-xl', 'border', 'border-sidebar-border', 'bg-sidebar-accent/35', 'py-1');
     }
     row.querySelectorAll('a').forEach((node) => node.removeAttribute('href'));
     list.append(row);

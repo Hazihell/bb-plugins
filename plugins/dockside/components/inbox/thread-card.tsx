@@ -130,7 +130,7 @@ export function ThreadCard({
           className={cn(
             "rounded-xl border transition-colors",
             expanded
-              ? "border-sidebar-border bg-sidebar-accent/35 p-1"
+              ? "border-sidebar-border bg-sidebar-accent/35 py-1"
               : "border-transparent",
             familyIsActive && "bg-sidebar-accent/60",
             !familyIsActive && layout !== null && "bg-sidebar-accent/25",
