@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "sequence": 8,
+  "previousDigest": "sha256:6df2a52a7057ec12a1a0b376775935929acfbe232a1f2d0ec8a2a944e7cd8139",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Isolated review approved PR-only check semantics across all five criteria with no blocking findings.",
+  "createdAt": "2026-09-01T01:35:14.617Z",
+  "stateBeforeDigest": "sha256:24f0a0cc207e55cddbe9e5d3e9baba507117e89a034961b834f0def4042d0515",
+  "stateAfterDigest": "sha256:4e6a5fc5970f54170bd2c0da218faedc545009a7ca6ef62442cf853915754345",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 8,
+    "activeFeature": "dockside-pr-only-check-icons",
+    "request": "Remove Dockside completion checks from every ordinary no-PR thread; Done should not render anywhere because it is visually confused with PR approval. Preserve PR state only as #number followed by its semantic colored icon at the far right of the branch line, with state/title in accessibility and tooltip context. Keep provider marks after child count and first on quiet children, preserve activity/status glyphs, filters, hierarchy, deletion, project creation, navigation, and compact layout.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "integrate",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Isolated review approved PR-only check semantics across all five criteria with no blocking findings.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:1af876918267a30d9aa0e46ce97cf58b9d173611dc079659fa0cd5a97439f31b",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:9762457cd1a08bf4c40a676893340b48cace9d74ff6a1e5643a58f1520e07f86",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-pr-only-check-icons-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "qa-53778c1ab993836209ae66a7",
+      "qa-350349d53222b7a7ccd9f557",
+      "qa-0a47fc5c65167271087cc294",
+      "qa-09143e5ef543f261372f43ac",
+      "qa-93e1282fe694f796aa495106",
+      "qa-b40c88da574fafa9c19f73e8",
+      "collected-a4092eca5b10279d83983d72",
+      "collected-67b3b35a69378f8f952e767c"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "verified",
+      "reasons": {
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T01:35:14.617Z"
+  },
+  "digest": "sha256:7db42bf3442aa75b9ed3996c9cef3495a1b04273cc3502c2cb29a4a1ba19719a"
+}
