@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 8,
   "activeFeature": "dockside-pr-icon-tooltips",
   "request": "Finish Dockside PR presentation now: keep compact visible #number followed by semantic PR-state icon at the far right; use an eye icon for In review, check for Ready/Merged, x for Changes/Blocked/Closed, spinner for Checks, branch for Open/Draft; add a real hover/focus tooltip showing state, PR number, and title; never show generic completion checks on ordinary threads; preserve provider identity and all management/layout behavior.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Verified semantic PR icon tooltips with exhaustive mapping tests, fault/type/system/clean portability receipts, themed hover/focus source/runtime checks, browser layout evidence, fresh-context QA, and security/UI advisories.",
+  "message": "Isolated review approved the exact PR icon tooltip diff across all criteria with no blocking findings.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:acdafcaa0d34abe3cf75a8935f762ae3e7e06f4a4f5c929126b59917baea3749",
@@ -27,7 +27,8 @@
     "qa-edd998e0a41408a577344179",
     "qa-f526683ca6fb9c92274d4fd8",
     "qa-0aea918204f125b2f43b4ff3",
-    "collected-46b00247a8e512245cbf03dc"
+    "collected-46b00247a8e512245cbf03dc",
+    "collected-ec535cf190bf97397b027241"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -43,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T01:51:03.367Z"
+  "updatedAt": "2026-09-01T01:54:03.482Z"
 }
