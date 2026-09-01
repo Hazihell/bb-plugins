@@ -26,6 +26,14 @@ import {
   PALETTE_PRESET_OPTIONS,
   ROW_DENSITY_OPTIONS,
 } from "./lib/preferences.ts";
+import {
+  PROJECT_COLOR_MIGRATION,
+  createProjectColorStore,
+} from "./lib/project-color-store.ts";
+import {
+  MAX_PROJECT_COLOR_ROWS,
+  MAX_PROJECT_ID_LENGTH,
+} from "./lib/project-colors.ts";
 
 const migrations = [
   `CREATE TABLE IF NOT EXISTS thread_lifecycle (
@@ -38,6 +46,7 @@ const migrations = [
   // Without them, un-settling gives the parent back and leaves its children
   // archived for good.
   `ALTER TABLE thread_lifecycle ADD COLUMN archived_thread_ids TEXT`,
+  PROJECT_COLOR_MIGRATION,
 ];
 
 export interface StoredLifecycleRow {
@@ -90,6 +99,22 @@ interface AuthoritativeThreadRow {
 }
 
 const threadIdSchema = z.object({ threadId: z.string().trim().min(1) });
+const projectIdSchema = z
+  .string()
+  .min(1)
+  .max(MAX_PROJECT_ID_LENGTH)
+  .refine((value) => !/[\u0000-\u001F\u007F]/.test(value), {
+    message: "Project id contains control characters.",
+  });
+const projectColorSchema = z
+  .string()
+  .trim()
+  .regex(/^#[0-9A-F]{6}$/i)
+  .transform((value) => value.toUpperCase());
+const storedProjectColorSchema = z.object({
+  projectId: projectIdSchema,
+  color: projectColorSchema,
+});
 const bulkDeleteSkipReasonSchema = z.enum([
   "missing",
   "current",
@@ -113,6 +138,20 @@ const selectedThreadIdsSchema = z
     message: "A root thread can be selected only once.",
   });
 export const docksideRpcContract = defineRpcContract({
+  listProjectColors: {
+    input: z.object({}),
+    output: z.object({
+      colors: z.array(storedProjectColorSchema).max(MAX_PROJECT_COLOR_ROWS),
+    }),
+  },
+  setProjectColor: {
+    input: z.object({ projectId: projectIdSchema, color: projectColorSchema }),
+    output: storedProjectColorSchema,
+  },
+  resetProjectColor: {
+    input: z.object({ projectId: projectIdSchema }),
+    output: z.object({ projectId: projectIdSchema, reset: z.boolean() }),
+  },
   listProviders: {
     input: z.object({}),
     output: z.object({
@@ -224,6 +263,7 @@ export const docksideRpcContract = defineRpcContract({
 
 /** Channel the frontend re-reads on. */
 export const LIFECYCLE_CHANNEL = "lifecycle";
+export const PROJECT_COLOR_CHANNEL = "project-colors";
 
 export default function plugin(bb: BbPluginApi) {
   bb.settings.define({
@@ -321,6 +361,7 @@ export default function plugin(bb: BbPluginApi) {
 
   const db = bb.storage.database();
   bb.storage.migrate(db, migrations);
+  const projectColors = createProjectColorStore(db);
 
   const readAll = (): StoredLifecycleRow[] =>
     (
@@ -577,6 +618,21 @@ export default function plugin(bb: BbPluginApi) {
   });
 
   bb.rpc.register(docksideRpcContract, {
+    async listProjectColors() {
+      return { colors: projectColors.list() };
+    },
+    async setProjectColor({ projectId, color }) {
+      await bb.sdk.projects.get({ projectId });
+      const stored = projectColors.set(projectId, color);
+      bb.realtime.publish(PROJECT_COLOR_CHANNEL, { projectId });
+      return stored;
+    },
+    async resetProjectColor({ projectId }) {
+      await bb.sdk.projects.get({ projectId });
+      const reset = projectColors.reset(projectId);
+      bb.realtime.publish(PROJECT_COLOR_CHANNEL, { projectId });
+      return { projectId, reset };
+    },
     // A custom ACP provider already carries its own brand mark, so the sidebar
     // reads it from the host rather than hard-coding a second glyph per agent.
     async listProviders() {

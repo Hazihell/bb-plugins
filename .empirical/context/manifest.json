@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:2d70945b4d4c3cefb5f8b06706b991184ff5079fc6b9dc14acedcb51ef7db52b",
+  "generator": "empirical-0.30.0",
+  "sourceDigest": "sha256:eac28e4d45a44444a47bcde93446054d0b6871936f32818921545e766c5dd59f",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -69,6 +69,11 @@
       "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
     },
     {
+      "path": "Casks/bb-touch-bar.rb",
+      "size": 1370,
+      "digest": "sha256:d2e448c28e5b23425786e0523fb4647c2624056cfb5f949a95c9372edc16f79e"
+    },
+    {
       "path": "LICENSE",
       "size": 1074,
       "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
@@ -95,8 +100,8 @@
     },
     {
       "path": "package-lock.json",
-      "size": 293469,
-      "digest": "sha256:34e9477d4b6ab41640e2b4b6b01aaf32d707f7831670b223017a9704847f5818"
+      "size": 293482,
+      "digest": "sha256:a057afe578154726cd5afd617f732211a2f4343b5d810805ebd0427d5add0c79"
     },
     {
       "path": "package.json",
@@ -165,8 +170,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/project-group.tsx",
-      "size": 12249,
-      "digest": "sha256:512c53d5a0cbcefbdf1611194bf728b831b547d2b304956ee4e35686ed13131d"
+      "size": 12581,
+      "digest": "sha256:ba5a8ee581fd545742a064cd9f60efa377051deba3e93b2e4ea2f4557540959b"
     },
     {
       "path": "plugins/dockside/components/inbox/provider-glyph.tsx",
@@ -210,13 +215,13 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
-      "size": 29811,
-      "digest": "sha256:effd6e8767f129ff6624c9f8bd1f2f566f02316511b8b16503f80dadbb4840be"
+      "size": 30003,
+      "digest": "sha256:cfa56b8f7c978477016ef11ba9a3f8e8157c5429cc2fadceee1c8e60908f71ce"
     },
     {
       "path": "plugins/dockside/components/settings/dockside-settings.tsx",
-      "size": 5156,
-      "digest": "sha256:63e82415e409a1c8385254f5e29934097ac20125021890bb42153d98325d2094"
+      "size": 14171,
+      "digest": "sha256:bbdcd61df588f87d58bbddb9ad6d59fa08a3c20f15541686012d59146e543af5"
     },
     {
       "path": "plugins/dockside/components/ui/icon.tsx",
@@ -232,6 +237,11 @@
       "path": "plugins/dockside/hooks/use-lifecycle.ts",
       "size": 11509,
       "digest": "sha256:fb2c4b240eb06955238981ccbb4dd31945bce4ec712aa6f4e7579ad35b26731c"
+    },
+    {
+      "path": "plugins/dockside/hooks/use-project-colors.ts",
+      "size": 2626,
+      "digest": "sha256:b4018099c69586de2afb1b3aa985b2cfd00eeb69e54b93539373ca5d9ebe52aa"
     },
     {
       "path": "plugins/dockside/hooks/use-retrying-read.ts",
@@ -284,6 +294,16 @@
       "digest": "sha256:0f897bed7c0f9115cdb05c33de808522f431b0ba19eef6ea1ad6938ad012ea40"
     },
     {
+      "path": "plugins/dockside/lib/project-color-store.ts",
+      "size": 2483,
+      "digest": "sha256:c2ba8bb05243461298ad8de4485be7469c554acd390afd922ba746c686e1407f"
+    },
+    {
+      "path": "plugins/dockside/lib/project-colors.ts",
+      "size": 2861,
+      "digest": "sha256:803653d32b3a55a58c939192673b587daf6e7119b6210322f47783979bb45ee7"
+    },
+    {
       "path": "plugins/dockside/lib/project-order.ts",
       "size": 4249,
       "digest": "sha256:7410a25462cacf34f8131fdfc9099f23f2f6359dd0366a13ca115ca9982d7fb5"
@@ -330,13 +350,13 @@
     },
     {
       "path": "plugins/dockside/package.json",
-      "size": 2140,
-      "digest": "sha256:fe0b0be5d8e551c84c92d0b6192b41b9c635ab33b00a486794f408bb176eb4a1"
+      "size": 2142,
+      "digest": "sha256:10ce5a5bbd02dbd50be46acbc79264f5d3b95af53e8182f520bb72f402f7dfca"
     },
     {
       "path": "plugins/dockside/server.ts",
-      "size": 26135,
-      "digest": "sha256:19baf7609e34e25dd233842cac7848c5ed7dec44e02f546efec8842b1e02cd32"
+      "size": 27946,
+      "digest": "sha256:9db262e6a816e74fdde8e31b8f329fdc23431455659ed95a92ab7f30155ef4f6"
     },
     {
       "path": "plugins/dockside/test/attention-state.test.ts",
@@ -347,6 +367,11 @@
       "path": "plugins/dockside/test/bulk-delete.test.ts",
       "size": 8273,
       "digest": "sha256:3c6abdc109dac60a33e66b6332d94fc8c322920259894b7325b3e4a5019485cb"
+    },
+    {
+      "path": "plugins/dockside/test/distribution-contract.test.ts",
+      "size": 1363,
+      "digest": "sha256:8b2d41605fe6d373fe90bbd067071129313961d81b778a209a8af6045d8b7a4d"
     },
     {
       "path": "plugins/dockside/test/family-order.test.ts",
@@ -374,6 +399,16 @@
       "digest": "sha256:7e309752756231e8856d27ebf8f20cbe5ba25bbb569db91c9e161f7d315e8802"
     },
     {
+      "path": "plugins/dockside/test/project-color-store.test.ts",
+      "size": 2633,
+      "digest": "sha256:fd5f03fe994f7332954f26d60aafe47110d03a2d63847d2e4a20612a8aaf9e99"
+    },
+    {
+      "path": "plugins/dockside/test/project-colors.test.ts",
+      "size": 2694,
+      "digest": "sha256:11acf860c32fd4954730e79f46e3348205949b71cc3ec07ff91f5ed5cdf47639"
+    },
+    {
       "path": "plugins/dockside/test/project-order.test.ts",
       "size": 1898,
       "digest": "sha256:924a51ea56c5c3d64190f70594b33701d3256b95c6ac3e19068760dac55f302e"
@@ -395,8 +430,8 @@
     },
     {
       "path": "plugins/dockside/test/settings-contract.test.ts",
-      "size": 3467,
-      "digest": "sha256:8905c4af2c102bac74dede6f5a4a13d2625728fb0a3697113728ea335e90f2d6"
+      "size": 5195,
+      "digest": "sha256:508f2540fe9ba4420dfe1a7fd37a4f68a6828c68ddfd214d329a96762f5d0c33"
     },
     {
       "path": "plugins/dockside/test/settled-threads.test.ts",
@@ -445,8 +480,8 @@
     },
     {
       "path": "plugins/host-monitor/README.md",
-      "size": 6221,
-      "digest": "sha256:4e765547a28bacee703bf0702ee8f72708317c79f90df2db07bebb342112a665"
+      "size": 6629,
+      "digest": "sha256:65d7d728657acbab057a649da00af67c28ebf99adcb29f9d921e66f6ed6ef064"
     },
     {
       "path": "plugins/host-monitor/THIRD_PARTY_NOTICES.md",
@@ -570,8 +605,8 @@
     },
     {
       "path": "plugins/host-monitor/server.ts",
-      "size": 19480,
-      "digest": "sha256:aeafd32770f9a76681b1afb93f1102ab0beede3ad37bf9a627e7283906eb7932"
+      "size": 21175,
+      "digest": "sha256:82f051bbe5957edd0c1ee122f3cc489274f095f43db3a48ae051931fe877cd94"
     },
     {
       "path": "plugins/host-monitor/test/app-registration.test.ts",
@@ -655,8 +690,8 @@
     },
     {
       "path": "plugins/host-monitor/test/server.test.ts",
-      "size": 9540,
-      "digest": "sha256:3505973dd40c78809f5bd86e952428aca815ac16ae777230f33f136d0593fbb3"
+      "size": 10508,
+      "digest": "sha256:5f9e7fee1f4a70c7c1b0ef4d0dbe8d33862ab43de2b87a6ee0d9a1b6001e92d9"
     },
     {
       "path": "plugins/host-monitor/test/sidebar-summary.test.ts",
@@ -1030,8 +1065,8 @@
     },
     {
       "path": "plugins/touchbar/README.md",
-      "size": 4454,
-      "digest": "sha256:e0a0061f9629616e2173629f2ea8538301924b8bcd2b32ed6602747c01c8c092"
+      "size": 6698,
+      "digest": "sha256:6ed66d3cd4b2dd97b5d579c12d15632ac9aeaeaddf3f334eae4831cc44ef749e"
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
@@ -1060,8 +1095,8 @@
     },
     {
       "path": "plugins/touchbar/lib/snapshot.ts",
-      "size": 5973,
-      "digest": "sha256:4480d4ba7a8fd25795829cc76a1037991d7dba2f3c02344e3f10e1d2691a8e69"
+      "size": 6229,
+      "digest": "sha256:3e6cd6df7c8a84f64d2796cbc56743069db9d618f34cb74b8d570fbfc145b688"
     },
     {
       "path": "plugins/touchbar/native/Assets/NOTICE.md",
@@ -1110,8 +1145,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/AgentModel.swift",
-      "size": 6147,
-      "digest": "sha256:6b162c76618f05118ae7f8ae1efe4728226e91067e9960349696653dca40fe05"
+      "size": 10304,
+      "digest": "sha256:e6a23d14577b0b75e8ee190ee31635bd2020c367d8f7c151726a2a428637bbd4"
     },
     {
       "path": "plugins/touchbar/native/Sources/BBTouchBarPrivate.h",
@@ -1125,8 +1160,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 23869,
-      "digest": "sha256:9b3ab7af7a4decef204a0fafe7119d942dcb3d6b18b36e67fb909b2609b86d59"
+      "size": 45080,
+      "digest": "sha256:382139e76df01cf6bdd23af20894f64570d13ea10a07f30f3b3f8040f3ce8a1c"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1135,8 +1170,18 @@
     },
     {
       "path": "plugins/touchbar/native/build.sh",
-      "size": 2306,
-      "digest": "sha256:ce878c331ca1a71f11a89de937b759bd332566728e0f706c7ca8ac401158039f"
+      "size": 2839,
+      "digest": "sha256:a710d415510fdb3a61198b08a56e3a66d6be299b72daf5a3f8cd4dcc5ccebf76"
+    },
+    {
+      "path": "plugins/touchbar/native/homebrew-install.sh",
+      "size": 1488,
+      "digest": "sha256:21328dae925aee1d8db92c1478c59c98b7fc225ea53468d84bda8c4649bc553c"
+    },
+    {
+      "path": "plugins/touchbar/native/homebrew-uninstall.sh",
+      "size": 392,
+      "digest": "sha256:eedbe896dd630b50942a436835799c8240f9ddd338f5a618b2f87253f99c34fa"
     },
     {
       "path": "plugins/touchbar/native/install.sh",
@@ -1144,9 +1189,19 @@
       "digest": "sha256:a36939026f0101afb64315a4594d5e6ad3ed01e0ef46a1d2fe9babd699040a79"
     },
     {
+      "path": "plugins/touchbar/native/package.sh",
+      "size": 1744,
+      "digest": "sha256:df627f9acbd97854a9d9438a38ef2d305dfa41e5acd23767decfc41429e8f835"
+    },
+    {
       "path": "plugins/touchbar/native/run.sh",
       "size": 1720,
       "digest": "sha256:92af1c8400c7ab05a36a1fc4fcc405bd007833f13aa45e6b8244d02f1c21b23f"
+    },
+    {
+      "path": "plugins/touchbar/native/test-homebrew.sh",
+      "size": 1136,
+      "digest": "sha256:6931da6b502ea57c000f86dc3292f114cefec02396dd6adf10bbdd80116b5190"
     },
     {
       "path": "plugins/touchbar/native/uninstall.sh",
@@ -1160,8 +1215,8 @@
     },
     {
       "path": "plugins/touchbar/server.ts",
-      "size": 5820,
-      "digest": "sha256:6ca64cf1bac2231fbdf1cbdd5bbf2d37073017763e31057ca1a658e6fabd1f54"
+      "size": 7544,
+      "digest": "sha256:9695cca8eb8369195b045beafbf46fefd625c07c113765b93dbc56c0b91d69e0"
     },
     {
       "path": "plugins/touchbar/test/clean-check.sh",
@@ -1170,8 +1225,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 7727,
-      "digest": "sha256:35dd8e93e2eb867faa02295152aacd100021dac4a95302f46af94902ab908be0"
+      "size": 11599,
+      "digest": "sha256:8b58fa18e7de635a705e46ca8a67585523c95bf711db714fff88d25912135c60"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1185,8 +1240,8 @@
     },
     {
       "path": "plugins/touchbar/test/server.test.ts",
-      "size": 7051,
-      "digest": "sha256:6658f0b8ec5860f478fa3e87951b926f866615737e99b28867f096e1686fe875"
+      "size": 8509,
+      "digest": "sha256:e81bf32ad1b5a8fc116902d3685e6d1bc0c598edab57585fe9d988d77f160211"
     },
     {
       "path": "plugins/touchbar/test/snapshot.test.ts",
@@ -1307,7 +1362,7 @@
   "pages": [
     {
       "path": ".empirical/context/index.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         ".agents/skills/empirical/SKILL.md",
@@ -1323,6 +1378,7 @@
         ".mcp.json",
         "AGENTS.md",
         "CLAUDE.md",
+        "Casks/bb-touch-bar.rb",
         "LICENSE",
         "README.md",
         "THIRD_PARTY_NOTICES.md",
@@ -1356,6 +1412,7 @@
         "plugins/dockside/components/ui/icon.tsx",
         "plugins/dockside/components/ui/select.tsx",
         "plugins/dockside/hooks/use-lifecycle.ts",
+        "plugins/dockside/hooks/use-project-colors.ts",
         "plugins/dockside/hooks/use-retrying-read.ts",
         "plugins/dockside/hooks/use-settled-threads.ts",
         "plugins/dockside/lib/attention-state.ts",
@@ -1366,6 +1423,8 @@
         "plugins/dockside/lib/lifecycle.ts",
         "plugins/dockside/lib/portal-scope.ts",
         "plugins/dockside/lib/preferences.ts",
+        "plugins/dockside/lib/project-color-store.ts",
+        "plugins/dockside/lib/project-colors.ts",
         "plugins/dockside/lib/project-order.ts",
         "plugins/dockside/lib/provider-marks.ts",
         "plugins/dockside/lib/pull-request-presentation.ts",
@@ -1379,11 +1438,14 @@
         "plugins/dockside/server.ts",
         "plugins/dockside/test/attention-state.test.ts",
         "plugins/dockside/test/bulk-delete.test.ts",
+        "plugins/dockside/test/distribution-contract.test.ts",
         "plugins/dockside/test/family-order.test.ts",
         "plugins/dockside/test/family-status.test.ts",
         "plugins/dockside/test/inbox.test.ts",
         "plugins/dockside/test/lifecycle.test.ts",
         "plugins/dockside/test/preferences.test.ts",
+        "plugins/dockside/test/project-color-store.test.ts",
+        "plugins/dockside/test/project-colors.test.ts",
         "plugins/dockside/test/project-order.test.ts",
         "plugins/dockside/test/pull-request-presentation.test.ts",
         "plugins/dockside/test/relative-time.test.ts",
@@ -1537,8 +1599,12 @@
         "plugins/touchbar/native/Sources/TouchBarController.swift",
         "plugins/touchbar/native/Sources/main.swift",
         "plugins/touchbar/native/build.sh",
+        "plugins/touchbar/native/homebrew-install.sh",
+        "plugins/touchbar/native/homebrew-uninstall.sh",
         "plugins/touchbar/native/install.sh",
+        "plugins/touchbar/native/package.sh",
         "plugins/touchbar/native/run.sh",
+        "plugins/touchbar/native/test-homebrew.sh",
         "plugins/touchbar/native/uninstall.sh",
         "plugins/touchbar/package.json",
         "plugins/touchbar/server.ts",
@@ -1571,21 +1637,25 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:2d70945b4d4c3cefb5f8b06706b991184ff5079fc6b9dc14acedcb51ef7db52b",
+      "sourceDigest": "sha256:eac28e4d45a44444a47bcde93446054d0b6871936f32818921545e766c5dd59f",
       "digest": "sha256:b16eb59e5758fbb5f716a6add392277f4dd9092ebdaa8b9268f215c2bae01063",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/overview.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "README.md",
         "package.json",
         "plugins/dockside/README.md",
         "plugins/dockside/components/inbox/project-group.tsx",
+        "plugins/dockside/lib/project-color-store.ts",
+        "plugins/dockside/lib/project-colors.ts",
         "plugins/dockside/lib/project-order.ts",
         "plugins/dockside/package.json",
+        "plugins/dockside/test/project-color-store.test.ts",
+        "plugins/dockside/test/project-colors.test.ts",
         "plugins/dockside/test/project-order.test.ts",
         "plugins/host-monitor/README.md",
         "plugins/host-monitor/package.json",
@@ -1600,13 +1670,13 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:d1526424d2b773642d94fd8afde8840e1663d21c3e59badef868858ad9ba22ba",
+      "sourceDigest": "sha256:e2cd3c0b92e3575c64c8fdc14e4a9438e2948bb2e8f3366508e121dbc4ec7b9c",
       "digest": "sha256:eef88e8fe7d1412fd29415c153b136f4b8c8181a668f5368aa24e0f6e4ae5c23",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/architecture.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "package.json",
@@ -1617,13 +1687,13 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:3a7e90eb51d2a9186df578ab3859fb770b8fad78ae2571ad79ee570086e02166",
+      "sourceDigest": "sha256:026620d4b4fef7f004dd585de525d0611d14b3d56d5683cc10ff08f064643c54",
       "digest": "sha256:60da431b02b162c605e7db2a9bc917a1aef6b5efbd04574b60f625a16e56bb86",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/commands.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         ".github/workflows/ci.yml",
@@ -1635,13 +1705,13 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:67c8d6d7fee18116d9f60ce9e8c865552583ce622ef313e6f6112ff584859006",
+      "sourceDigest": "sha256:4fdf4f6f8533e36a77a2781f1a3e6a187f72f06fa45a3cefe8407da4b7c7e067",
       "digest": "sha256:5680274604d45911b9a726f4529073f9c6340cd4133a3b57c8497ce1896949c5",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/conventions.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "AGENTS.md",
@@ -1658,5 +1728,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:be329b756c9bc14669f8fb3ac4a39bf00534b74286ad0be5c878f1d279806347"
+  "digest": "sha256:20fc2766cfce27d25b54311c8a8242d07239a7f6ae79cbb6f2048c4e86098a36"
 }

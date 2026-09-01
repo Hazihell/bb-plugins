@@ -16,6 +16,14 @@ const settings = await readFile(
   new URL("../components/settings/dockside-settings.tsx", import.meta.url),
   "utf8",
 );
+const projectGroup = await readFile(
+  new URL("../components/inbox/project-group.tsx", import.meta.url),
+  "utf8",
+);
+const projectColorsHook = await readFile(
+  new URL("../hooks/use-project-colors.ts", import.meta.url),
+  "utf8",
+);
 
 describe("Dockside settings contract", () => {
   it("declares every palette and behavior setting with safe defaults", () => {
@@ -72,6 +80,34 @@ describe("Dockside settings contract", () => {
     ]) {
       assert.match(settings, new RegExp(`"${label}"`));
     }
+  });
+
+  it("edits durable project-id colors and paints only project letter badges", () => {
+    assert.match(server, /PROJECT_COLOR_MIGRATION/);
+    assert.match(server, /listProjectColors:/);
+    assert.match(server, /setProjectColor:/);
+    assert.match(server, /resetProjectColor:/);
+    assert.match(server, /bb\.sdk\.projects\.get\(\{ projectId \}\)/);
+    assert.match(server, /PROJECT_COLOR_CHANNEL/);
+    assert.match(server, /bb\.realtime\.publish\(PROJECT_COLOR_CHANNEL/);
+
+    assert.match(settings, /useSidebarThreads\(\)/);
+    assert.match(settings, /data-dockside-project-color-settings/);
+    assert.match(settings, /type="color"/);
+    assert.match(settings, /Badge color for \{project\.name\}/);
+    assert.match(settings, /Save badge color for \$\{project\.name\}/);
+    assert.match(settings, /Reset badge color for \$\{project\.name\}/);
+    assert.match(settings, /Color changed elsewhere/);
+    assert.match(settings, /aria-live="polite"/);
+
+    assert.match(inbox, /useProjectColors\(\)/);
+    assert.match(inbox, /projectColorOverrides=\{projectColorOverrides\}/);
+    assert.match(projectGroup, /projectBadgePresentation/);
+    assert.match(projectGroup, /data-dockside-project-badge/);
+    assert.match(projectGroup, /backgroundColor: badge\.backgroundColor/);
+    assert.match(projectGroup, /color: badge\.foregroundColor/);
+    assert.match(projectColorsHook, /useRealtime\("project-colors"/);
+    assert.match(projectColorsHook, /previous === "reconnecting"/);
   });
 
   it("uses optional metadata and layout preferences without changing defaults", () => {
