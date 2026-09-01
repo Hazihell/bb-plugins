@@ -135,6 +135,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /settings controls/u);
   assert.doesNotMatch(controller, /⚙/u);
   assert.match(controller, /priorityTapped/u);
+  assert.match(controller, /projectTapped/u);
   assert.match(controller, /dockTapped/u);
   assert.match(controller, /carouselTapped/u);
   assert.match(controller, /previousProjectTapped/u);
@@ -142,11 +143,15 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /projectDockTapped/u);
   assert.match(controller, /BBTouchBarSelectedProject/u);
   assert.match(controller, /private final class GroupDividerView: NSButton/u);
+  assert.match(controller, /private final class ProjectGroupView: NSView/u);
+  assert.match(controller, /projectGroups\(for: entries\)/u);
+  assert.match(controller, /button\(for: \$0, grouped: true\)/u);
   assert.match(controller, /threadId: first\.id/u);
   assert.match(controller, /compactWidth/u);
   assert.match(controller, /compactWidth = projectFirst\s*\? 32/su);
   assert.match(controller, /action: #selector\(agentTapped/u);
   assert.match(controller, /bounds\.contains\(point\) \? self : nil/u);
+  assert.match(controller, /NSApp\.sendAction\(action, to: target, from: self\)/u);
   assert.match(controller, /close control tapped/u);
   assert.match(controller, /projectInitials/u);
   assert.match(controller, /provider == "cursor" \|\| provider == "acp-cursor"/u);
@@ -154,10 +159,12 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /static let bbSettings/u);
   assert.match(controller, /static let bbClose/u);
   assert.match(controller, /static let bbDock/u);
+  assert.match(controller, /static let bbProject/u);
   assert.match(controller, /static let bbCarousel/u);
   assert.match(controller, /case \.bbSettings: return settingsItem/u);
   assert.match(controller, /case \.bbClose: return closeItem/u);
   assert.match(controller, /case \.bbDock: return dockItem/u);
+  assert.match(controller, /case \.bbProject: return projectItem/u);
   assert.match(controller, /case \.bbCarousel: return carouselItem/u);
   assert.match(controller, /identifiers\.append\(\.flexibleSpace\)/u);
   assert.doesNotMatch(controller, /PanelRootView|CompactControlButton/u);
