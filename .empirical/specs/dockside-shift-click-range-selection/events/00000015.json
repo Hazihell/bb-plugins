@@ -1,25 +1,25 @@
 {
   "schemaVersion": 1,
-  "sequence": 8,
-  "previousDigest": "sha256:4293670251326747406ea20fe363edb941ab12db3caea6d97a1cab2626dc910e",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Implementation and verification are complete. Fresh-context review requires an exact committed base...HEAD diff, but repository conduct forbids committing or pushing without explicit user authorization; preserve the verified working tree and await commit direction.",
-  "createdAt": "2026-09-01T04:34:53.470Z",
-  "stateBeforeDigest": "sha256:b3e33d003508e0273807815e7f491ebefa0b89582bbc47385b76a9e711f5ae7e",
-  "stateAfterDigest": "sha256:bb041eec9a3347adada5707a758444d73fc28ca347b831ce28069119713948f7",
+  "sequence": 15,
+  "previousDigest": "sha256:ec36e26903b4028ee9f10b92405317c6f611c9cfe5de1986435e2c805b62fc57",
+  "actor": "empirical-integrate",
+  "type": "compaction-boundary",
+  "summary": "Compacted through journal event 14",
+  "createdAt": "2026-09-01T04:58:27.924Z",
+  "stateBeforeDigest": "sha256:57d7b67b2983449e88d7e65b3793c3a42b59573264e3eaa27519fc72e9381ff4",
+  "stateAfterDigest": "sha256:57d7b67b2983449e88d7e65b3793c3a42b59573264e3eaa27519fc72e9381ff4",
   "state": {
     "schemaVersion": 5,
-    "revision": 8,
+    "revision": 14,
     "activeFeature": "dockside-shift-click-range-selection",
     "request": "Add Shift+click range selection to Dockside bulk-delete selection mode. Clicking a root checkbox establishes an anchor; Shift+clicking another visible root checkbox selects or deselects the contiguous visible range using the clicked checkbox's intended state. Preserve protected-thread eligibility, ordinary click toggling, select-all, filtering/search/project order, confirmation, deletion, keyboard/accessibility behavior, and clear/reset stale anchors when selection mode or visible roots change. Add focused tests and exercise the live BB sidebar.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "review",
-    "status": "awaiting_human",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Implementation and verification are complete. Fresh-context review requires an exact committed base...HEAD diff, but repository conduct forbids committing or pushing without explicit user authorization; preserve the verified working tree and await commit direction.",
+    "message": "Integrated capability changes: dockside-thread-management",
     "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:c7163948b061a2f1d327efd46bdf405a08143e64a23b927a383f764cd0e1151b",
@@ -31,26 +31,27 @@
     "authorizationDigest": null,
     "evidence": [],
     "evidenceReceiptIds": [
-      "collected-6725be1746257f779f02d223",
-      "qa-aff45f8fbc382cfa351cd5d7",
-      "qa-c11241d471318787792b95f6",
-      "qa-3515d51333053c048daea1af"
+      "collected-4639f5792d41bcf082f68f37",
+      "qa-14354832f991ae9864e07c68",
+      "qa-950f73e093d8c46e3e600d8b",
+      "qa-ffe374c884ee3fe8c6488ec6",
+      "collected-6d5b70a92de9f9206c04550f",
+      "qa-cce4fac40f109e19b496eeee"
     ],
     "legacyEvidenceCount": 0,
     "completion": {
       "implemented": true,
       "verified": true,
-      "integrated": false,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "verified",
+      "highest": "integrated",
       "reasons": {
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-09-01T04:34:53.470Z"
+    "updatedAt": "2026-09-01T04:58:27.906Z"
   },
-  "digest": "sha256:87c70ae3c480b8e280889fe6292cb5a5330cc357fcc534a150061e1dbdef3019"
+  "digest": "sha256:62bc9fd2c79a49a73507b152d9506a5990f638533c322fed7afd662fb89a5549"
 }
