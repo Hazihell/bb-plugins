@@ -3,14 +3,14 @@
   "feature": "dockside-main-reconciliation",
   "matrixDigest": "sha256:96a1213e11aaeb5cdfb22615265da0951971145cb778084b1ac08f97c2fe259c",
   "outcome": "passed",
-  "head": "31d66c972787462c05f165fd3807cd05d8b0227e",
+  "head": "65469c75982de3d726d1e78741ca6d67255ac048",
   "main": "a63ff36722fac30a1845eb1abf988fa7e8d49b02",
   "pullRequest": {
     "url": "https://github.com/MateoCerquetella/bb-plugins/pull/26",
     "mergeable": "MERGEABLE",
-    "mergeStateStatus": "UNSTABLE",
-    "check": "IN_PROGRESS",
-    "checkUrl": "https://github.com/MateoCerquetella/bb-plugins/actions/runs/33478196071/job/99761803005"
+    "mergeStateStatus": "CLEAN",
+    "check": "SUCCESS",
+    "checkUrl": "https://github.com/MateoCerquetella/bb-plugins/actions/runs/33479376003/job/99765341459"
   },
   "criteria": [
     {
@@ -46,7 +46,7 @@
     {
       "id": "AC-7",
       "passed": true,
-      "observation": "The merge, requested-changes review, and repair commit are pushed at the same local/remote SHA; PR #26 documents npm verification and remains MERGEABLE while CI runs."
+      "observation": "The merge, requested-changes review, approved repair review, and final promotion adapter are committed and pushed; PR #26 documents npm verification and is CLEAN/MERGEABLE with successful CI."
     }
   ]
 }
