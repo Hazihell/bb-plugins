@@ -94,6 +94,10 @@ export function ThreadCard({
   const waitingForAgents = familyWaitingForAgents(childThreads);
   const summaryThreads = useMemo(() => [thread], [thread]);
   const summaries = useThreadSummaries(summaryThreads);
+  const childProviderIds = useMemo(
+    () => [...new Set(childThreads.map((child) => child.providerId))].slice(0, 2),
+    [childThreads],
+  );
   const secondaryState = rootSecondaryState({
     waitingForAgents,
     hasPullRequest: pullRequest !== null,
@@ -268,6 +272,16 @@ export function ThreadCard({
                     aria-hidden
                   />
                   <span className="tabular-nums">{childThreads.length}</span>
+                  <span className="flex items-center -space-x-0.5">
+                    {childProviderIds.map((providerId) => (
+                      <ProviderGlyph
+                        key={providerId}
+                        providerId={providerId}
+                        provider={providerInfoById.get(providerId)}
+                        className="size-3 opacity-80"
+                      />
+                    ))}
+                  </span>
                 </button>
               ) : null}
             </div>
@@ -361,12 +375,14 @@ function ChildThreadRow({
             }}
             className="absolute inset-0 cursor-pointer rounded-md"
           />
-          <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
           <ProviderGlyph
             providerId={thread.providerId}
             provider={provider}
             className="relative mt-0.5"
           />
+          {status !== null ? (
+            <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
+          ) : null}
           <div className="pointer-events-none relative min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-1.5">
               <span

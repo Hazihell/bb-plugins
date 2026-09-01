@@ -41,6 +41,9 @@ const card = await readFile(
 assert.match(card, /useMemo\(\(\) => \[thread\], \[thread\]\)/);
 assert.doesNotMatch(card, /hasDone=\{summaries\.has\(child\.id\)\}/);
 assert.doesNotMatch(card, /secondaryState === "done"[\s\S]{0,200}ChildThreadRow/);
+assert.match(card, /childProviderIds\.map/);
+assert.match(card, /<span className="tabular-nums">\{childThreads\.length\}<\/span>/);
+assert.match(card, /status !== null \? \(/);
 
 console.log(
   "Dockside icon-state check passed: running plugin, semantic icons, root-only completion, no child Done metadata, and wide/compact screenshots.",

@@ -20,23 +20,24 @@ describe("pullRequestPresentation", () => {
 
   it("maps open pull request attention into compact semantic states", () => {
     const cases = [
-      ["changes_requested", "CHANGES", "destructive"],
-      ["blocked", "BLOCKED", "destructive"],
-      ["checks_failed", "BLOCKED", "destructive"],
-      ["conflicts", "BLOCKED", "destructive"],
-      ["checks_pending", "CHECKS", "primary"],
-      ["review_requested", "IN REVIEW", "primary"],
-      ["ready_to_merge", "READY", "success"],
-      ["none", "OPEN", "muted"],
+      ["changes_requested", "CHANGES", "destructive", "CircleX"],
+      ["blocked", "BLOCKED", "destructive", "CircleX"],
+      ["checks_failed", "BLOCKED", "destructive", "CircleX"],
+      ["conflicts", "BLOCKED", "destructive", "CircleX"],
+      ["checks_pending", "CHECKS", "primary", "Loading"],
+      ["review_requested", "IN REVIEW", "primary", "Target"],
+      ["ready_to_merge", "READY", "success", "Check"],
+      ["none", "OPEN", "muted", "GitBranch"],
     ] as const;
 
-    for (const [attention, label, tone] of cases) {
+    for (const [attention, label, tone, icon] of cases) {
       const presentation = pullRequestPresentation({
         state: "open",
         attention,
       });
       assert.equal(presentation.label, label);
       assert.equal(presentation.tone, tone);
+      assert.equal(presentation.icon, icon);
     }
   });
 });
