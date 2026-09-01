@@ -149,8 +149,11 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /slider\.horizontal\.3/u);
   assert.match(controller, /schedulePanelRender/u);
   assert.match(controller, /DispatchQueue\.main\.async/u);
-  assert.match(controller, /menu bar settings requested/u);
-  assert.doesNotMatch(controller, /configurationVisible\.toggle\(\)/u);
+  assert.match(controller, /inline settings/u);
+  assert.match(controller, /configurationVisible\.toggle\(\)/u);
+  assert.match(controller, /providerSettingControl/u);
+  assert.match(controller, /controls: \[priority, project, dock, carousel\]/u);
+  assert.doesNotMatch(controller, /controls: \[priorityButton, projectButton/u);
   assert.doesNotMatch(controller, /⚙/u);
   assert.match(controller, /priorityTapped/u);
   assert.match(controller, /projectTapped/u);
@@ -221,7 +224,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /override func scrollWheel/u);
   assert.match(controller, /panelScrollView\?\.scrollPage\(-1\)/u);
   assert.match(controller, /panelScrollView\?\.scrollPage\(1\)/u);
-  assert.match(controller, /\.bbPreviousProject, \.bbList, \.bbNextProject/u);
+  assert.match(controller, /identifiers: \[NSTouchBarItem\.Identifier\] = \[\.bbList\]/u);
   assert.match(controller, /title: "FILTERS"/u);
   assert.match(controller, /title: "SUBSCRIPTIONS"/u);
   assert.match(controller, /title: "HOST MONITOR"/u);
@@ -240,8 +243,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /0xD9911A/u);
   assert.match(controller, /0x3B82C4/u);
   assert.match(controller, /0xD94B4B/u);
-  assert.match(controller, /questionmark\.circle\.fill/u);
-  assert.match(controller, /xmark\.circle\.fill/u);
+  assert.match(controller, /iconView\.layer\?\.borderColor = color\.cgColor/u);
+  assert.doesNotMatch(controller, /statusIconView/u);
   assert.match(controller, /hostMonitorTapped/u);
   assert.match(controller, /usageVisibilityTapped/u);
   assert.match(controller, /hostVisibilityTapped/u);
@@ -273,7 +276,6 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(menuBar, /Quit BB Touch Bar/u);
   assert.match(menuBar, /menu\.popUp/u);
   assert.doesNotMatch(menuBar, /performClick/u);
-  assert.match(controller, /closePanel\(\)\s*DispatchQueue\.main\.asyncAfter/su);
   assert.match(main, /applicationWillTerminate/u);
   assert.match(build, /DFRFoundation/u);
   assert.match(build, /codesign --force --sign -/u);
