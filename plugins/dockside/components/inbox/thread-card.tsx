@@ -115,6 +115,13 @@ export function ThreadCard({
     () => [...new Set(childThreads.map((child) => child.providerId))].slice(0, 2),
     [childThreads],
   );
+  const childProviderNames = childProviderIds
+    .map(
+      (providerId) =>
+        providerInfoById.get(providerId)?.displayName ?? providerId,
+    )
+    .join(", ");
+  const childDisclosureLabel = `${expanded ? "Hide" : "Show"} ${childThreads.length} child${childThreads.length === 1 ? " thread" : " threads"}${childProviderNames ? `; providers: ${childProviderNames}` : ""}`;
   const rootIsActive = thread.id === activeThreadId;
   const familyState = familyStatus([thread, ...childThreads], now);
 
@@ -360,8 +367,8 @@ export function ThreadCard({
                     type="button"
                     aria-label={
                       selectionMode
-                        ? `${childThreads.length} child threads; exit selection mode to ${expanded ? "hide" : "show"}`
-                        : `${expanded ? "Hide" : "Show"} ${childThreads.length} child threads`
+                        ? `${childThreads.length} child threads; exit selection mode to ${expanded ? "hide" : "show"}${childProviderNames ? `; providers: ${childProviderNames}` : ""}`
+                        : childDisclosureLabel
                     }
                     aria-expanded={expanded}
                     aria-controls={childListId}
@@ -404,8 +411,7 @@ export function ThreadCard({
                       role="tooltip"
                       className="pointer-events-none absolute bottom-full right-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/children:translate-y-0 group-hover/children:opacity-100 group-focus-visible/children:translate-y-0 group-focus-visible/children:opacity-100"
                     >
-                      {expanded ? "Hide" : "Show"} {childThreads.length} child
-                      {childThreads.length === 1 ? " thread" : " threads"}
+                      {childDisclosureLabel}
                     </span>
                   </button>
                 ) : preferences.showProviderIcons ? (
@@ -525,9 +531,7 @@ function ChildThreadRow({
               className="relative mt-0.5"
             />
           ) : null}
-          {status !== null ? (
-            <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
-          ) : null}
+          <ThreadStateGlyph thread={thread} className="relative mt-0.5" />
           <div className="pointer-events-none relative min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-1.5">
               <span
@@ -565,35 +569,43 @@ function ThreadStateGlyph({
   className?: string;
 }) {
   const status = threadStatus(thread);
-  if (status === null) {
-    return (
+  const label =
+    status === null
+      ? "Inactive: no active work in this child thread"
+      : `${thread.indicatorLabel ?? status.label}: child thread status`;
+
+  const glyph =
+    status === null ? (
       <span
         aria-hidden
-        title="Inactive"
-        className={cn(
-          "flex size-3.5 shrink-0 items-center justify-center",
-          className,
-        )}
-      >
-        <span
-          className="size-2 rounded-full opacity-50"
-          style={{
-            backgroundColor:
-              "var(--dockside-status-inactive, var(--muted-foreground))",
-          }}
-        />
-      </span>
+        className="size-2 rounded-full opacity-50"
+        style={{
+          backgroundColor:
+            "var(--dockside-status-inactive, var(--muted-foreground))",
+        }}
+      />
+    ) : (
+      <StatusGlyph indicator={status.indicator} label={null} />
     );
-  }
+
   return (
     <span
-      title={thread.indicatorLabel ?? status.label}
-      className={cn("flex size-3.5 shrink-0", className)}
+      role="img"
+      aria-label={label}
+      title={label}
+      tabIndex={0}
+      className={cn(
+        "group/child-status flex size-3.5 shrink-0 items-center justify-center rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        className,
+      )}
     >
-      <StatusGlyph
-        indicator={status.indicator}
-        label={thread.indicatorLabel ?? status.label}
-      />
+      {glyph}
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-0 z-30 mb-1 w-max max-w-56 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/child-status:translate-y-0 group-hover/child-status:opacity-100 group-focus-visible/child-status:translate-y-0 group-focus-visible/child-status:opacity-100"
+      >
+        {label}
+      </span>
     </span>
   );
 }

@@ -86,4 +86,14 @@ describe("compact root card contract", () => {
     const providerStart = rootSource.indexOf("<ProviderGlyph", metadataStart);
     assert.ok(badgeStart > providerStart, "fixed-width status badge owns the right edge");
   });
+
+  it("keeps child status and disclosure-provider help keyboard-readable", () => {
+    assert.match(rootSource, /childProviderNames/);
+    assert.match(rootSource, /providers: \$\{childProviderNames\}/);
+    assert.match(childSource, /<ThreadStateGlyph thread=\{thread\}/);
+    assert.match(childSource, /Inactive: no active work in this child thread/);
+    assert.match(childSource, /group\/child-status/);
+    assert.match(childSource, /tabIndex=\{0\}/);
+    assert.match(childSource, /role="tooltip"/);
+  });
 });
