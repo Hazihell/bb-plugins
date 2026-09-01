@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:dccc16318a9be1b6e9ada27a64ec56960482520149e28a35fa6ee897c8b456ba",
+  "sourceDigest": "sha256:7a4d5368ec58b3b4005ba1783cd0d5dcea89340b9079b83e8f49ff0c19e042c4",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:80e14222045bcd6a3c6c46ad18c45abac9bdda9de44b23ab684934c3a80c2014"
+      "digest": "sha256:9450c7a0d3cbbeb73fc13c9cbc552c1b6fcaff703f8930c55fa0e838a29cd62c"
     },
     {
       "path": "LICENSE",
@@ -1125,8 +1125,8 @@
     },
     {
       "path": "plugins/touchbar/README.md",
-      "size": 6874,
-      "digest": "sha256:bd04ac72c66fb3f7950fd442c9245891ea2c1383fdb08205d965eb65bb9fa6fa"
+      "size": 6966,
+      "digest": "sha256:f4d9d63c9eb65e4786ae17fb88c437e2240db186d599313fd5cacfe9c8993216"
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
@@ -1214,19 +1214,24 @@
       "digest": "sha256:964f6c5853d718225c337ce28fb3bf9d39d0e002e7c4302e413f960a4b2c8141"
     },
     {
+      "path": "plugins/touchbar/native/Sources/MenuBarController.swift",
+      "size": 5226,
+      "digest": "sha256:35e74b1a904ae60471b9c1e5ba8e41f65cc6923d397c5888b55374bd1e4b6dff"
+    },
+    {
       "path": "plugins/touchbar/native/Sources/Support.swift",
       "size": 6397,
       "digest": "sha256:3852452a4be89fc91d66711d1039a2e9aa23d112c93dd889a6e152d79526f2ee"
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 54760,
-      "digest": "sha256:a0d0d325ed1cfca84dc482d2302ea4da2824633e814dda62b5a4fff5484c331e"
+      "size": 56033,
+      "digest": "sha256:2acbf92b5585e70b0af81cf4bc3ba0e4f492ff279b8dd049ddc21a903bca5e27"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
-      "size": 1775,
-      "digest": "sha256:43672980995b83b66581de4b720f0fb9f1fdc75eacd73bd4c1e9ec9dfadea481"
+      "size": 2068,
+      "digest": "sha256:ab2d0290f0ca095779c478e648f36754547ad9b35525096b03fa75a7314df8eb"
     },
     {
       "path": "plugins/touchbar/native/build.sh",
@@ -1285,8 +1290,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 12725,
-      "digest": "sha256:f9d6abd5f17170cd14ae65f8183dfeed112fef3c620565e633bb37a48137ce9f"
+      "size": 13314,
+      "digest": "sha256:b2d100db804ce0fba00e3e0bd32f83bf249facbff2e28588e43b763621eaf943"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1682,6 +1687,7 @@
         "plugins/touchbar/native/LICENSE.upstream",
         "plugins/touchbar/native/Sources/AgentModel.swift",
         "plugins/touchbar/native/Sources/BBTouchBarPrivate.h",
+        "plugins/touchbar/native/Sources/MenuBarController.swift",
         "plugins/touchbar/native/Sources/Support.swift",
         "plugins/touchbar/native/Sources/TouchBarController.swift",
         "plugins/touchbar/native/Sources/main.swift",
@@ -1727,7 +1733,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:dccc16318a9be1b6e9ada27a64ec56960482520149e28a35fa6ee897c8b456ba",
+      "sourceDigest": "sha256:7a4d5368ec58b3b4005ba1783cd0d5dcea89340b9079b83e8f49ff0c19e042c4",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1758,7 +1764,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:31aeba9af550512d0de49f33c4a64c0f46370a28f9491ef032c9eea1de381228",
+      "sourceDigest": "sha256:0862b3defaea2d92fad0b6d3129f7e3a6659441b78b470d47b569303e97ce5f5",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1819,5 +1825,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:614ff3aee712420cc96e4baecbc247adfef7a0be28e5022882ee892ab1791809"
+  "digest": "sha256:397d5c1686c4f3618b6155678b026bd2c4d7f0486efd3620175d62fd52e21032"
 }
