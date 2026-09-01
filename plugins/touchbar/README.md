@@ -105,12 +105,16 @@ Install and enable the repository's `host-monitor` plugin to populate the host
 cards; subscription usage comes directly from BB's provider usage API.
 
 Tap the slider button for grouped FILTERS, SUBSCRIPTIONS, and HOST MONITOR
-cards directly inside the Touch Bar. Each render creates fresh controls so
-AppKit never reparents live buttons. The menu-bar icon remains an optional
+cards directly inside the Touch Bar. Settings uses a separate native Touch Bar
+item and each render creates fresh controls, so AppKit never replaces or
+reparents the live thread lane. The menu-bar icon remains an optional
 second settings entry point. Toggle Usage and Host Monitor, choose Codex,
 Claude Code, and/or Cursor, and select the thread layout. These preferences
 persist per macOS user. Tap the computer icon to switch between threads and
 host metrics.
+
+Settings, Host Monitor, and X use fixed 34-point native controls to preserve
+space for cards while retaining explicit touch dispatch.
 
 Agent provider icons use Dockside's default semantic status border/accent:
 green working, amber needs-you/waiting, blue unread, red error, and gray

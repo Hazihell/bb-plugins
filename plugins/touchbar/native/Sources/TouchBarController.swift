@@ -3,6 +3,7 @@ import AppKit
 extension NSTouchBarItem.Identifier {
     static let bbStrip = NSTouchBarItem.Identifier("app.getbb.touchbar.strip")
     static let bbList = NSTouchBarItem.Identifier("app.getbb.touchbar.list")
+    static let bbSettingsPanel = NSTouchBarItem.Identifier("app.getbb.touchbar.settings-panel")
     static let bbSettings = NSTouchBarItem.Identifier("app.getbb.touchbar.settings")
     static let bbPriority = NSTouchBarItem.Identifier("app.getbb.touchbar.priority")
     static let bbProject = NSTouchBarItem.Identifier("app.getbb.touchbar.project")
@@ -566,6 +567,29 @@ private final class SettingsControlButton: NSButton {
     }
 }
 
+private final class CompactNativeButton: NSButton {
+    private let fixedWidth: CGFloat
+
+    init(title: String, width: CGFloat) {
+        fixedWidth = width
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 30))
+        self.title = title
+        refusesFirstResponder = true
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 30) }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard isEnabled, let action else { return }
+        NSApp.sendAction(action, to: target, from: self)
+    }
+}
+
 private final class SettingsGroupView: NSView {
     private let sectionLabel = NSTextField(labelWithString: "")
     private let controls: [SettingsControlButton]
@@ -723,6 +747,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let stripItem = NSCustomTouchBarItem(identifier: .bbStrip)
     private let stripButton = NSButton(title: "", target: nil, action: nil)
     private let panelItem = NSCustomTouchBarItem(identifier: .bbList)
+    private let settingsPanelItem = NSCustomTouchBarItem(identifier: .bbSettingsPanel)
     private let settingsItem = NSCustomTouchBarItem(identifier: .bbSettings)
     private let priorityItem = NSCustomTouchBarItem(identifier: .bbPriority)
     private let projectItem = NSCustomTouchBarItem(identifier: .bbProject)
@@ -738,7 +763,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let claudeToggleItem = NSCustomTouchBarItem(identifier: .bbClaudeToggle)
     private let cursorToggleItem = NSCustomTouchBarItem(identifier: .bbCursorToggle)
     private let closeItem = NSCustomTouchBarItem(identifier: .bbClose)
-    private let settingsButton = NSButton(title: "", target: nil, action: nil)
+    private let settingsButton = CompactNativeButton(title: "", width: 34)
     private let priorityButton = SettingsControlButton(title: "PRIORITY", width: 52)
     private let projectButton = SettingsControlButton(title: "PROJECT", width: 48)
     private let dockButton = SettingsControlButton(title: "DOCK", width: 36)
@@ -746,13 +771,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private let previousProjectButton = NSButton(title: "‹", target: nil, action: nil)
     private let nextProjectButton = NSButton(title: "›", target: nil, action: nil)
     private let usageIconsView = UsageIconStripView()
-    private let hostMonitorButton = NSButton(title: "", target: nil, action: nil)
+    private let hostMonitorButton = CompactNativeButton(title: "", width: 34)
     private let usageToggleButton = SettingsControlButton(title: "SHOW", width: 38)
     private let hostToggleButton = SettingsControlButton(title: "SHOW", width: 38)
     private let codexToggleButton = SettingsControlButton(title: "", width: 25)
     private let claudeToggleButton = SettingsControlButton(title: "", width: 25)
     private let cursorToggleButton = SettingsControlButton(title: "", width: 25)
-    private let closeButton = NSButton(title: "✕", target: nil, action: nil)
+    private let closeButton = CompactNativeButton(title: "✕", width: 34)
     private var panelTouchBar: NSTouchBar?
     private weak var panelScrollView: TouchBarScrollView?
     private var panelVisible = false
@@ -1118,7 +1143,9 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     private func panelIdentifiers() -> [NSTouchBarItem.Identifier] {
-        var identifiers: [NSTouchBarItem.Identifier] = [.bbList]
+        var identifiers: [NSTouchBarItem.Identifier] = [
+            configurationVisible ? .bbSettingsPanel : .bbList,
+        ]
         identifiers.append(.flexibleSpace)
         if !configurationVisible {
             if showUsage { identifiers.append(.bbUsage) }
@@ -1259,6 +1286,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     ) -> NSTouchBarItem? {
         switch identifier {
         case .bbList: return panelItem
+        case .bbSettingsPanel: return settingsPanelItem
         case .bbSettings: return settingsItem
         case .bbPriority: return priorityItem
         case .bbProject: return projectItem
@@ -1284,7 +1312,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         onScreenOrder = entries.map(\.id)
 
         if configurationVisible {
-            panelItem.view = scrollContainer(settingsGroups())
+            settingsPanelItem.view = scrollContainer(settingsGroups())
             return
         }
 
