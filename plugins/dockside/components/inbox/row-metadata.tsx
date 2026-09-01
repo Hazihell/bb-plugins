@@ -12,6 +12,7 @@ export function PullRequestMetadata({
   pullRequest: PluginSidebarPullRequest;
 }) {
   const presentation = pullRequestPresentation(pullRequest);
+  // Number first; the semantic PR icon deliberately owns the far-right edge.
   return (
     <UrlLink
       href={pullRequest.url}
@@ -20,27 +21,15 @@ export function PullRequestMetadata({
       aria-label={`${presentation.label} pull request ${pullRequest.number}: ${pullRequest.title}`}
       title={`${presentation.label}: ${pullRequest.title}`}
     >
+      <span className="shrink-0 font-mono text-muted-foreground/80">
+        #{pullRequest.number}
+      </span>
       <span
         className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass(presentation.tone)}`}
       >
         <Icon name={presentation.icon} className="size-3" aria-hidden />
       </span>
-      <span className="shrink-0 font-mono text-muted-foreground/80">
-        #{pullRequest.number}
-      </span>
     </UrlLink>
-  );
-}
-
-export function DoneMetadata() {
-  return (
-    <span
-      title="Done"
-      className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass("success")}`}
-    >
-      <Icon name="Check" className="size-3" aria-hidden />
-      <span className="sr-only">Done</span>
-    </span>
   );
 }
 

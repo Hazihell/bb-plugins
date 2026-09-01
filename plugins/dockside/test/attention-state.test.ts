@@ -8,12 +8,11 @@ import {
 } from "../lib/attention-state.ts";
 
 describe("attention-first secondary state", () => {
-  it("selects family work before PR and Done on roots", () => {
+  it("selects family work before PR on roots", () => {
     assert.equal(
       rootSecondaryState({
         waitingForAgents: true,
         hasPullRequest: true,
-        hasDone: true,
       }),
       "agents-working",
     );
@@ -21,17 +20,8 @@ describe("attention-first secondary state", () => {
       rootSecondaryState({
         waitingForAgents: false,
         hasPullRequest: true,
-        hasDone: true,
       }),
       "pull-request",
-    );
-    assert.equal(
-      rootSecondaryState({
-        waitingForAgents: false,
-        hasPullRequest: false,
-        hasDone: true,
-      }),
-      "done",
     );
   });
 
@@ -64,7 +54,6 @@ describe("attention-first secondary state", () => {
       rootSecondaryState({
         waitingForAgents: false,
         hasPullRequest: false,
-        hasDone: false,
       }),
       null,
     );

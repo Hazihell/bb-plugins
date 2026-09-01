@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 2,
+  "previousDigest": "sha256:c345262586da6ebd233193b1716bd87152d1c37921fe61986702e202e1076b29",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Specified PR-only check semantics, number-then-icon right-edge order, removal of all ordinary completion UI/output fetching, complete PR icon vocabulary, preservation boundaries, risks, verification, and two modified capability requirements.",
+  "createdAt": "2026-09-01T01:12:32.718Z",
+  "stateBeforeDigest": "sha256:7d45ef2afba351e4d1c30cdbc1a35b9c3d2aab21e715bcc1eaab6ffed05f9ca0",
+  "stateAfterDigest": "sha256:c75adba5e8970c8a213ff40c881b61a817f5417b177b6fdde5f23d8fcc1bcddf",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 2,
+    "activeFeature": "dockside-pr-only-check-icons",
+    "request": "Remove Dockside completion checks from every ordinary no-PR thread; Done should not render anywhere because it is visually confused with PR approval. Preserve PR state only as #number followed by its semantic colored icon at the far right of the branch line, with state/title in accessibility and tooltip context. Keep provider marks after child count and first on quiet children, preserve activity/status glyphs, filters, hierarchy, deletion, project creation, navigation, and compact layout.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "design",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Specified PR-only check semantics, number-then-icon right-edge order, removal of all ordinary completion UI/output fetching, complete PR icon vocabulary, preservation boundaries, risks, verification, and two modified capability requirements.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:1af876918267a30d9aa0e46ce97cf58b9d173611dc079659fa0cd5a97439f31b",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:9762457cd1a08bf4c40a676893340b48cace9d74ff6a1e5643a58f1520e07f86",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-pr-only-check-icons-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T01:12:32.718Z"
+  },
+  "digest": "sha256:c43d51c682748d6c9fbf3ad18df9637a17760fe96c13794e11c4e3f7e9ed0757"
+}

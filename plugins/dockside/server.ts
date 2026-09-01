@@ -14,11 +14,6 @@ import { z } from "zod";
 import { parseArchivedThreadIds } from "./lib/lifecycle.ts";
 import { isWithinSettledWindow } from "./lib/settled-threads.ts";
 import {
-  BoundedThreadSummaryCache,
-  FINAL_SUMMARY_MAX_CHARS,
-  normalizeFinalOutput,
-} from "./lib/thread-summary.ts";
-import {
   createBulkDeleteCoordinator,
   MAX_BULK_DELETE_ROOTS,
   MAX_BULK_DELETE_THREADS,
@@ -111,23 +106,6 @@ const selectedThreadIdsSchema = z
   .refine((ids) => new Set(ids).size === ids.length, {
     message: "A root thread can be selected only once.",
   });
-const threadSummaryRequestSchema = z
-  .object({
-    threadId: z.string().trim().min(1),
-    updatedAt: z.number().int().nonnegative(),
-  })
-  .strict();
-const threadSummaryRequestsSchema = z
-  .array(threadSummaryRequestSchema)
-  .min(1)
-  .max(50)
-  .refine(
-    (requests) =>
-      new Set(requests.map(({ threadId }) => threadId)).size ===
-      requests.length,
-    { message: "A thread can be requested only once per batch." },
-  );
-
 export const docksideRpcContract = defineRpcContract({
   listProviders: {
     input: z.object({}),
@@ -153,22 +131,6 @@ export const docksideRpcContract = defineRpcContract({
         }),
       ),
     }),
-  },
-  listThreadSummaries: {
-    input: z.object({ threads: threadSummaryRequestsSchema }).strict(),
-    output: z
-      .object({
-        summaries: z.array(
-          z
-            .object({
-              threadId: z.string(),
-              updatedAt: z.number().int().nonnegative(),
-              text: z.string().max(FINAL_SUMMARY_MAX_CHARS).nullable(),
-            })
-            .strict(),
-        ),
-      })
-      .strict(),
   },
   // The settled shelf's own rows. bb's sidebar view is built from queries
   // pinned to `archived: false`, so a settled — and therefore archived —
@@ -260,7 +222,6 @@ export const LIFECYCLE_CHANNEL = "lifecycle";
 export default function plugin(bb: BbPluginApi) {
   const db = bb.storage.database();
   bb.storage.migrate(db, migrations);
-  const threadSummaryCache = new BoundedThreadSummaryCache(200);
 
   const readAll = (): StoredLifecycleRow[] =>
     (
@@ -516,35 +477,6 @@ export default function plugin(bb: BbPluginApi) {
     },
   });
 
-  const readThreadSummary = async (
-    threadId: string,
-    updatedAt: number,
-  ): Promise<string | null> => {
-    const cached = threadSummaryCache.get(threadId, updatedAt);
-    if (cached.found) return cached.text;
-
-    let text: string | null = null;
-    try {
-      const thread = await bb.sdk.threads.get({ threadId });
-      const hasFinalState =
-        thread.status === "idle" || thread.status === "error";
-      if (
-        thread.deletedAt === null &&
-        thread.updatedAt === updatedAt &&
-        hasFinalState
-      ) {
-        const output = await bb.sdk.threads.output({ threadId });
-        text = normalizeFinalOutput(output.output);
-      }
-    } catch {
-      // This is optional row metadata. Missing or stale threads stay quiet;
-      // their next timestamp produces a new cache key and another safe read.
-    }
-
-    threadSummaryCache.set(threadId, updatedAt, text);
-    return text;
-  };
-
   bb.rpc.register(docksideRpcContract, {
     // A custom ACP provider already carries its own brand mark, so the sidebar
     // reads it from the host rather than hard-coding a second glyph per agent.
@@ -560,17 +492,6 @@ export default function plugin(bb: BbPluginApi) {
     },
     async listLifecycle() {
       return { rows: readAll() };
-    },
-    async listThreadSummaries({ threads }) {
-      const summaries = [];
-      for (const { threadId, updatedAt } of threads) {
-        summaries.push({
-          threadId,
-          updatedAt,
-          text: await readThreadSummary(threadId, updatedAt),
-        });
-      }
-      return { summaries };
     },
     /**
      * The archived threads this plugin settled in the last day, and only
@@ -703,7 +624,6 @@ export default function plugin(bb: BbPluginApi) {
   // A deleted thread must not leave a row behind that would park a future
   // thread reusing the id, and stale rows accumulate otherwise.
   bb.events.on("thread.deleted", ({ thread }) => {
-    threadSummaryCache.deleteThread(thread.id);
     clear(thread.id);
   });
 

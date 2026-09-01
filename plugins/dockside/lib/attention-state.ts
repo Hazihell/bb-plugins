@@ -1,6 +1,8 @@
+import type { PluginSidebarThread } from "@bb/plugin-sdk";
+import { threadIsWorking } from "./inbox.ts";
+
 export type RowSecondaryState =
   | "agents-working"
-  | "done"
   | "pull-request"
   | "status"
   | null;
@@ -15,16 +17,19 @@ export type SemanticStateTone =
 export function rootSecondaryState({
   waitingForAgents,
   hasPullRequest,
-  hasDone,
 }: {
   waitingForAgents: boolean;
   hasPullRequest: boolean;
-  hasDone: boolean;
 }): RowSecondaryState {
   if (waitingForAgents) return "agents-working";
   if (hasPullRequest) return "pull-request";
-  if (hasDone) return "done";
   return null;
+}
+
+export function familyWaitingForAgents(
+  children: readonly PluginSidebarThread[],
+): boolean {
+  return children.some(threadIsWorking);
 }
 
 export function childSecondaryState({

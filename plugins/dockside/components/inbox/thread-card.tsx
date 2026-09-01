@@ -15,18 +15,16 @@ import {
 import { StatusGlyph } from "@/components/inbox/status-glyph";
 import { threadStatus } from "@/components/inbox/status-slot";
 import {
-  DoneMetadata,
   PullRequestMetadata,
   WaitingForAgentsMetadata,
 } from "@/components/inbox/row-metadata";
-import { useThreadSummaries } from "@/hooks/use-thread-summaries";
 import {
   childSecondaryState,
+  familyWaitingForAgents,
   rootSecondaryState,
 } from "@/lib/attention-state";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
-import { familyWaitingForAgents } from "@/lib/thread-summary";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
@@ -70,8 +68,7 @@ export function ThreadCard({
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
-  const { isLoading: isPullRequestLoading, pullRequest } =
-    useSidebarThreadPullRequest(thread.id);
+  const { pullRequest } = useSidebarThreadPullRequest(thread.id);
   const childListId = useId();
   const [expandedOverride, setExpandedOverride] = useState<boolean | null>(
     null,
@@ -92,8 +89,6 @@ export function ThreadCard({
     override: expandedOverride,
   });
   const waitingForAgents = familyWaitingForAgents(childThreads);
-  const summaryThreads = useMemo(() => [thread], [thread]);
-  const summaries = useThreadSummaries(summaryThreads);
   const childProviderIds = useMemo(
     () => [...new Set(childThreads.map((child) => child.providerId))].slice(0, 2),
     [childThreads],
@@ -101,7 +96,6 @@ export function ThreadCard({
   const secondaryState = rootSecondaryState({
     waitingForAgents,
     hasPullRequest: pullRequest !== null,
-    hasDone: !isPullRequestLoading && summaries.has(thread.id),
   });
   const rootIsActive = thread.id === activeThreadId;
 
@@ -200,8 +194,6 @@ export function ThreadCard({
                   <WaitingForAgentsMetadata />
                 ) : secondaryState === "pull-request" && pullRequest ? (
                   <PullRequestMetadata pullRequest={pullRequest} />
-                ) : secondaryState === "done" ? (
-                  <DoneMetadata />
                 ) : null}
                 {thread.activity.workflows > 0 ? (
                   <ActivityCount

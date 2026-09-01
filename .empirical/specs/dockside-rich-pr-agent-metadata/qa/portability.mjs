@@ -67,18 +67,16 @@ try {
   for (const required of [
     "server.ts",
     "app.tsx",
-    "lib/thread-summary.ts",
+    "lib/attention-state.ts",
     "lib/pull-request-presentation.ts",
-    "hooks/use-thread-summaries.ts",
     "components/inbox/row-metadata.tsx",
   ]) {
     assert.match(packed, new RegExp(required.replaceAll("/", "\\/")));
   }
 
   const portabilitySources = [
-    "plugins/dockside/lib/thread-summary.ts",
+    "plugins/dockside/lib/attention-state.ts",
     "plugins/dockside/lib/pull-request-presentation.ts",
-    "plugins/dockside/hooks/use-thread-summaries.ts",
   ].map((path) => readFileSync(join(checkout, path), "utf8"));
   for (const source of portabilitySources) {
     assert.doesNotMatch(source, /process\.platform|node:child_process|node:os/);

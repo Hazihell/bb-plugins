@@ -55,7 +55,7 @@
         "id": "dockside-system",
       "argv": [
         "node",
-        ".empirical/specs/dockside-icon-only-agent-states/qa/system.mjs"
+        ".empirical/specs/dockside-pr-only-check-icons/qa/system.mjs"
       ],
         "cwd": ".",
         "timeoutMs": 60000,
