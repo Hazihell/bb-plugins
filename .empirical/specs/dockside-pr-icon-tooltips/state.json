@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 6,
+  "revision": 7,
   "activeFeature": "dockside-pr-icon-tooltips",
   "request": "Finish Dockside PR presentation now: keep compact visible #number followed by semantic PR-state icon at the far right; use an eye icon for In review, check for Ready/Merged, x for Changes/Blocked/Closed, spinner for Checks, branch for Open/Draft; add a real hover/focus tooltip showing state, PR number, and title; never show generic completion checks on ordinary threads; preserve provider identity and all management/layout behavior.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "verify",
+  "phase": "review",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Refreshed repository knowledge after Eye mapping and PR tooltip UI; context is current without stale, missing, invalid, or refinement-required topics.",
+  "message": "Verified semantic PR icon tooltips with exhaustive mapping tests, fault/type/system/clean portability receipts, themed hover/focus source/runtime checks, browser layout evidence, fresh-context QA, and security/UI advisories.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:acdafcaa0d34abe3cf75a8935f762ae3e7e06f4a4f5c929126b59917baea3749",
@@ -20,21 +20,28 @@
   "capabilityClaimId": "dockside-pr-icon-tooltips-b40841a02be2",
   "authorizationDigest": null,
   "evidence": [],
-  "evidenceReceiptIds": [],
+  "evidenceReceiptIds": [
+    "qa-afada1d3535efab9f8a9a8f4",
+    "qa-8f75a1b498b230bc73e0a2ba",
+    "qa-f571f55b769c79469bcb857a",
+    "qa-edd998e0a41408a577344179",
+    "qa-f526683ca6fb9c92274d4fd8",
+    "qa-0aea918204f125b2f43b4ff3",
+    "collected-46b00247a8e512245cbf03dc"
+  ],
   "legacyEvidenceCount": 0,
   "completion": {
     "implemented": true,
-    "verified": false,
+    "verified": true,
     "integrated": false,
     "delivered": false,
     "published": false,
-    "highest": "implemented",
+    "highest": "verified",
     "reasons": {
-      "verified": "verified has not been proven by a durable receipt.",
       "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T01:47:11.129Z"
+  "updatedAt": "2026-09-01T01:51:03.367Z"
 }
