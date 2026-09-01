@@ -101,7 +101,16 @@ test("package includes every companion and excludes a frontend entry", () => {
 
 test("native app owns the Control Strip and fullscreen panel without physical stop", () => {
   const native = join(root, "native");
-  for (const script of ["build.sh", "install.sh", "run.sh", "uninstall.sh"]) {
+  for (const script of [
+    "build.sh",
+    "install.sh",
+    "run.sh",
+    "uninstall.sh",
+    "package.sh",
+    "homebrew-install.sh",
+    "homebrew-uninstall.sh",
+    "test-homebrew.sh",
+  ]) {
     execFileSync("/bin/bash", ["-n", join(native, script)]);
   }
 
@@ -112,6 +121,13 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   const main = readFileSync(join(native, "Sources/main.swift"), "utf8");
   const build = readFileSync(join(native, "build.sh"), "utf8");
   const installer = readFileSync(join(native, "install.sh"), "utf8");
+  const packager = readFileSync(join(native, "package.sh"), "utf8");
+  const brewInstaller = readFileSync(join(native, "homebrew-install.sh"), "utf8");
+  const brewUninstaller = readFileSync(join(native, "homebrew-uninstall.sh"), "utf8");
+  const cask = readFileSync(
+    join(root, "..", "..", "Casks", "bb-touch-bar.rb"),
+    "utf8",
+  );
 
   assert.match(header, /addSystemTrayItem/u);
   assert.match(header, /presentSystemModalTouchBar/u);
@@ -208,6 +224,16 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(main, /applicationWillTerminate/u);
   assert.match(build, /DFRFoundation/u);
   assert.match(build, /codesign --force --sign -/u);
+  assert.match(build, /BB_TOUCHBAR_SIGN_IDENTITY/u);
+  assert.match(packager, /BBTouchBar-\$VERSION-universal\.zip/u);
+  assert.match(packager, /notarytool submit/u);
+  assert.match(packager, /stapler staple/u);
+  assert.match(brewInstaller, /launchctl bootstrap/u);
+  assert.match(brewUninstaller, /launchctl bootout/u);
+  assert.match(cask, /cask "bb-touch-bar"/u);
+  assert.match(cask, /app "package-#\{version\}\/BBTouchBar\.app"/u);
+  assert.match(cask, /postflight do/u);
+  assert.doesNotMatch(cask, /RELEASE_SHA256/u);
   assert.match(installer, /app\.getbb\.touchbar\.native\.plist/u);
   assert.match(installer, /launchctl bootstrap/u);
 });

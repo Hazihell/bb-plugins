@@ -7,6 +7,18 @@ APP="$BUILD/BBTouchBar.app"
 MACOS_DIR="$APP/Contents/MacOS"
 RESOURCES="$APP/Contents/Resources"
 DEPLOY_TARGET="11.0"
+VERSION="${BB_TOUCHBAR_VERSION:-0.1.0}"
+BUILD_NUMBER="${BB_TOUCHBAR_BUILD_NUMBER:-1}"
+SIGN_IDENTITY="${BB_TOUCHBAR_SIGN_IDENTITY:--}"
+
+[[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9.-]+)?$ ]] || {
+  printf 'error: invalid app version %s\n' "$VERSION" >&2
+  exit 1
+}
+[[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || {
+  printf 'error: invalid build number %s\n' "$BUILD_NUMBER" >&2
+  exit 1
+}
 
 rm -rf "$APP"
 mkdir -p "$MACOS_DIR" "$RESOURCES"
@@ -45,7 +57,7 @@ else
 fi
 rm -f "${slices[@]}"
 
-cat > "$APP/Contents/Info.plist" <<'PLIST'
+cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -55,8 +67,8 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
   <key>CFBundleName</key><string>BBTouchBar</string>
   <key>CFBundleDisplayName</key><string>BB Touch Bar</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.1.0</string>
-  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleShortVersionString</key><string>$VERSION</string>
+  <key>CFBundleVersion</key><string>$BUILD_NUMBER</string>
   <key>LSUIElement</key><true/>
   <key>LSMinimumSystemVersion</key><string>11.0</string>
   <key>NSHighResolutionCapable</key><true/>
@@ -67,6 +79,10 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 PLIST
 
 plutil -lint "$APP/Contents/Info.plist" >/dev/null
-codesign --force --sign - --timestamp=none "$APP"
+if [ "$SIGN_IDENTITY" = "-" ]; then
+  codesign --force --sign - --timestamp=none "$APP"
+else
+  codesign --force --options runtime --sign "$SIGN_IDENTITY" --timestamp "$APP"
+fi
 codesign --verify --deep --strict "$APP"
 printf 'built %s\n' "$APP"
