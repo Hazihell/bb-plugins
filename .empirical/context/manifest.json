@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:e82189722d7dd855b8802bdd7b4fceb67ac426ff02c8100d86d1e960c2c01975",
+  "sourceDigest": "sha256:dccc16318a9be1b6e9ada27a64ec56960482520149e28a35fa6ee897c8b456ba",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -81,7 +81,7 @@
     {
       "path": "README.md",
       "size": 12269,
-      "digest": "sha256:cca194712ccc1ebdb2ca764dc619412cd4cd506fd02c4225e9691e3c9fd5ee3d"
+      "digest": "sha256:fd374edcd1b6bc4c3e91754aa0429655cb9cbd670b76e6377cb6b790e04b4d8a"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -140,8 +140,8 @@
     },
     {
       "path": "plugins/action-topbar/assets/icon.svg",
-      "size": 460,
-      "digest": "sha256:72a9f6b3e82967f342cbaa2ebd8a9b60617a32d2fb779a01f0dbc7fdee7832d6"
+      "size": 476,
+      "digest": "sha256:6b853b325f8e8375fa4de171eed4ce210f608c63479410882364516bebc54678"
     },
     {
       "path": "plugins/action-topbar/lib/action-catalog.ts",
@@ -220,8 +220,8 @@
     },
     {
       "path": "plugins/dockside/assets/icon.svg",
-      "size": 578,
-      "digest": "sha256:0a2df40e80832cbbb1903db6a4e57b17cd6882bcc8cb50f190c24bcffebfcc96"
+      "size": 581,
+      "digest": "sha256:5e9f48f9cf7ba0481b3bf4825d931e6f90c694b096eb1b9eee573db15c527db8"
     },
     {
       "path": "plugins/dockside/assets/logo-dark.svg",
@@ -560,8 +560,8 @@
     },
     {
       "path": "plugins/host-monitor/assets/icon.svg",
-      "size": 975,
-      "digest": "sha256:112563319707acd7e766717b06a7e2dad369234ff398acae4fa02543e2f19381"
+      "size": 978,
+      "digest": "sha256:0f3b0a93a39641605b8f725b9b884adfd110e9685001fe9bfb9e71c231bec058"
     },
     {
       "path": "plugins/host-monitor/assets/logo-dark.svg",
@@ -791,7 +791,7 @@
     {
       "path": "plugins/save-my-model/assets/icon.svg",
       "size": 260,
-      "digest": "sha256:16cfc7bf22d8d2ed78efbec61ff5c136fb0fffd75be763170501fa7602dd1347"
+      "digest": "sha256:c51e37f877b54a14dc908b71966c4333f269f3b936e559501ec4a1a6f0737e0e"
     },
     {
       "path": "plugins/save-my-model/lib/preferences.ts",
@@ -1350,8 +1350,8 @@
     },
     {
       "path": "plugins/usage-tracker/assets/icon.svg",
-      "size": 1760,
-      "digest": "sha256:cc9ae5bda3c9f538a8f1029ce0bb3df14a1f77aca61d9e150c42a03a1aefb38c"
+      "size": 1763,
+      "digest": "sha256:3b8940e64aaa1d34e53e48a7a8bd49f385a1c347508262ddb3cb58594e006dc6"
     },
     {
       "path": "plugins/usage-tracker/assets/logo-dark.svg",
@@ -1727,7 +1727,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:e82189722d7dd855b8802bdd7b4fceb67ac426ff02c8100d86d1e960c2c01975",
+      "sourceDigest": "sha256:dccc16318a9be1b6e9ada27a64ec56960482520149e28a35fa6ee897c8b456ba",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1758,7 +1758,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:82fa2b9fc62e5ff45a1ec72e74259018c0330feaf768ee8f8277e2af05c791d4",
+      "sourceDigest": "sha256:31aeba9af550512d0de49f33c4a64c0f46370a28f9491ef032c9eea1de381228",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1819,5 +1819,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:be79d7ae8d163344c04a0e8c4d8f1af35ebc7086f0d1a17bd73270e943b40ed2"
+  "digest": "sha256:614ff3aee712420cc96e4baecbc247adfef7a0be28e5022882ee892ab1791809"
 }
