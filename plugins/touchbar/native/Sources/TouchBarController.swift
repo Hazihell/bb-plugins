@@ -544,13 +544,13 @@ private final class UsageIconStripView: NSView {
 
 private final class SettingsControlButton: NSButton {
     private let fixedWidth: CGFloat
+    var drawsLightImageTile = false
 
     init(title: String, width: CGFloat) {
         fixedWidth = width
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: 17))
         self.title = title
-        isBordered = true
-        bezelStyle = .texturedRounded
+        isBordered = false
         refusesFirstResponder = true
     }
 
@@ -564,6 +564,47 @@ private final class SettingsControlButton: NSButton {
     override func mouseDown(with event: NSEvent) {
         guard isEnabled, let action else { return }
         NSApp.sendAction(action, to: target, from: self)
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        let fill = bezelColor ?? NSColor(white: 0.18, alpha: 1)
+        fill.setFill()
+        let shape = NSBezierPath(roundedRect: bounds, xRadius: 4, yRadius: 4)
+        shape.fill()
+        NSColor.white.withAlphaComponent(0.16).setStroke()
+        shape.lineWidth = 1
+        shape.stroke()
+
+        if let image {
+            let imageRect = NSRect(
+                x: floor((bounds.width - 13) / 2), y: 2,
+                width: 13, height: 13
+            )
+            if drawsLightImageTile {
+                NSColor.white.setFill()
+                NSBezierPath(roundedRect: imageRect, xRadius: 3, yRadius: 3).fill()
+            }
+            image.draw(
+                in: imageRect,
+                from: .zero,
+                operation: .sourceOver,
+                fraction: isEnabled ? 1 : 0.4
+            )
+        } else {
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font ?? NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold),
+                .foregroundColor: NSColor.white,
+            ]
+            let string = title as NSString
+            let size = string.size(withAttributes: attributes)
+            string.draw(
+                at: NSPoint(
+                    x: floor((bounds.width - size.width) / 2),
+                    y: floor((bounds.height - size.height) / 2)
+                ),
+                withAttributes: attributes
+            )
+        }
     }
 }
 
@@ -591,11 +632,12 @@ private final class CompactNativeButton: NSButton {
 }
 
 private final class SettingsGroupView: NSView {
-    private let sectionLabel = NSTextField(labelWithString: "")
+    private let sectionTitle: String
     private let controls: [SettingsControlButton]
     private let measuredWidth: CGFloat
 
     init(title: String, controls: [SettingsControlButton]) {
+        sectionTitle = title
         self.controls = controls
         measuredWidth = controls.reduce(CGFloat(8)) { $0 + $1.intrinsicContentSize.width } +
             CGFloat(max(controls.count - 1, 0) * 3)
@@ -605,10 +647,6 @@ private final class SettingsGroupView: NSView {
         layer?.borderWidth = 1
         layer?.borderColor = NSColor(white: 0.30, alpha: 0.9).cgColor
         layer?.backgroundColor = NSColor(white: 0.045, alpha: 0.98).cgColor
-        sectionLabel.stringValue = title
-        sectionLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
-        sectionLabel.textColor = NSColor(white: 0.62, alpha: 1)
-        addSubview(sectionLabel)
         for control in controls { addSubview(control) }
         setAccessibilityLabel("\(title) settings")
     }
@@ -618,13 +656,24 @@ private final class SettingsGroupView: NSView {
 
     override func layout() {
         super.layout()
-        sectionLabel.frame = NSRect(x: 6, y: 20, width: bounds.width - 12, height: 7)
         var x: CGFloat = 4
         for control in controls {
             let width = control.intrinsicContentSize.width
             control.frame = NSRect(x: x, y: 1, width: width, height: 17)
             x += width + 3
         }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 5.5, weight: .bold),
+            .foregroundColor: NSColor(white: 0.68, alpha: 1),
+        ]
+        (sectionTitle as NSString).draw(
+            at: NSPoint(x: 6, y: 20),
+            withAttributes: attributes
+        )
     }
 }
 
@@ -1465,6 +1514,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         button.image = ProviderIcon.image(for: provider)
         button.imagePosition = .imageOnly
         button.imageScaling = .scaleProportionallyDown
+        button.drawsLightImageTile = provider == "cursor"
         return button
     }
 
