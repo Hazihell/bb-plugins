@@ -25,6 +25,7 @@
 | <img src="./plugins/host-monitor/assets/icon.svg" width="64" height="64" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
 | <img src="./plugins/save-my-model/assets/icon.svg" width="64" height="64" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="64" height="64" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
+| <img src="./plugins/touchbar/assets/icon.svg" width="64" height="64" alt="" /> | [Touch Bar Agent Monitor](./plugins/touchbar) | [Git release](#touch-bar-agent-monitor-quick-start) | Adds a native persistent Control Strip badge and fullscreen BB agent panel to Touch Bar Macs. Requires BB 0.40+. |
 | <img src="./plugins/usage-tracker/assets/icon.svg" width="64" height="64" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
 
 ## Action Topbar experimental install
@@ -68,6 +69,24 @@ Update or remove a local installation with BB:
 bb plugin reload dockside
 bb plugin remove dockside
 ```
+
+## Touch Bar Agent Monitor quick start
+
+Install the plugin on the BB server, then build and install the open-source
+native app on the Touch Bar Mac:
+
+```sh
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.0 --subdirectory plugins/touchbar --tag-prefix touchbar/
+bb touchbar snapshot --pretty
+./plugins/touchbar/native/install.sh
+```
+
+The native background app keeps a BB badge in the Control Strip. Tap it to open
+a fullscreen, horizontally scrollable row of live agent cards; tap a card to
+open its exact BB thread, and use ✕ to collapse. It is source-built, ad-hoc
+signed, has no license service, and starts at login. See the [Touch Bar Agent
+Monitor README](./plugins/touchbar) for installation, privacy, private-API
+limitations, controls, and removal.
 
 ## Host Monitor quick start
 
@@ -219,6 +238,7 @@ npm run build
 bb plugin install ./plugins/dockside
 bb plugin install ./plugins/host-monitor
 bb plugin install ./plugins/taskboard
+bb plugin install ./plugins/touchbar
 bb plugin install ./plugins/usage-tracker
 ```
 
@@ -231,6 +251,7 @@ npm run build
 bb plugin reload dockside
 bb plugin reload host-monitor
 bb plugin reload taskboard
+bb plugin reload touchbar
 bb plugin reload usage-tracker
 ```
 
@@ -241,10 +262,11 @@ plugin can also be installed straight from Git:
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@feature/dockside-thread-filters-bulk-delete --plugin dockside
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin host-monitor
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin taskboard
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin touchbar
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin usage-tracker
 ```
 
-Host Monitor, Taskboard, and Usage Tracker release through immutable
+Host Monitor, Taskboard, Touch Bar Agent Monitor, and Usage Tracker release through immutable
 plugin-specific Git tags and the BB Community marketplace. Dockside remains a
 branch installation until PR #26 lands and a release is prepared.
 

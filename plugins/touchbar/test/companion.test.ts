@@ -1,0 +1,163 @@
+import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import test from "node:test";
+import { fileURLToPath } from "node:url";
+
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const companion = join(root, "companion");
+
+test("BetterTouchTool preset is global, persistent, bounded, and action-safe", () => {
+  const preset = JSON.parse(
+    readFileSync(join(companion, "BB-Agent-Monitor.bttpreset"), "utf8"),
+  ) as {
+    BTTPresetName: string;
+    BTTPresetContent: Array<{
+      BTTAppBundleIdentifier: string;
+      BTTTriggers: Array<{
+        BTTTriggerType: number;
+        BTTTriggerConfig: Record<string, unknown>;
+        BTTActionsToExecute: Array<Record<string, unknown>>;
+      }>;
+    }>;
+  };
+
+  assert.equal(preset.BTTPresetName, "BB Agent Monitor");
+  assert.equal(preset.BTTPresetContent.length, 1);
+  const global = preset.BTTPresetContent[0]!;
+  assert.equal(global.BTTAppBundleIdentifier, "BT.G");
+  assert.equal(global.BTTTriggers.length, 4);
+  for (const trigger of global.BTTTriggers) {
+    assert.equal(trigger.BTTTriggerType, 642);
+    assert.equal(trigger.BTTTriggerConfig.BTTTouchBarAlwaysShowButton, 1);
+    assert.equal(trigger.BTTTriggerConfig.BTTTouchBarScriptUpdateInterval, 2);
+    assert.match(
+      String(trigger.BTTTriggerConfig.BTTTouchBarShellScriptString),
+      /BBTouchBar\/bb-touchbar" card/u,
+    );
+    assert.equal(trigger.BTTActionsToExecute.length, 1);
+    assert.equal(trigger.BTTActionsToExecute[0]?.BTTPredefinedActionType, 206);
+    assert.match(
+      String(trigger.BTTActionsToExecute[0]?.BTTShellTaskActionScript),
+      /open-card [0-2]/u,
+    );
+    assert.doesNotMatch(
+      String(trigger.BTTActionsToExecute[0]?.BTTShellTaskActionScript),
+      /\bstop\b/u,
+    );
+  }
+});
+
+test("companion scripts are POSIX-shell parseable and avoid eval", () => {
+  for (const name of ["bb-touchbar.sh", "install.sh"]) {
+    const path = join(companion, name);
+    execFileSync("/bin/sh", ["-n", path]);
+    assert.doesNotMatch(readFileSync(path, "utf8"), /\beval\b/u);
+  }
+  const installer = readFileSync(join(companion, "install.sh"), "utf8");
+  assert.match(installer, /BetterTouchTool\/Plugins/u);
+  assert.match(installer, /BBTouchBar\.swift/u);
+  assert.match(installer, /Compile & Load/u);
+  assert.match(installer, /--preset/u);
+});
+
+test("Swift source plugin renders native status cards with safe BB actions", () => {
+  const source = readFileSync(join(companion, "BBTouchBar.swift"), "utf8");
+  assert.match(source, /BTT-Plugin-Type: TouchBar/u);
+  assert.match(source, /BTTPluginInterface/u);
+  assert.match(source, /process\.executableURL/u);
+  assert.match(source, /process\.arguments = arguments/u);
+  assert.match(source, /\["touchbar", "open", threadId\]/u);
+  assert.match(source, /Date\(\) < deadline/u);
+  assert.match(source, /AgentCardView/u);
+  assert.match(source, /BBStripButton/u);
+  assert.match(source, /func touchBarButton\(\) -> NSButton\?/u);
+  assert.match(source, /func touchBarViewController\(\) -> NSViewController\? \{ nil \}/u);
+  assert.match(source, /class func configurationFormItems/u);
+  assert.match(source, /\[AnyHashable: Any\]/u);
+  assert.match(source, /override func mouseDown/u);
+  assert.match(source, /badgeField/u);
+  assert.match(source, /accentLayer/u);
+  assert.match(source, /BB Agent Monitor/u);
+  assert.match(source, /RUN/u);
+  assert.match(source, /IDLE/u);
+  assert.match(source, /INPUT/u);
+  assert.match(source, /Application Support\/BBTouchBar\/bb-path/u);
+  assert.match(source, /thread\.providerId\.uppercased\(\)/u);
+  assert.doesNotMatch(source, /DFRFoundation|TouchBarServer|\/bin\/(?:ba|z)?sh/u);
+});
+
+test("package includes every companion and excludes a frontend entry", () => {
+  const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as {
+    bb: Record<string, unknown>;
+    files: string[];
+  };
+  assert.equal(manifest.bb.app, undefined);
+  assert.ok(manifest.files.includes("companion/"));
+  assert.ok(manifest.files.includes("native/"));
+  assert.ok(manifest.files.includes("assets/"));
+});
+
+test("native app owns the Control Strip and fullscreen panel without physical stop", () => {
+  const native = join(root, "native");
+  for (const script of ["build.sh", "install.sh", "run.sh", "uninstall.sh"]) {
+    execFileSync("/bin/bash", ["-n", join(native, script)]);
+  }
+
+  const header = readFileSync(join(native, "Sources/BBTouchBarPrivate.h"), "utf8");
+  const controller = readFileSync(join(native, "Sources/TouchBarController.swift"), "utf8");
+  const model = readFileSync(join(native, "Sources/AgentModel.swift"), "utf8");
+  const support = readFileSync(join(native, "Sources/Support.swift"), "utf8");
+  const main = readFileSync(join(native, "Sources/main.swift"), "utf8");
+  const build = readFileSync(join(native, "build.sh"), "utf8");
+  const installer = readFileSync(join(native, "install.sh"), "utf8");
+
+  assert.match(header, /addSystemTrayItem/u);
+  assert.match(header, /presentSystemModalTouchBar/u);
+  assert.match(controller, /DFRElementSetControlStripPresenceForIdentifier/u);
+  assert.match(controller, /dismissSystemModalTouchBar/u);
+  assert.match(controller, /minimizeSystemModalTouchBar/u);
+  assert.doesNotMatch(controller, /SummaryButton|labelWithString: "BB"/u);
+  assert.match(controller, /hasHorizontalScroller = false/u);
+  assert.match(controller, /GroupDividerView/u);
+  assert.match(controller, /project\.localizedCaseInsensitiveCompare/u);
+  assert.doesNotMatch(controller, /detailLabel|ProviderIcon\.label\(for: entry\.provider\)/u);
+  assert.match(controller, /ProjectInitialBadge/u);
+  assert.match(controller, /case \.done: return "UNREAD"/u);
+  assert.match(controller, /enum SortMode/u);
+  assert.match(controller, /BBTouchBarSortMode/u);
+  assert.match(controller, /settingsTapped/u);
+  assert.match(controller, /slider\.horizontal\.3/u);
+  assert.match(controller, /schedulePanelRender/u);
+  assert.match(controller, /DispatchQueue\.main\.async/u);
+  assert.doesNotMatch(controller, /⚙/u);
+  assert.match(controller, /priorityTapped/u);
+  assert.match(controller, /projectSortTapped/u);
+  assert.match(controller, /private final class GroupDividerView: NSButton/u);
+  assert.match(controller, /threadId: entry\.id/u);
+  assert.match(controller, /action: #selector\(agentTapped/u);
+  assert.match(controller, /CompactControlButton/u);
+  assert.match(controller, /projectInitials/u);
+  assert.match(controller, /provider == "cursor" \|\| provider == "acp-cursor"/u);
+  assert.match(controller, /\.done: 1, \.working: 2/u);
+  assert.match(controller, /var views: \[NSView\] = \[close, settings\]/u);
+  assert.match(controller, /NSBezierPath\(roundedRect: bounds/u);
+  assert.match(controller, /projectColor/u);
+  assert.match(controller, /0xcbf29ce484222325/u);
+  assert.match(controller, /projectLabel\.stringValue = projectFirst/u);
+  assert.match(controller, /project\.uppercased\(\)/u);
+  assert.match(controller, /StatusPalette/u);
+  assert.match(model, /\["touchbar", "snapshot"\]/u);
+  assert.match(model, /\["touchbar", "open", entry\.id\]/u);
+  assert.doesNotMatch(model, /\["touchbar", "stop"/u);
+  for (const provider of ["opencode", "kimi", "deepseek", "qwen", "windsurf", "cline", "roocode"]) {
+    assert.match(support, new RegExp(`"${provider}"`, "u"));
+  }
+  assert.match(main, /setActivationPolicy\(\.accessory\)/u);
+  assert.match(main, /applicationWillTerminate/u);
+  assert.match(build, /DFRFoundation/u);
+  assert.match(build, /codesign --force --sign -/u);
+  assert.match(installer, /app\.getbb\.touchbar\.native\.plist/u);
+  assert.match(installer, /launchctl bootstrap/u);
+});
