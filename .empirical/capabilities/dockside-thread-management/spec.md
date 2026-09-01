@@ -93,16 +93,17 @@ accessible status summary while row-level status remains authoritative.
 
 ### Requirement: Rows show semantic pull-request context
 
-Dockside MUST show `#number` followed by the semantic PR-state icon as the
-rightmost metadata on quiet PR rows. State/title remain accessible; visible
-state words and title prose remain omitted.
+Dockside MUST render PR number followed by a semantic state icon and MUST show
+state, number, and title in a themed hover/focus tooltip. In review uses Eye;
+Ready/Merged Check; Changes/Blocked/Closed CircleX; Checks Loading; Open/Draft
+GitBranch.
 
-#### Scenario: PR is ready
+#### Scenario: PR awaits review
 
-- **Given** a quiet row has a ready-to-merge PR
+- **Given** a quiet row has a review-requested PR
 - **When** it renders
-- **Then** the row ends with `#<number>` followed by a success check icon
-- **And** the accessible label names Ready and the PR title
+- **Then** the row ends in `#number` and an eye icon
+- **And** hover/focus reveals `In review · #number · title`
 
 ### Requirement: Completed rows show only real bounded outcomes
 
