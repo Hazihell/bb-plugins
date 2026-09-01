@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 25,
+  "revision": 26,
   "activeFeature": "adapt-github-pr-1964-into-a-new-independently-installable-bb",
   "request": "Adapt GitHub PR #1964 into a new independently installable BB plugin, preserving its behavior, aligning manifests/docs/tests, and prepare repository changes plus validation for marketplace submission and upstream BB linkage.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "integrate",
-  "status": "waiting",
-  "repairAttempts": 4,
-  "message": "Accepted the inherited fresh-context Save My Model review with all criteria passing; no additional Save My Model implementation was added.",
+  "phase": "done",
+  "status": "done",
+  "repairAttempts": 0,
+  "message": "Integrated capability changes: machine-model-preferences",
   "implementationActor": "codex",
   "workStartedAt": null,
   "specDigest": "sha256:3e67b25c6215043f883479822745326621c7993ec1e6c54ee2b70bc8438b02fc",
@@ -31,21 +31,21 @@
     "qa-4aaafc6e5508b515c03f7c0f",
     "qa-75ab926bc577a5a7ec24c419",
     "collected-cf6b0fc08db29ca3d4412e6b",
-    "collected-aaff0d2843821001dae71ed5"
+    "collected-aaff0d2843821001dae71ed5",
+    "qa-b32175df90ba44777a9e5ddf"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
     "implemented": true,
     "verified": true,
-    "integrated": false,
+    "integrated": true,
     "delivered": false,
     "published": false,
-    "highest": "verified",
+    "highest": "integrated",
     "reasons": {
-      "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T14:09:29.953Z"
+  "updatedAt": "2026-09-01T14:30:05.335Z"
 }
