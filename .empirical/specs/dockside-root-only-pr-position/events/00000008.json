@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 8,
+  "previousDigest": "sha256:6ba14c9b339bdf6d798e6acec62c363a10e123faa291ff77ee9da0ecfe59ff4f",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Evidence integrity repair required: Verify receipts were captured before the implementation commit, so their source-tree digests are stale for the committed review packet. Source and approved review are unchanged; rerun verification against committed HEAD.",
+  "createdAt": "2026-09-01T02:37:19.923Z",
+  "stateBeforeDigest": "sha256:dcaae47dd81215c3b74d9019c70f06c2bdebdd222da85ed17ea16fa21bbc4c02",
+  "stateAfterDigest": "sha256:f98a8049f0dec71a6bde8d04a3e319c839aac02847a023eaf2fa79acf3a23485",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 8,
+    "activeFeature": "dockside-root-only-pr-position",
+    "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Evidence integrity repair required: Verify receipts were captured before the implementation commit, so their source-tree digests are stale for the committed review packet. Source and approved review are unchanged; rerun verification against committed HEAD.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:eaa2b90096519f661a77da07b1e8d669e55bfbc6074a97798bfc6dee823f7f69",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-root-only-pr-position-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T02:37:19.923Z"
+  },
+  "digest": "sha256:4bd9272e40744f52aa4c59feeed18e123da0fddc782ef9fc45106b0e2dd1094d"
+}

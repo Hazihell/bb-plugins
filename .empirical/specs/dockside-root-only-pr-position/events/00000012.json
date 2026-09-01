@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "sequence": 12,
+  "previousDigest": "sha256:de8e753fa8d5a028cdbd911214aefb875de09ac166a0c75c794192f35e004e6b",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Second independent fresh-context reviewer approved the exact committed main...3febc00cc packet across all criteria, security/correctness, and design/maintainability after post-commit verification repair.",
+  "createdAt": "2026-09-01T02:42:00.491Z",
+  "stateBeforeDigest": "sha256:60c9fb95efb3dac850b4d926c9e673d50a70e84995d624c68a18a40dc961084f",
+  "stateAfterDigest": "sha256:183cf7eee3d8fa9739779957cd586686c722f5f1b9da6c3635b79875d54fb255",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 12,
+    "activeFeature": "dockside-root-only-pr-position",
+    "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "integrate",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Second independent fresh-context reviewer approved the exact committed main...3febc00cc packet across all criteria, security/correctness, and design/maintainability after post-commit verification repair.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:eaa2b90096519f661a77da07b1e8d669e55bfbc6074a97798bfc6dee823f7f69",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-root-only-pr-position-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "collected-528cbe13348a8e04ffc6f288",
+      "qa-13f6cfee375348de4e8f2ae9",
+      "qa-4b5d80719cfc72f8c721f2f9",
+      "qa-bae4a557b42615073367a187",
+      "qa-b1d9cd934f83cdabba2f460e",
+      "qa-9d73fbd8e6353934a7504233",
+      "qa-96525e0a0875781c58e66b91",
+      "qa-bc68ac947d34de8c9f781ff7",
+      "qa-acda6f45ad04efaa242b61ed",
+      "qa-843b8dc0eb0ff08d5518eadd",
+      "collected-8e580145548085e7b7900418"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "verified",
+      "reasons": {
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T02:42:00.491Z"
+  },
+  "digest": "sha256:5ad26594351f91dfed854a0897683420178dc2fb8c10e165efc0bdad9818df72"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 9,
+  "previousDigest": "sha256:4bd9272e40744f52aa4c59feeed18e123da0fddc782ef9fc45106b0e2dd1094d",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "No source repair was needed; committed 3febc00cc already satisfies all criteria. This revision resets verification so receipts can be rebound to the committed source tree after the pre-commit evidence integrity mismatch.",
+  "createdAt": "2026-09-01T02:37:35.974Z",
+  "stateBeforeDigest": "sha256:f98a8049f0dec71a6bde8d04a3e319c839aac02847a023eaf2fa79acf3a23485",
+  "stateAfterDigest": "sha256:c0bf614fdc7573b390ddabd97d4d645246a25804aa07c1bb7a15f37be889138d",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 9,
+    "activeFeature": "dockside-root-only-pr-position",
+    "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "No source repair was needed; committed 3febc00cc already satisfies all criteria. This revision resets verification so receipts can be rebound to the committed source tree after the pre-commit evidence integrity mismatch.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:eaa2b90096519f661a77da07b1e8d669e55bfbc6074a97798bfc6dee823f7f69",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-root-only-pr-position-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T02:37:35.974Z"
+  },
+  "digest": "sha256:fdc6230ff5a391c3c54174c9741e752e1c2b5adeb6f32f849d2dbbfbcb779ff0"
+}

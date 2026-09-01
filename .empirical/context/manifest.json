@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:7a69edc5f633a4be066394418361cb3d916df3613be91f5659414e961c77d66c",
+  "sourceDigest": "sha256:76be41ad036af451522787ca23b2ce9fe24b91843cfeb8572e7a18b0b32d55d4",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -1170,13 +1170,13 @@
     },
     {
       "path": "plugins/dockside/types/bb-plugin-sdk-app.d.ts",
-      "size": 104298,
-      "digest": "sha256:06e87dbf1e6ed2809cd7b4dfc15d8e07bdc5a88fd8969e41e2a8924c98ac3b27"
+      "size": 100793,
+      "digest": "sha256:e1623d4345d46c0ac9afcb537db7335bf3123a447128ea4454882aeb8648ff46"
     },
     {
       "path": "plugins/dockside/types/bb-plugin-sdk.d.ts",
-      "size": 690598,
-      "digest": "sha256:1ee2f293c08cafd3b73eb1861a64671f114b46f077cefc20deaa8496b635d086"
+      "size": 700327,
+      "digest": "sha256:fa0bf15333bc09a3cd5785fc70aa471244e09a0710a63bb0457649826128d815"
     },
     {
       "path": "plugins/dotfiles/LICENSE",
@@ -3167,8 +3167,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:7a69edc5f633a4be066394418361cb3d916df3613be91f5659414e961c77d66c",
-      "digest": "sha256:ae5df8e352a7500f3a223c23c849eb8251b5c0aafd0c3b6e79117f529f3286ad",
+      "sourceDigest": "sha256:76be41ad036af451522787ca23b2ce9fe24b91843cfeb8572e7a18b0b32d55d4",
+      "digest": "sha256:e37c8cd30b000aae6c6a0afbd4ab66e84864f1194faf514f66ac43d06a3a46fc",
       "freshness": "fresh"
     },
     {
@@ -3304,5 +3304,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:fb41048640f3e20238415e3aab7235998f32a10bb3a04183f49941628e3e565d"
+  "digest": "sha256:2c507b79bd7991c7562f26d11e4145fa9f84e2ee3bbd184b4941074e7695e817"
 }

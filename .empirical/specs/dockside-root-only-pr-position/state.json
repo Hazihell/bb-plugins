@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 12,
   "activeFeature": "dockside-root-only-pr-position",
   "request": "Show Dockside PR metadata once per family on the root only. Remove child PR lookup/rendering entirely. Move root #number plus semantic icon out of the branch line into the far-right trailing column directly below elapsed time; preserve tooltip/accessibility, child provider identity, child count, hierarchy, navigation, management, and compact layout. Commit and update the open PR.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
-  "repairAttempts": 0,
-  "message": "Verified all Dockside root-only compact-card criteria with focused tests, typecheck, isolated portability/package/clean/cross-platform checks, live system QA, normal/narrow CDP geometry and screenshots, keyboard-focus PR tooltip evidence, fresh-context outcome QA, and a non-blocking security advisory.",
+  "repairAttempts": 1,
+  "message": "Second independent fresh-context reviewer approved the exact committed main...3febc00cc packet across all criteria, security/correctness, and design/maintainability after post-commit verification repair.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:911ad0aa5ee091ceb293448c9b1d6275a0247fa946e63c0e362bf5ea9475b5c3",
@@ -21,16 +21,17 @@
   "authorizationDigest": null,
   "evidence": [],
   "evidenceReceiptIds": [
-    "collected-e874bbb16fc530b2cf782735",
-    "qa-f595f5b8bb1055a2f56c0ab7",
-    "qa-4ee8a18f4a095950e8b19c9c",
-    "qa-1a2de44af1d8838a023953fe",
-    "qa-692725d5d991003460556e60",
-    "qa-b6e38f4013f8f33fd7f66caf",
-    "qa-2bad079456b4e82c7898634f",
-    "qa-4b033b239dffeb7e556dd573",
-    "qa-e909b8016166d9ce828754ff",
-    "qa-41544736bdc622739a0e895b"
+    "collected-528cbe13348a8e04ffc6f288",
+    "qa-13f6cfee375348de4e8f2ae9",
+    "qa-4b5d80719cfc72f8c721f2f9",
+    "qa-bae4a557b42615073367a187",
+    "qa-b1d9cd934f83cdabba2f460e",
+    "qa-9d73fbd8e6353934a7504233",
+    "qa-96525e0a0875781c58e66b91",
+    "qa-bc68ac947d34de8c9f781ff7",
+    "qa-acda6f45ad04efaa242b61ed",
+    "qa-843b8dc0eb0ff08d5518eadd",
+    "collected-8e580145548085e7b7900418"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -46,5 +47,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T02:31:17.101Z"
+  "updatedAt": "2026-09-01T02:42:00.491Z"
 }
