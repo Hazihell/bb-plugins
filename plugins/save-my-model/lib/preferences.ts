@@ -15,6 +15,13 @@ export interface Preference {
   reasoningLevel: ReasoningLevel;
 }
 
+export interface SavedSelection {
+  hostId: string;
+  providerId: string;
+  model: string | null;
+  reasoningLevel: ReasoningLevel | null;
+}
+
 const PREFIX = "bb.save-my-model.v3";
 const PREVIOUS_PREFIX = "bb.save-my-model.v2";
 const PROVIDER_RECORD = "provider";
@@ -174,7 +181,11 @@ export function readPreference(
   const localStorage = storage();
   if (localStorage === null) return null;
   const host = normalizeHostId(hostId);
-  const explicitProvider = boundedIdentity(providerId ?? "", MAX_PROVIDER_ID);
+  const explicitProvider =
+    providerId === undefined
+      ? undefined
+      : boundedIdentity(providerId, MAX_PROVIDER_ID);
+  if (providerId !== undefined && explicitProvider === null) return null;
   const provider = explicitProvider ?? readProviderPreference(host);
   if (provider === null) return null;
   const value =
@@ -221,36 +232,63 @@ export function clearPreferences(): void {
   }
 }
 
-export function listPreferences(): Preference[] {
+export function listPreferences(): SavedSelection[] {
   const localStorage = storage();
-  const result: Preference[] = [];
+  const result = new Map<string, SavedSelection>();
   let examinedRecords = 0;
-  if (localStorage === null) return result;
+  if (localStorage === null) return [];
   for (
     let index = 0;
     index < localStorage.length &&
-    result.length < MAX_LISTED_PREFERENCES &&
     examinedRecords < MAX_SCANNED_PREFERENCE_RECORDS;
     index += 1
   ) {
     const storedKey = localStorage.key(index);
-    if (!storedKey?.startsWith(`${PREFIX}:${EXECUTION_RECORD}:`)) continue;
+    if (
+      !storedKey?.startsWith(`${PREFIX}:${EXECUTION_RECORD}:`) &&
+      !storedKey?.startsWith(`${PREFIX}:${PROVIDER_RECORD}:`)
+    ) {
+      continue;
+    }
     examinedRecords += 1;
     const parts = storedKey.split(":");
-    if (parts.length !== 4) continue;
-    const host = safeDecode(parts[2]);
-    const provider = safeDecode(parts[3]);
+    const host = safeDecode(parts[2] ?? "");
     if (
       host === null ||
+      (host !== "" && boundedIdentity(host, MAX_HOST_ID) !== host)
+    ) {
+      continue;
+    }
+    if (parts[1] === PROVIDER_RECORD) {
+      if (parts.length !== 3 || providerKey(host) !== storedKey) continue;
+      const provider = localStorage.getItem(storedKey);
+      if (!validProvider(provider)) continue;
+      const identity = `${host}\u0000${provider}`;
+      if (!result.has(identity) && result.size < MAX_LISTED_PREFERENCES) {
+        result.set(identity, {
+          hostId: host,
+          providerId: provider,
+          model: null,
+          reasoningLevel: null,
+        });
+      }
+      continue;
+    }
+    if (parts.length !== 4) continue;
+    const provider = safeDecode(parts[3]);
+    if (
       provider === null ||
-      (host !== "" && boundedIdentity(host, MAX_HOST_ID) !== host) ||
       !validProvider(provider) ||
       executionKey(host, provider) !== storedKey
     ) {
       continue;
     }
     const value = readCurrentValue(localStorage.getItem(storedKey));
-    if (value !== null) result.push({ hostId: host, providerId: provider, ...value });
+    if (value === null) continue;
+    const identity = `${host}\u0000${provider}`;
+    if (result.has(identity) || result.size < MAX_LISTED_PREFERENCES) {
+      result.set(identity, { hostId: host, providerId: provider, ...value });
+    }
   }
-  return result;
+  return [...result.values()];
 }

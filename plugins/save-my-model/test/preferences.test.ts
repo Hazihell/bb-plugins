@@ -166,6 +166,19 @@ test("changing the selected provider does not leak another provider's execution"
   assert.equal(readPreference("host-a", "codex")?.model, "o3");
 });
 
+test("rejects an explicitly invalid provider instead of using selected fallback", () => {
+  installStorage();
+  writePreference({
+    hostId: "host-a",
+    providerId: "codex",
+    model: "o3",
+    reasoningLevel: "high",
+  });
+
+  assert.equal(readPreference("host-a", "\u0000invalid"), null);
+  assert.equal(readPreference("host-a", "   "), null);
+});
+
 test("contains malformed and oversized storage while listing", () => {
   const { localStorage } = installStorage();
   localStorage.setItem(
@@ -222,6 +235,22 @@ test("bounds examined plugin records independently of valid results", () => {
     JSON.stringify({ model: "after-bound", reasoningLevel: "high" }),
   );
 
+  assert.deepEqual(listPreferences(), []);
+});
+
+test("lists and clears a selected provider even before a model is saved", () => {
+  installStorage();
+  writeProviderPreference("host-a", "codex");
+
+  assert.deepEqual(listPreferences(), [
+    {
+      hostId: "host-a",
+      providerId: "codex",
+      model: null,
+      reasoningLevel: null,
+    },
+  ]);
+  clearPreferences();
   assert.deepEqual(listPreferences(), []);
 });
 

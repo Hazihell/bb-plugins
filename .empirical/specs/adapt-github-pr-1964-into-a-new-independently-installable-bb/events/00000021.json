@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 21,
+  "previousDigest": "sha256:3c3d0266530011de1ca0826a85b09babf20f597dcb553ed10a707235d8366329",
+  "actor": "human:user-approved",
+  "type": "transition",
+  "summary": "Resumed workflow",
+  "createdAt": "2026-09-01T13:53:51.209Z",
+  "stateBeforeDigest": "sha256:48527629f2273181ffb689474a2b372e73dcf11128ef89a5129b24cd3111e22c",
+  "stateAfterDigest": "sha256:b40d593faeebe00fb5ca8e0762ab0721f454064a16b05661f5bd1d8c5f3d5217",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 21,
+    "activeFeature": "adapt-github-pr-1964-into-a-new-independently-installable-bb",
+    "request": "Adapt GitHub PR #1964 into a new independently installable BB plugin, preserving its behavior, aligning manifests/docs/tests, and prepare repository changes plus validation for marketplace submission and upstream BB linkage.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "implement",
+    "status": "waiting",
+    "repairAttempts": 4,
+    "message": null,
+    "implementationActor": "codex",
+    "workStartedAt": null,
+    "specDigest": "sha256:3e67b25c6215043f883479822745326621c7993ec1e6c54ee2b70bc8438b02fc",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:69833fcab8d78b62d4070e19f67060e4339da45ac50156145f3b44a8e51a8504",
+    "impactDigest": "sha256:e9c511f2ca21225b85362ad559ab01ac53449e11d8cb05c6cd3baa6a42224360",
+    "capabilityClaimId": "adapt-github-pr-1964-into-a-new-independently-installable-bb-ccb938548792",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T13:53:51.209Z"
+  },
+  "digest": "sha256:01f2f5baba83054be8fa75cd8a34ba18660184decc54a2d4c412aba70857f814"
+}

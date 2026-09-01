@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:4584ad2185bd24fa1ed50c7a2ba0d665e78ac5dc4be8b1ee2c0345bdf9841e69",
+  "sourceDigest": "sha256:4a1f97d92d9ceb3211f23a354a6530095b684f74a349eb4a779b42a812f77370",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -650,8 +650,8 @@
     },
     {
       "path": "plugins/save-my-model/app.tsx",
-      "size": 1370,
-      "digest": "sha256:3b26bc76aad58942d0df46bd857fb6b32f744c0201d9b756d7f9361f08f1dcc8"
+      "size": 1396,
+      "digest": "sha256:b95e2bec6669d0f1769d791c441107bafa29355c551e9d8b54f7528667746474"
     },
     {
       "path": "plugins/save-my-model/assets/icon.svg",
@@ -660,8 +660,8 @@
     },
     {
       "path": "plugins/save-my-model/lib/preferences.ts",
-      "size": 7886,
-      "digest": "sha256:4d9eea8f8423fdb43ce45a6fdcde604552342102dad6987a0f7cc21bf9f2d1ec"
+      "size": 8948,
+      "digest": "sha256:69f0b590f00aa31b0dd61d937a2f20ed1ac3bec25d3cf89781387308de916e44"
     },
     {
       "path": "plugins/save-my-model/package.json",
@@ -675,8 +675,8 @@
     },
     {
       "path": "plugins/save-my-model/test/preferences.test.ts",
-      "size": 7561,
-      "digest": "sha256:4e1745770486661ee1c5becd4166c14983643f06d5bc41c4459ad864f5a90baf"
+      "size": 8291,
+      "digest": "sha256:cbdb920e235a28b1548cb3d300cdedc8304064a05fe4795239eb3ee858107312"
     },
     {
       "path": "plugins/save-my-model/tsconfig.json",
@@ -1301,7 +1301,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:4584ad2185bd24fa1ed50c7a2ba0d665e78ac5dc4be8b1ee2c0345bdf9841e69",
+      "sourceDigest": "sha256:4a1f97d92d9ceb3211f23a354a6530095b684f74a349eb4a779b42a812f77370",
       "digest": "sha256:b16eb59e5758fbb5f716a6add392277f4dd9092ebdaa8b9268f215c2bae01063",
       "freshness": "fresh"
     },
@@ -1381,5 +1381,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:f1ae8906b8d850cbd0db6f523b578a01aca97caed47e00a076a9879b4e1b32f0"
+  "digest": "sha256:84356cfc9da552680b9d38338ba9806ff6bc3dc82f0b2c46b62313ad820a0244"
 }
