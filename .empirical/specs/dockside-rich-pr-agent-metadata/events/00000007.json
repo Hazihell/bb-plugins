@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "sequence": 7,
+  "previousDigest": "sha256:425604fb332d042f5590019b0ce33773ca36165b4ff74e4e92755693ae6124d0",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Verified rich metadata with clean focused unit/fault/type contracts, live BB end-to-end and browser screenshots, an isolated git-archived package/clean-install/build portability run covering integration/package/cross-platform routes, passing fresh-context QA, and a non-blocking security advisory.",
+  "createdAt": "2026-09-01T00:11:14.625Z",
+  "stateBeforeDigest": "sha256:7e315030b2b443369a147c397dd1fd10efbc3deec48e7d16f367d57f422393a2",
+  "stateAfterDigest": "sha256:233464dc34978e89aec3b4d9add1e3597c0013d1c4150490f35fd91cfa179ff9",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 7,
+    "activeFeature": "dockside-rich-pr-agent-metadata",
+    "request": "Add rich Orca-style metadata to Dockside thread families: semantic PR status pills and truncated PR titles on root rows and expanded child rows using BB's lazy pull-request hook; derive a single family-level Waiting for agents state and subtle activity tint from child work without stacking icons; lazily fetch and cache bounded final assistant output summaries for completed expanded rows through a typed backend RPC keyed by thread id and updatedAt, with live invalidation and privacy/performance safeguards; infer Done only when a final output exists; preserve filters, bulk selection/deletion, hierarchy, navigation, project creation, and compact layout.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "review",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Verified rich metadata with clean focused unit/fault/type contracts, live BB end-to-end and browser screenshots, an isolated git-archived package/clean-install/build portability run covering integration/package/cross-platform routes, passing fresh-context QA, and a non-blocking security advisory.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:9848868e8edb6e9da3ee606c7c3989fda773989e338ac1fcea5b6f7295905b56",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:a41c623cba5c71f6f11e78027404c7644ed1cea2fb4dd56028925f1138994614",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-rich-pr-agent-metadata-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "qa-8dc916577f01d470a3cef77c",
+      "qa-348ebe96b15ab5c47f6928df",
+      "qa-da4c19173c901a8b80cdb8ce",
+      "qa-342befed7b21453db576621c",
+      "qa-ea092097d91261bb38383901",
+      "qa-b8f3a6626c103bcba77fd65a",
+      "collected-660f4b48f697b4fd2ea40346"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "verified",
+      "reasons": {
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T00:11:14.625Z"
+  },
+  "digest": "sha256:0092c5c60cb1a96d7038bd914c1c253a304587cff16294958200b4da29ccf900"
+}
