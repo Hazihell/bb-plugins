@@ -8,7 +8,6 @@ export type ReasoningLevel =
   | "ultra";
 
 export interface Preference {
-  projectId: string;
   /** Empty means the browser-wide fallback scope. */
   hostId: string;
   providerId: string;
@@ -16,12 +15,14 @@ export interface Preference {
   reasoningLevel: ReasoningLevel;
 }
 
-const PREFIX = "bb.save-my-model.v2";
+const PREFIX = "bb.save-my-model.v3";
+const PREVIOUS_PREFIX = "bb.save-my-model.v2";
+const PROVIDER_RECORD = "provider";
+const EXECUTION_RECORD = "execution";
 const LEGACY_PROVIDER_KEY = "bb.promptbox.provider";
 const LEGACY_MODEL_KEY = "bb.promptbox.model";
 const LEGACY_REASONING_KEY = "bb.promptbox.reasoning";
 const LEGACY_PROVIDER_VERSION = "1";
-const MAX_PROJECT_ID = 256;
 const MAX_HOST_ID = 128;
 const MAX_PROVIDER_ID = 128;
 const MAX_MODEL = 256;
@@ -55,8 +56,12 @@ function normalizeHostId(hostId: string | null | undefined): string {
   return boundedIdentity(hostId ?? "", MAX_HOST_ID) ?? "";
 }
 
-function key(projectId: string, hostId: string, providerId: string): string {
-  return `${PREFIX}:${encodeURIComponent(projectId)}:${encodeURIComponent(hostId)}:${encodeURIComponent(providerId)}`;
+function providerKey(hostId: string): string {
+  return `${PREFIX}:${PROVIDER_RECORD}:${encodeURIComponent(hostId)}`;
+}
+
+function executionKey(hostId: string, providerId: string): string {
+  return `${PREFIX}:${EXECUTION_RECORD}:${encodeURIComponent(hostId)}:${encodeURIComponent(providerId)}`;
 }
 
 function legacyProviderKey(storageKey: string, providerId: string): string {
@@ -76,6 +81,13 @@ function validModel(value: unknown): value is string {
     typeof value === "string" &&
     value.length <= MAX_MODEL &&
     !CONTROL_CHARACTER.test(value)
+  );
+}
+
+function validProvider(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    boundedIdentity(value, MAX_PROVIDER_ID) === value
   );
 }
 
@@ -126,49 +138,67 @@ function readLegacyValue(
     : null;
 }
 
-export function preferenceKey(
-  projectId: string,
+export function providerPreferenceKey(hostId: string): string {
+  return providerKey(normalizeHostId(hostId));
+}
+
+export function preferenceKey(hostId: string, providerId: string): string {
+  const provider = boundedIdentity(providerId, MAX_PROVIDER_ID) ?? "";
+  return executionKey(normalizeHostId(hostId), provider);
+}
+
+export function readProviderPreference(hostId: string): string | null {
+  const localStorage = storage();
+  if (localStorage === null) return null;
+  const current = localStorage.getItem(providerKey(normalizeHostId(hostId)));
+  if (validProvider(current)) return current;
+  const legacy = localStorage.getItem(LEGACY_PROVIDER_KEY);
+  return validProvider(legacy) ? legacy : null;
+}
+
+export function writeProviderPreference(
   hostId: string,
   providerId: string,
-): string {
-  const project = boundedIdentity(projectId, MAX_PROJECT_ID) ?? "";
-  const provider = boundedIdentity(providerId, MAX_PROVIDER_ID) ?? "";
-  return key(project, normalizeHostId(hostId), provider);
+): void {
+  const localStorage = storage();
+  const provider = boundedIdentity(providerId, MAX_PROVIDER_ID);
+  if (localStorage === null || provider === null) return;
+  localStorage.setItem(providerKey(normalizeHostId(hostId)), provider);
 }
 
 export function readPreference(
-  projectId: string,
   hostId: string,
-  providerId: string,
+  providerId?: string,
 ): Preference | null {
   const localStorage = storage();
-  const project = boundedIdentity(projectId, MAX_PROJECT_ID);
-  const provider = boundedIdentity(providerId, MAX_PROVIDER_ID);
-  if (localStorage === null || project === null || provider === null) return null;
+  if (localStorage === null) return null;
   const host = normalizeHostId(hostId);
+  const explicitProvider = boundedIdentity(providerId ?? "", MAX_PROVIDER_ID);
+  const provider = explicitProvider ?? readProviderPreference(host);
+  if (provider === null) return null;
   const value =
-    readCurrentValue(localStorage.getItem(key(project, host, provider))) ??
+    readCurrentValue(localStorage.getItem(executionKey(host, provider))) ??
     readLegacyValue(localStorage, provider);
   return value === null
     ? null
-    : { projectId: project, hostId: host, providerId: provider, ...value };
+    : { hostId: host, providerId: provider, ...value };
 }
 
 export function writePreference(preference: Preference): void {
   const localStorage = storage();
-  const project = boundedIdentity(preference.projectId, MAX_PROJECT_ID);
   const provider = boundedIdentity(preference.providerId, MAX_PROVIDER_ID);
   if (
     localStorage === null ||
-    project === null ||
     provider === null ||
     !validModel(preference.model) ||
     !validReasoningLevel(preference.reasoningLevel)
   ) {
     return;
   }
+  const host = normalizeHostId(preference.hostId);
+  localStorage.setItem(providerKey(host), provider);
   localStorage.setItem(
-    key(project, normalizeHostId(preference.hostId), provider),
+    executionKey(host, provider),
     JSON.stringify({
       model: preference.model,
       reasoningLevel: preference.reasoningLevel,
@@ -181,7 +211,12 @@ export function clearPreferences(): void {
   if (localStorage === null) return;
   for (let index = localStorage.length - 1; index >= 0; index -= 1) {
     const storedKey = localStorage.key(index);
-    if (storedKey?.startsWith(`${PREFIX}:`)) localStorage.removeItem(storedKey);
+    if (
+      storedKey?.startsWith(`${PREFIX}:`) ||
+      storedKey?.startsWith(`${PREVIOUS_PREFIX}:`)
+    ) {
+      localStorage.removeItem(storedKey);
+    }
   }
 }
 
@@ -195,14 +230,13 @@ export function listPreferences(): Preference[] {
     index += 1
   ) {
     const storedKey = localStorage.key(index);
-    if (!storedKey?.startsWith(`${PREFIX}:`)) continue;
+    if (!storedKey?.startsWith(`${PREFIX}:${EXECUTION_RECORD}:`)) continue;
     const parts = storedKey.split(":");
     if (parts.length !== 4) continue;
-    const project = safeDecode(parts[1]);
     const host = safeDecode(parts[2]);
     const provider = safeDecode(parts[3]);
-    if (project === null || host === null || provider === null) continue;
-    const preference = readPreference(project, host, provider);
+    if (host === null || provider === null) continue;
+    const preference = readPreference(host, provider);
     if (preference !== null) result.push(preference);
   }
   return result;

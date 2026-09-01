@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:1aad606ec360ec8f0af974f0933ef107b1ca63da5aea0b70e00d8031c74b9fb8",
+  "sourceDigest": "sha256:ae3e47e698af5b1621a2dcb2bdab703c3849360690c10d174c7acc5c2867c5c8",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -75,8 +75,8 @@
     },
     {
       "path": "README.md",
-      "size": 9994,
-      "digest": "sha256:07c77511e49e16cbcd93bd891602d401f46a57ea93d8f7297c177331ebb4ca54"
+      "size": 10002,
+      "digest": "sha256:71f46184484d7d57cb66ad4e60b8b3f41b1cb42a225d7fe410ff73575ee4b0ab"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -645,13 +645,13 @@
     },
     {
       "path": "plugins/save-my-model/README.md",
-      "size": 1111,
-      "digest": "sha256:d45a483de193d0a4ad4b813236f2ef361cfee382f219de7faf580a41a6723430"
+      "size": 1103,
+      "digest": "sha256:def73b0b0a0842a08a85cfe2f07fbe91dc4de7db43113f02c68e2b59649a3c08"
     },
     {
       "path": "plugins/save-my-model/app.tsx",
-      "size": 1450,
-      "digest": "sha256:bd715c64674c31907c06211d715bbebd881a09bb02906673d5ba43deccacd993"
+      "size": 1370,
+      "digest": "sha256:3b26bc76aad58942d0df46bd857fb6b32f744c0201d9b756d7f9361f08f1dcc8"
     },
     {
       "path": "plugins/save-my-model/assets/icon.svg",
@@ -660,13 +660,13 @@
     },
     {
       "path": "plugins/save-my-model/lib/preferences.ts",
-      "size": 6450,
-      "digest": "sha256:2f16f134c59ab699b4fd8ce7a36051c4433badc8c22bf1b0d0749431f74c4285"
+      "size": 7492,
+      "digest": "sha256:08f99b864ceda7c43c05c0926a1df91e2ee79b255d9a04fc170b9f89f559c4e5"
     },
     {
       "path": "plugins/save-my-model/package.json",
-      "size": 1780,
-      "digest": "sha256:72ad8f74712f4788dd60123440727918036c351b27d0dea795228035e42861a6"
+      "size": 1764,
+      "digest": "sha256:dce02c7c6de4244005056eaaf4b561df641ec1207006d210c53edf044b156808"
     },
     {
       "path": "plugins/save-my-model/server.ts",
@@ -675,8 +675,8 @@
     },
     {
       "path": "plugins/save-my-model/test/preferences.test.ts",
-      "size": 4620,
-      "digest": "sha256:e1a790454c3a582b27539712e964770dd13e4c27abff43b61bfbe284af158b73"
+      "size": 6416,
+      "digest": "sha256:a0c80321b118cef3f9458fb2cfe391c5bc6d8cbdac85e92d16d3b9222c78e9f8"
     },
     {
       "path": "plugins/save-my-model/tsconfig.json",
@@ -1301,8 +1301,8 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:1aad606ec360ec8f0af974f0933ef107b1ca63da5aea0b70e00d8031c74b9fb8",
-      "digest": "sha256:10082cd6b7a30aaa42f0ae037b0a59f8aa211cf8f0f34f233f78132307c899e9",
+      "sourceDigest": "sha256:ae3e47e698af5b1621a2dcb2bdab703c3849360690c10d174c7acc5c2867c5c8",
+      "digest": "sha256:b16eb59e5758fbb5f716a6add392277f4dd9092ebdaa8b9268f215c2bae01063",
       "freshness": "fresh"
     },
     {
@@ -1326,8 +1326,8 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:bcc96c2ce233efd849d354759e022f267459112d3050cbc9c5877f5650d2a0ae",
-      "digest": "sha256:67162c51b3ff088759f391b657e163a87f044470f114b6cd8b172b17ef05c00f",
+      "sourceDigest": "sha256:7613278ed6e33e6154587d9c380311cfd67c8e0fc31020fc4d58d6ee833ce7f9",
+      "digest": "sha256:eef88e8fe7d1412fd29415c153b136f4b8c8181a668f5368aa24e0f6e4ae5c23",
       "freshness": "fresh"
     },
     {
@@ -1342,8 +1342,8 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:daa56bf86e83d11e55a3b870cc4462db6550d6f8a63dd8aed743aed28216f8ec",
-      "digest": "sha256:a4a57ffee4400c9ea75cfff5dc430a8998edde1ea57b51498d87f5b1acda74ce",
+      "sourceDigest": "sha256:5aecaae90d456bf65988922057c45181c96136675f1403c3e04da58c8734e39c",
+      "digest": "sha256:60da431b02b162c605e7db2a9bc917a1aef6b5efbd04574b60f625a16e56bb86",
       "freshness": "fresh"
     },
     {
@@ -1359,8 +1359,8 @@
         "plugins/taskboard/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:2f4b448a6aa465b5a6fc0405ba3ca1ec0c702c551279ad90db60f64b80beffba",
-      "digest": "sha256:725594a7a297df9c291124b48fa7bf836e609bc105f70a4c3ce9b30db32d5808",
+      "sourceDigest": "sha256:222ff119b38458f40db3f8c937bb1dc80456f0afc1a3546e137e18ecab7c53b1",
+      "digest": "sha256:5680274604d45911b9a726f4529073f9c6340cd4133a3b57c8497ce1896949c5",
       "freshness": "fresh"
     },
     {
@@ -1381,5 +1381,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:0909ce91db6a2d167ac30d4708a0971779c9194386d5269c0dafff2f1aacb6d5"
+  "digest": "sha256:0ae3b29ffdf9c2e52a2e16a5c365a56ee32941ace632122574365a88f895bff3"
 }

@@ -28,7 +28,7 @@
 - Severity: informational
   - Category: confidentiality
   - Location: browser localStorage
-  - Finding: project, provider, model, and reasoning choices are preferences,
+  - Finding: host, provider, model, and reasoning choices are preferences,
     not credentials, but remain visible to code running in the same origin.
   - Recommendation: store no secrets or prompts, keep values JSON-minimal, and
     clear only plugin-owned versioned and documented legacy keys.

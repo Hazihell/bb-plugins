@@ -15,8 +15,10 @@ const live = JSON.parse(
 assert.equal(live.route, "/settings/plugins/save-my-model");
 assert.equal(live.previewVisible, true);
 assert.equal(live.browserWideLabel, true);
+assert.equal(live.hostScopedColumns, true);
 assert.equal(live.clearEnabledWithRows, true);
 assert.equal(live.clearedToEmptyState, true);
+assert.deepEqual(live.remainingPluginKeys, []);
 assert.equal(live.upstreamLinkVisible, true);
 
 const runBb = (...args) => {
@@ -38,6 +40,9 @@ const app = await readFile("plugins/save-my-model/app.tsx", "utf8");
 const readme = await readFile("plugins/save-my-model/README.md", "utf8");
 const collection = JSON.parse(await readFile(".bb/plugins.json", "utf8"));
 assert.match(preferences, /normalizeHostId/);
+assert.match(preferences, /readProviderPreference/);
+assert.match(preferences, /writeProviderPreference/);
+assert.match(preferences, /bb\.save-my-model\.v3/);
 assert.match(preferences, /bb\.promptbox\.model/);
 assert.match(preferences, /bb\.promptbox\.reasoning/);
 assert.match(preferences, /MAX_LISTED_PREFERENCES = 200/);

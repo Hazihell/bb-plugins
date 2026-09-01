@@ -6,6 +6,10 @@ Commands below are verified from workspace and plugin manifests.
 
 - `npm install` — install shared workspace dependencies after a fresh checkout
   or dependency/lockfile change.
+- `bb plugin install ./plugins/dockside` — register the local Dockside path for
+  live sidebar verification.
+- `bb plugin install ./plugins/save-my-model` — register the local Save My Model
+  path for live settings verification.
 - `bb plugin install ./plugins/taskboard` — register the local Taskboard path in
   BB for live verification.
 - `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.3.0 --subdirectory plugins/taskboard --tag-prefix taskboard/`
@@ -23,6 +27,11 @@ Commands below are verified from workspace and plugin manifests.
 - `npm run typecheck` — typecheck every plugin workspace.
 - `npm run test` — run every plugin test suite.
 - `npm run check` — run each plugin's complete check contract.
+- `npm run check --workspace bb-plugin-dockside` — Dockside SDK-type check,
+  typecheck, tests, and BB build; root `check:dockside` additionally enforces its
+  repository contract.
+- `npm run check --workspace bb-plugin-save-my-model` — Save My Model SDK-type
+  check, typecheck, preference tests, and BB build.
 - `npm run dev --workspace bb-plugin-taskboard` — Taskboard watch/build/reload
   loop after the local path is installed.
 - `npm run typecheck --workspace bb-plugin-taskboard` and
