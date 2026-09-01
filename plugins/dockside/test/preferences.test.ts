@@ -53,6 +53,7 @@ describe("resolveDocksidePreferences", () => {
       unreadColor: "#12345",
       errorColor: "#1234567",
       idleColor: "var(--bad)",
+      staleColor: "#445566",
       prReviewColor: "#010203",
     });
 
@@ -60,7 +61,11 @@ describe("resolveDocksidePreferences", () => {
     assert.equal(preferences.colors.waiting, CUSTOM_COLOR_DEFAULTS.waiting);
     assert.equal(preferences.colors.unread, CUSTOM_COLOR_DEFAULTS.unread);
     assert.equal(preferences.colors.error, CUSTOM_COLOR_DEFAULTS.error);
-    assert.equal(preferences.colors.idle, CUSTOM_COLOR_DEFAULTS.idle);
+    assert.equal(
+      preferences.colors.inactive,
+      CUSTOM_COLOR_DEFAULTS.inactive,
+    );
+    assert.equal(preferences.colors.stale, "#445566");
     assert.equal(preferences.colors.prReview, "#010203");
   });
 
@@ -95,10 +100,16 @@ describe("docksidePreferenceStyle", () => {
       "--dockside-pr-merged",
       "--dockside-pr-ready",
       "--dockside-pr-review",
+      "--dockside-status-agent",
+      "--dockside-status-command",
       "--dockside-status-error",
-      "--dockside-status-idle",
+      "--dockside-status-goal",
+      "--dockside-status-inactive",
+      "--dockside-status-plan",
+      "--dockside-status-stale",
       "--dockside-status-unread",
       "--dockside-status-waiting",
+      "--dockside-status-workflow",
       "--dockside-status-working",
     ]);
     assert.equal(style["--dockside-status-working"], "#009E73");

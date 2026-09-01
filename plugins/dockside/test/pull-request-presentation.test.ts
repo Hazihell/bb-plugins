@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { readFile } from "node:fs/promises";
 import { pullRequestPresentation } from "../lib/pull-request-presentation.ts";
 
 describe("pullRequestPresentation", () => {
@@ -55,5 +56,18 @@ describe("pullRequestPresentation", () => {
       assert.equal(presentation.icon, icon);
       assert.equal(presentation.colorRole, colorRole);
     }
+  });
+});
+
+const metadataSource = await readFile(
+  new URL("../components/inbox/row-metadata.tsx", import.meta.url),
+  "utf8",
+);
+
+describe("PR semantic icon surface", () => {
+  it("uses the configured PR color for a visible tinted background", () => {
+    assert.match(metadataSource, /data-dockside-pr-state/);
+    assert.match(metadataSource, /backgroundColor: `color-mix\(in srgb, \$\{semanticColor\} 24%/);
+    assert.match(metadataSource, /--dockside-pr-\$\{presentation\.colorRole\}/);
   });
 });

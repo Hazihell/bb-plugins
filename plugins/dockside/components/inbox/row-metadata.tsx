@@ -14,6 +14,7 @@ export function PullRequestMetadata({
   interactive?: boolean;
 }) {
   const presentation = pullRequestPresentation(pullRequest);
+  const semanticColor = `var(--dockside-pr-${presentation.colorRole}, currentColor)`;
   const label = `${presentation.label} pull request ${pullRequest.number}: ${pullRequest.title}`;
   const content = (
     <>
@@ -21,9 +22,11 @@ export function PullRequestMetadata({
         #{pullRequest.number}
       </span>
       <span
+        data-dockside-pr-state={presentation.colorRole}
         className={`inline-flex size-4 shrink-0 items-center justify-center rounded ${semanticStateToneClass(presentation.tone)}`}
         style={{
-          color: `var(--dockside-pr-${presentation.colorRole}, currentColor)`,
+          color: semanticColor,
+          backgroundColor: `color-mix(in srgb, ${semanticColor} 24%, transparent)`,
         }}
       >
         <Icon name={presentation.icon} className="size-3" aria-hidden />

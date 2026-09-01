@@ -1,19 +1,41 @@
 import { useSettings } from "@bb/plugin-sdk/app";
+import type { CSSProperties } from "react";
 import {
+  FamilyStatusBadge,
+  FamilyStatusIcon,
+} from "@/components/inbox/family-status";
+import {
+  familyStatusPresentation,
+  workingActivityPresentation,
+  type FamilyStatusKind,
+  type WorkingActivityKind,
+} from "@/lib/family-status";
+import {
+  docksidePreferenceStyle,
   resolveDocksidePreferences,
   type DocksidePreferences,
   type SemanticColorRole,
 } from "@/lib/preferences";
 
-const THREAD_SWATCHES: ReadonlyArray<{
-  role: SemanticColorRole;
+const THREAD_STATES: readonly FamilyStatusKind[] = [
+  "working",
+  "needs-you",
+  "unread",
+  "failed",
+  "inactive",
+  "stale",
+];
+
+const WORKING_ACTIVITIES: ReadonlyArray<{
+  kind: WorkingActivityKind;
   label: string;
 }> = [
-  { role: "working", label: "Working" },
-  { role: "waiting", label: "Stalled / waiting" },
-  { role: "unread", label: "Waiting to read" },
-  { role: "error", label: "Error" },
-  { role: "idle", label: "Stale / idle" },
+  { kind: "runtime", label: "Runtime" },
+  { kind: "workflow", label: "Workflow" },
+  { kind: "agent", label: "Agent" },
+  { kind: "command", label: "Command" },
+  { kind: "plan", label: "Plan" },
+  { kind: "goal", label: "Goal" },
 ];
 
 const PR_SWATCHES: ReadonlyArray<{
@@ -36,6 +58,7 @@ export function DocksideSettingsSection() {
   return (
     <section
       data-dockside-settings-preview=""
+      style={docksidePreferenceStyle(preferences) as CSSProperties}
       className="space-y-3 rounded-lg border border-border bg-muted/20 p-3"
     >
       <div>
@@ -48,7 +71,7 @@ export function DocksideSettingsSection() {
           Icon shape, animation, labels, and tooltips always remain.
         </p>
       </div>
-      <PalettePreview title="Thread states" items={THREAD_SWATCHES} preferences={preferences} />
+      <StatePreview />
       <PalettePreview title="Pull requests" items={PR_SWATCHES} preferences={preferences} />
       <p className="text-2xs text-muted-foreground">
         {preferences.density === "compact" ? "Compact" : "Comfortable"} rows ·
@@ -58,6 +81,49 @@ export function DocksideSettingsSection() {
         {preferences.showRelativeTime ? "shown" : "hidden"}
       </p>
     </section>
+  );
+}
+
+function StatePreview() {
+  return (
+    <div>
+      <p className="text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+        Thread states
+      </p>
+      <ul className="mt-1.5 grid grid-cols-2 gap-1.5">
+        {THREAD_STATES.map((kind) => {
+          const status = familyStatusPresentation(kind);
+          return (
+            <li
+              key={kind}
+              className="flex min-w-0 items-center gap-1 rounded border border-border/70 bg-background/50 px-1.5 py-1.5"
+            >
+              <FamilyStatusIcon status={status} />
+              <FamilyStatusBadge status={status} preview />
+            </li>
+          );
+        })}
+      </ul>
+      <p className="mt-2 text-2xs font-medium uppercase tracking-wide text-muted-foreground">
+        Working activity types
+      </p>
+      <ul className="mt-1.5 grid grid-cols-3 gap-1.5">
+        {WORKING_ACTIVITIES.map(({ kind, label }) => {
+          const status = workingActivityPresentation(kind);
+          return (
+            <li
+              key={kind}
+              className="flex min-w-0 items-center gap-1 rounded border border-border/70 bg-background/50 px-1.5 py-1"
+            >
+              <FamilyStatusIcon status={status} />
+              <span className="truncate text-[10px] font-medium text-foreground/80">
+                {label}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

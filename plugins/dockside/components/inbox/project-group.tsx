@@ -32,6 +32,10 @@ export function ProjectGroup({
   selectedRootIds,
   selectionHintId,
   onToggleRoot,
+  reorderEnabled,
+  reorderDisabledReason,
+  onReorder,
+  onKeyboardMove,
   preferences,
 }: {
   group: ProjectThreadGroup;
@@ -45,6 +49,16 @@ export function ProjectGroup({
   selectedRootIds: ReadonlySet<string>;
   selectionHintId: string;
   onToggleRoot: (threadId: string, intent: RootSelectionIntent) => void;
+  reorderEnabled: boolean;
+  reorderDisabledReason: string | null;
+  onReorder: (input: {
+    sourceProjectId: string;
+    sourceRootId: string;
+    targetProjectId: string;
+    targetRootId: string;
+    position: "before" | "after";
+  }) => void;
+  onKeyboardMove: (projectId: string, rootId: string, direction: -1 | 1) => void;
   preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
@@ -133,6 +147,50 @@ export function ProjectGroup({
                 onToggleSelected={(intent) =>
                   onToggleRoot(family.root.id, intent)
                 }
+                reorderEnabled={reorderEnabled}
+                reorderDisabledReason={reorderDisabledReason}
+                onMoveByKeyboard={(direction) =>
+                  onKeyboardMove(
+                    group.project.id,
+                    family.root.id,
+                    direction,
+                  )
+                }
+                onReorderDragStart={(event) => {
+                  event.dataTransfer.effectAllowed = "move";
+                  event.dataTransfer.setData(
+                    "application/x-dockside-family",
+                    JSON.stringify({
+                      projectId: group.project.id,
+                      rootId: family.root.id,
+                    }),
+                  );
+                }}
+                onReorderDragOver={(event) => {
+                  if (!reorderEnabled) return;
+                  event.preventDefault();
+                  event.dataTransfer.dropEffect = "move";
+                }}
+                onReorderDrop={(event) => {
+                  event.preventDefault();
+                  const dragged = parseDraggedFamily(
+                    event.dataTransfer.getData(
+                      "application/x-dockside-family",
+                    ),
+                  );
+                  if (dragged === null) return;
+                  const bounds = event.currentTarget.getBoundingClientRect();
+                  onReorder({
+                    sourceProjectId: dragged.projectId,
+                    sourceRootId: dragged.rootId,
+                    targetProjectId: group.project.id,
+                    targetRootId: family.root.id,
+                    position:
+                      event.clientY < bounds.top + bounds.height / 2
+                        ? "before"
+                        : "after",
+                  });
+                }}
                 preferences={preferences}
               />
             );
@@ -141,6 +199,28 @@ export function ProjectGroup({
       ) : null}
     </section>
   );
+}
+
+function parseDraggedFamily(
+  raw: string,
+): { projectId: string; rootId: string } | null {
+  if (raw.length === 0 || raw.length > 1_000) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      !("projectId" in parsed) ||
+      !("rootId" in parsed) ||
+      typeof parsed.projectId !== "string" ||
+      typeof parsed.rootId !== "string"
+    ) {
+      return null;
+    }
+    return { projectId: parsed.projectId, rootId: parsed.rootId };
+  } catch {
+    return null;
+  }
 }
 
 function projectInitial(name: string): string {

@@ -18,8 +18,11 @@ describe("compact root card contract", () => {
     assert.match(rootSource, /data-dockside-root-metadata/);
     assert.match(
       rootSource,
-      /data-dockside-root-metadata=""[\s\S]*className="flex h-4 items-center justify-end gap-1"/,
+      /data-dockside-root-metadata=""[\s\S]*className="flex h-4 max-w-full items-center justify-end gap-1 whitespace-nowrap"/,
     );
+    assert.match(rootSource, /grid-cols-\[auto_minmax\(0,1fr\)_auto\]/);
+    assert.match(rootSource, /grid-rows-\[1rem_1rem\]/);
+    assert.doesNotMatch(rootSource, /Done/);
   });
 
   it("co-locates root PR and multiple-child controls in row two", () => {
@@ -34,6 +37,7 @@ describe("compact root card contract", () => {
     );
 
     assert.ok(metadataStart >= 0);
+    assert.ok(rootSource.indexOf("<FamilyStatusBadge", metadataStart) > metadataStart);
     assert.ok(pullRequestStart > metadataStart);
     assert.ok(disclosureStart > pullRequestStart);
   });
@@ -57,7 +61,15 @@ describe("compact root card contract", () => {
     assert.match(threadCardSource, /\{branch\}/);
     assert.match(
       rootSource,
-      /relative z-10 flex shrink-0 flex-col items-end gap-0\.5/,
+      /relative z-10 col-start-3 row-span-2 flex shrink-0 flex-col items-end gap-0\.5/,
     );
+  });
+
+  it("keeps semantic, disclosure, provider, and reorder help keyboard-readable", () => {
+    assert.match(rootSource, /<FamilyStatusIcon/);
+    assert.match(rootSource, /role="tooltip"/);
+    assert.match(rootSource, /aria-keyshortcuts="Alt\+ArrowUp Alt\+ArrowDown"/);
+    assert.match(rootSource, /application\/x-dockside-family|onReorderDragStart/);
+    assert.match(rootSource, /interactive=\{false\}/);
   });
 });

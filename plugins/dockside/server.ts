@@ -236,6 +236,17 @@ export default function plugin(bb: BbPluginApi) {
       default: "Default",
     },
     workingColor: colorSetting("Custom · Working", CUSTOM_COLOR_DEFAULTS.working),
+    workflowColor: colorSetting(
+      "Custom · Workflow",
+      CUSTOM_COLOR_DEFAULTS.workflow,
+    ),
+    agentColor: colorSetting("Custom · Agent", CUSTOM_COLOR_DEFAULTS.agent),
+    commandColor: colorSetting(
+      "Custom · Command",
+      CUSTOM_COLOR_DEFAULTS.command,
+    ),
+    planColor: colorSetting("Custom · Plan", CUSTOM_COLOR_DEFAULTS.plan),
+    goalColor: colorSetting("Custom · Goal", CUSTOM_COLOR_DEFAULTS.goal),
     waitingColor: colorSetting(
       "Custom · Stalled / waiting",
       CUSTOM_COLOR_DEFAULTS.waiting,
@@ -245,7 +256,11 @@ export default function plugin(bb: BbPluginApi) {
       CUSTOM_COLOR_DEFAULTS.unread,
     ),
     errorColor: colorSetting("Custom · Error", CUSTOM_COLOR_DEFAULTS.error),
-    idleColor: colorSetting("Custom · Stale / idle", CUSTOM_COLOR_DEFAULTS.idle),
+    idleColor: colorSetting(
+      "Custom · Inactive",
+      CUSTOM_COLOR_DEFAULTS.inactive,
+    ),
+    staleColor: colorSetting("Custom · Stale", CUSTOM_COLOR_DEFAULTS.stale),
     prReviewColor: colorSetting(
       "Custom · PR review",
       CUSTOM_COLOR_DEFAULTS.prReview,

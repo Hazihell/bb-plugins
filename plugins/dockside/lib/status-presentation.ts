@@ -2,7 +2,7 @@ import type { PluginSidebarThreadIndicator } from "@bb/plugin-sdk";
 
 export type ThreadStatusColorRole =
   | "error"
-  | "idle"
+  | "inactive"
   | "unread"
   | "waiting"
   | "working";
@@ -26,7 +26,7 @@ export function statusColorRole(
       return "working";
     case "draft":
     case "working-draft":
-      return "idle";
+      return "inactive";
     case "none":
     default:
       return null;

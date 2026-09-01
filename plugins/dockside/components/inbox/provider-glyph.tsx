@@ -37,10 +37,12 @@ export function ProviderGlyph({
   providerId,
   provider,
   className,
+  interactive = true,
 }: {
   providerId: string;
   provider?: ProviderGlyphInfo;
   className?: string;
+  interactive?: boolean;
 }) {
   const [failedLogoUrl, setFailedLogoUrl] = useState<string | null>(null);
   const box = cn(TRAILING_GLYPH_BOX_CLASS, className);
@@ -76,9 +78,14 @@ export function ProviderGlyph({
         role="img"
         aria-label={displayName}
         title={displayName}
-        className={box}
+        tabIndex={interactive ? 0 : undefined}
+        className={cn(
+          box,
+          "group/provider relative rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        )}
       >
         <span className="size-3 bg-muted-foreground/70" style={mask} />
+        <ProviderTooltip label={displayName} />
       </span>
     );
   }
@@ -86,7 +93,14 @@ export function ProviderGlyph({
   const mark = providerMark(providerId);
   if (mark !== undefined) {
     return (
-      <span className={box} title={displayName}>
+      <span
+        className={cn(
+          box,
+          "group/provider relative rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+        )}
+        title={displayName}
+        tabIndex={interactive ? 0 : undefined}
+      >
         <svg
           viewBox={mark.viewBox}
           fill="currentColor"
@@ -99,6 +113,7 @@ export function ProviderGlyph({
             <path key={path.d} d={path.d} fillOpacity={path.fillOpacity} />
           ))}
         </svg>
+        <ProviderTooltip label={displayName} />
       </span>
     );
   }
@@ -108,9 +123,25 @@ export function ProviderGlyph({
       role="img"
       aria-label={displayName}
       title={displayName}
-      className={box}
+      tabIndex={interactive ? 0 : undefined}
+      className={cn(
+        box,
+        "group/provider relative rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+      )}
     >
       <span className="size-2 rounded-full bg-muted-foreground/50" />
+      <ProviderTooltip label={displayName} />
+    </span>
+  );
+}
+
+function ProviderTooltip({ label }: { label: string }) {
+  return (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute bottom-full right-0 z-40 mb-1 w-max max-w-48 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1 text-2xs text-popover-foreground opacity-0 shadow-md transition-all group-hover/provider:translate-y-0 group-hover/provider:opacity-100 group-focus/provider:translate-y-0 group-focus/provider:opacity-100"
+    >
+      Provider: {label}
     </span>
   );
 }

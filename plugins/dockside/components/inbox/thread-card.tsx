@@ -1,4 +1,10 @@
-import { useId, useMemo, useState } from "react";
+import {
+  useId,
+  useMemo,
+  useState,
+  type DragEvent,
+  type KeyboardEvent,
+} from "react";
 import {
   experimental_useSidebarThreadPullRequest as useSidebarThreadPullRequest,
   experimental_useSidebarThreadSplit as useSidebarThreadSplit,
@@ -14,11 +20,13 @@ import {
 } from "@/components/inbox/provider-glyph";
 import { StatusGlyph } from "@/components/inbox/status-glyph";
 import { threadStatus } from "@/components/inbox/status-slot";
+import { PullRequestMetadata } from "@/components/inbox/row-metadata";
 import {
-  PullRequestMetadata,
-  WaitingForAgentsMetadata,
-} from "@/components/inbox/row-metadata";
+  FamilyStatusBadge,
+  FamilyStatusIcon,
+} from "@/components/inbox/family-status";
 import { familyWaitingForAgents } from "@/lib/attention-state";
+import { familyStatus } from "@/lib/family-status";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
 import type { RootSelectionIntent } from "@/lib/thread-management";
@@ -46,6 +54,12 @@ export function ThreadCard({
   selectionDisabledReason,
   selectionHintId,
   onToggleSelected,
+  reorderEnabled,
+  reorderDisabledReason,
+  onMoveByKeyboard,
+  onReorderDragStart,
+  onReorderDragOver,
+  onReorderDrop,
   preferences,
 }: {
   thread: PluginSidebarThread;
@@ -66,6 +80,12 @@ export function ThreadCard({
   selectionDisabledReason: string | null;
   selectionHintId: string;
   onToggleSelected: (intent: RootSelectionIntent) => void;
+  reorderEnabled: boolean;
+  reorderDisabledReason: string | null;
+  onMoveByKeyboard: (direction: -1 | 1) => void;
+  onReorderDragStart: (event: DragEvent<HTMLButtonElement>) => void;
+  onReorderDragOver: (event: DragEvent<HTMLLIElement>) => void;
+  onReorderDrop: (event: DragEvent<HTMLLIElement>) => void;
   preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
@@ -97,10 +117,16 @@ export function ThreadCard({
     [childThreads],
   );
   const rootIsActive = thread.id === activeThreadId;
+  const familyState = familyStatus([thread, ...childThreads], now);
 
   return (
     <RowContextMenu thread={thread}>
-      <li className="list-none">
+      <li
+        className="list-none"
+        data-dockside-family={thread.id}
+        onDragOver={onReorderDragOver}
+        onDrop={onReorderDrop}
+      >
         <div
           className={cn(
             "rounded-xl border transition-colors",
@@ -114,7 +140,7 @@ export function ThreadCard({
           <div
             data-dockside-root-card=""
             className={cn(
-              "group/root relative flex items-start gap-2 rounded-lg px-2",
+              "group/root relative grid grid-cols-[auto_minmax(0,1fr)_auto] grid-rows-[1rem_1rem] items-center gap-x-2 gap-y-0.5 rounded-lg px-2",
               preferences.density === "compact"
                 ? "min-h-10 py-1"
                 : "min-h-12 py-1.5",
@@ -209,7 +235,7 @@ export function ThreadCard({
                   });
                 }}
                 className={cn(
-                  "relative z-10 mt-0.5 size-4 shrink-0 cursor-pointer rounded border accent-primary transition-colors",
+                  "relative z-10 col-start-1 row-start-1 size-4 shrink-0 cursor-pointer rounded border accent-primary transition-colors",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
                   selectionDisabledReason !== null &&
                     "cursor-not-allowed opacity-35",
@@ -217,12 +243,27 @@ export function ThreadCard({
               />
             ) : null}
 
-            <ThreadStateGlyph
-              thread={thread}
-              className="pointer-events-none relative mt-0.5"
+            {selectionMode ? null : (
+              <FamilyStatusIcon
+                status={familyState}
+                className="col-start-1 row-start-1"
+              />
+            )}
+            <ReorderHandle
+              enabled={reorderEnabled}
+              disabledReason={reorderDisabledReason}
+              onDragStart={onReorderDragStart}
+              onKeyDown={(event) => {
+                if (!event.altKey) return;
+                if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  onMoveByKeyboard(event.key === "ArrowUp" ? -1 : 1);
+                }
+              }}
             />
 
-            <div className="pointer-events-none relative min-w-0 flex-1">
+            <div className="pointer-events-none relative col-start-2 row-span-2 min-w-0">
               <div
                 data-dockside-root-title-row=""
                 className="flex h-4 min-w-0 items-center gap-1.5"
@@ -232,9 +273,9 @@ export function ThreadCard({
                   className={cn(
                     "min-w-0 flex-1 truncate text-sm",
                     thread.isUnread ? "font-semibold" : "font-medium",
-                    thread.isUnread || threadIsWorking(thread)
+                    !familyState.receded
                       ? "text-foreground"
-                      : "text-muted-foreground",
+                      : "text-muted-foreground/65",
                   )}
                 >
                   {threadDisplayTitle(thread)}
@@ -249,28 +290,20 @@ export function ThreadCard({
               </div>
               <div
                 data-dockside-root-detail-row=""
-                className="mt-0.5 flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground"
+                className={cn(
+                  "mt-0.5 flex h-4 min-w-0 items-center gap-1.5 text-2xs",
+                  familyState.receded
+                    ? "text-muted-foreground/55"
+                    : "text-muted-foreground",
+                )}
               >
                 <ThreadLocation thread={thread} />
-                {waitingForAgents ? <WaitingForAgentsMetadata /> : null}
-                {thread.activity.workflows > 0 ? (
-                  <ActivityCount
-                    label="workflows"
-                    count={thread.activity.workflows}
-                  />
-                ) : null}
-                {thread.activity.backgroundAgents > 0 ? (
-                  <ActivityCount
-                    label="background agents"
-                    count={thread.activity.backgroundAgents}
-                  />
-                ) : null}
               </div>
             </div>
 
             <div
               className={cn(
-                "relative z-10 flex shrink-0 flex-col items-end gap-0.5",
+                "relative z-10 col-start-3 row-span-2 flex shrink-0 flex-col items-end gap-0.5",
                 selectionMode && "pointer-events-none",
               )}
             >
@@ -306,8 +339,9 @@ export function ThreadCard({
               ) : null}
               <div
                 data-dockside-root-metadata=""
-                className="flex h-4 items-center justify-end gap-1"
+                className="flex h-4 max-w-full items-center justify-end gap-1 whitespace-nowrap"
               >
+                <FamilyStatusBadge status={familyState} />
                 {preferences.showPullRequestMetadata && pullRequest ? (
                   <PullRequestMetadata
                     pullRequest={pullRequest}
@@ -354,6 +388,7 @@ export function ThreadCard({
                             providerId={providerId}
                             provider={providerInfoById.get(providerId)}
                             className="size-3 opacity-80"
+                            interactive={false}
                           />
                         ))}
                       </span>
@@ -366,6 +401,12 @@ export function ThreadCard({
                       {childThreads.length === 1 ? " thread" : " threads"}
                     </span>
                   </button>
+                ) : preferences.showProviderIcons ? (
+                  <ProviderGlyph
+                    providerId={thread.providerId}
+                    provider={providerInfoById.get(thread.providerId)}
+                    className="size-3 opacity-75"
+                  />
                 ) : null}
               </div>
             </div>
@@ -403,6 +444,60 @@ export function ThreadCard({
         </div>
       </li>
     </RowContextMenu>
+  );
+}
+
+function ReorderHandle({
+  enabled,
+  disabledReason,
+  onDragStart,
+  onKeyDown,
+}: {
+  enabled: boolean;
+  disabledReason: string | null;
+  onDragStart: (event: DragEvent<HTMLButtonElement>) => void;
+  onKeyDown: (event: KeyboardEvent<HTMLButtonElement>) => void;
+}) {
+  const help = enabled
+    ? "Drag to reorder this family. Press Alt+Up or Alt+Down to move it."
+    : (disabledReason ?? "Reordering is unavailable.");
+  return (
+    <button
+      type="button"
+      draggable={enabled}
+      aria-label={`Reorder thread family. ${help}`}
+      aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+      aria-disabled={!enabled}
+      title={help}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      }}
+      onDragStart={(event) => {
+        event.stopPropagation();
+        if (!enabled) {
+          event.preventDefault();
+          return;
+        }
+        onDragStart(event);
+      }}
+      onKeyDown={onKeyDown}
+      className={cn(
+        "group/reorder relative z-20 col-start-1 row-start-2 flex size-4 cursor-grab items-center justify-center rounded text-muted-foreground/55 hover:bg-sidebar-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing",
+        !enabled && "cursor-not-allowed opacity-40",
+      )}
+    >
+      <span aria-hidden className="flex flex-col -space-y-1.5">
+        <Icon name="ChevronUp" className="size-2.5" />
+        <Icon name="ChevronDown" className="size-2.5" />
+      </span>
+      <span
+        role="tooltip"
+        className="pointer-events-none absolute bottom-full left-0 z-40 mb-1 w-52 translate-y-0.5 rounded-md border border-border bg-popover px-2 py-1.5 text-left text-2xs leading-tight text-popover-foreground opacity-0 shadow-md transition-all group-hover/reorder:translate-y-0 group-hover/reorder:opacity-100 group-focus/reorder:translate-y-0 group-focus/reorder:opacity-100"
+      >
+        {help}
+      </span>
+    </button>
   );
 }
 
@@ -520,7 +615,7 @@ function ThreadStateGlyph({
     return (
       <span
         aria-hidden
-        title="Idle"
+        title="Inactive"
         className={cn(
           "flex size-3.5 shrink-0 items-center justify-center",
           className,
@@ -530,7 +625,7 @@ function ThreadStateGlyph({
           className="size-2 rounded-full opacity-50"
           style={{
             backgroundColor:
-              "var(--dockside-status-idle, var(--muted-foreground))",
+              "var(--dockside-status-inactive, var(--muted-foreground))",
           }}
         />
       </span>

@@ -52,6 +52,15 @@ import {
   docksidePreferenceStyle,
   resolveDocksidePreferences,
 } from "@/lib/preferences";
+import {
+  applyFamilyOrder,
+  keyboardFamilyMove,
+  moveProjectFamily,
+  readFamilyOrder,
+  withProjectFamilyOrder,
+  writeFamilyOrder,
+  type FamilyMoveResult,
+} from "@/lib/family-order";
 
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
 
@@ -101,6 +110,8 @@ export function ThreadInbox({
   const [filterPreset, setFilterPreset] =
     useState<ThreadFilterPreset>("all");
   const [selectionMode, setSelectionMode] = useState(false);
+  const [familyOrder, setFamilyOrder] = useState(readFamilyOrder);
+  const [reorderAnnouncement, setReorderAnnouncement] = useState("");
   const [selectedRootIds, setSelectedRootIds] = useState<Set<string>>(
     () => new Set(),
   );
@@ -141,7 +152,15 @@ export function ThreadInbox({
       else active.push(thread);
     }
 
-    const unfilteredProjectGroups = groupThreadsByProject(active, projects);
+    const unfilteredProjectGroups = groupThreadsByProject(active, projects).map(
+      (group) => ({
+        ...group,
+        families: applyFamilyOrder(
+          group.families,
+          familyOrder[group.project.id],
+        ),
+      }),
+    );
     const filteredProjectGroups = filterProjectThreadGroups(
       unfilteredProjectGroups,
       filterPreset,
@@ -177,6 +196,7 @@ export function ThreadInbox({
     };
   }, [
     filterPreset,
+    familyOrder,
     lifecycle,
     now,
     projects,
@@ -233,6 +253,14 @@ export function ThreadInbox({
     ? activeVisibleCount + snoozed.length + settled.length + pendingSettled
     : activeVisibleCount;
   const searching = searchQuery.trim().length > 0;
+  const reorderDisabledReason = selectionMode
+    ? "Exit bulk selection to reorder thread families."
+    : filterPreset !== "all"
+      ? "Choose the All filter to reorder the complete project."
+      : searching
+        ? "Clear search to reorder the complete project."
+        : null;
+  const reorderEnabled = reorderDisabledReason === null;
   const selectableVisibleRootIds = useMemo(
     () => selectableRootIds(projectGroups, activeThreadId),
     [activeThreadId, projectGroups],
@@ -279,6 +307,107 @@ export function ThreadInbox({
     });
     selectionAnchorRootId.current = update.anchorRootId;
     setSelectedRootIds(update.selectedRootIds);
+  };
+
+  const commitFamilyOrder = (
+    projectId: string,
+    order: readonly string[],
+    announcement: string,
+  ) => {
+    const next = withProjectFamilyOrder(familyOrder, projectId, order);
+    if (next === null || !writeFamilyOrder(next)) {
+      setReorderAnnouncement("Thread family order could not be saved.");
+      return;
+    }
+    setFamilyOrder(next);
+    setReorderAnnouncement(announcement);
+  };
+
+  const projectOrderInputs = (projectId: string) => {
+    const group = unfilteredProjectGroups.find(
+      (candidate) => candidate.project.id === projectId,
+    );
+    if (group === undefined) return null;
+    return {
+      rootIds: group.families.map((family) => family.root.id),
+      pinnedRootIds: group.families
+        .filter((family) => family.root.isPinned)
+        .map((family) => family.root.id),
+    };
+  };
+
+  const announceRejectedMove = (result: FamilyMoveResult) => {
+    if (result.ok) return;
+    const messages: Record<Exclude<FamilyMoveResult, { ok: true }>["reason"], string> = {
+      "cross-project": "Thread families cannot move between projects.",
+      "incomplete-order": "Reordering requires the complete project order.",
+      "invalid-id": "That reorder request was invalid.",
+      "missing-root": "That thread family cannot move farther in this direction.",
+      "pinned-boundary": "Pinned and unpinned thread families cannot cross.",
+      "same-root": "Thread family order did not change.",
+    };
+    setReorderAnnouncement(messages[result.reason]);
+  };
+
+  const reorderByDrag = (input: {
+    sourceProjectId: string;
+    sourceRootId: string;
+    targetProjectId: string;
+    targetRootId: string;
+    position: "before" | "after";
+  }) => {
+    if (!reorderEnabled) {
+      setReorderAnnouncement(reorderDisabledReason ?? "Reordering is unavailable.");
+      return;
+    }
+    const project = projectOrderInputs(input.targetProjectId);
+    if (project === null) {
+      setReorderAnnouncement("That project is no longer available.");
+      return;
+    }
+    const result = moveProjectFamily({
+      projectId: input.targetProjectId,
+      ...input,
+      ...project,
+    });
+    if (!result.ok) {
+      announceRejectedMove(result);
+      return;
+    }
+    commitFamilyOrder(
+      input.targetProjectId,
+      result.order,
+      `Moved ${rootTitleById.get(input.sourceRootId) ?? "thread family"}.`,
+    );
+  };
+
+  const reorderByKeyboard = (
+    projectId: string,
+    rootId: string,
+    direction: -1 | 1,
+  ) => {
+    if (!reorderEnabled) {
+      setReorderAnnouncement(reorderDisabledReason ?? "Reordering is unavailable.");
+      return;
+    }
+    const project = projectOrderInputs(projectId);
+    if (project === null) return;
+    const result = keyboardFamilyMove(
+      projectId,
+      project.rootIds,
+      project.pinnedRootIds,
+      rootId,
+      direction,
+    );
+    if (!result.ok) {
+      announceRejectedMove(result);
+      return;
+    }
+    commitFamilyOrder(
+      projectId,
+      result.order,
+      `Moved ${rootTitleById.get(rootId) ?? "thread family"} ${direction < 0 ? "up" : "down"}.`,
+    );
   };
 
   const selectAllVisible = () => {
@@ -389,6 +518,9 @@ export function ThreadInbox({
       style={docksidePreferenceStyle(preferences) as CSSProperties}
       className="flex min-h-0 flex-1 flex-col"
     >
+      <output className="sr-only" aria-live="polite" aria-atomic="true">
+        {reorderAnnouncement}
+      </output>
       <div className="shrink-0">
         <div className="flex h-8 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
           <Icon name="Folder" className="size-3.5" aria-hidden />
@@ -538,6 +670,10 @@ export function ThreadInbox({
                 selectedRootIds={selectedRootIds}
                 selectionHintId={selectionHintId}
                 onToggleRoot={changeSelectedRoot}
+                reorderEnabled={reorderEnabled}
+                reorderDisabledReason={reorderDisabledReason}
+                onReorder={reorderByDrag}
+                onKeyboardMove={reorderByKeyboard}
                 preferences={preferences}
               />
             ))}

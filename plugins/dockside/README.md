@@ -68,8 +68,11 @@ disable the plugin.
 
 ### Projects and parked shelves
 
-- **Projects** — bb's project order, with pinned roots first inside each project
-  and every other root fixed by creation time.
+- **Projects** — bb's project order, with pinned roots first inside each project.
+  Drag the compact reorder handle, or focus it and press Alt+Up/Alt+Down, to move
+  a complete root/child family inside its pinned or unpinned partition. The
+  browser-local order survives reloads. Clear search, choose the All filter, and
+  exit bulk selection before sorting so hidden rows are never moved implicitly.
 - **Snoozed** — hidden until the wake time you chose. A snoozed thread comes back early if it starts working or asks you something.
 - **Settled** — work you are done with, collapsed to one line and shown for 24 hours. Settling also **archives the thread in bb**, so every other surface agrees, and new attention un-settles and unarchives it. After a day the row stops being drawn but stays archived.
 
@@ -77,10 +80,18 @@ An empty shelf disappears.
 
 ### Cards
 
-Root rows use two compact lines: title and status, then branch, activity counts, and
-PR number. Read-idle work recedes; unread titles gain weight and a ring; live work
-uses an animated glyph and a **Working** label. Hovering a quiet root swaps its
-status for the two park buttons.
+Root rows always use exactly two compact lines. The first has a distinct semantic
+icon, truncated title, and elapsed time. The second has a truncated branch and a
+non-wrapping cluster with a readable status badge, parent-only PR metadata, and
+child/provider controls. **Failed**, **Needs you**, **Working**, **Unread**,
+**Inactive**, and seven-day **Stale** states have separate shapes, labels,
+tooltips, and customizable colors. Inactive and stale work recede; Dockside never
+calls ordinary idle work Done. A Working family keeps the actual activity type
+visible: runtime, workflow, background agent, command, plan, and goal each use a
+different animated shape and customizable color. PR ticks and other PR icons use
+their semantic color as a tinted background, so a ready tick is visibly green.
+Hovering a quiet root swaps its elapsed time for the two park buttons without
+adding a row.
 
 ### A working thread can never be parked
 
@@ -105,6 +116,7 @@ still gives a focused child a direct route back up.
 - Collapsible project and agent groups.
 - Right-click for open in split, mark read/unread, pin, archive, delete.
 - Drag a card to a split pane, or Cmd/Ctrl-click to open one.
+- Reorder handles are separate from BB's card-to-split drag target.
 - bb's search, its thread shortcuts, and modifier-click split-open all keep working.
 
 ## Switching from t3sidebar

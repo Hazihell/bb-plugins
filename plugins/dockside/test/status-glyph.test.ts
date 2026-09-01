@@ -17,8 +17,8 @@ describe("statusColorRole", () => {
     ] as const) {
       assert.equal(statusColorRole(indicator), "working");
     }
-    assert.equal(statusColorRole("draft"), "idle");
-    assert.equal(statusColorRole("working-draft"), "idle");
+    assert.equal(statusColorRole("draft"), "inactive");
+    assert.equal(statusColorRole("working-draft"), "inactive");
     assert.equal(statusColorRole("none"), null);
   });
 });
