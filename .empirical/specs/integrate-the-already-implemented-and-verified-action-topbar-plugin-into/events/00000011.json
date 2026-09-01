@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 11,
+  "previousDigest": "sha256:67099cda32b7b68f34c223b53d067ce7c365421da8f6e7354591ab4cfe2f3ee7",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Refreshed repository knowledge after the terminal ownership repair and regression-test addition; all context pages are current and custom.",
+  "createdAt": "2026-09-01T17:39:20.642Z",
+  "stateBeforeDigest": "sha256:81e8a8f5fe98ed39ec9e2490224796c55e2e71e0ec0e65c49e8c1a1eb957b1ed",
+  "stateAfterDigest": "sha256:b590e14d2009d5b76ea828151a7ad211d426ff8cd88e5dadf7b6b37c6f1b09ce",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 11,
+    "activeFeature": "integrate-the-already-implemented-and-verified-action-topbar-plugin-into",
+    "request": "Integrate the already implemented and verified Action Topbar plugin into bb-plugins main, preserve its experimental SDK compatibility warning, and document Git and local installation without marketplace publication.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Refreshed repository knowledge after the terminal ownership repair and regression-test addition; all context pages are current and custom.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:1529f5f25501fe9ebc42a7f453ddb5e463d845f9601d28d8047a4e239d658ec9",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:7f78d44db69515c18987087c60f2b607ee0f1a5c852cc7b0ad459054addea887",
+    "impactDigest": "sha256:dcf654b30757da6492dd4b96daac756470d900df956d15239ab609129dfc34e1",
+    "capabilityClaimId": "integrate-the-already-implemented-and-verified-action-topbar-plugin-into-a5a4ab46ed65",
+    "authorizationDigest": "sha256:ee8cd2aa141906878c0eb8af665539af74163fde46c7fe24fb8e51e76d48e207",
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T17:39:20.642Z"
+  },
+  "digest": "sha256:14bf80f14f3cebe9767ab64f547d9435f62a69aca9f3f9cfbdbeb0046a832950"
+}

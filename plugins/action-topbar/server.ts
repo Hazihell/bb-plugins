@@ -163,9 +163,23 @@ export default function plugin(bb: BbPluginApi): void {
       for (let attempt = 0; attempt < 2; attempt += 1) {
         const current = await bb.sdk.threads.tabs.get({ threadId });
         const target = current.tabs.find((tab) => tab.id === tabId);
-        const terminalToClose =
-          terminalId ??
-          (target?.kind === "terminal" ? target.terminalId : undefined);
+        let terminalToClose =
+          target?.kind === "terminal" ? target.terminalId : undefined;
+        if (target === undefined && terminalId !== undefined) {
+          try {
+            const terminal = await bb.sdk.terminals.get({ terminalId });
+            if (terminal.threadId !== threadId) {
+              bb.log.warn(
+                `Terminal ${terminalId} does not belong to thread ${threadId}`,
+              );
+              return summarizeTabs(current);
+            }
+            terminalToClose = terminal.id;
+          } catch {
+            bb.log.warn(`Terminal ${terminalId} was already unavailable`);
+            return summarizeTabs(current);
+          }
+        }
         if (terminalToClose !== undefined) {
           try {
             await bb.sdk.terminals.close({

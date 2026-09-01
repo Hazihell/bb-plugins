@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 11,
   "activeFeature": "integrate-the-already-implemented-and-verified-action-topbar-plugin-into",
   "request": "Integrate the already implemented and verified Action Topbar plugin into bb-plugins main, preserve its experimental SDK compatibility warning, and document Git and local installation without marketplace publication.",
   "profile": "complex",
@@ -8,8 +8,8 @@
   "mode": "yolo",
   "phase": "verify",
   "status": "waiting",
-  "repairAttempts": 0,
-  "message": "Refreshed repository knowledge and documented Action Topbar ownership, compatibility boundaries, installation commands, collection indexing, and verification conventions with no stale managed pages.",
+  "repairAttempts": 1,
+  "message": "Refreshed repository knowledge after the terminal ownership repair and regression-test addition; all context pages are current and custom.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:1529f5f25501fe9ebc42a7f453ddb5e463d845f9601d28d8047a4e239d658ec9",
@@ -36,5 +36,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T17:29:02.549Z"
+  "updatedAt": "2026-09-01T17:39:20.642Z"
 }

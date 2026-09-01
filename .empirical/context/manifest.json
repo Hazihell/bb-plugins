@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:b65726c3e3ad2640b14e1d5f0f2255c196a938473cadd1488d8c9539a2b2e102",
+  "sourceDigest": "sha256:6c4cf89daba810c0119fdf2a3d7ed4c50eec9cee18da0101d701ded516b1d232",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -140,18 +140,18 @@
     },
     {
       "path": "plugins/action-topbar/lib/action-catalog.ts",
-      "size": 4517,
-      "digest": "sha256:6f9271a2d8c2d681cfe8713ab0d1256d66edc76ee75a1f2ef5e544e20220f6c4"
+      "size": 4201,
+      "digest": "sha256:4da7dd2af011aab5eff521386325589ecc495d0fbc72a7fbc016fcb68c6c9645"
     },
     {
       "path": "plugins/action-topbar/lib/action-topbar.ts",
-      "size": 57794,
-      "digest": "sha256:847f09aef0dcdacdf868e8ce250dcea27ceb9268b281967a23d3a0cc213c4d83"
+      "size": 57267,
+      "digest": "sha256:7208ba25d10fc50ed183c0c676c9c943503ebaeef5e44ecee9d5248c5e1f571f"
     },
     {
       "path": "plugins/action-topbar/lib/tab-model.ts",
-      "size": 6063,
-      "digest": "sha256:29c7d5fcf314c25afac77e0d3cde34f6d11236d0d2708bc326e45be7167a7f69"
+      "size": 5904,
+      "digest": "sha256:c9387a0b6e8d8bacade10c0741e77f0990a6e1dd62acb3469e8b9df6e78c60b4"
     },
     {
       "path": "plugins/action-topbar/package.json",
@@ -160,8 +160,8 @@
     },
     {
       "path": "plugins/action-topbar/server.ts",
-      "size": 6984,
-      "digest": "sha256:b9bd25a55a055950fd166a0bbe24e874656f257d345b9faf9d23b374d3ef9493"
+      "size": 7545,
+      "digest": "sha256:0b716677db1e2a9df6c7a0f1f53ebe892fb628d87625dc062b3e73b758c5ed23"
     },
     {
       "path": "plugins/action-topbar/test/action-catalog.test.ts",
@@ -175,8 +175,8 @@
     },
     {
       "path": "plugins/action-topbar/test/server.test.ts",
-      "size": 7502,
-      "digest": "sha256:d829d8a44f566d7cc7a82ff9033dca6cf114daa2b976576aa4dfe8727bf4aac5"
+      "size": 9400,
+      "digest": "sha256:0b6a458aa839261457caa922012c14dd3c9669304f942fc3eda28b95f139e77f"
     },
     {
       "path": "plugins/action-topbar/test/tab-model.test.ts",
@@ -1457,7 +1457,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:b65726c3e3ad2640b14e1d5f0f2255c196a938473cadd1488d8c9539a2b2e102",
+      "sourceDigest": "sha256:6c4cf89daba810c0119fdf2a3d7ed4c50eec9cee18da0101d701ded516b1d232",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1544,5 +1544,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:247699481edee7d43b94418f1f0547853f947a86ad6d270c8f7630a429c533d5"
+  "digest": "sha256:050fdd09c6e84aecc29294daf2af58821e26a3b9905c1883f5763a3493beda57"
 }

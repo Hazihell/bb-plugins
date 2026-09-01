@@ -472,9 +472,6 @@ function pairTabs(
     return { summary, native: nativeTabs[exactIndex] ?? null };
   });
 
-  // A native Action can replace New Tab before the server snapshot arrives.
-  // Keep that just-opened tab visible until the mutation-triggered refresh
-  // catches up, without allowing stale native order to overwrite server order.
   for (const nativeIndex of unusedNative) {
     const native = nativeTabs[nativeIndex];
     if (native === undefined) continue;
@@ -565,7 +562,6 @@ function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
     const finish = () => {
       clearTimeout(timer);
       signal.removeEventListener("abort", finish);
-      // The timer and abort listener disarm one another before settling.
       // oxlint-disable-next-line promise/no-multiple-resolved
       resolve();
     };
@@ -781,9 +777,7 @@ export function mountActionTopbar(
         ACTION_CATALOG_STORAGE_KEY,
         serializeActionCatalog(actions),
       );
-    } catch {
-      // Learning the launcher inventory is an optimization.
-    }
+    } catch {}
   };
 
   const positionLauncher = (): void => {
@@ -1708,8 +1702,6 @@ export function mountActionTopbar(
     const nextNativeFingerprint = nativeTabsFingerprint(nativeTabs);
     if (nextNativeFingerprint !== currentNativeFingerprint) {
       syncNativeTabs();
-      // Native order/title/count is the invalidation signal. Refresh once per
-      // actual strip change instead of polling every connected BB window.
       if (tabsSnapshot !== null) void loadTabs(threadId);
     } else {
       hideNativeTabStrip();

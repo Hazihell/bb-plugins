@@ -158,6 +158,15 @@ test("closes a topbar tab through BB's tab revision API", async (t) => {
     pluginId: "action-topbar",
     sdk: {
       terminals: {
+        async get({ terminalId }) {
+          return {
+            id: terminalId,
+            scope: { kind: "thread" as const, threadId: "thr_1" },
+            status: "running" as const,
+            threadId: "thr_1",
+            title: "Terminal",
+          };
+        },
         async close({ terminalId }) {
           return {
             id: terminalId,
@@ -217,6 +226,15 @@ test("closes a main-pane terminal without a persisted panel tab", async (t) => {
     pluginId: "action-topbar",
     sdk: {
       terminals: {
+        async get({ terminalId }) {
+          return {
+            id: terminalId,
+            scope: { kind: "thread" as const, threadId: "thr_1" },
+            status: "running" as const,
+            threadId: "thr_1",
+            title: "Terminal",
+          };
+        },
         async close({ terminalId }) {
           return {
             id: terminalId,
@@ -252,6 +270,54 @@ test("closes a main-pane terminal without a persisted panel tab", async (t) => {
   assert.deepEqual(fake.harness.inspection.sdk.callsTo("terminals.close"), [
     [{ mode: "force", terminalId: "term_main" }],
   ]);
+  assert.deepEqual(fake.harness.inspection.sdk.callsTo("terminals.get"), [
+    [{ terminalId: "term_main" }],
+  ]);
+});
+
+test("does not close a main-pane terminal owned by another thread", async (t) => {
+  const state: ThreadTabsResult = {
+    revision: 10,
+    tabs: [{ id: "info", kind: "thread-info" }],
+  };
+  const fake = createFakePluginHost({
+    pluginId: "action-topbar",
+    sdk: {
+      terminals: {
+        async get({ terminalId }) {
+          return {
+            id: terminalId,
+            scope: { kind: "thread" as const, threadId: "thr_other" },
+            status: "running" as const,
+            threadId: "thr_other",
+            title: "Terminal",
+          };
+        },
+      },
+      threads: {
+        tabs: {
+          async get() {
+            return state;
+          },
+        },
+      },
+    },
+  });
+  t.after(() => fake.harness.lifecycle.dispose());
+  await plugin(fake.bb);
+
+  const result = (await fake.harness.behavior.callRpc("closeTab", {
+    tabId: "action-pane:file-search-result-start-terminal",
+    terminalId: "term_other",
+    threadId: "thr_1",
+  })) as { revision: number; tabs: Array<{ id: string }> };
+
+  assert.equal(result.revision, 10);
+  assert.deepEqual(
+    result.tabs.map((tab) => tab.id),
+    ["info"],
+  );
+  assert.deepEqual(fake.harness.inspection.sdk.callsTo("terminals.close"), []);
 });
 
 test("bounds host-provided tab labels before returning the RPC projection", async (t) => {

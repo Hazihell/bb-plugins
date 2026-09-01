@@ -146,10 +146,6 @@ function matchScore(query: string, label: string, detail: string): number {
   return 0;
 }
 
-/**
- * Orca's empty + menu is a creation launcher. Open tabs join only after the
- * user types, where an existing tab ranks ahead of creating a duplicate.
- */
 export function buildLauncherOptions(
   tabs: readonly TabSummary[],
   actions: readonly ActionDescriptor[],

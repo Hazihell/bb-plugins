@@ -5,11 +5,6 @@ export interface ActionDescriptor {
 
 export const ACTION_CATALOG_STORAGE_KEY = "bb:action-topbar:catalog";
 
-/**
- * Useful immediately on a stock Mateo setup. The first visible BB New Tab
- * launcher replaces this seed with its live action inventory, so disabled,
- * removed, renamed, and newly installed actions converge to the host.
- */
 export const SEEDED_ACTIONS: readonly ActionDescriptor[] = [
   { id: "file-search-result-open-browser", label: "Open browser" },
   { id: "file-search-result-start-terminal", label: "Start terminal" },
@@ -85,7 +80,6 @@ export function initialActionCatalog(raw: string | null): ActionDescriptor[] {
   return stored.length > 0 ? stored : [...SEEDED_ACTIONS];
 }
 
-/** An empty observation means the launcher is absent, not that it has no actions. */
 export function applyDiscoveredCatalog(
   current: readonly ActionDescriptor[],
   discovered: readonly ActionDescriptor[],

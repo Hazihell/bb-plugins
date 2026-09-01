@@ -12,6 +12,17 @@ advisory
 
 No blocking findings.
 
+### Finding S-000
+
+- Severity: high
+- Category: authorization boundary
+- Location: `plugins/action-topbar/server.ts`
+- Finding: A terminal identifier supplied by the frontend must not authorize a
+  close outside the requested thread.
+- Recommendation: Resolve the terminal through the host SDK and require its
+  `threadId` to match the RPC thread before force-closing it. Keep a regression
+  test proving a cross-thread terminal ID is rejected.
+
 ### Finding S-001
 
 - Severity: low

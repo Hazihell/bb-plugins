@@ -7,7 +7,7 @@
     {"id": "AC-2", "passed": true, "detail": "The root catalog and collection index include Action Topbar as experimental."},
     {"id": "AC-3", "passed": true, "detail": "Both READMEs warn that the matching BB core and experimental Plugin SDK 0.4.33 are required and that marketplace submission is deferred."},
     {"id": "AC-4", "passed": true, "detail": "The plugin README contains Git and local-path installation commands."},
-    {"id": "AC-5", "passed": true, "detail": "All 23 tests, TypeScript typechecking, plugin build, and dry-run package validation pass."},
+    {"id": "AC-5", "passed": true, "detail": "All 24 tests, TypeScript typechecking, plugin build, and dry-run package validation pass."},
     {"id": "AC-6", "passed": true, "detail": "The clean integration worktree is based on origin/main and the staged product diff excludes unrelated changes from the original development worktree; the final push is reserved for the integration phase."}
   ],
   "observations": [
