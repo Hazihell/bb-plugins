@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 7,
+  "revision": 8,
   "activeFeature": "dockside-rich-pr-agent-metadata",
   "request": "Add rich Orca-style metadata to Dockside thread families: semantic PR status pills and truncated PR titles on root rows and expanded child rows using BB's lazy pull-request hook; derive a single family-level Waiting for agents state and subtle activity tint from child work without stacking icons; lazily fetch and cache bounded final assistant output summaries for completed expanded rows through a typed backend RPC keyed by thread id and updatedAt, with live invalidation and privacy/performance safeguards; infer Done only when a final output exists; preserve filters, bulk selection/deletion, hierarchy, navigation, project creation, and compact layout.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Verified rich metadata with clean focused unit/fault/type contracts, live BB end-to-end and browser screenshots, an isolated git-archived package/clean-install/build portability run covering integration/package/cross-platform routes, passing fresh-context QA, and a non-blocking security advisory.",
+  "message": "An isolated fresh-context reviewer approved the exact committed main-to-head diff, passing every criterion with no blocking security, correctness, design, or maintainability findings.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:9848868e8edb6e9da3ee606c7c3989fda773989e338ac1fcea5b6f7295905b56",
@@ -27,7 +27,8 @@
     "qa-342befed7b21453db576621c",
     "qa-ea092097d91261bb38383901",
     "qa-b8f3a6626c103bcba77fd65a",
-    "collected-660f4b48f697b4fd2ea40346"
+    "collected-660f4b48f697b4fd2ea40346",
+    "collected-859f5acc5126e2721ea32577"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -43,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T00:11:14.625Z"
+  "updatedAt": "2026-09-01T00:18:06.125Z"
 }
