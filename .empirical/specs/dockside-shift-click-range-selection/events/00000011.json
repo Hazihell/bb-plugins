@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 11,
+  "previousDigest": "sha256:ff02668787f0c5c1bcd38584aca8bdb4885cf619dae244652e4f18a26b454e55",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "No source repair was needed; 17e8c35a2 contains the verified Shift-selection implementation. Reset verification to bind evidence to the durable commit.",
+  "createdAt": "2026-09-01T04:52:42.147Z",
+  "stateBeforeDigest": "sha256:a4d12c6544f27ea92151b19e8f4902d368bc014873842fe22e627f28d352844f",
+  "stateAfterDigest": "sha256:d860fb8d54c212de4573ecae0546e10683e157caae6a47981bc6c9aac9fd3451",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 11,
+    "activeFeature": "dockside-shift-click-range-selection",
+    "request": "Add Shift+click range selection to Dockside bulk-delete selection mode. Clicking a root checkbox establishes an anchor; Shift+clicking another visible root checkbox selects or deselects the contiguous visible range using the clicked checkbox's intended state. Preserve protected-thread eligibility, ordinary click toggling, select-all, filtering/search/project order, confirmation, deletion, keyboard/accessibility behavior, and clear/reset stale anchors when selection mode or visible roots change. Add focused tests and exercise the live BB sidebar.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "No source repair was needed; 17e8c35a2 contains the verified Shift-selection implementation. Reset verification to bind evidence to the durable commit.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:c7163948b061a2f1d327efd46bdf405a08143e64a23b927a383f764cd0e1151b",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:7f5660f4eef8ecf2a40ff48e23330a44f07e5d05d0eec847ec773877e1203c27",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-shift-click-range-selection-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T04:52:42.147Z"
+  },
+  "digest": "sha256:510ed6dffdc860bcc222e5c11ed84545d776c4997c311da290d38f93baae992f"
+}
