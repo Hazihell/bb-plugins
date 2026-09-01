@@ -30,3 +30,7 @@ identify the corresponding service.
 Usage Tracker also bundles Zod under its MIT License. Full attribution and
 license text are included in
 `plugins/usage-tracker/THIRD_PARTY_NOTICES.md`.
+
+Action Topbar bundles Zod for its runtime RPC contract validation. Zod is
+distributed under the MIT License. Full attribution and license text are
+included in `plugins/action-topbar/THIRD_PARTY_NOTICES.md`.

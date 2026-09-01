@@ -23,7 +23,6 @@ import {
   projectBadgePresentation,
 } from "@/lib/project-colors";
 
-/** A collapsible project section, modeled after Orca's durable outer groups. */
 export function ProjectGroup({
   group,
   providerInfoById,

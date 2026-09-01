@@ -6,6 +6,10 @@ Commands below are verified from workspace and plugin manifests.
 
 - `npm install` — install shared workspace dependencies after a fresh checkout
   or dependency/lockfile change.
+- `bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --subdirectory plugins/action-topbar --yes`
+  — install experimental Action Topbar on a compatible BB core/SDK build.
+- `bb plugin install path:/absolute/path/to/bb-plugins/plugins/action-topbar --yes`
+  — install Action Topbar from a local checkout.
 - `bb plugin install ./plugins/dockside` — register the local Dockside path for
   live sidebar verification.
 - `bb plugin install ./plugins/save-my-model` — register the local Save My Model
@@ -23,6 +27,9 @@ Commands below are verified from workspace and plugin manifests.
 
 ## Run, test, and build
 
+- `npm run test --workspace=bb-plugin-action-topbar` and
+  `npm run typecheck --workspace=bb-plugin-action-topbar` — focused Action
+  Topbar verification.
 - `npm run build` — build every plugin workspace that declares a build script.
 - `npm run typecheck` — typecheck every plugin workspace.
 - `npm run test` — run every plugin test suite.

@@ -11,9 +11,11 @@ Swift/AppKit background app owns the physical Touch Bar:
 - one outlined two-line card per thread with provider, project, status colour,
   badge and activity spinner;
 - tap a card to open that exact BB thread;
-- optional right-side Codex, Claude Code, and Cursor subscription percentages;
-- an optional Host Monitor button that swaps the thread lane for bounded
-  CPU, RAM, disk, download, and upload cards for every enrolled host;
+- optional right-side circular ChatGPT, Claude Code, and Cursor icons with usage
+  progress rings instead of percentage text;
+- an optional icon-only Host Monitor button that swaps the thread lane for bounded
+  host cards containing separate, readable CPU, RAM, disk, download, and upload
+  metric tiles for every enrolled host;
 - tap ✕ to collapse to the ordinary Control Strip;
 - automatic restoration after login and wake.
 
@@ -96,10 +98,16 @@ The app has no Dock icon. Its BB badge appears in the Touch Bar's Control Strip.
 Install and enable the repository's `host-monitor` plugin to populate the host
 cards; subscription usage comes directly from BB's provider usage API.
 
-Open the slider button on the Touch Bar to toggle Usage and Host Monitor, choose
-Codex, Claude Code, and/or Cursor, and select the thread layout. These native
-preferences persist per macOS user. Tap the HOSTS button on the main bar to
-switch between threads and host metrics.
+Use the BB Touch Bar menu-bar icon for grouped LAYOUT FILTER, SUBSCRIPTIONS,
+and HOST MONITOR settings. The slider button on the Touch Bar opens that same
+menu after safely collapsing the system-modal panel. Toggle Usage and Host Monitor,
+choose Codex, Claude Code, and/or Cursor, and select the thread layout. These
+native preferences persist per macOS user. Tap the computer icon on the main
+bar to switch between threads and host metrics.
+
+The fixed ‹ and › controls page the horizontally scrollable card lane in every
+normal layout. In Carousel mode, those same controls switch projects. Trackpad
+or finger horizontal scrolling remains enabled as a secondary gesture.
 
 ## Controls
 

@@ -11,6 +11,66 @@
     },
     "commands": [
       {
+        "id": "action-topbar-focused",
+        "argv": [
+          "npm",
+          "run",
+          "test",
+          "--workspace=bb-plugin-action-topbar"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "fault-injection",
+          "unit"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "action-topbar-contract",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck",
+          "--workspace=bb-plugin-action-topbar"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "adapter-contract"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "action-topbar-distribution",
+        "argv": [
+          "node",
+          ".empirical/specs/integrate-the-already-implemented-and-verified-action-topbar-plugin-into/qa/distribution.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "integration",
+          "package-consumer",
+          "clean-clone",
+          "end-to-end",
+          "cross-platform"
+        ],
+        "criteria": []
+      },
+      {
         "id": "workspace-check",
         "argv": [
           "npm",
