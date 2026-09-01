@@ -21,7 +21,6 @@ private final class CompactControlButton: NSButton {
         self.action = action
         font = .monospacedSystemFont(ofSize: title.count > 2 ? 7.5 : 13, weight: .bold)
         refusesFirstResponder = true
-        sendAction(on: .leftMouseUp)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
@@ -29,6 +28,11 @@ private final class CompactControlButton: NSButton {
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard isEnabled, let action else { return }
+        NSApp.sendAction(action, to: target, from: self)
     }
 }
 
@@ -306,6 +310,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private weak var projectControl: NSButton?
     private weak var panelStack: NSStackView?
     private weak var panelScroll: NSScrollView?
+    private weak var controlsStack: NSStackView?
+    private weak var panelRoot: NSView?
     private var sortMode = SortMode(
         rawValue: UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
     ) ?? .status
@@ -566,7 +572,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         project.isHidden = !configurationVisible
         projectControl = project
 
-        var views: [NSView] = [close, settings, priority, project]
+        var views: [NSView] = []
         if !snapshot.connected {
             views.append(message("BB is offline"))
         } else if snapshot.agents.isEmpty {
@@ -593,7 +599,10 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
                 views.append(button(for: entry))
             }
         }
-        panelItem.view = scrollContainer(views)
+        panelItem.view = panelContainer(
+            content: views,
+            controls: [priority, project, settings, close]
+        )
     }
 
     private func message(_ text: String) -> NSView {
@@ -652,39 +661,67 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         ])
     }
 
-    private func scrollContainer(_ views: [NSView]) -> NSView {
+    private func panelContainer(content views: [NSView], controls: [NSView]) -> NSView {
         let stack = NSStackView(views: views)
         stack.orientation = .horizontal
         stack.spacing = 5
         stack.alignment = .centerY
-        let fitting = stack.fittingSize
-        let visible = min(max(fitting.width, 100), Self.panelMaxWidth)
         stack.translatesAutoresizingMaskIntoConstraints = true
-        stack.frame = NSRect(x: 0, y: 0, width: max(fitting.width, visible), height: Self.barHeight)
 
-        let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: visible, height: Self.barHeight))
+        let scroll = NSScrollView(frame: .zero)
         scroll.drawsBackground = false
         scroll.hasHorizontalScroller = false
         scroll.hasVerticalScroller = false
         scroll.horizontalScrollElasticity = .allowed
         scroll.verticalScrollElasticity = .none
         scroll.documentView = stack
+
+        let fixed = NSStackView(views: controls)
+        fixed.orientation = .horizontal
+        fixed.spacing = 5
+        fixed.alignment = .centerY
+        fixed.translatesAutoresizingMaskIntoConstraints = true
+
+        let root = NSView(frame: NSRect(
+            x: 0,
+            y: 0,
+            width: Self.panelMaxWidth,
+            height: Self.barHeight
+        ))
+        root.addSubview(scroll)
+        root.addSubview(fixed)
         panelStack = stack
         panelScroll = scroll
-        return scroll
+        controlsStack = fixed
+        panelRoot = root
+        relayoutPanelStack()
+        return root
     }
 
     private func relayoutPanelStack() {
-        guard let stack = panelStack, let scroll = panelScroll else { return }
+        guard let stack = panelStack,
+              let scroll = panelScroll,
+              let fixed = controlsStack,
+              let root = panelRoot else { return }
         stack.needsLayout = true
         stack.layoutSubtreeIfNeeded()
-        let fitting = stack.fittingSize
-        let visible = min(max(fitting.width, 100), Self.panelMaxWidth)
+        fixed.needsLayout = true
+        fixed.layoutSubtreeIfNeeded()
+        let contentWidth = stack.fittingSize.width
+        let controlsWidth = fixed.fittingSize.width
+        let visible = max(100, Self.panelMaxWidth - controlsWidth - 5)
         stack.frame.size = NSSize(
-            width: max(fitting.width, visible),
+            width: max(contentWidth, visible),
             height: Self.barHeight
         )
-        scroll.frame.size = NSSize(width: visible, height: Self.barHeight)
+        scroll.frame = NSRect(x: 0, y: 0, width: visible, height: Self.barHeight)
+        fixed.frame = NSRect(
+            x: visible + 5,
+            y: 0,
+            width: controlsWidth,
+            height: Self.barHeight
+        )
+        root.frame.size = NSSize(width: Self.panelMaxWidth, height: Self.barHeight)
         scroll.needsDisplay = true
     }
 }
