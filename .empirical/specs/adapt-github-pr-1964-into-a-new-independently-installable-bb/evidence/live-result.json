@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "route": "/settings/plugins/save-my-model",
+  "previewVisible": true,
+  "browserWideLabel": true,
+  "clearEnabledWithRows": true,
+  "clearedToEmptyState": true,
+  "clearDisabledAfterClear": true,
+  "upstreamLinkVisible": true,
+  "currentPreferenceKeysAfterClear": 0,
+  "pluginStatus": "running",
+  "viewport": "900x700"
+}
