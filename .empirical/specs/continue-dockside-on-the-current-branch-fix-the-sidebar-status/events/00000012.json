@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 12,
+  "previousDigest": "sha256:ac303165a32331f3b76e1145da8bd2cf4e99ab83470f17865e32f80543580bfc",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Repository knowledge refreshed with no stale, missing, invalid, or refinement-required context.",
+  "createdAt": "2026-09-01T15:46:29.957Z",
+  "stateBeforeDigest": "sha256:7db2aa76ce5264fe74a1ffb57c98e0372045f071bd69ad6c515b8a7fcda9c339",
+  "stateAfterDigest": "sha256:c678ad9c158f78f8bf4879c57fe36711deadba8d0f33c8c153ffce749cf0352c",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 12,
+    "activeFeature": "continue-dockside-on-the-current-branch-fix-the-sidebar-status",
+    "request": "Continue Dockside on the current branch. Fix the sidebar status presentation with exactly two compact rows per parent: row 1 semantic activity/status icon, truncated title, far-right elapsed time; row 2 truncated branch and a compact right cluster with readable status badge, parent-only PR metadata, and child disclosure/count/provider icon. Use distinct accessible Working, Needs you, Unread, Failed, Inactive, and Stale states; never show Done without a genuine BB completed state; make inactive/stale visually recede; add hover/focus tooltips for ambiguous status, PR, provider, and disclosure icons. Make every semantic color customizable in Dockside Settings with presets, hex validation, missing stale role, and accurate previews. Add persistent drag sorting of complete root/child families within the same project, preserve children, persist reload order, reject cross-project moves, disable reorder during bulk selection/filter/search, and provide keyboard-accessible move controls with announcements. Preserve all existing Dockside behaviors and parent-only PR metadata. Add focused tests for all specified states, stale classification, colors, truncation and child/PR edge cases, persisted/invalid ordering and interaction conflicts. Verify live normal/narrow sidebar, capture a screenshot showing all six states without clipping or a third row, run Dockside tests/typecheck/build and repository checks, commit, push the current branch, and update PR #26.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Repository knowledge refreshed with no stale, missing, invalid, or refinement-required context.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:63beed61303d11dcb752bc4132c418e3177d91303ffb7bf49cc26a138b0b4300",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:6e79bccbb516d03dbb5ef5b4fb7a4aa8f215405b3f6b0f53ff9032faee7d41b3",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "continue-dockside-on-the-current-branch-fix-the-sidebar-status-b40841a02be2",
+    "authorizationDigest": "sha256:b89e2e01140a73c8d9874cefce9c7adbc3ab05adbc7bc33a2de05a6a84e666b3",
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T15:46:29.957Z"
+  },
+  "digest": "sha256:edbb4ec8d39eb1a6c15aa4a3110e91a5c77a9950a819527d307b1f307a47ee8f"
+}
