@@ -310,7 +310,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private weak var projectControl: NSButton?
     private weak var panelStack: NSStackView?
     private weak var panelScroll: NSScrollView?
-    private weak var controlsStack: NSStackView?
+    private weak var controlsContainer: NSView?
+    private var fixedControls: [NSView] = []
     private weak var panelRoot: NSView?
     private var sortMode = SortMode(
         rawValue: UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
@@ -676,11 +677,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         scroll.verticalScrollElasticity = .none
         scroll.documentView = stack
 
-        let fixed = NSStackView(views: controls)
-        fixed.orientation = .horizontal
-        fixed.spacing = 5
-        fixed.alignment = .centerY
-        fixed.translatesAutoresizingMaskIntoConstraints = true
+        let fixed = NSView(frame: .zero)
+        for control in controls { fixed.addSubview(control) }
 
         let root = NSView(frame: NSRect(
             x: 0,
@@ -692,7 +690,8 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         root.addSubview(fixed)
         panelStack = stack
         panelScroll = scroll
-        controlsStack = fixed
+        controlsContainer = fixed
+        fixedControls = controls
         panelRoot = root
         relayoutPanelStack()
         return root
@@ -701,14 +700,24 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private func relayoutPanelStack() {
         guard let stack = panelStack,
               let scroll = panelScroll,
-              let fixed = controlsStack,
+              let fixed = controlsContainer,
               let root = panelRoot else { return }
         stack.needsLayout = true
         stack.layoutSubtreeIfNeeded()
-        fixed.needsLayout = true
-        fixed.layoutSubtreeIfNeeded()
         let contentWidth = stack.fittingSize.width
-        let controlsWidth = fixed.fittingSize.width
+        let visibleControls = fixedControls.filter { !$0.isHidden }
+        var controlX: CGFloat = 0
+        for control in visibleControls {
+            let width = control.intrinsicContentSize.width
+            control.frame = NSRect(
+                x: controlX,
+                y: 0,
+                width: width,
+                height: Self.barHeight
+            )
+            controlX += width + 5
+        }
+        let controlsWidth = max(0, controlX - 5)
         let visible = max(100, Self.panelMaxWidth - controlsWidth - 5)
         stack.frame.size = NSSize(
             width: max(contentWidth, visible),
@@ -721,6 +730,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             width: controlsWidth,
             height: Self.barHeight
         )
+        fixed.needsDisplay = true
         root.frame.size = NSSize(width: Self.panelMaxWidth, height: Self.barHeight)
         scroll.needsDisplay = true
     }
