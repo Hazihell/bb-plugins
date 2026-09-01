@@ -20,30 +20,43 @@
   },
   "realSidebar": {
     "actualKindsBeforeFixture": [
-      "inactive",
       "working",
+      "inactive",
       "unread"
     ],
     "projectName": "Naranja",
     "dragInitialOrder": [
       "thr_7ahr5hjsd4",
-      "thr_ys2uiaiem2",
-      "thr_nv9anpbjt9",
-      "thr_4wvf5623bz"
+      "thr_nv9anpbjt9"
     ],
     "dragResultOrder": [
-      "thr_ys2uiaiem2",
-      "thr_7ahr5hjsd4",
       "thr_nv9anpbjt9",
-      "thr_4wvf5623bz"
+      "thr_7ahr5hjsd4"
     ],
     "persistedOrder": [
-      "thr_ys2uiaiem2",
-      "thr_7ahr5hjsd4",
       "thr_nv9anpbjt9",
-      "thr_4wvf5623bz"
+      "thr_7ahr5hjsd4"
     ],
-    "orderStored": true
+    "orderStored": true,
+    "projectDragInitialOrder": [
+      "proj_r8x492zgtg",
+      "proj_3jqyup895d",
+      "proj_ykxahiys47",
+      "proj_qt3ar4b78b"
+    ],
+    "projectDragResultOrder": [
+      "proj_3jqyup895d",
+      "proj_r8x492zgtg",
+      "proj_ykxahiys47",
+      "proj_qt3ar4b78b"
+    ],
+    "projectPersistedOrder": [
+      "proj_3jqyup895d",
+      "proj_r8x492zgtg",
+      "proj_ykxahiys47",
+      "proj_qt3ar4b78b"
+    ],
+    "projectOrderStored": true
   },
   "controlledFixture": {
     "kindOrder": [
@@ -60,7 +73,7 @@
         "cardHeight": 48,
         "titleY": 79,
         "detailY": 97,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -70,7 +83,7 @@
         "cardHeight": 48,
         "titleY": 133,
         "detailY": 151,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -80,7 +93,7 @@
         "cardHeight": 48,
         "titleY": 187,
         "detailY": 205,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -90,7 +103,7 @@
         "cardHeight": 48,
         "titleY": 241,
         "detailY": 259,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -100,7 +113,7 @@
         "cardHeight": 48,
         "titleY": 295,
         "detailY": 313,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -110,7 +123,7 @@
         "cardHeight": 48,
         "titleY": 349,
         "detailY": 367,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -120,7 +133,7 @@
       {
         "kind": "working",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -128,15 +141,15 @@
       {
         "kind": "needs-you",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
-        "branchOverflow": true
+        "branchOverflow": false
       },
       {
         "kind": "unread",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -144,15 +157,15 @@
       {
         "kind": "failed",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
-        "branchOverflow": true
+        "branchOverflow": false
       },
       {
         "kind": "inactive",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -160,7 +173,7 @@
       {
         "kind": "stale",
         "cardHeight": 48,
-        "badgeWidth": 64,
+        "badgeWidth": 56,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true

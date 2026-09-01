@@ -55,6 +55,12 @@ selection off, `all` filter, and blank host search. Disabled attempts do not
 write and expose a reason. A polite live region announces moves and boundaries.
 Children remain inside ThreadCard and therefore move atomically with the root.
 
+The same bounded browser-local pattern stores project IDs. Stored ranks apply to
+complete non-empty project groups before family filtering. The existing full-row
+project collapse button doubles as the drag and Alt+Arrow target, so project
+sorting adds no icon; search, filtering, and bulk selection disable both order
+surfaces together.
+
 ## Verification
 
 Pure tests cover projection precedence/boundary, palette fallback, storage

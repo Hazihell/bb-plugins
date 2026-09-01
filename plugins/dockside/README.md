@@ -68,10 +68,13 @@ disable the plugin.
 
 ### Projects and parked shelves
 
-- **Projects** — bb's project order, with pinned roots first inside each project.
+- **Projects** — drag an existing project header to sort projects, or focus the
+  same header and press Alt+Up/Alt+Down. No extra drag icon is added, and the
+  browser-local project order survives reloads. Pinned roots remain first inside
+  each project.
   Drag a family's semantic status icon, or focus it and press Alt+Up/Alt+Down, to move
   a complete root/child family inside its pinned or unpinned partition. The
-  browser-local order survives reloads. Clear search, choose the All filter, and
+  family order survives reloads. Clear search, choose the All filter, and
   exit bulk selection before sorting so hidden rows are never moved implicitly.
 - **Snoozed** — hidden until the wake time you chose. A snoozed thread comes back early if it starts working or asks you something.
 - **Settled** — work you are done with, collapsed to one line and shown for 24 hours. Settling also **archives the thread in bb**, so every other surface agrees, and new attention un-settles and unarchives it. After a day the row stops being drawn but stays archived.

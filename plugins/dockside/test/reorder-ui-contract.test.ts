@@ -21,6 +21,7 @@ const familyStatus = await readFile(
 
 describe("family reorder UI contract", () => {
   it("applies persisted complete-family order before filter and search", () => {
+    assert.ok(inbox.indexOf("applyProjectOrder(") < inbox.indexOf("filterProjectThreadGroups("));
     const apply = inbox.indexOf("families: applyFamilyOrder(");
     const filter = inbox.indexOf("filterProjectThreadGroups(", apply);
     const search = inbox.indexOf("searchProjectThreadGroups(", filter);
@@ -38,11 +39,15 @@ describe("family reorder UI contract", () => {
 
   it("wires explicit drag and keyboard controls with announcements", () => {
     assert.match(group, /application\/x-dockside-family/);
+    assert.match(group, /application\/x-dockside-project/);
+    assert.match(group, /data-dockside-project/);
+    assert.match(group, /draggable=\{projectReorderEnabled\}/);
     assert.match(group, /sourceProjectId: dragged\.projectId/);
     assert.match(group, /targetProjectId: group\.project\.id/);
     assert.match(card, /draggable=\{reorderEnabled\}/);
     assert.match(familyStatus, /aria-keyshortcuts=/);
     assert.doesNotMatch(card, /ReorderHandle|group\/reorder/);
+    assert.doesNotMatch(group, /name="Drag|name="Grip|name="Move/);
     assert.match(inbox, /aria-live="polite"/);
     assert.match(inbox, /Thread families cannot move between projects/);
     assert.match(inbox, /Pinned and unpinned thread families cannot cross/);

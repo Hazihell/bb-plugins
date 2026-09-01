@@ -106,6 +106,43 @@ const settings = await evaluate(`(() => {
 })()`);
 
 await navigate(appUrl);
+const projectBefore = await evaluate(`(() => {
+  const projects = [...document.querySelectorAll('section[data-dockside-project]')];
+  const initial = projects.map((section) => section.getAttribute('data-dockside-project'));
+  if (projects.length >= 2) {
+    const source = projects[0].querySelector(':scope > div > button[draggable="true"]');
+    const target = projects[1];
+    const transfer = new DataTransfer();
+    source?.dispatchEvent(new DragEvent('dragstart', { bubbles: true, dataTransfer: transfer }));
+    const header = target.firstElementChild.getBoundingClientRect();
+    target.dispatchEvent(new DragEvent('dragover', {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: transfer,
+      clientY: header.bottom - 1,
+    }));
+    target.dispatchEvent(new DragEvent('drop', {
+      bubbles: true,
+      cancelable: true,
+      dataTransfer: transfer,
+      clientY: header.bottom - 1,
+    }));
+  }
+  return { initial };
+})()`);
+await sleep(400);
+const projectAfter = await evaluate(`(() => ({
+  order: [...document.querySelectorAll('section[data-dockside-project]')]
+    .map((section) => section.getAttribute('data-dockside-project')),
+  stored: localStorage.getItem('bb.dockside.project-order.v1'),
+}))()`);
+await navigate(appUrl);
+const projectPersisted = await evaluate(`(() => ({
+  order: [...document.querySelectorAll('section[data-dockside-project]')]
+    .map((section) => section.getAttribute('data-dockside-project')),
+  stored: localStorage.getItem('bb.dockside.project-order.v1'),
+}))()`);
+
 const realBefore = await evaluate(`(() => {
   const sections = [...document.querySelectorAll('[data-dockside-palette] section')];
   const project = sections.find((section) =>
@@ -293,6 +330,10 @@ const result = {
     dragResultOrder: afterDrag.order,
     persistedOrder: persistedOrder.order,
     orderStored: Boolean(afterDrag.stored && persistedOrder.stored),
+    projectDragInitialOrder: projectBefore.initial,
+    projectDragResultOrder: projectAfter.order,
+    projectPersistedOrder: projectPersisted.order,
+    projectOrderStored: Boolean(projectAfter.stored && projectPersisted.stored),
   },
   controlledFixture: {
     kindOrder: normalMetrics.rows.map((row) => row.kind),

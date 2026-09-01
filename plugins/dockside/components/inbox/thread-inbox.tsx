@@ -61,6 +61,14 @@ import {
   writeFamilyOrder,
   type FamilyMoveResult,
 } from "@/lib/family-order";
+import {
+  applyProjectOrder,
+  keyboardProjectMove,
+  moveProject,
+  readProjectOrder,
+  writeProjectOrder,
+  type ProjectMoveResult,
+} from "@/lib/project-order";
 
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
 
@@ -111,6 +119,7 @@ export function ThreadInbox({
     useState<ThreadFilterPreset>("all");
   const [selectionMode, setSelectionMode] = useState(false);
   const [familyOrder, setFamilyOrder] = useState(readFamilyOrder);
+  const [projectOrder, setProjectOrder] = useState(readProjectOrder);
   const [reorderAnnouncement, setReorderAnnouncement] = useState("");
   const [selectedRootIds, setSelectedRootIds] = useState<Set<string>>(
     () => new Set(),
@@ -152,8 +161,10 @@ export function ThreadInbox({
       else active.push(thread);
     }
 
-    const unfilteredProjectGroups = groupThreadsByProject(active, projects).map(
-      (group) => ({
+    const unfilteredProjectGroups = applyProjectOrder(
+      groupThreadsByProject(active, projects),
+      projectOrder,
+    ).map((group) => ({
         ...group,
         families: applyFamilyOrder(
           group.families,
@@ -200,6 +211,7 @@ export function ThreadInbox({
     lifecycle,
     now,
     projects,
+    projectOrder,
     searchQuery,
     selectedRootIds,
     selectionMode,
@@ -407,6 +419,72 @@ export function ThreadInbox({
       projectId,
       result.order,
       `Moved ${rootTitleById.get(rootId) ?? "thread family"} ${direction < 0 ? "up" : "down"}.`,
+    );
+  };
+
+  const commitProjectOrder = (
+    order: readonly string[],
+    announcement: string,
+  ) => {
+    if (!writeProjectOrder(order)) {
+      setReorderAnnouncement("Project order could not be saved.");
+      return;
+    }
+    setProjectOrder([...order]);
+    setReorderAnnouncement(announcement);
+  };
+
+  const announceRejectedProjectMove = (result: ProjectMoveResult) => {
+    if (result.ok) return;
+    const messages: Record<Exclude<ProjectMoveResult, { ok: true }>["reason"], string> = {
+      "incomplete-order": "Project reordering requires the complete project list.",
+      "invalid-id": "That project reorder request was invalid.",
+      "missing-project": "That project cannot move farther in this direction.",
+      "same-project": "Project order did not change.",
+    };
+    setReorderAnnouncement(messages[result.reason]);
+  };
+
+  const reorderProjectByDrag = (input: {
+    sourceProjectId: string;
+    targetProjectId: string;
+    position: "before" | "after";
+  }) => {
+    if (!reorderEnabled) {
+      setReorderAnnouncement(reorderDisabledReason ?? "Reordering is unavailable.");
+      return;
+    }
+    const result = moveProject({
+      projectIds: unfilteredProjectGroups.map((group) => group.project.id),
+      ...input,
+    });
+    if (!result.ok) {
+      announceRejectedProjectMove(result);
+      return;
+    }
+    commitProjectOrder(result.order, "Moved project.");
+  };
+
+  const reorderProjectByKeyboard = (projectId: string, direction: -1 | 1) => {
+    if (!reorderEnabled) {
+      setReorderAnnouncement(reorderDisabledReason ?? "Reordering is unavailable.");
+      return;
+    }
+    const result = keyboardProjectMove(
+      unfilteredProjectGroups.map((group) => group.project.id),
+      projectId,
+      direction,
+    );
+    if (!result.ok) {
+      announceRejectedProjectMove(result);
+      return;
+    }
+    const projectName = unfilteredProjectGroups.find(
+      (group) => group.project.id === projectId,
+    )?.project.name;
+    commitProjectOrder(
+      result.order,
+      `Moved ${projectName ?? "project"} ${direction < 0 ? "up" : "down"}.`,
     );
   };
 
@@ -674,6 +752,10 @@ export function ThreadInbox({
                 reorderDisabledReason={reorderDisabledReason}
                 onReorder={reorderByDrag}
                 onKeyboardMove={reorderByKeyboard}
+                projectReorderEnabled={reorderEnabled}
+                projectReorderDisabledReason={reorderDisabledReason}
+                onProjectReorder={reorderProjectByDrag}
+                onProjectKeyboardMove={reorderProjectByKeyboard}
                 preferences={preferences}
               />
             ))}

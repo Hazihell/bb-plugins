@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import {
   experimental_useSidebarThreadActions as useSidebarThreadActions,
   type PluginSidebarThread,
@@ -36,6 +36,10 @@ export function ProjectGroup({
   reorderDisabledReason,
   onReorder,
   onKeyboardMove,
+  projectReorderEnabled,
+  projectReorderDisabledReason,
+  onProjectReorder,
+  onProjectKeyboardMove,
   preferences,
 }: {
   group: ProjectThreadGroup;
@@ -59,9 +63,18 @@ export function ProjectGroup({
     position: "before" | "after";
   }) => void;
   onKeyboardMove: (projectId: string, rootId: string, direction: -1 | 1) => void;
+  projectReorderEnabled: boolean;
+  projectReorderDisabledReason: string | null;
+  onProjectReorder: (input: {
+    sourceProjectId: string;
+    targetProjectId: string;
+    position: "before" | "after";
+  }) => void;
+  onProjectKeyboardMove: (projectId: string, direction: -1 | 1) => void;
   preferences: DocksidePreferences;
 }) {
   const actions = useSidebarThreadActions();
+  const projectDragStarted = useRef(false);
   const [expandedByUser, setExpandedByUser] = useState(true);
   const projectListId = useId();
   const threads = group.families.flatMap((family) => [
@@ -71,15 +84,87 @@ export function ProjectGroup({
   const expanded = forceExpanded || expandedByUser;
 
   return (
-    <section aria-label={group.project.name} className="mt-1.5 first:mt-0">
+    <section
+      aria-label={group.project.name}
+      data-dockside-project={group.project.id}
+      className="mt-1.5 first:mt-0"
+      onDragOver={(event) => {
+        if (
+          !projectReorderEnabled ||
+          !event.dataTransfer.types.includes("application/x-dockside-project")
+        ) {
+          return;
+        }
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+      }}
+      onDrop={(event) => {
+        const dragged = parseDraggedProject(
+          event.dataTransfer.getData("application/x-dockside-project"),
+        );
+        if (dragged === null) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const header = event.currentTarget.firstElementChild;
+        const bounds = header?.getBoundingClientRect();
+        onProjectReorder({
+          sourceProjectId: dragged.projectId,
+          targetProjectId: group.project.id,
+          position:
+            bounds && event.clientY >= bounds.top + bounds.height / 2
+              ? "after"
+              : "before",
+        });
+      }}
+    >
       <div className="group/project relative flex h-8 w-full items-center gap-2 rounded-md px-1.5 hover:bg-sidebar-accent/60">
         <button
           type="button"
-          aria-label={`${expanded ? "Collapse" : "Expand"} ${group.project.name}`}
+          draggable={projectReorderEnabled}
+          aria-label={`${expanded ? "Collapse" : "Expand"} ${group.project.name}. ${projectReorderEnabled ? "Drag this header to reorder projects, or press Alt+Up or Alt+Down." : (projectReorderDisabledReason ?? "Project reordering is unavailable.")}`}
+          aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
+          title={
+            projectReorderEnabled
+              ? "Drag to reorder projects · Alt+Up / Alt+Down"
+              : (projectReorderDisabledReason ?? "Project reordering is unavailable.")
+          }
           aria-expanded={expanded}
           aria-controls={projectListId}
-          onClick={() => setExpandedByUser(!expanded)}
-          className="absolute inset-0 rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          onClick={(event) => {
+            if (projectDragStarted.current) {
+              event.preventDefault();
+              return;
+            }
+            setExpandedByUser(!expanded);
+          }}
+          onDragStart={(event) => {
+            if (!projectReorderEnabled) {
+              event.preventDefault();
+              return;
+            }
+            projectDragStarted.current = true;
+            event.dataTransfer.effectAllowed = "move";
+            event.dataTransfer.setData(
+              "application/x-dockside-project",
+              JSON.stringify({ projectId: group.project.id }),
+            );
+          }}
+          onDragEnd={() => {
+            setTimeout(() => {
+              projectDragStarted.current = false;
+            }, 0);
+          }}
+          onKeyDown={(event) => {
+            if (!event.altKey) return;
+            if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+              event.preventDefault();
+              onProjectKeyboardMove(
+                group.project.id,
+                event.key === "ArrowUp" ? -1 : 1,
+              );
+            }
+          }}
+          className="absolute inset-0 cursor-grab rounded-md focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring active:cursor-grabbing"
         />
         <span
           aria-hidden
@@ -218,6 +303,24 @@ function parseDraggedFamily(
       return null;
     }
     return { projectId: parsed.projectId, rootId: parsed.rootId };
+  } catch {
+    return null;
+  }
+}
+
+function parseDraggedProject(raw: string): { projectId: string } | null {
+  if (raw.length === 0 || raw.length > 500) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      !("projectId" in parsed) ||
+      typeof parsed.projectId !== "string"
+    ) {
+      return null;
+    }
+    return { projectId: parsed.projectId };
   } catch {
     return null;
   }

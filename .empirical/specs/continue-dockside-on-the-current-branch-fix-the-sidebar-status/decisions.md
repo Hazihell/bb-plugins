@@ -194,7 +194,7 @@ drag; or reuse the already focusable semantic status icon.
 Remove the dedicated reorder glyph. Make the semantic status icon the native
 drag and Alt+Arrow focus target, extending its tooltip with reorder help while
 leaving the card anchor's BB split-drag props unchanged. Give all family badges
-one compact 4rem fixed width with no horizontal padding and put the badge last
+one compact 3.5rem fixed width with no horizontal padding and put the badge last
 in the row-two cluster so every status aligns at the same right edge.
 
 ### Trade-offs and risks
@@ -207,3 +207,34 @@ keyboard shortcut metadata, and unchanged status label/description.
 Source contracts assert no dedicated reorder glyph, status-icon drag/keyboard
 wiring, fixed badge width, and badge-last cluster ordering; live normal/narrow
 screenshots verify alignment.
+
+## D-008: Reuse project headers for persistent project sorting
+
+Status: Accepted
+
+### Evidence
+
+User review requested project sorting without adding another drag icon.
+
+### Options
+
+Add a project grip; make project names a separate handle; or reuse the existing
+full-row expand/collapse header target.
+
+### Chosen approach
+
+Make the existing project header target draggable and Alt+Arrow operable, retain
+its click-to-collapse behavior, persist a bounded exact project-ID order, and
+disable project/family sorting together whenever visible order is incomplete.
+
+### Trade-offs and risks
+
+One target owns click, drag, and keyboard reorder; a drag-start guard prevents
+the follow-up click from collapsing the section, and accessible label/title text
+explains both operations without visual chrome.
+
+### Verification
+
+Pure project-order tests cover storage, malformed data, new projects, drag, and
+keyboard moves. UI contracts and live reload evidence cover header drag,
+persistence, conflict disablement, and the absence of a new icon.

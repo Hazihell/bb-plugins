@@ -111,6 +111,12 @@ const familyOrder = await readFile(
 assert.match(familyOrder, /cross-project/);
 assert.match(familyOrder, /pinned-boundary/);
 assert.match(familyOrder, /FAMILY_ORDER_STORAGE_KEY/);
+const projectOrder = await readFile(
+  "plugins/dockside/lib/project-order.ts",
+  "utf8",
+);
+assert.match(projectOrder, /PROJECT_ORDER_STORAGE_KEY/);
+assert.match(projectOrder, /keyboardProjectMove/);
 const threadCard = await readFile(
   "plugins/dockside/components/inbox/thread-card.tsx",
   "utf8",
@@ -118,11 +124,17 @@ const threadCard = await readFile(
 assert.match(threadCard, /grid-rows-\[1rem_1rem\]/);
 assert.match(threadCard, /draggable=\{reorderEnabled\}/);
 assert.doesNotMatch(threadCard, /ReorderHandle|group\/reorder/);
+const projectGroup = await readFile(
+  "plugins/dockside/components/inbox/project-group.tsx",
+  "utf8",
+);
+assert.match(projectGroup, /application\/x-dockside-project/);
+assert.doesNotMatch(projectGroup, /name="Drag|name="Grip|name="Move/);
 const familyStatusView = await readFile(
   "plugins/dockside/components/inbox/family-status.tsx",
   "utf8",
 );
-assert.match(familyStatusView, /w-16/);
+assert.match(familyStatusView, /w-14/);
 assert.match(familyStatusView, /px-0/);
 const prMetadata = await readFile(
   "plugins/dockside/components/inbox/row-metadata.tsx",
