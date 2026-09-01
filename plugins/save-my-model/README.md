@@ -1,8 +1,12 @@
 # Save My Model
 
-Save My Model stores provider, model, and reasoning selections in
-browser localStorage with project/host/provider-scoped keys. Its settings section lists
+Save My Model stores provider, model, and reasoning selections in browser
+localStorage with host/provider-scoped keys. Its settings section lists
 and clears saved values. Reused environments are intentionally not persisted.
+Empty or malformed host identifiers share one browser-wide scope. Reads fall
+back to the provider-scoped and matching unscoped keys used by BB PR #1964, so
+existing model and reasoning choices remain available without crossing
+providers.
 
 This package preserves the storage behavior proposed in [BB PR #1964](https://github.com/get-bb/bb/pull/1964).
 Because BB does not currently expose the built-in new-thread picker as a

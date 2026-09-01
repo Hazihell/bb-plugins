@@ -2,10 +2,10 @@
 
 Curated repository knowledge for the `bb-plugins` multi-plugin workspace.
 
-The root owns orchestration and one lockfile; Taskboard, Usage Tracker, and Host
-Monitor remain independent private plugin packages under `plugins/`. Usage
-Tracker preserves stable frontend/provider IDs while adapting current and legacy
-BB usage response keys, and its expanded card is the complete usage-window view.
+The root owns orchestration and one lockfile; Dockside, Save My Model, Host
+Monitor, Taskboard, and Usage Tracker remain independent private plugin
+packages under `plugins/`. `.bb/plugins.json` is the installable collection
+index; each leaf manifest remains authoritative for that plugin.
 
 ## Topics
 

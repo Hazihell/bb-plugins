@@ -20,10 +20,34 @@
 
 | | Plugin | Install | What it does |
 | --- | --- | --- | --- |
+| <img src="./plugins/dockside/assets/icon.svg" width="28" height="28" alt="" /> | [Dockside](./plugins/dockside) | [Git branch](#dockside-quick-start) | Replaces BB's thread list with a compact project-first sidebar, semantic status colors, filters, safe multi-select deletion, and child-agent families. |
 | <img src="./plugins/host-monitor/assets/icon.svg" width="28" height="28" alt="" /> | [Host Monitor](./plugins/host-monitor) | [Git release](#host-monitor-quick-start) | Monitors CPU, RAM, disk, network, host details, and guarded process actions across every machine enrolled in BB. Requires BB 0.40+. |
-| <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider, model, and reasoning defaults separately for each BB project, host, and provider. |
+| <img src="./plugins/save-my-model/assets/icon.svg" width="28" height="28" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="28" height="28" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 | <img src="./plugins/usage-tracker/assets/icon.svg" width="28" height="28" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
+
+## Dockside quick start
+
+Install Dockside directly from this repository branch while PR #26 is under
+review:
+
+```sh
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@feature/dockside-thread-filters-bulk-delete --subdirectory plugins/dockside
+```
+
+Dockside groups threads by project, keeps root/child families together, adds
+working/needs-you/unread/quiet filters, and protects current, active, waiting,
+unread, and pinned families from permanent bulk deletion. Open
+**Settings → Dockside** to choose semantic status and PR colors, density,
+default child expansion, and optional metadata. See the
+[Dockside README](./plugins/dockside) for behavior and development details.
+
+Update or remove a local installation with BB:
+
+```sh
+bb plugin reload dockside
+bb plugin remove dockside
+```
 
 ## Host Monitor quick start
 
@@ -78,8 +102,8 @@ is merged and live, install it by its short name:
 bb plugin install save-my-model
 ```
 
-Save My Model keeps provider, model, and reasoning defaults separate for each
-project, host, and provider. Open **Settings → Save My Model** to inspect or clear saved
+Save My Model keeps provider defaults separate for each host and keeps model
+and reasoning separate for each host and provider. Open **Settings → Save My Model** to inspect or clear saved
 values. See the [Save My Model README](./plugins/save-my-model) for details.
 
 Update or remove it with BB:
@@ -172,6 +196,7 @@ git clone https://github.com/MateoCerquetella/bb-plugins.git
 cd bb-plugins
 npm install
 npm run build
+bb plugin install ./plugins/dockside
 bb plugin install ./plugins/host-monitor
 bb plugin install ./plugins/taskboard
 bb plugin install ./plugins/usage-tracker
@@ -183,6 +208,7 @@ BB reads local-path plugins in place, so the development loop stays short:
 git pull
 npm install
 npm run build
+bb plugin reload dockside
 bb plugin reload host-monitor
 bb plugin reload taskboard
 bb plugin reload usage-tracker
@@ -192,13 +218,15 @@ BB 0.38 and newer reads the repository's `.bb/plugins.json` collection, so a
 plugin can also be installed straight from Git:
 
 ```sh
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@feature/dockside-thread-filters-bulk-delete --plugin dockside
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin host-monitor
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin taskboard
 bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@main --plugin usage-tracker
 ```
 
 Host Monitor, Taskboard, and Usage Tracker release through immutable
-plugin-specific Git tags and the BB Community marketplace.
+plugin-specific Git tags and the BB Community marketplace. Dockside remains a
+branch installation until PR #26 lands and a release is prepared.
 
 ## Develop
 

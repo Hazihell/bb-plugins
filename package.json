@@ -8,10 +8,16 @@
     "plugins/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "env -u BB_CLI npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "check": "npm run check --workspaces --if-present"
+    "check": "npm run check --workspaces --if-present && npm run check:dockside",
+    "check:dockside": "node .github/check-dockside.mjs",
+    "ci": "node .github/run-npm-check.mjs"
+  },
+  "devDependencies": {
+    "@get-bb/plugin-sdk": "0.4.29",
+    "bb-app": "0.40.0"
   },
   "engines": {
     "node": ">=22.19.0"

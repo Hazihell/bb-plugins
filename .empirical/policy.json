@@ -41,6 +41,178 @@
           "AC-8",
           "AC-9"
         ]
+      },
+      {
+        "id": "dockside-focused",
+        "argv": [
+          "npm",
+          "test",
+          "--workspace",
+          "bb-plugin-dockside"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "fault-injection",
+          "unit"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-contract",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck",
+          "--workspace",
+          "bb-plugin-dockside"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "adapter-contract"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-system",
+        "argv": [
+          "node",
+          ".empirical/specs/dockside-main-reconciliation/qa/system.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "end-to-end"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "dockside-portability",
+        "argv": [
+          "node",
+          ".empirical/specs/dockside-main-reconciliation/qa/portability.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "integration",
+          "package-consumer",
+          "clean-clone",
+          "cross-platform"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "repo-full-ci",
+        "argv": [
+          "bun",
+          "run",
+          "ci"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "full-ci"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "save-model-focused",
+        "argv": [
+          "npm",
+          "test",
+          "--workspace",
+          "bb-plugin-save-my-model"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "fault-injection",
+          "unit"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "save-model-contract",
+        "argv": [
+          "npm",
+          "run",
+          "typecheck",
+          "--workspace",
+          "bb-plugin-save-my-model"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "adapter-contract"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "save-model-system",
+        "argv": [
+          "node",
+          ".empirical/specs/adapt-github-pr-1964-into-a-new-independently-installable-bb/qa/system.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 60000,
+        "maxOutputBytes": 262144,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "end-to-end"
+        ],
+        "criteria": []
+      },
+      {
+        "id": "save-model-portability",
+        "argv": [
+          "node",
+          ".empirical/specs/adapt-github-pr-1964-into-a-new-independently-installable-bb/qa/portability.mjs"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "checks": [
+          "integration",
+          "package-consumer",
+          "clean-clone",
+          "cross-platform"
+        ],
+        "criteria": []
       }
     ]
   },

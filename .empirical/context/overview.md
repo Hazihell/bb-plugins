@@ -3,6 +3,12 @@
 ## Purpose
 
 - This workspace contains focused plugins for BB, the agent IDE.
+- Dockside replaces BB's thread list with a compact project-first sidebar,
+  root/child thread families, semantic activity states, filters, and guarded
+  multi-select deletion.
+- Save My Model provides the host-scoped provider and host/provider-scoped
+  model/reasoning persistence contract proposed by BB PR #1964, plus a settings
+  section for inspecting and clearing plugin-owned browser storage.
 - Taskboard gives each BB project one GitHub, Linear, or Jira-backed List/Kanban
   board with cached browsing, live detail, status changes, issue creation,
   remembered and named project views, mentions, CLI access, and agent handoff.
@@ -25,9 +31,11 @@
 - Taskboard's current browse state stays versioned and device-local; named
   project presets store validated snapshots in the plugin database and apply
   explicitly through that same browse store.
-- Taskboard, Usage Tracker, and Host Monitor are private/non-publishable
-  workspaces. They release through immutable plugin-specific Git tags plus the
-  BB Community marketplace.
+- All five indexed plugins are private/non-publishable workspaces. Releases use
+  immutable plugin-specific Git tags plus the BB Community marketplace.
+- Save My Model cannot intercept BB's built-in new-thread picker through the
+  current Plugin SDK. It owns only its localStorage contract and settings UI;
+  native picker integration remains upstream in BB PR #1964.
 - Generated `dist/` and `node_modules/` are build/install products, not authored
   source and are not committed.
 - Empirical tracker integration is explicitly disabled in this checkout, so
@@ -37,6 +45,10 @@
 
 - Repository catalog and setup: `README.md`, `.bb/plugins.json`, `package.json`.
 - Workspace rules: `AGENTS.md`.
+- Dockside behavior: `plugins/dockside/README.md`, its manifest, `server.ts`,
+  `app.tsx`, and focused tests.
+- Save My Model behavior: `plugins/save-my-model/README.md`, its manifest,
+  `lib/preferences.ts`, `app.tsx`, and preference tests.
 - Taskboard behavior and package contract: `plugins/taskboard/README.md`,
   `plugins/taskboard/package.json`, `plugins/taskboard/server.ts`, and
   `plugins/taskboard/app.tsx`.

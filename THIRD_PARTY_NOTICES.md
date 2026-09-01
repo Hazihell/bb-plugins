@@ -1,5 +1,12 @@
 # Third-party notices
 
+Dockside is derived from BB's MIT-licensed `examples/plugins/t3sidebar`, vendors
+BB registry/shadcn UI components and provider mark geometry, and uses
+MIT-licensed Hugeicons, clsx, tailwind-merge, and Zod. Provider marks remain
+trademarks of their respective owners and are used only for identification.
+Full attribution and license text are included in
+`plugins/dockside/THIRD_PARTY_NOTICES.md`.
+
 Taskboard vendors UI component source generated from the
 [BB component registry](https://github.com/get-bb/bb). BB and that component
 source are distributed under the MIT License.
