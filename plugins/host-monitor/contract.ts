@@ -486,6 +486,7 @@ export const rpcContract = defineRpcContract({
     output: z
       .object({
         open: z.boolean(),
+        hostId: z.string().min(1).max(128).nullable(),
       })
       .strict(),
   },

@@ -916,13 +916,37 @@ function directChildContaining(
   return candidate.parentElement === container ? candidate : null;
 }
 
-function navigateToHostMonitor(pluginId: string): void {
+export function hostMonitorPanelPath(
+  pluginId: string,
+  hostId: string | null = null,
+): string {
+  const root = `/plugins/${pluginId}/machines`;
+  return hostId === null
+    ? root
+    : `${root}/host/${encodeURIComponent(hostId)}`;
+}
+
+export function hostIdFromFleetSubPath(subPath: string): string | null {
+  const match = /^host\/([^/]+)$/u.exec(subPath);
+  if (match === null) return null;
+  try {
+    const value = decodeURIComponent(match[1] ?? "").trim();
+    return value.length > 0 && value.length <= 128 ? value : null;
+  } catch {
+    return null;
+  }
+}
+
+function navigateToHostMonitor(
+  pluginId: string,
+  hostId: string | null = null,
+): void {
   const event = new CustomEvent(NAV_EVENT, {
     cancelable: true,
-    detail: { pluginId },
+    detail: { pluginId, hostId },
   });
   const unhandled = window.dispatchEvent(event);
-  if (unhandled) window.location.assign(`/plugins/${pluginId}/machines`);
+  if (unhandled) window.location.assign(hostMonitorPanelPath(pluginId, hostId));
 }
 
 export function toggleHostMonitorPopover(): void {
@@ -1019,7 +1043,11 @@ export function mountHostMonitorSidebar(
         "open" in payload.result &&
         payload.result.open === true
       ) {
-        navigateToHostMonitor(pluginId);
+        const hostId = "hostId" in payload.result &&
+          typeof payload.result.hostId === "string"
+          ? payload.result.hostId
+          : null;
+        navigateToHostMonitor(pluginId, hostId);
       }
     } catch {
       // The native bridge is opportunistic; ordinary Host Monitor UI remains usable.
@@ -1755,9 +1783,21 @@ export function mountHostMonitorSidebar(
     NAV_EVENT,
     (event) => {
       event.preventDefault();
+      const detail = (event as CustomEvent<unknown>).detail;
+      const hostId =
+        typeof detail === "object" &&
+        detail !== null &&
+        "hostId" in detail &&
+        typeof detail.hostId === "string"
+          ? detail.hostId
+          : null;
+      if (hostId !== null) {
+        window.location.assign(hostMonitorPanelPath(pluginId, hostId));
+        return;
+      }
       const navButton = findNavButton(pluginId);
       if (navButton !== null) navButton.click();
-      else window.location.assign(`/plugins/${pluginId}/machines`);
+      else window.location.assign(hostMonitorPanelPath(pluginId));
     },
     { signal: lifecycleSignal },
   );

@@ -185,12 +185,32 @@ test("CLI open request is claimed exactly once by the desktop app", async (t) =>
   assert.equal(requested.exitCode, 0);
   assert.deepEqual(
     await fake.harness.behavior.callRpc("claimNativeOpen", null),
-    { open: true },
+    { open: true, hostId: null },
   );
   assert.deepEqual(
     await fake.harness.behavior.callRpc("claimNativeOpen", null),
-    { open: false },
+    { open: false, hostId: null },
   );
+});
+
+test("CLI opens one validated enrolled host and rejects unknown ids", async (t) => {
+  const fake = createFakePluginHost({
+    pluginId: "host-monitor",
+    sdk: { hosts: { list: async () => [hostRecord("host-alpha", "Alpha")] } },
+  });
+  t.after(() => fake.harness.lifecycle.dispose());
+  await plugin(fake.bb);
+
+  const requested = await fake.harness.behavior.runCli(["open", "host-alpha"]);
+  assert.equal(requested.exitCode, 0);
+  assert.deepEqual(
+    await fake.harness.behavior.callRpc("claimNativeOpen", null),
+    { open: true, hostId: "host-alpha" },
+  );
+
+  const unknown = await fake.harness.behavior.runCli(["open", "missing"]);
+  assert.equal(unknown.exitCode, 1);
+  assert.match(unknown.stderr ?? "", /Unknown enrolled host/u);
 });
 
 test("a failed refresh preserves the last good reading", async (t) => {

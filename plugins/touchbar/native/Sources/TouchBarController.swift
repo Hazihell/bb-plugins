@@ -331,14 +331,14 @@ private final class HostMetricCircle: NSView {
     }
 }
 
-private final class HostMetricView: NSView {
+private final class HostMetricView: NSButton {
     private let iconView = NSImageView()
     private let stateLabel = NSTextField(labelWithString: "")
     private let nameLabel = NSTextField(labelWithString: "")
     private let circles: [HostMetricCircle]
     private let measuredWidth: CGFloat
 
-    init(entry: HostMetricEntry) {
+    init(entry: HostMetricEntry, target: AnyObject?, action: Selector?) {
         let connected = entry.status == "connected"
         let cpu = HostMetricCircle(
             title: "C",
@@ -375,6 +375,12 @@ private final class HostMetricView: NSView {
             $0 + $1.intrinsicContentSize.width
         } + CGFloat((circles.count - 1) * 2) + 4
         super.init(frame: .zero)
+        self.target = target
+        self.action = action
+        identifier = NSUserInterfaceItemIdentifier(entry.id)
+        title = ""
+        isBordered = false
+        refusesFirstResponder = true
         wantsLayer = true
         layer?.cornerRadius = 7
         layer?.borderWidth = 1
@@ -399,11 +405,27 @@ private final class HostMetricView: NSView {
         addSubview(stateLabel)
         addSubview(nameLabel)
         for circle in circles { addSubview(circle) }
-        setAccessibilityLabel("\(entry.name), \(Self.accessibleMetrics(entry))")
+        setAccessibilityLabel(
+            "Open \(entry.name) in Host Monitor, \(Self.accessibleMetrics(entry))"
+        )
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
     override var intrinsicContentSize: NSSize { NSSize(width: measuredWidth, height: 30) }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard isEnabled, let action else { return }
+        let resting = layer?.backgroundColor
+        layer?.backgroundColor = NSColor(white: 0.16, alpha: 1).cgColor
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) { [weak self] in
+            self?.layer?.backgroundColor = resting
+        }
+        NSApp.sendAction(action, to: target, from: self)
+    }
 
     override func layout() {
         super.layout()
@@ -470,7 +492,7 @@ private final class UsageIconStripView: NSView {
     private var items: [Item] = []
 
     override var intrinsicContentSize: NSSize {
-        NSSize(width: CGFloat(max(items.count, 1) * 28), height: 30)
+        NSSize(width: CGFloat(max(items.count, 1) * 32), height: 30)
     }
 
     func update(entries: [UsageEntry], visibility: [String: Bool]) {
@@ -498,11 +520,13 @@ private final class UsageIconStripView: NSView {
             return
         }
         for (index, item) in items.enumerated() {
-            let origin = CGFloat(index * 28)
-            let ringRect = NSRect(x: origin + 3, y: 3, width: 24, height: 24)
-            NSColor(white: 0.25, alpha: 1).setStroke()
+            let origin = CGFloat(index * 32)
+            let ringRect = NSRect(x: origin + 2, y: 1, width: 28, height: 28)
+            NSColor(white: 0.22, alpha: 1).setFill()
+            NSBezierPath(ovalIn: ringRect).fill()
+            NSColor(white: 0.34, alpha: 1).setStroke()
             let background = NSBezierPath(ovalIn: ringRect)
-            background.lineWidth = 2
+            background.lineWidth = 3
             background.stroke()
 
             if let percent = item.percent {
@@ -511,27 +535,31 @@ private final class UsageIconStripView: NSView {
                 let progress = NSBezierPath()
                 progress.appendArc(
                     withCenter: NSPoint(x: ringRect.midX, y: ringRect.midY),
-                    radius: 12,
+                    radius: 12.5,
                     startAngle: 90,
                     endAngle: 90 - CGFloat(clamped * 3.6),
                     clockwise: true
                 )
-                progress.lineWidth = 2.5
+                progress.lineWidth = 3
                 progress.lineCapStyle = .round
                 progress.stroke()
             }
 
             let provider = item.id == "claudeCode" ? "claude-code" : item.id
+            let iconRect = NSRect(x: origin + 6, y: 5, width: 20, height: 20)
             if item.id == "cursor" {
                 NSColor.white.setFill()
-                NSBezierPath(roundedRect: NSRect(x: origin + 8, y: 8, width: 14, height: 14), xRadius: 3, yRadius: 3).fill()
+                NSBezierPath(ovalIn: iconRect).fill()
             }
+            NSGraphicsContext.saveGraphicsState()
+            NSBezierPath(ovalIn: iconRect).addClip()
             ProviderIcon.image(for: provider).draw(
-                in: NSRect(x: origin + 8, y: 8, width: 14, height: 14),
+                in: iconRect,
                 from: .zero,
                 operation: .sourceOver,
                 fraction: item.percent == nil ? 0.45 : 1
             )
+            NSGraphicsContext.restoreGraphicsState()
         }
     }
 
@@ -548,14 +576,14 @@ private final class SettingsControlButton: NSButton {
 
     init(title: String, width: CGFloat) {
         fixedWidth = width
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 17))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 21))
         self.title = title
         isBordered = false
         refusesFirstResponder = true
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 17) }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 21) }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         bounds.contains(point) ? self : nil
@@ -577,8 +605,8 @@ private final class SettingsControlButton: NSButton {
 
         if let image {
             let imageRect = NSRect(
-                x: floor((bounds.width - 16) / 2), y: 0.5,
-                width: 16, height: 16
+                x: floor((bounds.width - 20) / 2), y: 0.5,
+                width: 20, height: 20
             )
             if drawsLightImageTile {
                 NSColor.white.setFill()
@@ -662,7 +690,7 @@ private final class SettingsGroupView: NSView {
         var x: CGFloat = 4
         for control in controls {
             let width = control.intrinsicContentSize.width
-            control.frame = NSRect(x: x, y: 1, width: width, height: 17)
+            control.frame = NSRect(x: x, y: 0, width: width, height: 21)
             x += width + 3
         }
     }
@@ -670,11 +698,11 @@ private final class SettingsGroupView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 5.5, weight: .bold),
+            .font: NSFont.monospacedSystemFont(ofSize: 5.2, weight: .bold),
             .foregroundColor: NSColor(white: 0.68, alpha: 1),
         ]
         (sectionTitle as NSString).draw(
-            at: NSPoint(x: 6, y: 20),
+            at: NSPoint(x: 6, y: 22),
             withAttributes: attributes
         )
     }
@@ -709,6 +737,7 @@ private final class TouchBarScrollView: NSScrollView {
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
+    private let statusLabel = NSTextField(labelWithString: "")
     private let accentLayer = CALayer()
     private var grouped = false
 
@@ -719,7 +748,7 @@ private final class AgentButton: NSButton {
         title = ""
         isBordered = false
         wantsLayer = true
-        layer?.cornerRadius = 5
+        layer?.cornerRadius = 7
         layer?.borderWidth = 1
         layer?.masksToBounds = true
 
@@ -728,35 +757,42 @@ private final class AgentButton: NSButton {
         iconView.wantsLayer = true
         titleLabel.font = .monospacedSystemFont(ofSize: 9.5, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingTail
-        accentLayer.cornerRadius = 1
+        statusLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
+        statusLabel.alignment = .center
+        statusLabel.textColor = .white
+        statusLabel.wantsLayer = true
+        statusLabel.layer?.cornerRadius = 4
+        statusLabel.layer?.masksToBounds = true
+        accentLayer.cornerRadius = 1.5
         layer?.addSublayer(accentLayer)
-        for view in [iconView, titleLabel] { addSubview(view) }
+        for view in [iconView, titleLabel, statusLabel] { addSubview(view) }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
 
-    override var intrinsicContentSize: NSSize { NSSize(width: 145, height: 30) }
+    override var intrinsicContentSize: NSSize { NSSize(width: 150, height: 30) }
 
     override func layout() {
         super.layout()
-        iconView.frame = NSRect(x: 3, y: 3, width: 24, height: 24)
+        iconView.frame = NSRect(x: 6, y: 3, width: 24, height: 24)
         titleLabel.frame = NSRect(
-            x: 31,
+            x: 34,
             y: 8,
-            width: bounds.width - 38,
+            width: bounds.width - 76,
             height: 14
         )
-        accentLayer.frame = CGRect(x: 0, y: 0, width: bounds.width, height: 2)
+        statusLabel.frame = NSRect(x: bounds.width - 38, y: 8, width: 32, height: 14)
+        accentLayer.frame = CGRect(x: 0, y: 4, width: 3, height: bounds.height - 8)
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        frame.contains(point) ? self : nil
+        bounds.contains(point) ? self : nil
     }
 
     func setGrouped(_ value: Bool) {
         grouped = value
-        layer?.borderWidth = value ? 0 : 1
-        accentLayer.isHidden = value
+        layer?.borderWidth = value ? 0.5 : 1
+        accentLayer.isHidden = false
     }
 
     func update(entry: AgentEntry, primary: String) {
@@ -769,10 +805,11 @@ private final class AgentButton: NSButton {
         iconView.layer?.backgroundColor = needsLightTile
             ? NSColor.white.cgColor
             : NSColor.clear.cgColor
-        iconView.layer?.borderWidth = 2
-        iconView.layer?.borderColor = color.cgColor
+        iconView.layer?.borderWidth = 0
         titleLabel.stringValue = primary
         titleLabel.textColor = .white
+        statusLabel.stringValue = StatusPalette.badge(for: entry.status)
+        statusLabel.layer?.backgroundColor = color.withAlphaComponent(0.88).cgColor
         layer?.backgroundColor = NSColor(
             white: grouped ? 0.075 : 0.055,
             alpha: 0.96
@@ -983,9 +1020,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         nextProjectButton.font = .systemFont(ofSize: 17, weight: .bold)
         hostMonitorButton.target = self
         hostMonitorButton.action = #selector(hostMonitorTapped(_:))
-        hostMonitorButton.setAccessibilityLabel(
-            "Open Host Monitor in BB or show inline metrics"
-        )
+        hostMonitorButton.setAccessibilityLabel("Show Host Monitor metrics")
         if let image = NSImage(
             systemSymbolName: "desktopcomputer",
             accessibilityDescription: "Host Monitor"
@@ -1255,20 +1290,25 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     }
 
     @objc private func hostMonitorTapped(_ sender: NSButton) {
-        guard !hostMonitorOpenPending else { return }
+        hostViewVisible.toggle()
+        updateControlColors()
+        schedulePanelRender()
+    }
+
+    @objc private func hostTapped(_ sender: NSButton) {
+        guard !hostMonitorOpenPending,
+              let hostId = sender.identifier?.rawValue,
+              store.snapshot.hosts.contains(where: { $0.id == hostId }) else { return }
         hostMonitorOpenPending = true
-        AgentStore.openHostMonitor { [weak self] opened in
+        AgentStore.openHostMonitor(hostId: hostId) { [weak self] opened in
             guard let self else { return }
             self.hostMonitorOpenPending = false
             if opened {
-                NativeLog.info("opened Host Monitor in BB")
+                NativeLog.info("opened host \(hostId) in BB Host Monitor")
                 self.closePanel()
                 return
             }
-            self.hostViewVisible.toggle()
-            self.updateControlColors()
-            self.schedulePanelRender()
-            NativeLog.info("Host Monitor plugin unavailable; toggled inline metrics")
+            NativeLog.error("Host Monitor could not open host \(hostId)")
         }
     }
 
@@ -1386,7 +1426,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         if hostViewVisible {
             let views: [NSView] = snapshot.hosts.isEmpty
                 ? [message("Host metrics are loading…")]
-                : snapshot.hosts.map { HostMetricView(entry: $0) }
+                : snapshot.hosts.map {
+                    HostMetricView(
+                        entry: $0,
+                        target: self,
+                        action: #selector(hostTapped(_:))
+                    )
+                }
             panelItem.view = scrollContainer(views)
             return
         }
@@ -1526,7 +1572,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         color: NSColor
     ) -> SettingsControlButton {
         let button = settingControl(
-            title: "", width: 30, action: action,
+            title: "", width: 36, action: action,
             selected: selected, color: color
         )
         button.image = ProviderIcon.image(for: provider)
@@ -1574,7 +1620,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private func button(for entry: AgentEntry, grouped: Bool = false) -> NSButton {
         let button = AgentButton(target: self, action: #selector(agentTapped(_:)))
         button.identifier = NSUserInterfaceItemIdentifier(entry.id)
-        button.frame.size = NSSize(width: 145, height: Self.barHeight)
+        button.frame.size = NSSize(width: 150, height: Self.barHeight)
         button.setGrouped(grouped)
         agentButtons[entry.id] = button
         paint(button, entry)

@@ -110,17 +110,17 @@ item and each render creates fresh controls, so AppKit never replaces or
 reparents the live thread lane. The menu-bar icon remains an optional
 second settings entry point. Toggle Usage and Host Monitor, choose Codex,
 Claude Code, and/or Cursor, and select the thread layout. These preferences
-persist per macOS user. Tap the computer icon to open the installed Host
-Monitor page inside the BB desktop app. If Host Monitor is unavailable, the
-same control falls back to the compact inline host metrics lane.
+persist per macOS user. Tap the computer icon to switch between threads and
+the compact inline host metrics lane. Tap an individual host card to open that
+host's detail page inside the BB desktop app.
 
 Settings, Host Monitor, and X use fixed 34-point native controls to preserve
 space for cards while retaining explicit touch dispatch.
 
 Agent provider icons are embedded as large circular badges in every thread
-card and use Dockside's default semantic status border/accent:
+card. Status uses a slim Dockside-colored card rail plus a compact text pill:
 green working, amber needs-you/waiting, blue unread, red error, and gray
-inactive. No extra status glyph consumes card space.
+inactive. Provider artwork stays clean instead of carrying a second status ring.
 
 Host CPU, RAM, and disk rings use Host Monitor's current configurable yellow
 and red thresholds. Changing those settings automatically changes Touch Bar

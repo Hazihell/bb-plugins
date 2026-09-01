@@ -63,6 +63,7 @@ import {
   type ThresholdTone,
 } from "./lib/threshold-presentation";
 import {
+  hostIdFromFleetSubPath,
   mountHostMonitorSidebar,
   toggleHostMonitorPopover,
 } from "./lib/sidebar-host-monitor";
@@ -1198,7 +1199,7 @@ function CompactFleetList({ machines, onInspect, selectedHostId, showIpAddresses
   );
 }
 
-function FleetMatrix() {
+function FleetMatrix({ subPath }: { subPath: string }) {
   const rpc = useRpc<typeof rpcContract>();
   const settings = useSettings();
   const state = useDashboardState();
@@ -1211,6 +1212,8 @@ function FleetMatrix() {
   );
   const [showIpAddresses, setShowIpAddresses] = useState(false);
   const [selectedHostId, setSelectedHostId] = useState<string | null>(null);
+  const openedRouteTarget = useRef<string | null>(null);
+  const routeHostId = useMemo(() => hostIdFromFleetSubPath(subPath), [subPath]);
   const showThresholdColors = thresholdColorsEnabled(
     settings.values,
     settings.isLoading,
@@ -1255,6 +1258,20 @@ function FleetMatrix() {
     });
     if (accepted) setSelectedHostId(machine.host.id);
   }, [panel]);
+
+  useEffect(() => {
+    if (
+      routeHostId === null ||
+      routeHostId === openedRouteTarget.current ||
+      state.dashboard === null
+    ) return;
+    const machine = state.dashboard.machines.find(
+      (candidate) => candidate.host.id === routeHostId,
+    );
+    if (machine === undefined) return;
+    openedRouteTarget.current = routeHostId;
+    inspect(machine);
+  }, [inspect, routeHostId, state.dashboard]);
 
   const selectViewMode = useCallback((nextMode: FleetViewMode) => {
     setViewMode(nextMode);

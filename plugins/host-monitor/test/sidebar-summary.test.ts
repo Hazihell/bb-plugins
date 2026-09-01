@@ -6,7 +6,9 @@ import {
   clampHostMonitorFloatingPosition,
   hostMonitorDragThresholdExceeded,
   hostMonitorFloatingDropPosition,
+  hostIdFromFleetSubPath,
   hostMonitorNativeOpenRpcRequest,
+  hostMonitorPanelPath,
   hostMonitorSidebarMetricTones,
   hostMonitorSidebarPreferencesRpcRequest,
   hostMonitorSidebarRefreshDelay,
@@ -233,6 +235,13 @@ describe("Host Monitor sidebar requests", () => {
     });
     assert.equal(isBbDesktopWindow({ bbDesktop: {} }), true);
     assert.equal(isBbDesktopWindow({}), false);
+    assert.equal(
+      hostMonitorPanelPath("host-monitor", "host alpha/1"),
+      "/plugins/host-monitor/machines/host/host%20alpha%2F1",
+    );
+    assert.equal(hostIdFromFleetSubPath("host/host%20alpha%2F1"), "host alpha/1");
+    assert.equal(hostIdFromFleetSubPath("host/%E0%A4%A"), null);
+    assert.equal(hostIdFromFleetSubPath("other/host-alpha"), null);
   });
 
   it("loads the declarative sidebar color preference", () => {

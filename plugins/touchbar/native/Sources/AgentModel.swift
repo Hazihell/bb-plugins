@@ -251,10 +251,13 @@ final class AgentStore {
         }
     }
 
-    static func openHostMonitor(completion: @escaping (Bool) -> Void) {
+    static func openHostMonitor(
+        hostId: String,
+        completion: @escaping (Bool) -> Void
+    ) {
         DispatchQueue.global(qos: .userInitiated).async {
             let opened = BBCommand.run(
-                ["host-monitor", "open"], timeout: 5
+                ["host-monitor", "open", hostId], timeout: 5
             ) != nil
             DispatchQueue.main.async {
                 if opened { activateBB() }

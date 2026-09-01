@@ -101,7 +101,10 @@ function nextCpuHighStreak(
 export default async function hostMonitorPlugin(
   bb: BbPluginApi,
 ): Promise<void> {
-  let nativeOpenRequestedAt: number | null = null;
+  let nativeOpenRequest: {
+    requestedAt: number;
+    hostId: string | null;
+  } | null = null;
   const settings = bb.settings.define({
     sidebarThresholdColors: {
       type: "boolean",
@@ -412,12 +415,14 @@ export default async function hostMonitorPlugin(
 
   bb.rpc.register(rpcContract, {
     async claimNativeOpen() {
-      const requestedAt = nativeOpenRequestedAt;
-      nativeOpenRequestedAt = null;
+      const request = nativeOpenRequest;
+      nativeOpenRequest = null;
+      const open =
+        request !== null &&
+        Date.now() - request.requestedAt <= NATIVE_OPEN_REQUEST_TTL_MS;
       return {
-        open:
-          requestedAt !== null &&
-          Date.now() - requestedAt <= NATIVE_OPEN_REQUEST_TTL_MS,
+        open,
+        hostId: open ? request.hostId : null,
       };
     },
     async getPreferences() {
@@ -610,8 +615,8 @@ export default async function hostMonitorPlugin(
     commands: [
       {
         name: "open",
-        summary: "Open Host Monitor in the BB desktop app",
-        usage: "bb host-monitor open",
+        summary: "Open Host Monitor or one enrolled host in the BB desktop app",
+        usage: "bb host-monitor open [host-id]",
       },
       {
         name: "snapshot",
@@ -621,11 +626,23 @@ export default async function hostMonitorPlugin(
     ],
     async run(argv, context) {
       const [command, ...args] = argv;
-      if (command === "open" && args.length === 0) {
-        nativeOpenRequestedAt = Date.now();
+      if (command === "open" && args.length <= 1) {
+        const hostId = args[0] ?? null;
+        if (hostId !== null) {
+          if (hosts.length === 0) await listHosts();
+          if (!hosts.some((host) => host.id === hostId)) {
+            return {
+              exitCode: 1,
+              stderr: `Unknown enrolled host: ${hostId}`,
+            };
+          }
+        }
+        nativeOpenRequest = { requestedAt: Date.now(), hostId };
         return {
           exitCode: 0,
-          stdout: "Host Monitor open requested.\n",
+          stdout: hostId === null
+            ? "Host Monitor open requested.\n"
+            : `Host Monitor open requested for ${hostId}.\n`,
         };
       }
       if (
@@ -635,7 +652,7 @@ export default async function hostMonitorPlugin(
         return {
           exitCode: 1,
           stderr:
-            "Usage: bb host-monitor open | bb host-monitor snapshot [--pretty]",
+            "Usage: bb host-monitor open [host-id] | bb host-monitor snapshot [--pretty]",
         };
       }
       if (hosts.length === 0) await refreshAll(context.signal);
