@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "packetDigest": "sha256:ab6471695ffc973f020a9e3eed25c024ee97851093b035f11e66a7ccfd602fc9",
-  "resultPath": ".empirical/specs/adapt-github-pr-1964-into-a-new-independently-installable-bb/reviews/b8c7e8c9cfaee87278e84fcf.json",
-  "resultDigest": "sha256:b8c7e8c9cfaee87278e84fcf0a8cffdd056eb7cdf6853cee2044b07c3dbe9535",
-  "receiptId": "collected-025a3575addf7d61276930ad"
+  "packetDigest": "sha256:af11387f6004f8ac50a230488a727ec45660aac98d26451585f7e055db8c407f",
+  "resultPath": ".empirical/specs/adapt-github-pr-1964-into-a-new-independently-installable-bb/reviews/fdde89a0f309b5f66674ebce.json",
+  "resultDigest": "sha256:fdde89a0f309b5f66674ebcedabf2f1a17257d74ebf69700d4230525653f0022",
+  "receiptId": "collected-aaff0d2843821001dae71ed5"
 }
