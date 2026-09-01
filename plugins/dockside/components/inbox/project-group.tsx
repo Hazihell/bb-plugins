@@ -15,6 +15,7 @@ import {
 import {
   BULK_PROTECTION_LABELS,
   bulkEligibility,
+  type RootSelectionIntent,
 } from "@/lib/thread-management";
 
 /** A collapsible project section, modeled after Orca's durable outer groups. */
@@ -28,6 +29,7 @@ export function ProjectGroup({
   now,
   selectionMode,
   selectedRootIds,
+  selectionHintId,
   onToggleRoot,
 }: {
   group: ProjectThreadGroup;
@@ -39,7 +41,8 @@ export function ProjectGroup({
   now: number;
   selectionMode: boolean;
   selectedRootIds: ReadonlySet<string>;
-  onToggleRoot: (threadId: string) => void;
+  selectionHintId: string;
+  onToggleRoot: (threadId: string, intent: RootSelectionIntent) => void;
 }) {
   const actions = useSidebarThreadActions();
   const [expandedByUser, setExpandedByUser] = useState(true);
@@ -118,12 +121,15 @@ export function ProjectGroup({
                 now={now}
                 selectionMode={selectionMode}
                 selected={selectedRootIds.has(family.root.id)}
+                selectionHintId={selectionHintId}
                 selectionDisabledReason={
                   eligibility.eligible
                     ? null
                     : BULK_PROTECTION_LABELS[eligibility.reason]
                 }
-                onToggleSelected={() => onToggleRoot(family.root.id)}
+                onToggleSelected={(intent) =>
+                  onToggleRoot(family.root.id, intent)
+                }
               />
             );
           })}

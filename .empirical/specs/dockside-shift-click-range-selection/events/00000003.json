@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:5cb5697755011a02947b88501d67f6b18d32990273605d42fb0d113449d720ae",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed a pure intended-state range helper, actual rendered-enabled checkbox ordering scoped to ThreadInbox, callback propagation, discoverability/accessibility guidance, anchor invalidation/reset rules, focused verification, and recorded three accepted decisions plus a non-blocking UI/UX advisory.",
+  "createdAt": "2026-09-01T04:23:10.328Z",
+  "stateBeforeDigest": "sha256:850a9a2a1b20f80d8b32bf901a534f1ea4138033ca3824e706e04183c9da9d33",
+  "stateAfterDigest": "sha256:58441c542684fdadd19efc5aa0eaca7049edb9299413ef91d9f7e58d4dd2d794",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "dockside-shift-click-range-selection",
+    "request": "Add Shift+click range selection to Dockside bulk-delete selection mode. Clicking a root checkbox establishes an anchor; Shift+clicking another visible root checkbox selects or deselects the contiguous visible range using the clicked checkbox's intended state. Preserve protected-thread eligibility, ordinary click toggling, select-all, filtering/search/project order, confirmation, deletion, keyboard/accessibility behavior, and clear/reset stale anchors when selection mode or visible roots change. Add focused tests and exercise the live BB sidebar.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed a pure intended-state range helper, actual rendered-enabled checkbox ordering scoped to ThreadInbox, callback propagation, discoverability/accessibility guidance, anchor invalidation/reset rules, focused verification, and recorded three accepted decisions plus a non-blocking UI/UX advisory.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:c7163948b061a2f1d327efd46bdf405a08143e64a23b927a383f764cd0e1151b",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:7f5660f4eef8ecf2a40ff48e23330a44f07e5d05d0eec847ec773877e1203c27",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-shift-click-range-selection-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T04:23:10.328Z"
+  },
+  "digest": "sha256:d70bcbf74aa174ba87af6b05ecd60f957af9c85aef8b5f1c27e6de80d85060cb"
+}

@@ -6,6 +6,7 @@ import type {
 } from "@bb/plugin-sdk";
 import { groupThreadsByProject } from "../lib/inbox.ts";
 import {
+  applyRootSelection,
   bulkEligibility,
   DAY_MS,
   familyIsQuiet,
@@ -208,6 +209,108 @@ describe("selection helpers", () => {
       visible[0]?.families.map((family) => family.root.id),
       ["quiet", "selected"],
     );
+  });
+});
+
+describe("applyRootSelection", () => {
+  const visible = ["a", "b", "c", "d"] as const;
+
+  it("ordinary clicks toggle one root and replace the anchor", () => {
+    const selected = new Set(["a"]);
+    const result = applyRootSelection({
+      selectedRootIds: selected,
+      visibleEligibleRootIds: visible,
+      anchorRootId: "a",
+      targetRootId: "c",
+      targetSelected: true,
+      shiftKey: false,
+    });
+
+    assert.deepEqual([...result.selectedRootIds], ["a", "c"]);
+    assert.equal(result.anchorRootId, "c");
+    assert.deepEqual([...selected], ["a"]);
+  });
+
+  it("selects inclusive forward and reverse Shift ranges", () => {
+    const forward = applyRootSelection({
+      selectedRootIds: new Set(["a"]),
+      visibleEligibleRootIds: visible,
+      anchorRootId: "a",
+      targetRootId: "c",
+      targetSelected: true,
+      shiftKey: true,
+    });
+    assert.deepEqual([...forward.selectedRootIds], ["a", "b", "c"]);
+    assert.equal(forward.anchorRootId, "a");
+
+    const reverse = applyRootSelection({
+      selectedRootIds: new Set(["d"]),
+      visibleEligibleRootIds: visible,
+      anchorRootId: "d",
+      targetRootId: "b",
+      targetSelected: true,
+      shiftKey: true,
+    });
+    assert.deepEqual([...reverse.selectedRootIds], ["d", "b", "c"]);
+    assert.equal(reverse.anchorRootId, "d");
+  });
+
+  it("uses the clicked checked state to deselect a range", () => {
+    const result = applyRootSelection({
+      selectedRootIds: new Set(visible),
+      visibleEligibleRootIds: visible,
+      anchorRootId: "a",
+      targetRootId: "c",
+      targetSelected: false,
+      shiftKey: true,
+    });
+
+    assert.deepEqual([...result.selectedRootIds], ["d"]);
+    assert.equal(result.anchorRootId, "a");
+  });
+
+  it("skips protected gaps omitted from eligible order", () => {
+    const result = applyRootSelection({
+      selectedRootIds: new Set(["a"]),
+      visibleEligibleRootIds: ["a", "c"],
+      anchorRootId: "a",
+      targetRootId: "c",
+      targetSelected: true,
+      shiftKey: true,
+    });
+
+    assert.deepEqual([...result.selectedRootIds], ["a", "c"]);
+    assert.equal(result.selectedRootIds.has("b"), false);
+  });
+
+  it("falls back to one toggle when the anchor is no longer visible", () => {
+    const result = applyRootSelection({
+      selectedRootIds: new Set(["hidden"]),
+      visibleEligibleRootIds: ["b", "c"],
+      anchorRootId: "hidden",
+      targetRootId: "c",
+      targetSelected: true,
+      shiftKey: true,
+    });
+
+    assert.deepEqual([...result.selectedRootIds], ["hidden", "c"]);
+    assert.equal(result.anchorRootId, "c");
+  });
+
+  it("fails closed when the target is no longer eligible", () => {
+    const selected = new Set(["a"]);
+    const result = applyRootSelection({
+      selectedRootIds: selected,
+      visibleEligibleRootIds: ["a"],
+      anchorRootId: "a",
+      targetRootId: "protected",
+      targetSelected: true,
+      shiftKey: true,
+    });
+
+    assert.deepEqual([...result.selectedRootIds], ["a"]);
+    assert.equal(result.anchorRootId, null);
+    assert.deepEqual([...selected], ["a"]);
   });
 });
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
   experimental_useProviders as useProviders,
   experimental_useSidebarThreads as useSidebarThreads,
@@ -32,11 +32,13 @@ import {
   visibleInboxThreads,
 } from "@/lib/inbox";
 import {
+  applyRootSelection,
   filterProjectThreadGroups,
   includeSelectedFamilies,
   pruneSelectedRootIds,
   selectableRootIds,
   type ThreadFilterPreset,
+  type RootSelectionIntent,
 } from "@/lib/thread-management";
 
 const EMPTY_STATE_CLASS = "px-2 py-6 text-center text-xs text-muted-foreground";
@@ -53,6 +55,9 @@ export function ThreadInbox({
   const { status, threads: hostThreads, projects } = useSidebarThreads();
   const { providers } = useProviders();
   const rpc = useRpc<typeof docksideRpcContract>();
+  const inboxRef = useRef<HTMLDivElement>(null);
+  const selectionAnchorRootId = useRef<string | null>(null);
+  const selectionHintId = useId();
   const [nowMinute, setNowMinute] = useState(() =>
     Math.floor(Date.now() / 60_000),
   );
@@ -219,6 +224,9 @@ export function ThreadInbox({
     (total, group) => total + group.families.length,
     0,
   );
+  const visibleRootOrderKey = projectGroups
+    .flatMap((group) => group.families.map((family) => family.root.id))
+    .join("\u001f");
   const rootTitleById = useMemo(
     () =>
       new Map(
@@ -234,18 +242,30 @@ export function ThreadInbox({
     [unfilteredProjectGroups],
   );
 
-  const toggleSelectedRoot = (threadId: string) => {
+  useEffect(() => {
+    selectionAnchorRootId.current = null;
+  }, [filterPreset, searchQuery, selectionMode, visibleRootOrderKey]);
+
+  const changeSelectedRoot = (
+    threadId: string,
+    intent: RootSelectionIntent,
+  ) => {
     setBulkMessage(null);
     setBulkOutcomes([]);
-    setSelectedRootIds((current) => {
-      const next = new Set(current);
-      if (next.has(threadId)) next.delete(threadId);
-      else next.add(threadId);
-      return next;
+    const update = applyRootSelection({
+      selectedRootIds,
+      visibleEligibleRootIds: renderedSelectableRootIds(inboxRef.current),
+      anchorRootId: selectionAnchorRootId.current,
+      targetRootId: threadId,
+      targetSelected: intent.selected,
+      shiftKey: intent.shiftKey,
     });
+    selectionAnchorRootId.current = update.anchorRootId;
+    setSelectedRootIds(update.selectedRootIds);
   };
 
   const selectAllVisible = () => {
+    selectionAnchorRootId.current = null;
     setBulkMessage(null);
     setBulkOutcomes([]);
     setSelectedRootIds((current) =>
@@ -254,6 +274,7 @@ export function ThreadInbox({
   };
 
   const cancelSelection = () => {
+    selectionAnchorRootId.current = null;
     setSelectedRootIds(new Set());
     setSelectionMode(false);
     setBulkPreview(null);
@@ -303,6 +324,7 @@ export function ThreadInbox({
       const remaining = new Set(selectedRootIds);
       for (const threadId of result.deleted) remaining.delete(threadId);
       setSelectedRootIds(remaining);
+      selectionAnchorRootId.current = null;
       setBulkPreview(null);
       const skippedCount = preview.skipped.length + result.skipped.length;
       setBulkOutcomes([
@@ -343,7 +365,7 @@ export function ThreadInbox({
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div ref={inboxRef} className="flex min-h-0 flex-1 flex-col">
       <div className="shrink-0">
         <div className="flex h-8 items-center gap-2 px-2.5 pb-1 text-muted-foreground">
           <Icon name="Folder" className="size-3.5" aria-hidden />
@@ -365,6 +387,7 @@ export function ThreadInbox({
               title={selectionMode ? "Thread selection active" : "Select threads"}
               disabled={selectionMode}
               onClick={() => {
+                selectionAnchorRootId.current = null;
                 setSelectionMode(true);
                 setBulkMessage(null);
                 setBulkOutcomes([]);
@@ -382,6 +405,9 @@ export function ThreadInbox({
 
         {selectionMode ? (
           <div className="flex h-8 items-center gap-1 border-y border-sidebar-border/70 px-2 text-2xs">
+            <span id={selectionHintId} className="sr-only">
+              Use Shift+click on another checkbox to select or deselect a range.
+            </span>
             <span className="min-w-0 flex-1 truncate font-medium text-foreground">
               {selectedRootIds.size} selected
             </span>
@@ -398,6 +424,7 @@ export function ThreadInbox({
               type="button"
               disabled={selectedRootIds.size === 0}
               onClick={() => {
+                selectionAnchorRootId.current = null;
                 setSelectedRootIds(new Set());
                 setBulkMessage(null);
                 setBulkOutcomes([]);
@@ -486,7 +513,8 @@ export function ThreadInbox({
                 now={now}
                 selectionMode={selectionMode}
                 selectedRootIds={selectedRootIds}
-                onToggleRoot={toggleSelectedRoot}
+                selectionHintId={selectionHintId}
+                onToggleRoot={changeSelectedRoot}
               />
             ))}
             {showParkedShelves ? (
@@ -600,6 +628,18 @@ function ParkedShelf({
       ) : null}
     </section>
   );
+}
+
+function renderedSelectableRootIds(root: HTMLDivElement | null): string[] {
+  if (root === null) return [];
+  return Array.from(
+    root.querySelectorAll<HTMLInputElement>(
+      "input[data-dockside-select-root]:not(:disabled)",
+    ),
+  ).flatMap((input) => {
+    const rootId = input.dataset.docksideSelectRoot;
+    return rootId && input.getClientRects().length > 0 ? [rootId] : [];
+  });
 }
 
 function setsEqual(left: ReadonlySet<string>, right: ReadonlySet<string>) {

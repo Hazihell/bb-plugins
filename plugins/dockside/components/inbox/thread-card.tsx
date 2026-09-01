@@ -21,6 +21,7 @@ import {
 import { familyWaitingForAgents } from "@/lib/attention-state";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
+import type { RootSelectionIntent } from "@/lib/thread-management";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { resolveSnoozePresets } from "@/lib/lifecycle";
 
@@ -42,6 +43,7 @@ export function ThreadCard({
   selectionMode,
   selected,
   selectionDisabledReason,
+  selectionHintId,
   onToggleSelected,
 }: {
   thread: PluginSidebarThread;
@@ -60,7 +62,8 @@ export function ThreadCard({
   selectionMode: boolean;
   selected: boolean;
   selectionDisabledReason: string | null;
-  onToggleSelected: () => void;
+  selectionHintId: string;
+  onToggleSelected: (intent: RootSelectionIntent) => void;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -138,17 +141,30 @@ export function ThreadCard({
               <input
                 type="checkbox"
                 checked={selected}
+                data-dockside-select-root={thread.id}
                 aria-label={
                   selectionDisabledReason === null
                     ? `${selected ? "Deselect" : "Select"} ${threadDisplayTitle(thread)}`
                     : `${threadDisplayTitle(thread)} cannot be selected: ${selectionDisabledReason}`
                 }
-                title={selectionDisabledReason ?? undefined}
+                aria-describedby={
+                  selectionDisabledReason === null ? selectionHintId : undefined
+                }
+                title={
+                  selectionDisabledReason ?? "Shift+click to select a range"
+                }
                 disabled={selectionDisabledReason !== null}
                 onClick={(event) => {
                   event.stopPropagation();
                 }}
-                onChange={onToggleSelected}
+                onChange={(event) => {
+                  onToggleSelected({
+                    selected: event.currentTarget.checked,
+                    shiftKey:
+                      "shiftKey" in event.nativeEvent &&
+                      event.nativeEvent.shiftKey === true,
+                  });
+                }}
                 className={cn(
                   "relative z-10 mt-0.5 size-4 shrink-0 cursor-pointer rounded border accent-primary transition-colors",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",

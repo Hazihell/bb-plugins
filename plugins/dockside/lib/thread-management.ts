@@ -38,6 +38,16 @@ export type BulkEligibility =
   | { eligible: true }
   | { eligible: false; reason: BulkProtectionReason };
 
+export interface RootSelectionUpdate {
+  selectedRootIds: Set<string>;
+  anchorRootId: string | null;
+}
+
+export interface RootSelectionIntent {
+  selected: boolean;
+  shiftKey: boolean;
+}
+
 export const BULK_PROTECTION_LABELS: Readonly<
   Record<BulkProtectionReason, string>
 > = {
@@ -167,6 +177,57 @@ export function pruneSelectedRootIds(
     ),
   );
   return new Set([...selected].filter((id) => visibleRootIds.has(id)));
+}
+
+/**
+ * Apply one native root-checkbox gesture to immutable selection state.
+ *
+ * `visibleEligibleRootIds` is the actual rendered enabled checkbox order, not
+ * merely the logical project order. That keeps protected and collapsed roots
+ * outside a Shift range. The checkbox's intended next state drives both range
+ * selection and range deselection.
+ */
+export function applyRootSelection({
+  selectedRootIds,
+  visibleEligibleRootIds,
+  anchorRootId,
+  targetRootId,
+  targetSelected,
+  shiftKey,
+}: {
+  selectedRootIds: ReadonlySet<string>;
+  visibleEligibleRootIds: readonly string[];
+  anchorRootId: string | null;
+  targetRootId: string;
+  targetSelected: boolean;
+  shiftKey: boolean;
+}): RootSelectionUpdate {
+  const next = new Set(selectedRootIds);
+  const targetIndex = visibleEligibleRootIds.indexOf(targetRootId);
+
+  // A stale event must not bypass current protection or visibility.
+  if (targetIndex < 0) {
+    return { selectedRootIds: next, anchorRootId: null };
+  }
+
+  const anchorIndex =
+    shiftKey && anchorRootId !== null
+      ? visibleEligibleRootIds.indexOf(anchorRootId)
+      : -1;
+
+  if (!shiftKey || anchorIndex < 0) {
+    if (targetSelected) next.add(targetRootId);
+    else next.delete(targetRootId);
+    return { selectedRootIds: next, anchorRootId: targetRootId };
+  }
+
+  const start = Math.min(anchorIndex, targetIndex);
+  const end = Math.max(anchorIndex, targetIndex);
+  for (const rootId of visibleEligibleRootIds.slice(start, end + 1)) {
+    if (targetSelected) next.add(rootId);
+    else next.delete(rootId);
+  }
+  return { selectedRootIds: next, anchorRootId };
 }
 
 /**
