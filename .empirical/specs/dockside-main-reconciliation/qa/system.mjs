@@ -67,7 +67,9 @@ assert.deepEqual(
 );
 const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(rootPackage.workspaces, ["plugins/*"]);
-assert.match(rootPackage.scripts.check, /bb-plugin-dockside/);
+assert.match(rootPackage.scripts.check, /check:dockside/);
+const docksideCheck = await readFile(".github/check-dockside.mjs", "utf8");
+assert.match(docksideCheck, /bb-plugin-dockside/);
 const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
 assert.ok(lock.packages["plugins/dockside"]);
 
