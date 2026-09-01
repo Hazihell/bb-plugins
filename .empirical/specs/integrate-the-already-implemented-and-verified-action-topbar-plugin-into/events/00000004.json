@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 4,
+  "previousDigest": "sha256:45bcdadbf55de6b29eb8b5d6130f55d674be27df1f8641d29d338a27e20c81dd",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed a clean-worktree integration with an explicit SDK compatibility boundary, documented install paths, scoped verification, and direct main-branch delivery.",
+  "createdAt": "2026-09-01T17:27:20.891Z",
+  "stateBeforeDigest": "sha256:c840579a16fd3fc73e697ba1ab01f953054aab2ad5f09199f12d83988bdad038",
+  "stateAfterDigest": "sha256:c866fe52d635f216d1a45841d5b123c9133b9aa6ece9bfe9987fb4d418cc12de",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 4,
+    "activeFeature": "integrate-the-already-implemented-and-verified-action-topbar-plugin-into",
+    "request": "Integrate the already implemented and verified Action Topbar plugin into bb-plugins main, preserve its experimental SDK compatibility warning, and document Git and local installation without marketplace publication.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "yolo",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed a clean-worktree integration with an explicit SDK compatibility boundary, documented install paths, scoped verification, and direct main-branch delivery.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:1529f5f25501fe9ebc42a7f453ddb5e463d845f9601d28d8047a4e239d658ec9",
+    "approvedSpecRevision": 3,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:7f78d44db69515c18987087c60f2b607ee0f1a5c852cc7b0ad459054addea887",
+    "impactDigest": "sha256:dcf654b30757da6492dd4b96daac756470d900df956d15239ab609129dfc34e1",
+    "capabilityClaimId": "integrate-the-already-implemented-and-verified-action-topbar-plugin-into-a5a4ab46ed65",
+    "authorizationDigest": "sha256:ee8cd2aa141906878c0eb8af665539af74163fde46c7fe24fb8e51e76d48e207",
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T17:27:20.891Z"
+  },
+  "digest": "sha256:975ee600f2ac1a9d979b14f893d6bf40c2ef0c5a0e38a045f00868878a281a2b"
+}

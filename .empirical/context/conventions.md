@@ -4,6 +4,9 @@
 
 - New independently installable plugins live at `plugins/<id>` and must be
   added to the root workspaces, `.bb/plugins.json`, and README catalog.
+- Experimental plugins must declare their minimum SDK engine and document any
+  matching core dependency before install instructions. Do not submit them to
+  the marketplace until the required SDK surface is accepted.
 - Keep plugin IDs, package names, CLI commands, realtime channels, persisted
   keys, schemas, tests, and documentation aligned.
 - Manifest `bb.server` and `bb.app` entries point to source files. Never repoint

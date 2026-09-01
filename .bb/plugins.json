@@ -4,6 +4,10 @@
   "name": "mateocerquetella-bb-plugins",
   "plugins": [
     {
+      "name": "action-topbar",
+      "source": "./plugins/action-topbar"
+    },
+    {
       "name": "dockside",
       "source": "./plugins/dockside"
     },
