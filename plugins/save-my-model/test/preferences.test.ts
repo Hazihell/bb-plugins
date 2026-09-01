@@ -187,6 +187,44 @@ test("contains malformed and oversized storage while listing", () => {
   assert.equal(listPreferences().length, 200);
 });
 
+test("listing never turns an invalid explicit key into provider fallback", () => {
+  const { localStorage } = installStorage();
+  localStorage.setItem("bb.save-my-model.v3:provider:host-a", "codex");
+  localStorage.setItem(
+    "bb.save-my-model.v3:execution:host-a:%00invalid",
+    JSON.stringify({ model: "wrong", reasoningLevel: "high" }),
+  );
+  localStorage.setItem(
+    "bb.save-my-model.v3:execution:host-a:codex",
+    JSON.stringify({ model: "right", reasoningLevel: "medium" }),
+  );
+
+  assert.deepEqual(listPreferences(), [
+    {
+      hostId: "host-a",
+      providerId: "codex",
+      model: "right",
+      reasoningLevel: "medium",
+    },
+  ]);
+});
+
+test("bounds examined plugin records independently of valid results", () => {
+  const { localStorage } = installStorage();
+  for (let index = 0; index < 1_001; index += 1) {
+    localStorage.setItem(
+      `bb.save-my-model.v3:execution:%00bad-${index}:codex`,
+      "{}",
+    );
+  }
+  localStorage.setItem(
+    "bb.save-my-model.v3:execution:host-a:codex",
+    JSON.stringify({ model: "after-bound", reasoningLevel: "high" }),
+  );
+
+  assert.deepEqual(listPreferences(), []);
+});
+
 test("ignores malformed values and clears only plugin-owned keys", () => {
   const { localStorage } = installStorage();
   localStorage.setItem(

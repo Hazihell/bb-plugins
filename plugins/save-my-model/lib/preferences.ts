@@ -28,6 +28,7 @@ const MAX_PROVIDER_ID = 128;
 const MAX_MODEL = 256;
 const MAX_STORED_VALUE = 2_048;
 const MAX_LISTED_PREFERENCES = 200;
+const MAX_SCANNED_PREFERENCE_RECORDS = 1_000;
 const CONTROL_CHARACTER = /[\u0000-\u001f\u007f-\u009f]/u;
 const validReasoning = new Set<ReasoningLevel>([
   "none",
@@ -223,21 +224,33 @@ export function clearPreferences(): void {
 export function listPreferences(): Preference[] {
   const localStorage = storage();
   const result: Preference[] = [];
+  let examinedRecords = 0;
   if (localStorage === null) return result;
   for (
     let index = 0;
-    index < localStorage.length && result.length < MAX_LISTED_PREFERENCES;
+    index < localStorage.length &&
+    result.length < MAX_LISTED_PREFERENCES &&
+    examinedRecords < MAX_SCANNED_PREFERENCE_RECORDS;
     index += 1
   ) {
     const storedKey = localStorage.key(index);
     if (!storedKey?.startsWith(`${PREFIX}:${EXECUTION_RECORD}:`)) continue;
+    examinedRecords += 1;
     const parts = storedKey.split(":");
     if (parts.length !== 4) continue;
     const host = safeDecode(parts[2]);
     const provider = safeDecode(parts[3]);
-    if (host === null || provider === null) continue;
-    const preference = readPreference(host, provider);
-    if (preference !== null) result.push(preference);
+    if (
+      host === null ||
+      provider === null ||
+      (host !== "" && boundedIdentity(host, MAX_HOST_ID) !== host) ||
+      !validProvider(provider) ||
+      executionKey(host, provider) !== storedKey
+    ) {
+      continue;
+    }
+    const value = readCurrentValue(localStorage.getItem(storedKey));
+    if (value !== null) result.push({ hostId: host, providerId: provider, ...value });
   }
   return result;
 }
