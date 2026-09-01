@@ -36,7 +36,7 @@ function healthyResponse(): RawUsageResponse {
     codex: {
       status: "ok",
       accountEmail: "mateo@example.com",
-      planLabel: "Pro",
+      planLabel: "Plus",
       windows: [
         {
           label: "Weekly limit",
@@ -394,6 +394,37 @@ test("falls back when the configured compact window is unavailable", () => {
 
   assert.equal(sidebarUsagePrimarySummary(weeklyOnly, "Five-hour"), "17.3%");
   assert.equal(sidebarUsagePrimarySummary(fiveHourOnly, "Weekly"), "120%");
+});
+
+test("hides the Codex Pro five-hour row when it is not reported", () => {
+  const response = healthyResponse();
+  const codex = response.codex;
+  if (codex === undefined || codex.status !== "ok") {
+    assert.fail("Codex fixture must be healthy");
+  }
+
+  const current = normalizeUsage(
+    {
+      ...response,
+      codex: {
+        ...codex,
+        planLabel: "Prolite",
+        windows: [codex.windows[0]!],
+      },
+    },
+    { id: null, name: null },
+  ).providers[0]!;
+  const previous = normalizeUsage(
+    response,
+    { id: null, name: null },
+  ).providers[0]!;
+  const merged = mergeLastKnownWindows(current, previous);
+
+  assert.equal(sidebarUsageWindows(merged).fiveHour, null);
+  assert.deepEqual(
+    sidebarUsageDetailRows(merged).map((row) => row.label),
+    ["Weekly limit"],
+  );
 });
 
 test("prefers a fresh alternative before merged last-known compact windows", () => {

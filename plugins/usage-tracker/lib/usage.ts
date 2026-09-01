@@ -14,6 +14,10 @@ export interface UsageCost {
   limitUsdCents: number;
 }
 
+export interface UsageResetCredits {
+  availableCount: number;
+}
+
 export interface RawUsageWindow {
   label: string;
   usedPercent: number;
@@ -60,6 +64,7 @@ export interface ProviderUsage {
   planLabel: string | null;
   message: string | null;
   windows: UsageWindow[];
+  resetCredits?: UsageResetCredits | null;
 }
 
 export interface UsageSnapshot {
@@ -69,6 +74,29 @@ export interface UsageSnapshot {
     name: string | null;
   };
   providers: ProviderUsage[];
+}
+
+function resetCreditsForCount(
+  availableCount: number | null,
+): UsageResetCredits | null {
+  if (availableCount === null) return null;
+  if (!Number.isSafeInteger(availableCount) || availableCount < 0) {
+    throw new TypeError("Reset credit counts must be non-negative integers");
+  }
+  return { availableCount };
+}
+
+export function withCodexResetCredits(
+  snapshot: UsageSnapshot,
+  availableCount: number | null,
+): UsageSnapshot {
+  const resetCredits = resetCreditsForCount(availableCount);
+  return {
+    ...snapshot,
+    providers: snapshot.providers.map((provider) =>
+      provider.id === "codex" ? { ...provider, resetCredits } : provider,
+    ),
+  };
 }
 
 interface ProviderDefinition {
@@ -219,6 +247,10 @@ export function formatUsedPercent(value: number, locale?: string): string {
   return new Intl.NumberFormat(locale, {
     maximumFractionDigits: 1,
   }).format(value);
+}
+
+export function formatResetCredits(availableCount: number): string {
+  return `${availableCount} reset${availableCount === 1 ? "" : "s"} available`;
 }
 
 export function formatResetTime(
