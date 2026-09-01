@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 9,
+  "previousDigest": "sha256:95019e65945279e7ed64c9b4e97cc2d169d752ca6c44879e395ac9fe0aa182ce",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Refreshed repository knowledge after restoring the approved Save My Model contract and implementing bounded host/legacy storage behavior. All five context pages are present with no stale, missing, invalid, or refinement-required paths.",
+  "createdAt": "2026-09-01T13:02:49.765Z",
+  "stateBeforeDigest": "sha256:1211f7b4b3cf4f1c8e83111095df103d80060d407bb3fa60068261db89408c32",
+  "stateAfterDigest": "sha256:c751af060004857ca65c0b79ec202e761ae147709a7d2e4c905892d7c801923f",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 9,
+    "activeFeature": "adapt-github-pr-1964-into-a-new-independently-installable-bb",
+    "request": "Adapt GitHub PR #1964 into a new independently installable BB plugin, preserving its behavior, aligning manifests/docs/tests, and prepare repository changes plus validation for marketplace submission and upstream BB linkage.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "verify",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Refreshed repository knowledge after restoring the approved Save My Model contract and implementing bounded host/legacy storage behavior. All five context pages are present with no stale, missing, invalid, or refinement-required paths.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:3e67b25c6215043f883479822745326621c7993ec1e6c54ee2b70bc8438b02fc",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:69833fcab8d78b62d4070e19f67060e4339da45ac50156145f3b44a8e51a8504",
+    "impactDigest": "sha256:e9c511f2ca21225b85362ad559ab01ac53449e11d8cb05c6cd3baa6a42224360",
+    "capabilityClaimId": "adapt-github-pr-1964-into-a-new-independently-installable-bb-ccb938548792",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T13:02:49.765Z"
+  },
+  "digest": "sha256:c93b7f0d59c7684346cba3e7c8207e8bcbc594e4bc771e1c85c3502865a09c4c"
+}
