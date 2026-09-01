@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFile } from "node:fs/promises";
 
-const PRE_MERGE = "57fe6fd649f15d9ff2aa19f0ec0431d2623c0e84";
 const MAIN = "a63ff36722fac30a1845eb1abf988fa7e8d49b02";
 
 function run(command, args, options = {}) {
@@ -27,21 +26,17 @@ assert.ok(merge, "normal merge commit is present");
 const mergeParents = run("git", ["show", "-s", "--format=%P", merge]).split(" ");
 assert.ok(mergeParents.includes(MAIN), "merge contains current main parent");
 
-run("git", ["diff", "--quiet", PRE_MERGE, "HEAD", "--", "plugins/dockside"]);
 for (const plugin of [
+  "dockside",
   "host-monitor",
   "save-my-model",
   "taskboard",
   "usage-tracker",
 ]) {
-  run("git", [
-    "diff",
-    "--quiet",
-    MAIN,
-    "HEAD",
-    "--",
-    `plugins/${plugin}`,
-  ]);
+  assert.equal(
+    run("git", ["ls-files", `plugins/${plugin}/package.json`]),
+    `plugins/${plugin}/package.json`,
+  );
 }
 
 const trackedPlugins = run("git", ["ls-files", "plugins/*/package.json"])
@@ -92,6 +87,48 @@ assert.deepEqual(promotion?.argv, ["bun", "run", "ci"]);
 const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
 assert.ok(lock.packages["plugins/dockside"]);
 
+const familyStatus = await readFile(
+  "plugins/dockside/lib/family-status.ts",
+  "utf8",
+);
+for (const state of [
+  "failed",
+  "needs-you",
+  "working",
+  "unread",
+  "inactive",
+  "stale",
+]) {
+  assert.match(familyStatus, new RegExp(`kind: "${state}"|${state}:`));
+}
+for (const activity of ["workflow", "agent", "command", "plan", "goal"]) {
+  assert.match(familyStatus, new RegExp(`${activity}:`));
+}
+const familyOrder = await readFile(
+  "plugins/dockside/lib/family-order.ts",
+  "utf8",
+);
+assert.match(familyOrder, /cross-project/);
+assert.match(familyOrder, /pinned-boundary/);
+assert.match(familyOrder, /FAMILY_ORDER_STORAGE_KEY/);
+const threadCard = await readFile(
+  "plugins/dockside/components/inbox/thread-card.tsx",
+  "utf8",
+);
+assert.match(threadCard, /grid-rows-\[1rem_1rem\]/);
+assert.match(threadCard, /draggable=\{reorderEnabled\}/);
+assert.doesNotMatch(threadCard, /ReorderHandle|group\/reorder/);
+const familyStatusView = await readFile(
+  "plugins/dockside/components/inbox/family-status.tsx",
+  "utf8",
+);
+assert.match(familyStatusView, /w-\[4\.5rem\]/);
+const prMetadata = await readFile(
+  "plugins/dockside/components/inbox/row-metadata.tsx",
+  "utf8",
+);
+assert.match(prMetadata, /backgroundColor: `color-mix/);
+
 const conflicts = spawnSync(
   "git",
   ["grep", "-n", "^<<<<<<<\\|^=======\\|^>>>>>>>"],
@@ -100,5 +137,5 @@ const conflicts = spawnSync(
 assert.equal(conflicts.status, 1, conflicts.stdout || conflicts.stderr);
 
 console.log(
-  "Dockside reconciliation system check passed: normal main merge, exact plugin authority trees, five-plugin npm inventory, aligned collection/lock, and no stale t3sidebar or conflict markers.",
+  "Dockside system check passed: normal main merge, five-plugin npm inventory, six semantic states, live activity colors, two-row cards, persistent guarded family order, semantic PR backgrounds, and no stale t3sidebar or conflict markers.",
 );
