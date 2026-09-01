@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:5ab907f9ba3aeecf2698bfea32b449e609949716f78046af8bb3b6a52584990d",
+  "sourceDigest": "sha256:5ff265bca9ab5c8de388722157ec820293425aca7ed3ad414fcc83c5937e0fbd",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -110,8 +110,8 @@
     },
     {
       "path": "plugins/dockside/README.md",
-      "size": 10678,
-      "digest": "sha256:5c2c185808660e568e433f0afb495185d5d138f037f52ccf6021a9ba9da8b71e"
+      "size": 10550,
+      "digest": "sha256:45cf083b5ab11d6f56bd0d5995653ba2a365fd933258ea3c60f8b18df7eb3b6f"
     },
     {
       "path": "plugins/dockside/THIRD_PARTY_NOTICES.md",
@@ -1349,7 +1349,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:5ab907f9ba3aeecf2698bfea32b449e609949716f78046af8bb3b6a52584990d",
+      "sourceDigest": "sha256:5ff265bca9ab5c8de388722157ec820293425aca7ed3ad414fcc83c5937e0fbd",
       "digest": "sha256:b16eb59e5758fbb5f716a6add392277f4dd9092ebdaa8b9268f215c2bae01063",
       "freshness": "fresh"
     },
@@ -1376,7 +1376,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:0ebe2f0f0e8d09c21a2487074a6e83e59a9988b0827d17a9a38cd8a95f10cf15",
+      "sourceDigest": "sha256:c598ebe59fc781b21fc33647089ec4b0eac583f23db7976a92aff9c47d18c547",
       "digest": "sha256:eef88e8fe7d1412fd29415c153b136f4b8c8181a668f5368aa24e0f6e4ae5c23",
       "freshness": "fresh"
     },
@@ -1431,5 +1431,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:cefa9ef218670b623e10852a0ba9ef3ba563f9cc91cd3aa15c6984643374970b"
+  "digest": "sha256:40bb5876493ad690d7dfa7f88a1dc9f6bc4f8c1930555ea8187aced175e82eb3"
 }

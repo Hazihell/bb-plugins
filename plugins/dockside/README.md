@@ -11,12 +11,11 @@
 
 ![bb ≥ 0.36](https://img.shields.io/badge/bb-%E2%89%A5%200.36-88C0D0?style=flat-square)
 ![any platform](https://img.shields.io/badge/platform-any-3FA266?style=flat-square)
-![release v0.1.0](https://img.shields.io/badge/release-v0.1.0-7C3AED?style=flat-square)
 ![experimental slot](https://img.shields.io/badge/uses-experimental%20SDK%20slot-F1B467?style=flat-square)
 
 </div>
 
-Dockside v0.1.0 replaces the scrolling thread list in bb's left sidebar with a
+Dockside replaces the scrolling thread list in bb's left sidebar with a
 compact project-first inbox inspired by Orca's navigation.
 
 Projects and complete root/child families stay where you put them. Drag the
@@ -40,21 +39,21 @@ states.
 You clear the list with two email verbs: **snooze** a thread until a wake time, or
 **settle** it when you are done. Both shelves collapse to one counted header.
 
-## Dockside v0.1.0
+## Dockside in action
 
 | Light | Dark |
 |:--:|:--:|
-| <img src="docs/media/dockside-v0.1.0-light.png" alt="Compact Dockside v0.1.0 sidebar in light mode showing project groups, Working, Unread, Needs you, Failed, Inactive, pull requests, and expanded child agents" width="317" /> | <img src="docs/media/dockside-v0.1.0-dark.png" alt="Compact Dockside v0.1.0 sidebar in dark mode with accessible semantic colors, project groups, pull requests, and expanded child agents" width="317" /> |
+| <img src="docs/media/dockside-light.png" alt="Compact Dockside sidebar in light mode showing project groups, Working, Unread, Needs you, Failed, Inactive, pull requests, and expanded child agents" width="317" /> | <img src="docs/media/dockside-dark.png" alt="Compact Dockside sidebar in dark mode with accessible semantic colors, project groups, pull requests, and expanded child agents" width="317" /> |
 
 ### Inline subagents
 
 <p align="center">
-  <img src="docs/media/dockside-v0.1.0-subagents.png" alt="Expanded Dockside release family with three child agents and Codex, Claude, and Codex provider marks" width="634" />
+  <img src="docs/media/dockside-subagents.png" alt="Expanded Dockside release family with three child agents and Codex, Claude, and Codex provider marks" width="634" />
 </p>
 
 ## Install
 
-Dockside v0.1.0 is an immutable Git release. Install the compatible v0.1.x range
+Dockside is available as an immutable Git release. Install the compatible range
 from the reviewed monorepo subdirectory:
 
 ```sh
