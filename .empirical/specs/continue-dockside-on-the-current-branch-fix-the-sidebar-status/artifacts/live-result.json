@@ -21,23 +21,27 @@
   "realSidebar": {
     "actualKindsBeforeFixture": [
       "inactive",
-      "working"
+      "working",
+      "unread"
     ],
     "projectName": "Naranja",
     "dragInitialOrder": [
-      "thr_ys2uiaiem2",
       "thr_7ahr5hjsd4",
-      "thr_nv9anpbjt9"
+      "thr_ys2uiaiem2",
+      "thr_nv9anpbjt9",
+      "thr_4wvf5623bz"
     ],
     "dragResultOrder": [
-      "thr_7ahr5hjsd4",
       "thr_ys2uiaiem2",
-      "thr_nv9anpbjt9"
+      "thr_7ahr5hjsd4",
+      "thr_nv9anpbjt9",
+      "thr_4wvf5623bz"
     ],
     "persistedOrder": [
-      "thr_7ahr5hjsd4",
       "thr_ys2uiaiem2",
-      "thr_nv9anpbjt9"
+      "thr_7ahr5hjsd4",
+      "thr_nv9anpbjt9",
+      "thr_4wvf5623bz"
     ],
     "orderStored": true
   },
@@ -56,7 +60,7 @@
         "cardHeight": 48,
         "titleY": 79,
         "detailY": 97,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -66,7 +70,7 @@
         "cardHeight": 48,
         "titleY": 133,
         "detailY": 151,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -76,7 +80,7 @@
         "cardHeight": 48,
         "titleY": 187,
         "detailY": 205,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -86,7 +90,7 @@
         "cardHeight": 48,
         "titleY": 241,
         "detailY": 259,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -96,7 +100,7 @@
         "cardHeight": 48,
         "titleY": 295,
         "detailY": 313,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -106,7 +110,7 @@
         "cardHeight": 48,
         "titleY": 349,
         "detailY": 367,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 595,
         "titleOverflow": false,
         "branchOverflow": false
@@ -116,7 +120,7 @@
       {
         "kind": "working",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -124,7 +128,7 @@
       {
         "kind": "needs-you",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -132,7 +136,7 @@
       {
         "kind": "unread",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -140,7 +144,7 @@
       {
         "kind": "failed",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -148,7 +152,7 @@
       {
         "kind": "inactive",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true
@@ -156,7 +160,7 @@
       {
         "kind": "stale",
         "cardHeight": 48,
-        "badgeWidth": 72,
+        "badgeWidth": 64,
         "badgeRight": 375,
         "titleOverflow": true,
         "branchOverflow": true

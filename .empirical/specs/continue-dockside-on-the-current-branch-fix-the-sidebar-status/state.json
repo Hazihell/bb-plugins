@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 8,
+  "revision": 9,
   "activeFeature": "continue-dockside-on-the-current-branch-fix-the-sidebar-status",
   "request": "Continue Dockside on the current branch. Fix the sidebar status presentation with exactly two compact rows per parent: row 1 semantic activity/status icon, truncated title, far-right elapsed time; row 2 truncated branch and a compact right cluster with readable status badge, parent-only PR metadata, and child disclosure/count/provider icon. Use distinct accessible Working, Needs you, Unread, Failed, Inactive, and Stale states; never show Done without a genuine BB completed state; make inactive/stale visually recede; add hover/focus tooltips for ambiguous status, PR, provider, and disclosure icons. Make every semantic color customizable in Dockside Settings with presets, hex validation, missing stale role, and accurate previews. Add persistent drag sorting of complete root/child families within the same project, preserve children, persist reload order, reject cross-project moves, disable reorder during bulk selection/filter/search, and provide keyboard-accessible move controls with announcements. Preserve all existing Dockside behaviors and parent-only PR metadata. Add focused tests for all specified states, stale classification, colors, truncation and child/PR edge cases, persisted/invalid ordering and interaction conflicts. Verify live normal/narrow sidebar, capture a screenshot showing all six states without clipping or a third row, run Dockside tests/typecheck/build and repository checks, commit, push the current branch, and update PR #26.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "yolo",
-  "phase": "verify",
+  "phase": "review",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Refreshed repository knowledge after the Dockside status, activity-color, PR background, settings, ordering, and test changes; all five context pages are present and no stale, missing, invalid, or refinement-required paths remain.",
+  "message": "Verified the final Dockside tree with 188 focused tests, fault cases, TypeScript, current system contract, clean archive npm-ci/package/clean-clone/cross-platform replay, full workspace checks, live local-path reload, actual persisted drag reorder, settings activity preview, normal/narrow six-state screenshots, compact aligned badges, no drag glyph, and green READY PR background.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:63beed61303d11dcb752bc4132c418e3177d91303ffb7bf49cc26a138b0b4300",
@@ -20,21 +20,29 @@
   "capabilityClaimId": "continue-dockside-on-the-current-branch-fix-the-sidebar-status-b40841a02be2",
   "authorizationDigest": "sha256:b89e2e01140a73c8d9874cefce9c7adbc3ab05adbc7bc33a2de05a6a84e666b3",
   "evidence": [],
-  "evidenceReceiptIds": [],
+  "evidenceReceiptIds": [
+    "qa-6256c8f8a2c6e8a785d9ffec",
+    "qa-52c345219c6201387bfc486b",
+    "qa-1a58c17ba27f81a002c8774a",
+    "qa-cc8d25bec350606574cbe94a",
+    "qa-160999b934db1b73fd2e14b9",
+    "qa-89a4356859f9defdb6055428",
+    "qa-d06c87a80fd1885bb3dbff52",
+    "collected-4b6ec487ba2e2766cad3d4a4"
+  ],
   "legacyEvidenceCount": 0,
   "completion": {
     "implemented": true,
-    "verified": false,
+    "verified": true,
     "integrated": false,
     "delivered": false,
     "published": false,
-    "highest": "implemented",
+    "highest": "verified",
     "reasons": {
-      "verified": "verified has not been proven by a durable receipt.",
       "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T14:51:34.460Z"
+  "updatedAt": "2026-09-01T15:13:23.985Z"
 }

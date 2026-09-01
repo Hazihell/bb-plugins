@@ -194,8 +194,8 @@ drag; or reuse the already focusable semantic status icon.
 Remove the dedicated reorder glyph. Make the semantic status icon the native
 drag and Alt+Arrow focus target, extending its tooltip with reorder help while
 leaving the card anchor's BB split-drag props unchanged. Give all family badges
-one compact 4.5rem fixed width and put the badge last in the row-two cluster so
-every status aligns at the same right edge.
+one compact 4rem fixed width with no horizontal padding and put the badge last
+in the row-two cluster so every status aligns at the same right edge.
 
 ### Trade-offs and risks
 

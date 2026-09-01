@@ -77,7 +77,8 @@ describe("compact root card contract", () => {
     assert.match(rootSource, /application\/x-dockside-family|onReorderDragStart/);
     assert.match(rootSource, /interactive=\{false\}/);
     assert.doesNotMatch(rootSource, /function ReorderHandle|group\/reorder/);
-    assert.match(familyStatusSource, /w-\[4\.5rem\]/);
+    assert.match(familyStatusSource, /w-16/);
+    assert.match(familyStatusSource, /px-0/);
     const metadataStart = rootSource.indexOf("data-dockside-root-metadata");
     const badgeStart = rootSource.indexOf("<FamilyStatusBadge", metadataStart);
     const providerStart = rootSource.indexOf("<ProviderGlyph", metadataStart);

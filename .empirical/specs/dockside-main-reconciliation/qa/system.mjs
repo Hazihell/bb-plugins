@@ -122,7 +122,8 @@ const familyStatusView = await readFile(
   "plugins/dockside/components/inbox/family-status.tsx",
   "utf8",
 );
-assert.match(familyStatusView, /w-\[4\.5rem\]/);
+assert.match(familyStatusView, /w-16/);
+assert.match(familyStatusView, /px-0/);
 const prMetadata = await readFile(
   "plugins/dockside/components/inbox/row-metadata.tsx",
   "utf8",
