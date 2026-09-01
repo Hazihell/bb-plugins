@@ -1,25 +1,21 @@
 {
   "schemaVersion": 1,
-  "sequence": 12,
-  "previousDigest": "sha256:3efc93c5d9227be6346aa677398b998cd8762045005474cd9c35985a36af0a19",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "The isolated reviewer approved the repaired exact diff after exhaustive PR icon assertions and provider identity refinement, with all criteria passing and no blocking security, correctness, design, or maintainability findings.",
-  "createdAt": "2026-09-01T01:05:14.207Z",
-  "stateBeforeDigest": "sha256:8aa73865cf83209f7c1f42f21b0977aa66523c43f8413e6084939764ab6e3a48",
-  "stateAfterDigest": "sha256:3f72b0cf7c1467a5ec40a666e4190e8b65c83d35c571b8016801ade932dfd1bc",
+  "feature": "dockside-icon-only-agent-states",
+  "lastSequence": 13,
+  "lastEventDigest": "sha256:a37af508d40fb1dfb9538c2cc8d3c8bd4fbd0a14d9193e2a187d48c98dc8171e",
+  "stateDigest": "sha256:4c603329f7bce6ed6c2457eed90b65b1357426e1f8bfb859e83749c65ebbea55",
   "state": {
     "schemaVersion": 5,
-    "revision": 12,
+    "revision": 13,
     "activeFeature": "dockside-icon-only-agent-states",
     "request": "Replace Dockside's visible state text with compact accessible icons and remove Done completion state from all child/sub-agent rows. Keep PR state understandable through a colored semantic icon plus number and accessible label/tooltip, keep root output-verified completion as an icon only, use an activity icon plus connector tint for working child families, rely on existing row glyphs for child live status, and preserve all filters, hierarchy, deletion, project creation, navigation, and compact behavior.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "integrate",
-    "status": "waiting",
-    "repairAttempts": 1,
-    "message": "The isolated reviewer approved the repaired exact diff after exhaustive PR icon assertions and provider identity refinement, with all criteria passing and no blocking security, correctness, design, or maintainability findings.",
+    "phase": "done",
+    "status": "done",
+    "repairAttempts": 0,
+    "message": "Integrated capability changes: dockside-thread-management",
     "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:51e6351c52762c208ed8b11ca7d4a4c56fd460b026a50e86981de183e350868e",
@@ -38,23 +34,24 @@
       "qa-3e2ed33a576de16487f34d00",
       "qa-f1e57f2da06ae88f0db3870e",
       "collected-fb277fc864c1dc17b8ce3ef8",
-      "collected-2b5bc8b253ce35397b324c3f"
+      "collected-2b5bc8b253ce35397b324c3f",
+      "qa-70f717627887855c2f1918c6"
     ],
     "legacyEvidenceCount": 0,
     "completion": {
       "implemented": true,
       "verified": true,
-      "integrated": false,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "verified",
+      "highest": "integrated",
       "reasons": {
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-09-01T01:05:14.207Z"
+    "updatedAt": "2026-09-01T01:06:59.475Z"
   },
-  "digest": "sha256:78c545822db17bcc5846267e37240265eb5bc7438db7137aec67f819272e664e"
+  "compactedAt": "2026-09-01T01:06:59.497Z",
+  "digest": "sha256:f18946727932c3fb080e922a49e32e298739cf0389f549b775fdc499167223f2"
 }

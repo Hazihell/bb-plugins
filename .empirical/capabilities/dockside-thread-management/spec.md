@@ -93,48 +93,40 @@ accessible status summary while row-level status remains authoritative.
 
 ### Requirement: Rows show semantic pull-request context
 
-Dockside MUST use BB's pull-request state and attention data to show one compact
-semantic status pill plus PR number on quiet roots and mounted expanded
-children. The supplied PR title MUST remain in accessible/tooltip context but
-MUST NOT add visible prose or another row. Missing PR data MUST degrade to no
-state without disturbing the row.
+Dockside MUST show a semantic PR-state icon plus PR number on quiet roots and
+mounted children. State/title MUST remain accessible and available as a native
+tooltip, while visible state words and PR-title prose are omitted.
 
-#### Scenario: Child branch is awaiting review
+#### Scenario: Child PR awaits review
 
-- **Given** an expanded quiet child has an open PR with review requested
+- **Given** an expanded quiet child has a review-requested PR
 - **When** its row renders
-- **Then** its branch line shows `IN REVIEW #<number>` with primary treatment
-- **And** the visible row does not repeat the PR title
-- **And** activation still opens BB's supplied PR URL
+- **Then** it shows the primary review icon and `#number`
+- **And** the accessible label names In review and the title
 
 ### Requirement: Completed rows show only real bounded outcomes
 
-Dockside MUST show `DONE` only when BB returns a non-empty final assistant
-output for a quiet mounted row with matching `updatedAt`. It MUST retain the
-bounded memory-only verification path but display only the Done state, never
-assistant-output prose, hover detail, or another metadata line.
+Dockside MUST use verified output only to show an accessible success check on
+root rows. Child/sub-agent rows MUST NOT request or render Done completion
+metadata.
 
-#### Scenario: Completed child has no PR
+#### Scenario: Three children are complete
 
-- **Given** an expanded quiet child has a final assistant output and no PR
-- **When** Dockside's lazy summary request completes
-- **Then** its branch line shows one success-treated `DONE` pill
-- **And** no assistant output text is visible or persisted by Dockside
+- **Given** a root and three children are quiet with final output
+- **When** the family renders
+- **Then** the root may show one accessible completion check
+- **And** no child shows Done text, a completion icon, or output prose
 
 ### Requirement: Active child work has one family orchestration signal
 
-While any child is working, Dockside MUST show `Agents working` as the root's
-single branch-line state and tint the existing family connector. Live/attention
-states MUST outrank passive PR/Done metadata and use explicit semantic text and
-color treatments. The connector and state MUST return to quiet metadata when
-work ends.
+While a child works, Dockside MUST show one primary activity icon on the root
+and tint the existing connector. The child MUST rely on its existing left
+status glyph and MUST NOT add a second live-status word or icon.
 
-#### Scenario: One of three children starts work
+#### Scenario: One child starts work
 
-- **Given** a root family is expanded with three children
-- **When** one child enters a working state
-- **Then** the root branch line shows only `Agents working`
-- **And** the working child shows its primary-treated `Working` state
-- **And** the existing connector receives the primary activity tint
-- **And** no project-level aggregate status glyph or third metadata line is
-  added
+- **Given** an expanded family has one working child
+- **When** Dockside renders it
+- **Then** the root shows one accessible activity icon
+- **And** the connector is tinted
+- **And** no Agents working or Working text is added
