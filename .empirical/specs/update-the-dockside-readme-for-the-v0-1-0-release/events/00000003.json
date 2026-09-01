@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:8230a284879f06655167e82735412f81b69f724671ddccd2dc498f39079e8b93",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed an accurate plugin-local release showcase, preserved the existing README guide, and recorded responsive, accessible, source-verifiable release decisions and UI advisory.",
+  "createdAt": "2026-09-01T16:50:19.569Z",
+  "stateBeforeDigest": "sha256:423687d36660890496ef08e8c24e265d75370bfd8235833697e71da29791ebf4",
+  "stateAfterDigest": "sha256:ccf522ba6aa6ae2a4abb8b723ef481e1ed7ca6a9e41fdc4254e76089f18ae884",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "update-the-dockside-readme-for-the-v0-1-0-release",
+    "request": "Update the Dockside README for the v0.1.0 release and add the final compact light, dark, and expanded-subagent screenshots under plugins/dockside/docs/media. Preserve all existing content and accurately describe the shipped semantic states, subagent provider marks, project/family sorting, and marketplace release.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed an accurate plugin-local release showcase, preserved the existing README guide, and recorded responsive, accessible, source-verifiable release decisions and UI advisory.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:7308aaf42fdbf0837e76852d6a732e739913a3be7f6b57157c23f026911f015f",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:624f29edf4dbfe3f23b679aac63255e8494d5d34821f9a4539d19feaf186b19a",
+    "impactDigest": "sha256:0ef2490ec0f0e93898cd2a2844c877df03835199d8011d5476417ab6fdbda821",
+    "capabilityClaimId": "update-the-dockside-readme-for-the-v0-1-0-release-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T16:50:19.569Z"
+  },
+  "digest": "sha256:826a33e56512de12dee71260e097b19da51b0910284eb0d7d2b23a5d6182cbbd"
+}

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 5,
+  "previousDigest": "sha256:cfa446dbbb72bcb70188edc7a02ce49f58299d0b9136d3fa4ed41108c4996aa7",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Added the three verified v0.1.0 screenshots under Dockside docs/media and updated the README release showcase, Git install, marketplace state, semantic status, provider-marked subagents, sorting, and settings copy while preserving the existing guide.",
+  "createdAt": "2026-09-01T16:52:08.683Z",
+  "stateBeforeDigest": "sha256:731fca4144da8b1337d314e690cff2e1e6f65d909f97b3595da648c4ea21eaab",
+  "stateAfterDigest": "sha256:9f050c11f0436be68cb9779ea634b9a40804c30e715dc6726165913174fb72ff",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 5,
+    "activeFeature": "update-the-dockside-readme-for-the-v0-1-0-release",
+    "request": "Update the Dockside README for the v0.1.0 release and add the final compact light, dark, and expanded-subagent screenshots under plugins/dockside/docs/media. Preserve all existing content and accurately describe the shipped semantic states, subagent provider marks, project/family sorting, and marketplace release.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Added the three verified v0.1.0 screenshots under Dockside docs/media and updated the README release showcase, Git install, marketplace state, semantic status, provider-marked subagents, sorting, and settings copy while preserving the existing guide.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:7308aaf42fdbf0837e76852d6a732e739913a3be7f6b57157c23f026911f015f",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:624f29edf4dbfe3f23b679aac63255e8494d5d34821f9a4539d19feaf186b19a",
+    "impactDigest": "sha256:0ef2490ec0f0e93898cd2a2844c877df03835199d8011d5476417ab6fdbda821",
+    "capabilityClaimId": "update-the-dockside-readme-for-the-v0-1-0-release-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T16:52:08.683Z"
+  },
+  "digest": "sha256:af1bd178b050a9e109d6636ba74e07ec73205955ecbfdb596c95dc15ec3b298f"
+}

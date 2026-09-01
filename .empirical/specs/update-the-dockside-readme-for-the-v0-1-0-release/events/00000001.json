@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 1,
+  "previousDigest": "sha256:8092df3fef7e087b05f06b6f2eabf617430bfcfa3246e291bd3bc9375092a8fa",
+  "actor": "empirical-start",
+  "type": "transition",
+  "summary": "Started update-the-dockside-readme-for-the-v0-1-0-release",
+  "createdAt": "2026-09-01T16:47:58.127Z",
+  "stateBeforeDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+  "stateAfterDigest": "sha256:2dcf3e3c8610e599c3568480c5d374eb3f5e8788346b7c9b2a88b16028b0dabc",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 1,
+    "activeFeature": "update-the-dockside-readme-for-the-v0-1-0-release",
+    "request": "Update the Dockside README for the v0.1.0 release and add the final compact light, dark, and expanded-subagent screenshots under plugins/dockside/docs/media. Preserve all existing content and accurately describe the shipped semantic states, subagent provider marks, project/family sorting, and marketplace release.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "specify",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": null,
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:5bf8504a25d299fa82c9888846b59d1d7887d8a67922abd5df848779ffe23787",
+    "approvedSpecRevision": null,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": null,
+    "impactDigest": null,
+    "capabilityClaimId": null,
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T16:47:58.127Z"
+  },
+  "digest": "sha256:3e258c4e03795fc3ae80910df52e2a97406ffc4eed589876776780465eb86fb5"
+}
