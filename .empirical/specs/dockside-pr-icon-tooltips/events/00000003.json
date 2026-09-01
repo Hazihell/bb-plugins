@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 3,
+  "previousDigest": "sha256:00d8fe5f27edb85021fe158fa13ade91374a573012390d5e1d84f5fc7c8299c3",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Designed Eye integration, tested semantic icon vocabulary, number-before-icon group metadata, bounded themed hover/focus tooltip with fallback accessibility, accepted the compact detail approach, and incorporated UI guidance.",
+  "createdAt": "2026-09-01T01:45:31.624Z",
+  "stateBeforeDigest": "sha256:c301befce806481a90bff7cfc479cf798d910d971f1070e761be2dc331fd82a4",
+  "stateAfterDigest": "sha256:dc1c80f43be54f3a200c59b1c070411e3df6305eb0b7ca269fcc303d0b3cec16",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 3,
+    "activeFeature": "dockside-pr-icon-tooltips",
+    "request": "Finish Dockside PR presentation now: keep compact visible #number followed by semantic PR-state icon at the far right; use an eye icon for In review, check for Ready/Merged, x for Changes/Blocked/Closed, spinner for Checks, branch for Open/Draft; add a real hover/focus tooltip showing state, PR number, and title; never show generic completion checks on ordinary threads; preserve provider identity and all management/layout behavior.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "plan",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Designed Eye integration, tested semantic icon vocabulary, number-before-icon group metadata, bounded themed hover/focus tooltip with fallback accessibility, accepted the compact detail approach, and incorporated UI guidance.",
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:acdafcaa0d34abe3cf75a8935f762ae3e7e06f4a4f5c929126b59917baea3749",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:361eafe8ccac2c289ca9affbe179bae8f8d12cbf71fa5eb35261753254665484",
+    "impactDigest": "sha256:098d8f4282d3aa8aa1199db02f8764b35ce7c00b3b450ece444b4a46892aec3f",
+    "capabilityClaimId": "dockside-pr-icon-tooltips-b40841a02be2",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T01:45:31.624Z"
+  },
+  "digest": "sha256:fe66dd4f8d693a17a3d24ac877f6bb3c3d330220e8f5a920d7dbee47d35ae7ad"
+}

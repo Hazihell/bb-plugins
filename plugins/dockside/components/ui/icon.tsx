@@ -23,6 +23,7 @@ import {
   Target02Icon,
   Tick02Icon,
   UserAdd01Icon,
+  ViewIcon,
   WorkflowCircle03Icon,
 } from "@hugeicons/core-free-icons";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ const ICON_MAP = {
   CircleX: CancelCircleIcon,
   Clock: Clock01Icon,
   Edit: Edit02Icon,
+  Eye: ViewIcon,
   Filter: FilterHorizontalIcon,
   Folder: Folder01Icon,
   GitBranch: GitBranchIcon,

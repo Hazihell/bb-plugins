@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:162b6229866aaaf3418471d57271e80018b1ab6e179b9d74577a4f608c6be438",
+  "sourceDigest": "sha256:3c6c5abca16c8d7e68fe7e69eec353736aa31121cdc5171c7e0b36c08c5fd8a3",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -985,8 +985,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/row-metadata.tsx",
-      "size": 1661,
-      "digest": "sha256:c60af9cec4c78c4c187be13970238247c541b5d0b5a6e23d1ffdeaa3d60f718c"
+      "size": 2357,
+      "digest": "sha256:3ffdcc8cc84da426da0a6846522125c3a3d07fd2e125481dfa504b6b612631ba"
     },
     {
       "path": "plugins/dockside/components/inbox/slim-row.tsx",
@@ -1010,8 +1010,8 @@
     },
     {
       "path": "plugins/dockside/components/inbox/thread-card.tsx",
-      "size": 17404,
-      "digest": "sha256:562d77773215fd062cc5f430f63125df10d43dc057380e71bc19af5132b2e4e6"
+      "size": 17408,
+      "digest": "sha256:b5b34628dac3ca510b8be4a72f3bb05b6817ec611ca51a040b08710797355865"
     },
     {
       "path": "plugins/dockside/components/inbox/thread-inbox.tsx",
@@ -1020,8 +1020,8 @@
     },
     {
       "path": "plugins/dockside/components/ui/icon.tsx",
-      "size": 1754,
-      "digest": "sha256:4c75707d7ef5c0d4cae561b62db891a37a8a122defca6f71e79898aa41a7f657"
+      "size": 1826,
+      "digest": "sha256:9521b2692f11b181d6022e8df122d9f8afe266309f38b3a2cc8eb4ccf95dbb33"
     },
     {
       "path": "plugins/dockside/components/ui/select.tsx",
@@ -1075,8 +1075,8 @@
     },
     {
       "path": "plugins/dockside/lib/pull-request-presentation.ts",
-      "size": 1706,
-      "digest": "sha256:2213aa14a5354462e5275d695bf7d1c6847b765fd1be42f44e9f1c4ca79b0750"
+      "size": 1700,
+      "digest": "sha256:7641a9042b746d909e67b18f4dfc16fb73e88a75d6513697d6e901f9828f50b6"
     },
     {
       "path": "plugins/dockside/lib/relative-time.ts",
@@ -1135,8 +1135,8 @@
     },
     {
       "path": "plugins/dockside/test/pull-request-presentation.test.ts",
-      "size": 1673,
-      "digest": "sha256:289fed38c7926cd3c990d5f1b43c1f243b3d7b6687ad7d9a018ba1d83e6f0ef2"
+      "size": 1670,
+      "digest": "sha256:5f69c6e6ddd6f8cf140e27ba83e18723c9519d551bc4809ea8139f67788bda92"
     },
     {
       "path": "plugins/dockside/test/relative-time.test.ts",
@@ -3161,8 +3161,8 @@
         "scripts/split-layers.test.ts",
         "scripts/split-layers.ts"
       ],
-      "sourceDigest": "sha256:162b6229866aaaf3418471d57271e80018b1ab6e179b9d74577a4f608c6be438",
-      "digest": "sha256:ff6b1fa1f9a8ebe0894b1822918ee06ee3e1048345d22790940273d5558347b4",
+      "sourceDigest": "sha256:3c6c5abca16c8d7e68fe7e69eec353736aa31121cdc5171c7e0b36c08c5fd8a3",
+      "digest": "sha256:225a290cab2ad2ebf042d264636e6aa11347a5b1158687517ff99757e319dcd5",
       "freshness": "fresh"
     },
     {
@@ -3298,5 +3298,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:426ef9f0c042cdf2f559762a8af41261d4df547f2de5ad80b21adcc79d3f3bfe"
+  "digest": "sha256:35f439a67468bd355f14a7769df8d52e503712874c663c1024f11f838f34e0cf"
 }

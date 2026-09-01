@@ -3,7 +3,7 @@ import type { SemanticStateTone } from "./attention-state.ts";
 
 export interface PullRequestPresentation {
   label: string;
-  icon: "Check" | "CircleX" | "GitBranch" | "Loading" | "Target";
+  icon: "Check" | "CircleX" | "Eye" | "GitBranch" | "Loading";
   tone: SemanticStateTone;
 }
 
@@ -43,7 +43,7 @@ export function pullRequestPresentation(
     case "checks_pending":
       return { label: "CHECKS", icon: "Loading", tone: "primary" };
     case "review_requested":
-      return { label: "IN REVIEW", icon: "Target", tone: "primary" };
+      return { label: "IN REVIEW", icon: "Eye", tone: "primary" };
     case "ready_to_merge":
       return { label: "READY", icon: "Check", tone: "success" };
     default:

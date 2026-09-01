@@ -25,7 +25,7 @@ describe("pullRequestPresentation", () => {
       ["checks_failed", "BLOCKED", "destructive", "CircleX"],
       ["conflicts", "BLOCKED", "destructive", "CircleX"],
       ["checks_pending", "CHECKS", "primary", "Loading"],
-      ["review_requested", "IN REVIEW", "primary", "Target"],
+      ["review_requested", "IN REVIEW", "primary", "Eye"],
       ["ready_to_merge", "READY", "success", "Check"],
       ["none", "OPEN", "muted", "GitBranch"],
     ] as const;
