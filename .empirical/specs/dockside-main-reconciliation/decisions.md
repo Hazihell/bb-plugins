@@ -153,3 +153,37 @@ code and persisted behavior remain unchanged.
 
 Run the wrapper in the working tree and an archive without Git metadata;
 require a successful bundle and byte-clean Dockside tree afterward.
+
+## D-006: Isolate Empirical's mandatory promotion adapter from workspace CI
+
+Status: Accepted
+
+### Evidence
+
+Empirical Policy v2 rejects any `full-ci` command except the exact argv
+`bun run ci`. Current main intentionally uses npm for its workspace, lockfile,
+GitHub workflow, installation, and check command.
+
+### Options
+
+Restore Bun workspace orchestration; leave promotion unverifiable; patch the
+Empirical runtime; or provide the required adapter as a one-line delegation to
+the canonical npm check.
+
+### Chosen approach
+
+Keep the Policy v2 promotion command as exact `bun run ci`, and define the sole
+root `ci` script as `npm run check`. Do not add a Bun lock, Bun dependencies,
+Bun workspace scripts, or Bun GitHub CI. Treat this as an Empirical protocol
+adapter, not repository package-manager authority.
+
+### Trade-offs and risks
+
+Agents need Bun only when recording the mandatory Empirical promotion receipt;
+developers and GitHub use npm exclusively. The indirection is explicit and
+covered by the same npm check.
+
+### Verification
+
+Require Policy v2 doctor validation, `bun run ci` success, GitHub's npm CI
+success, and absence of `bun.lock` or other Bun orchestration files.

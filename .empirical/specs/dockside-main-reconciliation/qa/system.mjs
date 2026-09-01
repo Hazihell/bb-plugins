@@ -59,6 +59,13 @@ assert.deepEqual(trackedPlugins, [
 assert.equal(run("git", ["ls-files", "plugins/t3sidebar"]), "");
 assert.equal(run("git", ["ls-files", "bun.lock"]), "");
 assert.equal(run("git", ["ls-files", "package-lock.json"]), "package-lock.json");
+for (const retired of [
+  "GEMINI.md",
+  ".gemini/settings.json",
+  ".windsurf/skills/empirical/SKILL.md",
+]) {
+  assert.equal(run("git", ["ls-files", retired]), "", `${retired} was restored`);
+}
 
 const collection = JSON.parse(await readFile(".bb/plugins.json", "utf8"));
 assert.deepEqual(
@@ -68,8 +75,14 @@ assert.deepEqual(
 const rootPackage = JSON.parse(await readFile("package.json", "utf8"));
 assert.deepEqual(rootPackage.workspaces, ["plugins/*"]);
 assert.match(rootPackage.scripts.check, /check:dockside/);
+assert.equal(rootPackage.scripts.ci, "npm run check");
 const docksideCheck = await readFile(".github/check-dockside.mjs", "utf8");
 assert.match(docksideCheck, /bb-plugin-dockside/);
+const policy = JSON.parse(await readFile(".empirical/policy.json", "utf8"));
+const promotion = policy.verification.commands.find(
+  (command) => command.id === "repo-full-ci",
+);
+assert.deepEqual(promotion?.argv, ["bun", "run", "ci"]);
 const lock = JSON.parse(await readFile("package-lock.json", "utf8"));
 assert.ok(lock.packages["plugins/dockside"]);
 

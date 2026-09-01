@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:b44290b6d416c36bba1f2de13f23ebe6e1b57084e686221bf1fec9fbc49fcf12",
+  "sourceDigest": "sha256:76937b730e9c9bcbc1f23c76d5786e28bc70b1f0a4c15a5a0e68b2337989d75c",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
-      "size": 7741,
-      "digest": "sha256:778560d94269ed92ff09f284e84f858d256708b9876268f6f99c68543508fc07"
+      "size": 5967,
+      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
     },
     {
       "path": ".bb/plugins.json",
@@ -15,8 +15,8 @@
     },
     {
       "path": ".claude/skills/empirical/SKILL.md",
-      "size": 7741,
-      "digest": "sha256:778560d94269ed92ff09f284e84f858d256708b9876268f6f99c68543508fc07"
+      "size": 5967,
+      "digest": "sha256:57ae46341fe38a56754dd069a22b0d65f611503cf26e108bfc76026ecb5e7e33"
     },
     {
       "path": ".codex/config.toml",
@@ -27,11 +27,6 @@
       "path": ".cursor/mcp.json",
       "size": 119,
       "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
-    },
-    {
-      "path": ".gemini/settings.json",
-      "size": 137,
-      "digest": "sha256:58b7bc1fef265b214425ef17eeb67f9f9ad687e049cc8d65c368c01ef5bb8780"
     },
     {
       "path": ".gitattributes",
@@ -59,22 +54,12 @@
       "digest": "sha256:a4d50e5110c610d398e04657e81a2c2db9328cd131f5c28995aaf4e213a9c90b"
     },
     {
-      "path": ".windsurf/skills/empirical/SKILL.md",
-      "size": 7741,
-      "digest": "sha256:778560d94269ed92ff09f284e84f858d256708b9876268f6f99c68543508fc07"
-    },
-    {
       "path": "AGENTS.md",
       "size": 2720,
       "digest": "sha256:e907e06cfe05924c9b90bde87636696bf8d16f4c5d0527f10b62d64b05b48544"
     },
     {
       "path": "CLAUDE.md",
-      "size": 1083,
-      "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
-    },
-    {
-      "path": "GEMINI.md",
       "size": 1083,
       "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
     },
@@ -1100,16 +1085,13 @@
         ".claude/skills/empirical/SKILL.md",
         ".codex/config.toml",
         ".cursor/mcp.json",
-        ".gemini/settings.json",
         ".gitattributes",
         ".github/check-dockside.mjs",
         ".github/workflows/ci.yml",
         ".gitignore",
         ".mcp.json",
-        ".windsurf/skills/empirical/SKILL.md",
         "AGENTS.md",
         "CLAUDE.md",
-        "GEMINI.md",
         "LICENSE",
         "README.md",
         "THIRD_PARTY_NOTICES.md",
@@ -1313,7 +1295,7 @@
         "plugins/usage-tracker/tsconfig.json",
         "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:b44290b6d416c36bba1f2de13f23ebe6e1b57084e686221bf1fec9fbc49fcf12",
+      "sourceDigest": "sha256:76937b730e9c9bcbc1f23c76d5786e28bc70b1f0a4c15a5a0e68b2337989d75c",
       "digest": "sha256:10082cd6b7a30aaa42f0ae037b0a59f8aa211cf8f0f34f233f78132307c899e9",
       "freshness": "fresh"
     },
@@ -1393,5 +1375,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:ba639c77487085cefecc09bc27c79dd318b7f4960979a342aeec30b1e2bccedc"
+  "digest": "sha256:3052e850a25ed9b6c9e52070abb90c574430d1cc91d360e88d5695ea775bb9bd"
 }
