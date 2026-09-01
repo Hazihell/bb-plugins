@@ -8,10 +8,12 @@ const root = process.cwd();
 const scratchRoot = join(homedir(), ".cache", "empirical-qa");
 mkdirSync(scratchRoot, { recursive: true });
 const checkout = mkdtempSync(join(scratchRoot, "save-my-model-qa-"));
+const temporary = mkdtempSync(join(scratchRoot, "save-my-model-tmp-"));
 
 function run(command, args, cwd, options = {}) {
   const env = { ...process.env };
   delete env.BB_CLI;
+  env.TMPDIR = temporary;
   const result = spawnSync(command, args, {
     cwd,
     env,
@@ -47,4 +49,5 @@ try {
   );
 } finally {
   rmSync(checkout, { recursive: true, force: true });
+  rmSync(temporary, { recursive: true, force: true });
 }
