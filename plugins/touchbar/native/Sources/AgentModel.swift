@@ -51,12 +51,26 @@ final class AgentStore {
 
     private let queue = DispatchQueue(label: "app.getbb.touchbar.store", qos: .utility)
     private let lock = NSLock()
+    private var lastGoodSnapshot = AgentSnapshot()
+    private var consecutiveFailures = 0
     private var stopped = false
+    private static let offlineFailureThreshold = 3
 
     func start() {
         queue.async { [weak self] in
             while let self, !self.isStopped {
-                self.publish(Self.fetch())
+                if let next = Self.fetch() {
+                    self.consecutiveFailures = 0
+                    self.lastGoodSnapshot = next
+                    self.publish(next)
+                } else {
+                    self.consecutiveFailures += 1
+                    if self.consecutiveFailures == Self.offlineFailureThreshold {
+                        var stale = self.lastGoodSnapshot
+                        stale.connected = false
+                        self.publish(stale)
+                    }
+                }
                 for _ in 0..<20 where !self.isStopped {
                     Thread.sleep(forTimeInterval: 0.1)
                 }
@@ -84,22 +98,22 @@ final class AgentStore {
         }
     }
 
-    private static func fetch() -> AgentSnapshot {
-        guard let data = BBCommand.run(["touchbar", "snapshot"]) else {
+    private static func fetch() -> AgentSnapshot? {
+        guard let data = BBCommand.run(["touchbar", "snapshot"], timeout: 5) else {
             NativeLog.debug("snapshot command returned no data")
-            return AgentSnapshot(agents: [], connected: false)
+            return nil
         }
         guard data.count <= 65_536 else {
             NativeLog.error("snapshot output too large")
-            return AgentSnapshot(agents: [], connected: false)
+            return nil
         }
         guard let payload = try? JSONDecoder().decode(BBSnapshot.self, from: data) else {
             NativeLog.error("snapshot JSON could not be decoded (\(data.count) bytes)")
-            return AgentSnapshot(agents: [], connected: false)
+            return nil
         }
         guard payload.schemaVersion == 1 else {
             NativeLog.error("unsupported snapshot schema \(payload.schemaVersion)")
-            return AgentSnapshot(agents: [], connected: false)
+            return nil
         }
 
         let entries = payload.threads.map { thread in
