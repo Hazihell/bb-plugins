@@ -116,3 +116,40 @@ This adds deliberate verification work but protects both repository lineages.
 
 Every acceptance criterion must have a passing matrix receipt and the final PR
 head must match the clean local branch.
+
+## D-005: Provide Dockside's runtime export manifest at the npm root
+
+Status: Accepted
+
+### Evidence
+
+Main's stable builder can bundle Dockside, but its dynamic runtime shim sees
+the root SDK 0.4.6 export manifest and rejects `UrlLink` and
+`experimental_useProviders`. Published SDK 0.4.29 declares both exports and
+builds the unchanged Dockside source successfully. The build also rewrites a
+legacy plugin's vendored declarations even when their verified content is
+intentional.
+
+### Options
+
+Remove the two Dockside capabilities; modify installed builder code; migrate
+the plugin during conflict resolution; or supply the published export manifest
+at the root and restore only generated declarations after CI builds.
+
+### Chosen approach
+
+Pin root build tooling to `bb-app@0.40.0` and
+`@get-bb/plugin-sdk@0.4.29`. Keep Dockside byte-identical and run its
+typecheck/test/build through a root wrapper that snapshots and restores only
+the two generated declaration files in `finally`.
+
+### Trade-offs and risks
+
+The root carries two build-only dependencies and a compatibility wrapper until
+Dockside is deliberately migrated in a separate feature. Runtime application
+code and persisted behavior remain unchanged.
+
+### Verification
+
+Run the wrapper in the working tree and an archive without Git metadata;
+require a successful bundle and byte-clean Dockside tree afterward.

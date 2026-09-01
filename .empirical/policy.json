@@ -11,13 +11,44 @@
     },
     "commands": [
       {
+        "id": "workspace-check",
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "timeoutMs": 900000,
+        "maxOutputBytes": 1048576,
+        "evidenceKinds": [
+          "test"
+        ],
+        "criteria": [
+          "AC-1",
+          "AC-2",
+          "AC-3",
+          "AC-4",
+          "AC-5",
+          "AC-UI-1",
+          "AC-UI-2",
+          "AC-UI-3",
+          "AC-UI-4",
+          "AC-UI-5",
+          "AC-6",
+          "AC-7",
+          "AC-MKT-1",
+          "AC-MKT-2",
+          "AC-8",
+          "AC-9"
+        ]
+      },
+      {
         "id": "dockside-focused",
         "argv": [
-          "bun",
-          "run",
-          "--filter",
-          "bb-plugin-dockside",
-          "test"
+          "npm",
+          "test",
+          "--workspace",
+          "bb-plugin-dockside"
         ],
         "cwd": ".",
         "timeoutMs": 60000,
@@ -34,11 +65,11 @@
       {
         "id": "dockside-contract",
         "argv": [
-          "bun",
+          "npm",
           "run",
-          "--filter",
-          "bb-plugin-dockside",
-          "typecheck"
+          "typecheck",
+          "--workspace",
+          "bb-plugin-dockside"
         ],
         "cwd": ".",
         "timeoutMs": 60000,
@@ -55,14 +86,12 @@
         "id": "dockside-system",
         "argv": [
           "node",
-          ".empirical/specs/dockside-row-selection-status-customization/qa/system.mjs"
+          ".empirical/specs/dockside-main-reconciliation/qa/system.mjs"
         ],
         "cwd": ".",
         "timeoutMs": 60000,
         "maxOutputBytes": 262144,
         "evidenceKinds": [
-          "browser",
-          "screenshot",
           "test"
         ],
         "checks": [
@@ -74,10 +103,10 @@
         "id": "dockside-portability",
         "argv": [
           "node",
-          ".empirical/specs/dockside-rich-pr-agent-metadata/qa/portability.mjs"
+          ".empirical/specs/dockside-main-reconciliation/qa/portability.mjs"
         ],
         "cwd": ".",
-        "timeoutMs": 600000,
+        "timeoutMs": 900000,
         "maxOutputBytes": 1048576,
         "evidenceKinds": [
           "test"
@@ -93,12 +122,12 @@
       {
         "id": "repo-full-ci",
         "argv": [
-          "bun",
+          "npm",
           "run",
-          "ci"
+          "check"
         ],
         "cwd": ".",
-        "timeoutMs": 600000,
+        "timeoutMs": 900000,
         "maxOutputBytes": 1048576,
         "evidenceKinds": [
           "test"

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 import type {
   JsonValue,
@@ -43,13 +43,40 @@ test("keeps the installed plugin identity while presenting Host Monitor", () => 
   const manifest = JSON.parse(
     readFileSync(new URL("../package.json", import.meta.url), "utf8"),
   ) as {
+    homepage: string;
+    keywords: string[];
     name: string;
+    repository: { directory: string };
     bb: { name: string };
   };
 
   assert.equal(manifest.name, "bb-plugin-host-monitor");
   assert.equal(manifest.name.replace(/^bb-plugin-/u, ""), "host-monitor");
   assert.equal(manifest.bb.name, "Host Monitor");
+  assert.match(manifest.homepage, /\/plugins\/host-monitor#readme$/u);
+  assert.equal(manifest.repository.directory, "plugins/host-monitor");
+  assert.deepEqual(manifest.keywords, [...new Set(manifest.keywords)]);
+});
+
+test("keeps the retired compound identity out of active plugin text", () => {
+  const pluginRoot = new URL("..", import.meta.url);
+  const retiredIdentity = ["machine", "monitor"].join("-");
+  const textExtensions = /\.(?:css|d\.ts|json|md|mjs|ts|tsx)$/u;
+  const pending = [pluginRoot];
+
+  while (pending.length > 0) {
+    const directory = pending.pop();
+    assert.ok(directory);
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.name === "dist" || entry.name === "node_modules") continue;
+      const child = new URL(`${entry.name}${entry.isDirectory() ? "/" : ""}`, directory);
+      if (entry.isDirectory()) {
+        pending.push(child);
+      } else if (textExtensions.test(entry.name)) {
+        assert.doesNotMatch(readFileSync(child, "utf8"), new RegExp(retiredIdentity, "u"));
+      }
+    }
+  }
 });
 
 test("keeps threshold color hooks on percentages without rendering a legend or coloring counts", () => {

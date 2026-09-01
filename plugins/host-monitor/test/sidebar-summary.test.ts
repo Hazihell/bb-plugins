@@ -378,6 +378,10 @@ describe("Host Monitor sidebar threshold colors", () => {
 
     assert.match(
       sidebarCss,
+      /\[data-host-monitor-trigger\]\[data-host-monitor-status="error"\]::after/u,
+    );
+    assert.match(
+      sidebarCss,
       /data-host-monitor-threshold-colors="true"[^{}]*host-monitor-sidebar__compact-metric-value\[data-tone="attention"\]/u,
     );
     assert.match(
@@ -400,24 +404,6 @@ describe("Host Monitor sidebar threshold colors", () => {
       sidebarCss,
       /data-host-monitor-threshold-colors="false"[^{}]*data-tone/u,
     );
-  });
-
-  it("does not draw a notification dot on the movable sidebar trigger", () => {
-    const css = readFileSync(
-      new URL("../app.css", import.meta.url),
-      "utf8",
-    );
-    const source = readFileSync(
-      new URL("../lib/sidebar-host-monitor.ts", import.meta.url),
-      "utf8",
-    );
-
-    assert.doesNotMatch(
-      css,
-      /\[data-host-monitor-trigger\][^{]*::after/u,
-    );
-    assert.match(source, /trigger\.setAttribute\(\s*"aria-label"/u);
-    assert.match(source, /trigger\.title =/u);
   });
 
   it("colors download red and upload blue independently of threshold colors", () => {

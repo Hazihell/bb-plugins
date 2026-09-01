@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 5,
+  "previousDigest": "sha256:8d82b1bcdeac616fb4dcacb8109e88778a219e092fb996bb05b29a52070fb1e6",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Implemented plugin package, collection registration, documentation, tests, and marketplace entry draft. Package checks and marketplace build pass; root check has unrelated existing better-sqlite3 binding failures and marketplace liveness has an existing missing repository.",
+  "createdAt": "2026-08-31T20:45:28.615Z",
+  "stateBeforeDigest": "sha256:7a755471c2bbdcbd6fa3ae796bf91515ff5d16bc61c92c9a635f66bc2eaf7700",
+  "stateAfterDigest": "sha256:665571eadcafe49780e5f19106d8ca5848da7907011206a230714ea3f48d9549",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 5,
+    "activeFeature": "adapt-github-pr-1964-into-a-new-independently-installable-bb",
+    "request": "Adapt GitHub PR #1964 into a new independently installable BB plugin, preserving its behavior, aligning manifests/docs/tests, and prepare repository changes plus validation for marketplace submission and upstream BB linkage.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": "Implemented plugin package, collection registration, documentation, tests, and marketplace entry draft. Package checks and marketplace build pass; root check has unrelated existing better-sqlite3 binding failures and marketplace liveness has an existing missing repository.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:3e67b25c6215043f883479822745326621c7993ec1e6c54ee2b70bc8438b02fc",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:69833fcab8d78b62d4070e19f67060e4339da45ac50156145f3b44a8e51a8504",
+    "impactDigest": "sha256:e9c511f2ca21225b85362ad559ab01ac53449e11d8cb05c6cd3baa6a42224360",
+    "capabilityClaimId": "adapt-github-pr-1964-into-a-new-independently-installable-bb-ccb938548792",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-08-31T20:45:28.615Z"
+  },
+  "digest": "sha256:77fab4ab19e2aaa4d2996e3b7d3d1c76ca09a8d0c745dd6a62cebb580e1ede92"
+}

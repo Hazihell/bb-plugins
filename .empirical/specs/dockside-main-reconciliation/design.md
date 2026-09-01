@@ -33,6 +33,13 @@
   remains an ordinary `plugins/*` workspace and pins its own SDK/tooling.
 - Regenerate `package-lock.json` with npm after Dockside is present; do not
   transplant the branch Bun lock.
+- Root dev tooling pins `bb-app@0.40.0` and the published SDK 0.4.29 export
+  manifest. The latter lets the stable builder recognize Dockside's `UrlLink`
+  and provider hooks while the verified plugin retains its legacy vendored
+  declaration layout.
+- A root Dockside check wrapper restores those two generated declaration files
+  after `bb plugin build`, matching main CI's clean-tree rule without changing
+  application source or hiding any other generated change.
 - Build/type scripts that invoke `bb` continue clearing `BB_CLI` as required by
   the repository guide.
 

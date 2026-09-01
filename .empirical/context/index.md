@@ -1,14 +1,11 @@
-<!-- empirical-sdd:managed-context-v2 -->
 # Repository Knowledge Index
 
-Generated from bounded repository metadata.
+Curated repository knowledge for the `bb-plugins` multi-plugin workspace.
 
-- Repository: bb-plugins-dockside-thread-management
-- Source fingerprint: sha256:7ba24fdd57945125c18aca83a7e721a2ced5b7ace80547ecc22fb99debc0810c
-- Included files: 532
-- Roots: .agents, .claude, .codex, .cursor, .gemini, .github, ., .windsurf, demos, plugins, scripts
-- Manifests: package.json, plugins/action-topbar/package.json, plugins/agent-proxy/package.json, plugins/agentation/package.json, plugins/amp/package.json, plugins/dockside/package.json, plugins/dotfiles/package.json, plugins/gh-stack/package.json, plugins/host-monitor/package.json, plugins/monokai/package.json, plugins/notify/package.json, plugins/pr-walkthrough/package.json, plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/package.json, plugins/usage-tracker/package.json
-- Primary docs: README.md, plugins/action-topbar/README.md, plugins/agent-proxy/README.md, plugins/agentation/README.md, plugins/amp/README.md, plugins/dockside/README.md, plugins/dotfiles/README.md, plugins/gh-stack/README.md, plugins/host-monitor/README.md, plugins/monokai/README.md, plugins/notify/README.md, plugins/pr-walkthrough/README.md, plugins/pr-walkthrough/skills/pr-walkthrough/assets/site-template/src/app/fonts/README.md, plugins/usage-tracker/README.md
+The root owns orchestration and one lockfile; Taskboard, Usage Tracker, and Host
+Monitor remain independent private plugin packages under `plugins/`. Usage
+Tracker preserves stable frontend/provider IDs while adapting current and legacy
+BB usage response keys, and its expanded card is the complete usage-window view.
 
 ## Topics
 
@@ -17,5 +14,6 @@ Generated from bounded repository metadata.
 - [Commands](commands.md)
 - [Conventions](conventions.md)
 
-Freshness and source dependencies are recorded in [manifest.json](manifest.json).
-This is a compact file-backed context set, not an embedding or vector database.
+Source dependencies, page digests, and freshness are recorded in
+[manifest.json](manifest.json). This is a compact file-backed context set, not
+an embedding or vector database.
