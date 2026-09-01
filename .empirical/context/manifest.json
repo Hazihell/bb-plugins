@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "generator": "empirical-0.29.0",
-  "sourceDigest": "sha256:e8a1b0bfa9735380c8b1fb1051835b451e7f3eebf5ed7f32a3f0145c7a151421",
+  "generator": "empirical-0.30.0",
+  "sourceDigest": "sha256:e82189722d7dd855b8802bdd7b4fceb67ac426ff02c8100d86d1e960c2c01975",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -10,8 +10,8 @@
     },
     {
       "path": ".bb/plugins.json",
-      "size": 643,
-      "digest": "sha256:bf4f3bc4d6408c4ef6b235158578da493b4f013461436307a5dca8971ce9b90d"
+      "size": 719,
+      "digest": "sha256:cadd1d8a1ce5816992e5e2017716a0a48b85be7cc91f9b41bb53ec0a7faf3808"
     },
     {
       "path": ".claude/skills/empirical/SKILL.md",
@@ -69,14 +69,19 @@
       "digest": "sha256:a79d661f3c1a0ad726a40853a28fbd4fc68706b1ee570c4f54092bb5f554752f"
     },
     {
+      "path": "Casks/bb-touch-bar.rb",
+      "size": 1370,
+      "digest": "sha256:80e14222045bcd6a3c6c46ad18c45abac9bdda9de44b23ab684934c3a80c2014"
+    },
+    {
       "path": "LICENSE",
       "size": 1074,
       "digest": "sha256:d73e86b0d180da7359d03c23a6378eca5177f6a9ffc0e2c51c5b4a1dcf17391c"
     },
     {
       "path": "README.md",
-      "size": 10997,
-      "digest": "sha256:a2d067fd3419f9c5a9edce46ca26a1baa343e29eed614ffbadc03734e7fa232a"
+      "size": 12269,
+      "digest": "sha256:cca194712ccc1ebdb2ca764dc619412cd4cd506fd02c4225e9691e3c9fd5ee3d"
     },
     {
       "path": "THIRD_PARTY_NOTICES.md",
@@ -95,8 +100,8 @@
     },
     {
       "path": "package-lock.json",
-      "size": 294699,
-      "digest": "sha256:5cb886bfe4f510f7079ee3f12d03f9277928e87e20b4e157d9fbd8dd53e453a6"
+      "size": 298158,
+      "digest": "sha256:694bbcebb5ee15882dc654b9785929dd21b831fdf5d4012751989adfb6534bb1"
     },
     {
       "path": "package.json",
@@ -535,8 +540,8 @@
     },
     {
       "path": "plugins/host-monitor/README.md",
-      "size": 6221,
-      "digest": "sha256:4e765547a28bacee703bf0702ee8f72708317c79f90df2db07bebb342112a665"
+      "size": 6629,
+      "digest": "sha256:65d7d728657acbab057a649da00af67c28ebf99adcb29f9d921e66f6ed6ef064"
     },
     {
       "path": "plugins/host-monitor/THIRD_PARTY_NOTICES.md",
@@ -660,8 +665,8 @@
     },
     {
       "path": "plugins/host-monitor/server.ts",
-      "size": 19480,
-      "digest": "sha256:aeafd32770f9a76681b1afb93f1102ab0beede3ad37bf9a627e7283906eb7932"
+      "size": 21175,
+      "digest": "sha256:82f051bbe5957edd0c1ee122f3cc489274f095f43db3a48ae051931fe877cd94"
     },
     {
       "path": "plugins/host-monitor/test/app-registration.test.ts",
@@ -745,8 +750,8 @@
     },
     {
       "path": "plugins/host-monitor/test/server.test.ts",
-      "size": 9540,
-      "digest": "sha256:3505973dd40c78809f5bd86e952428aca815ac16ae777230f33f136d0593fbb3"
+      "size": 10508,
+      "digest": "sha256:5f9e7fee1f4a70c7c1b0ef4d0dbe8d33862ab43de2b87a6ee0d9a1b6001e92d9"
     },
     {
       "path": "plugins/host-monitor/test/sidebar-summary.test.ts",
@@ -1120,8 +1125,8 @@
     },
     {
       "path": "plugins/touchbar/README.md",
-      "size": 4454,
-      "digest": "sha256:e0a0061f9629616e2173629f2ea8538301924b8bcd2b32ed6602747c01c8c092"
+      "size": 6874,
+      "digest": "sha256:bd04ac72c66fb3f7950fd442c9245891ea2c1383fdb08205d965eb65bb9fa6fa"
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
@@ -1150,8 +1155,8 @@
     },
     {
       "path": "plugins/touchbar/lib/snapshot.ts",
-      "size": 5973,
-      "digest": "sha256:4480d4ba7a8fd25795829cc76a1037991d7dba2f3c02344e3f10e1d2691a8e69"
+      "size": 6229,
+      "digest": "sha256:3e6cd6df7c8a84f64d2796cbc56743069db9d618f34cb74b8d570fbfc145b688"
     },
     {
       "path": "plugins/touchbar/native/Assets/NOTICE.md",
@@ -1200,8 +1205,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/AgentModel.swift",
-      "size": 6147,
-      "digest": "sha256:6b162c76618f05118ae7f8ae1efe4728226e91067e9960349696653dca40fe05"
+      "size": 10304,
+      "digest": "sha256:e6a23d14577b0b75e8ee190ee31635bd2020c367d8f7c151726a2a428637bbd4"
     },
     {
       "path": "plugins/touchbar/native/Sources/BBTouchBarPrivate.h",
@@ -1210,13 +1215,13 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/Support.swift",
-      "size": 5718,
-      "digest": "sha256:175435f5072cf1e2b06525fdde517b07cd16f9f7b95480a4b0fbada1af4776d6"
+      "size": 6397,
+      "digest": "sha256:3852452a4be89fc91d66711d1039a2e9aa23d112c93dd889a6e152d79526f2ee"
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 23869,
-      "digest": "sha256:9b3ab7af7a4decef204a0fafe7119d942dcb3d6b18b36e67fb909b2609b86d59"
+      "size": 54760,
+      "digest": "sha256:a0d0d325ed1cfca84dc482d2302ea4da2824633e814dda62b5a4fff5484c331e"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1225,8 +1230,18 @@
     },
     {
       "path": "plugins/touchbar/native/build.sh",
-      "size": 2306,
-      "digest": "sha256:ce878c331ca1a71f11a89de937b759bd332566728e0f706c7ca8ac401158039f"
+      "size": 2839,
+      "digest": "sha256:a710d415510fdb3a61198b08a56e3a66d6be299b72daf5a3f8cd4dcc5ccebf76"
+    },
+    {
+      "path": "plugins/touchbar/native/homebrew-install.sh",
+      "size": 1488,
+      "digest": "sha256:21328dae925aee1d8db92c1478c59c98b7fc225ea53468d84bda8c4649bc553c"
+    },
+    {
+      "path": "plugins/touchbar/native/homebrew-uninstall.sh",
+      "size": 392,
+      "digest": "sha256:eedbe896dd630b50942a436835799c8240f9ddd338f5a618b2f87253f99c34fa"
     },
     {
       "path": "plugins/touchbar/native/install.sh",
@@ -1234,9 +1249,19 @@
       "digest": "sha256:a36939026f0101afb64315a4594d5e6ad3ed01e0ef46a1d2fe9babd699040a79"
     },
     {
+      "path": "plugins/touchbar/native/package.sh",
+      "size": 1744,
+      "digest": "sha256:df627f9acbd97854a9d9438a38ef2d305dfa41e5acd23767decfc41429e8f835"
+    },
+    {
       "path": "plugins/touchbar/native/run.sh",
       "size": 1720,
       "digest": "sha256:92af1c8400c7ab05a36a1fc4fcc405bd007833f13aa45e6b8244d02f1c21b23f"
+    },
+    {
+      "path": "plugins/touchbar/native/test-homebrew.sh",
+      "size": 1136,
+      "digest": "sha256:6931da6b502ea57c000f86dc3292f114cefec02396dd6adf10bbdd80116b5190"
     },
     {
       "path": "plugins/touchbar/native/uninstall.sh",
@@ -1250,8 +1275,8 @@
     },
     {
       "path": "plugins/touchbar/server.ts",
-      "size": 5820,
-      "digest": "sha256:6ca64cf1bac2231fbdf1cbdd5bbf2d37073017763e31057ca1a658e6fabd1f54"
+      "size": 7544,
+      "digest": "sha256:9695cca8eb8369195b045beafbf46fefd625c07c113765b93dbc56c0b91d69e0"
     },
     {
       "path": "plugins/touchbar/test/clean-check.sh",
@@ -1260,8 +1285,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 7727,
-      "digest": "sha256:35dd8e93e2eb867faa02295152aacd100021dac4a95302f46af94902ab908be0"
+      "size": 12725,
+      "digest": "sha256:f9d6abd5f17170cd14ae65f8183dfeed112fef3c620565e633bb37a48137ce9f"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1275,8 +1300,8 @@
     },
     {
       "path": "plugins/touchbar/test/server.test.ts",
-      "size": 7051,
-      "digest": "sha256:6658f0b8ec5860f478fa3e87951b926f866615737e99b28867f096e1686fe875"
+      "size": 8509,
+      "digest": "sha256:e81bf32ad1b5a8fc116902d3685e6d1bc0c598edab57585fe9d988d77f160211"
     },
     {
       "path": "plugins/touchbar/test/snapshot.test.ts",
@@ -1392,12 +1417,27 @@
       "path": "plugins/usage-tracker/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
+    },
+    {
+      "path": "touchbar-ui-concept.html",
+      "size": 10842,
+      "digest": "sha256:0c7310d125bbf77d6d922c581a5ec5211e2875a353c9845e0e4ea4bfc46a81db"
+    },
+    {
+      "path": "touchbar-ui-concepts-v2.html",
+      "size": 10097,
+      "digest": "sha256:a159d57c014487edd9c89e3e4d0490dff03ec858197ba60c938d8e8fc7e0cdb8"
+    },
+    {
+      "path": "touchbar-ui-exploration-v3.html",
+      "size": 12060,
+      "digest": "sha256:bd34528c61b74899d1891f766dad5e994d1dfcbc6066d9c7b4a51452ed096400"
     }
   ],
   "pages": [
     {
       "path": ".empirical/context/index.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         ".agents/skills/empirical/SKILL.md",
@@ -1413,6 +1453,7 @@
         ".mcp.json",
         "AGENTS.md",
         "CLAUDE.md",
+        "Casks/bb-touch-bar.rb",
         "LICENSE",
         "README.md",
         "THIRD_PARTY_NOTICES.md",
@@ -1645,8 +1686,12 @@
         "plugins/touchbar/native/Sources/TouchBarController.swift",
         "plugins/touchbar/native/Sources/main.swift",
         "plugins/touchbar/native/build.sh",
+        "plugins/touchbar/native/homebrew-install.sh",
+        "plugins/touchbar/native/homebrew-uninstall.sh",
         "plugins/touchbar/native/install.sh",
+        "plugins/touchbar/native/package.sh",
         "plugins/touchbar/native/run.sh",
+        "plugins/touchbar/native/test-homebrew.sh",
         "plugins/touchbar/native/uninstall.sh",
         "plugins/touchbar/package.json",
         "plugins/touchbar/server.ts",
@@ -1677,15 +1722,18 @@
         "plugins/usage-tracker/server.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
-        "plugins/usage-tracker/types/css-modules.d.ts"
+        "plugins/usage-tracker/types/css-modules.d.ts",
+        "touchbar-ui-concept.html",
+        "touchbar-ui-concepts-v2.html",
+        "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:e8a1b0bfa9735380c8b1fb1051835b451e7f3eebf5ed7f32a3f0145c7a151421",
+      "sourceDigest": "sha256:e82189722d7dd855b8802bdd7b4fceb67ac426ff02c8100d86d1e960c2c01975",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/overview.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "README.md",
@@ -1710,13 +1758,13 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:f5ea131a1c8b3d00cb3a98cfa8d6e2fc744f4e4d68f055e2f45d21fa3193a67f",
+      "sourceDigest": "sha256:82fa2b9fc62e5ff45a1ec72e74259018c0330feaf768ee8f8277e2af05c791d4",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/architecture.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "package.json",
@@ -1728,13 +1776,13 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:f6966218bdc323bc5754e8a00dad12963202917da272831197f852049eb8f9ab",
+      "sourceDigest": "sha256:73330536db4bcc63c86c9734a31c4356375ffee89145e431d32ecb448406be82",
       "digest": "sha256:6a3333fdbbcffff93c96400aab0596932dc23cce823061cdedacad5e44ef7bd7",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/commands.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         ".github/workflows/ci.yml",
@@ -1747,13 +1795,13 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:82a0dc75fd1a1969b07cb69e14c0f270b34fe96fe34279ecb63d093aacd8e891",
+      "sourceDigest": "sha256:057f07db41d80ee6ffc428c7f3b12cb0a2f830455132d1c2e70b24b32eb00e16",
       "digest": "sha256:06a7a6d07d2649e2d00a93cf62beef749d2f5dada25077c225726f81ec2eeed3",
       "freshness": "fresh"
     },
     {
       "path": ".empirical/context/conventions.md",
-      "generator": "empirical-0.29.0",
+      "generator": "empirical-0.30.0",
       "managed": false,
       "dependencies": [
         "AGENTS.md",
@@ -1765,11 +1813,11 @@
         "plugins/touchbar/tsconfig.json",
         "plugins/usage-tracker/tsconfig.json"
       ],
-      "sourceDigest": "sha256:6dd01a373e6c400d3b51728c2e7fe1529086adcab221d7925890d5fc43c1b684",
+      "sourceDigest": "sha256:3721d6530ab8744d88762e83e71a386816896e316fcc37fc6d72c5344aa60dc4",
       "digest": "sha256:8ce7179f299316d315c6c9c8d246aaa18e9cdbf9441943ce24643c415c4db02c",
       "freshness": "fresh"
     }
   ],
   "truncated": false,
-  "digest": "sha256:c811dd26d33335b7cb6d30507d4eab2cd67341ef085339a16b94a98181fc66c6"
+  "digest": "sha256:be79d7ae8d163344c04a0e8c4d8f1af35ebc7086f0d1a17bd73270e943b40ed2"
 }
