@@ -6,15 +6,15 @@ describe("pullRequestPresentation", () => {
   it("gives terminal states precedence over stale attention", () => {
     assert.deepEqual(
       pullRequestPresentation({ state: "merged", attention: "checks_failed" }),
-      { label: "MERGED", icon: "Check", tone: "merged" },
+      { label: "MERGED", tone: "merged" },
     );
     assert.deepEqual(
       pullRequestPresentation({ state: "closed", attention: "ready_to_merge" }),
-      { label: "CLOSED", icon: "CircleX", tone: "muted" },
+      { label: "CLOSED", tone: "muted" },
     );
     assert.deepEqual(
       pullRequestPresentation({ state: "draft", attention: "none" }),
-      { label: "DRAFT", icon: "GitBranch", tone: "muted" },
+      { label: "DRAFT", tone: "muted" },
     );
   });
 

@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "sequence": 1,
+  "previousDigest": "sha256:a7c9f4bcae99ebcce223725e85d309bdb1085be7fcfdc36229bb11fcc32af08b",
+  "actor": "empirical-start",
+  "type": "transition",
+  "summary": "Started dockside-minimal-attention-states",
+  "createdAt": "2026-09-01T00:22:41.179Z",
+  "stateBeforeDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+  "stateAfterDigest": "sha256:f49df8966d3fb511324353bc10a09469a29b008a63b5b0d38c218e5b213b1b91",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 1,
+    "activeFeature": "dockside-minimal-attention-states",
+    "request": "Make Dockside's new metadata more minimal and attention-first: remove visible assistant summary prose and PR title text, keep compact color-coded PR state plus number and output-verified DONE, place one Agents working state in the existing branch line, color Needs you/Failed more strongly than Working/Unread, use one state slot per row so live attention temporarily outranks PR/Done, preserve all existing filters, bulk deletion, hierarchy, project creation, navigation, and compact layout.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "specify",
+    "status": "waiting",
+    "repairAttempts": 0,
+    "message": null,
+    "implementationActor": null,
+    "workStartedAt": null,
+    "specDigest": "sha256:2483598dd71fef8b05b66ae0f47d04d0d1f9c90772c537e016250a9e5982436e",
+    "approvedSpecRevision": null,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": null,
+    "impactDigest": null,
+    "capabilityClaimId": null,
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": false,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "none",
+      "reasons": {
+        "implemented": "implemented has not been proven by a durable receipt.",
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-01T00:22:41.179Z"
+  },
+  "digest": "sha256:a5187f9b0645741f6387dd2a521fa5c4560da033b78a0a38701b8f5b77893ad9"
+}

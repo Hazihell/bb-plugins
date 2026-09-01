@@ -1,16 +1,9 @@
 import type { PluginSidebarPullRequest } from "@bb/plugin-sdk";
-
-export type PullRequestTone =
-  | "destructive"
-  | "merged"
-  | "muted"
-  | "primary"
-  | "success";
+import type { SemanticStateTone } from "./attention-state.ts";
 
 export interface PullRequestPresentation {
   label: string;
-  icon: "Check" | "CircleX" | "GitBranch" | "Loading" | "Target";
-  tone: PullRequestTone;
+  tone: SemanticStateTone;
 }
 
 /**
@@ -24,35 +17,35 @@ export function pullRequestPresentation(
     pullRequest.state === "merged" ||
     pullRequest.attention === "merged"
   ) {
-    return { label: "MERGED", icon: "Check", tone: "merged" };
+    return { label: "MERGED", tone: "merged" };
   }
   if (
     pullRequest.state === "closed" ||
     pullRequest.attention === "closed"
   ) {
-    return { label: "CLOSED", icon: "CircleX", tone: "muted" };
+    return { label: "CLOSED", tone: "muted" };
   }
   if (
     pullRequest.state === "draft" ||
     pullRequest.attention === "draft"
   ) {
-    return { label: "DRAFT", icon: "GitBranch", tone: "muted" };
+    return { label: "DRAFT", tone: "muted" };
   }
 
   switch (pullRequest.attention) {
     case "changes_requested":
-      return { label: "CHANGES", icon: "CircleX", tone: "destructive" };
+      return { label: "CHANGES", tone: "destructive" };
     case "blocked":
     case "checks_failed":
     case "conflicts":
-      return { label: "BLOCKED", icon: "CircleX", tone: "destructive" };
+      return { label: "BLOCKED", tone: "destructive" };
     case "checks_pending":
-      return { label: "CHECKS", icon: "Loading", tone: "primary" };
+      return { label: "CHECKS", tone: "primary" };
     case "review_requested":
-      return { label: "IN REVIEW", icon: "Target", tone: "primary" };
+      return { label: "IN REVIEW", tone: "primary" };
     case "ready_to_merge":
-      return { label: "READY", icon: "Check", tone: "success" };
+      return { label: "READY", tone: "success" };
     default:
-      return { label: "OPEN", icon: "GitBranch", tone: "muted" };
+      return { label: "OPEN", tone: "muted" };
   }
 }

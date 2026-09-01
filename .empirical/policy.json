@@ -53,10 +53,10 @@
       },
       {
         "id": "dockside-system",
-        "argv": [
-          "node",
-          ".empirical/specs/dockside-rich-pr-agent-metadata/qa/system.mjs"
-        ],
+      "argv": [
+        "node",
+        ".empirical/specs/dockside-minimal-attention-states/qa/system.mjs"
+      ],
         "cwd": ".",
         "timeoutMs": 60000,
         "maxOutputBytes": 262144,

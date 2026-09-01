@@ -20,6 +20,10 @@ import {
   WaitingForAgentsMetadata,
 } from "@/components/inbox/row-metadata";
 import { useThreadSummaries } from "@/hooks/use-thread-summaries";
+import {
+  childSecondaryState,
+  rootSecondaryState,
+} from "@/lib/attention-state";
 import { threadDisplayTitle, threadIsWorking } from "@/lib/inbox";
 import { resolveFamilyExpanded } from "@/lib/thread-management";
 import { familyWaitingForAgents } from "@/lib/thread-summary";
@@ -93,6 +97,11 @@ export function ThreadCard({
     [childThreads, expanded, thread],
   );
   const summaries = useThreadSummaries(summaryThreads);
+  const secondaryState = rootSecondaryState({
+    waitingForAgents,
+    hasPullRequest: pullRequest !== null,
+    hasDone: !isPullRequestLoading && summaries.has(thread.id),
+  });
   const rootIsActive = thread.id === activeThreadId;
 
   return (
@@ -186,6 +195,13 @@ export function ThreadCard({
               </div>
               <div className="mt-0.5 flex h-4 min-w-0 items-center gap-1.5 text-2xs text-muted-foreground">
                 <ThreadLocation thread={thread} />
+                {secondaryState === "agents-working" ? (
+                  <WaitingForAgentsMetadata />
+                ) : secondaryState === "pull-request" && pullRequest ? (
+                  <PullRequestMetadata pullRequest={pullRequest} />
+                ) : secondaryState === "done" ? (
+                  <DoneMetadata />
+                ) : null}
                 {thread.activity.workflows > 0 ? (
                   <ActivityCount
                     label="workflows"
@@ -199,12 +215,6 @@ export function ThreadCard({
                   />
                 ) : null}
               </div>
-              {waitingForAgents ? <WaitingForAgentsMetadata /> : null}
-              {pullRequest ? (
-                <PullRequestMetadata pullRequest={pullRequest} />
-              ) : !isPullRequestLoading && summaries.has(thread.id) ? (
-                <DoneMetadata summary={summaries.get(thread.id) ?? ""} />
-              ) : null}
             </div>
 
             <div className="relative z-10 flex w-16 shrink-0 flex-col items-end gap-1">
@@ -285,7 +295,7 @@ export function ThreadCard({
                   isActive={child.id === activeThreadId}
                   onNavigate={onNavigate}
                   now={now}
-                  summary={summaries.get(child.id) ?? null}
+                  hasDone={summaries.has(child.id)}
                 />
               ))}
             </ul>
@@ -302,14 +312,14 @@ function ChildThreadRow({
   isActive,
   onNavigate,
   now,
-  summary,
+  hasDone,
 }: {
   thread: PluginSidebarThread;
   provider?: ProviderGlyphInfo;
   isActive: boolean;
   onNavigate: () => void;
   now: number;
-  summary: string | null;
+  hasDone: boolean;
 }) {
   const actions = useSidebarThreadActions();
   const { splitProps, layout } = useSidebarThreadSplit(thread.id);
@@ -317,6 +327,11 @@ function ChildThreadRow({
     useSidebarThreadPullRequest(thread.id);
   const status = threadStatus(thread);
   const isWorking = threadIsWorking(thread);
+  const secondaryState = childSecondaryState({
+    hasStatus: status !== null,
+    hasPullRequest: pullRequest !== null,
+    hasDone: !isPullRequestLoading && hasDone,
+  });
 
   return (
     <RowContextMenu thread={thread}>
@@ -377,17 +392,21 @@ function ChildThreadRow({
             </div>
             <div className="mt-0.5 flex h-3.5 min-w-0 items-center gap-1.5 text-2xs">
               <ThreadLocation thread={thread} />
-              {status ? (
-                <span className={cn("shrink-0 font-medium", status.tone)}>
+              {secondaryState === "status" && status ? (
+                <span
+                  className={cn(
+                    "shrink-0 rounded px-1 font-semibold",
+                    status.tone,
+                  )}
+                >
                   {status.label}
                 </span>
+              ) : secondaryState === "pull-request" && pullRequest ? (
+                <PullRequestMetadata pullRequest={pullRequest} />
+              ) : secondaryState === "done" ? (
+                <DoneMetadata />
               ) : null}
             </div>
-            {pullRequest ? (
-              <PullRequestMetadata pullRequest={pullRequest} />
-            ) : !isPullRequestLoading && summary !== null ? (
-              <DoneMetadata summary={summary} />
-            ) : null}
           </div>
         </div>
       </li>
@@ -438,7 +457,7 @@ function ThreadStatusLabel({
       <span
         aria-label={thread.indicatorLabel ?? status.label}
         className={cn(
-          "max-w-16 truncate text-2xs font-medium",
+          "max-w-16 truncate rounded px-1 text-2xs font-semibold",
           status.tone,
         )}
       >

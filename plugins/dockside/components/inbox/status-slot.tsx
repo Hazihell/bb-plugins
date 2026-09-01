@@ -3,6 +3,7 @@ import type {
   PluginSidebarThreadIndicator,
 } from "@bb/plugin-sdk/app";
 import { cn } from "@/lib/utils";
+import { semanticStateToneClass } from "@/lib/attention-state";
 import { relativeTimeLabel } from "@/lib/relative-time";
 import { threadIsWorking } from "@/lib/inbox";
 
@@ -44,7 +45,7 @@ export function StatusOrTime({
       <span
         aria-label={thread.indicatorLabel ?? status.label}
         className={cn(
-          "max-w-full truncate text-2xs font-medium",
+          "max-w-full truncate rounded px-1 text-2xs font-semibold",
           status.tone,
         )}
       >
@@ -76,21 +77,29 @@ export function threadStatus(
     return {
       label: "Needs you",
       indicator: "waiting-for-input",
-      tone: "text-primary",
+      tone: semanticStateToneClass("destructive"),
     };
   }
   if (thread.indicator === "unread-error") {
     return {
       label: "Failed",
       indicator: "unread-error",
-      tone: "text-destructive",
+      tone: semanticStateToneClass("destructive"),
     };
   }
   if (threadIsWorking(thread)) {
-    return { label: "Working", indicator: "runtime", tone: "text-primary" };
+    return {
+      label: "Working",
+      indicator: "runtime",
+      tone: semanticStateToneClass("primary"),
+    };
   }
   if (thread.isUnread || thread.indicator === "unread-success") {
-    return { label: "Unread", indicator: "unread-success", tone: "text-primary" };
+    return {
+      label: "Unread",
+      indicator: "unread-success",
+      tone: semanticStateToneClass("primary"),
+    };
   }
 
   switch (thread.indicator) {
@@ -98,42 +107,50 @@ export function threadStatus(
       return {
         label: "Draft",
         indicator: "draft",
-        tone: "text-muted-foreground",
+        tone: semanticStateToneClass("muted"),
       };
     case "working-draft":
       return {
         label: "Drafting",
         indicator: "working-draft",
-        tone: "text-primary",
+        tone: semanticStateToneClass("primary"),
       };
     case "workflow":
       return {
         label: "Workflow",
         indicator: "workflow",
-        tone: "text-primary",
+        tone: semanticStateToneClass("primary"),
       };
     case "background-agent":
       return {
         label: "Agent",
         indicator: "background-agent",
-        tone: "text-primary",
+        tone: semanticStateToneClass("primary"),
       };
     case "background-command":
       return {
         label: "Command",
         indicator: "background-command",
-        tone: "text-primary",
+        tone: semanticStateToneClass("primary"),
       };
     case "plan-mode":
       return {
         label: "Planning",
         indicator: "plan-mode",
-        tone: "text-primary",
+        tone: semanticStateToneClass("primary"),
       };
     case "goal":
-      return { label: "Goal", indicator: "goal", tone: "text-primary" };
+      return {
+        label: "Goal",
+        indicator: "goal",
+        tone: semanticStateToneClass("primary"),
+      };
     case "runtime":
-      return { label: "Working", indicator: "runtime", tone: "text-primary" };
+      return {
+        label: "Working",
+        indicator: "runtime",
+        tone: semanticStateToneClass("primary"),
+      };
     case "none":
     default:
       return null;
