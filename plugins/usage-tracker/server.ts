@@ -1,18 +1,39 @@
 import { defineRpcContract, type BbPluginApi } from "@get-bb/plugin-sdk";
 import { z } from "zod";
+import {
+  consumeCodexRateLimitResetCredit,
+  readCodexResetCredits,
+} from "./lib/codex-reset-credits.ts";
 import { loadUsageSnapshot } from "./lib/load-usage.ts";
+import {
+  createResetActionGate,
+  type ResetPrepareResult,
+} from "./lib/reset-action-gate.ts";
+import {
+  PROVIDER_IDS,
+  withCodexResetCredits,
+} from "./lib/usage.ts";
 import {
   COMPACT_LIMIT_OPTIONS,
   enabledSidebarProviderIds,
   normalizeCompactLimitOption,
   SIDEBAR_PROVIDER_IDS,
 } from "./lib/preferences.ts";
-import { PROVIDER_IDS } from "./lib/usage.ts";
 
 const costSchema = z
   .object({
     usedUsdCents: z.number().finite(),
     limitUsdCents: z.number().finite(),
+  })
+  .strict();
+
+const resetCreditsSchema = z
+  .object({
+    availableCount: z
+      .number()
+      .int()
+      .min(0)
+      .max(Number.MAX_SAFE_INTEGER),
   })
   .strict();
 
@@ -41,8 +62,35 @@ const providerSchema = z
     planLabel: z.string().nullable(),
     message: z.string().nullable(),
     windows: z.array(usageWindowSchema),
+    resetCredits: resetCreditsSchema.nullable().optional(),
   })
   .strict();
+
+const resetPrepareResultSchema: z.ZodType<ResetPrepareResult> = z.union([
+  z
+    .object({
+      outcome: z.literal("ready"),
+      confirmationToken: z.string().min(1),
+      expiresAtMs: z.number().int().nonnegative(),
+      availableCount: z.number().int().positive(),
+    })
+    .strict(),
+  z
+    .object({
+      outcome: z.enum(["unavailable", "no-credit"]),
+      message: z.string().min(1),
+    })
+    .strict(),
+]);
+
+const resetConsumptionOutcomeSchema = z.enum([
+  "reset",
+  "nothingToReset",
+  "noCredit",
+  "alreadyRedeemed",
+  "confirmation-invalid",
+  "confirmation-expired",
+]);
 
 export const usageRpcContract = defineRpcContract({
   getPreferences: {
@@ -71,6 +119,20 @@ export const usageRpcContract = defineRpcContract({
       })
       .strict(),
   },
+  prepareReset: {
+    input: z.null(),
+    output: resetPrepareResultSchema,
+  },
+  consumeReset: {
+    input: z
+      .object({
+        confirmationToken: z.string().trim().min(1).max(128),
+      })
+      .strict(),
+    output: z
+      .object({ outcome: resetConsumptionOutcomeSchema })
+      .strict(),
+  },
 });
 
 export default function plugin(bb: BbPluginApi) {
@@ -96,6 +158,12 @@ export default function plugin(bb: BbPluginApi) {
     },
   });
 
+  const resetGate = createResetActionGate(
+    consumeCodexRateLimitResetCredit,
+  );
+
+  let lastKnownCodexResetCount: number | null = null;
+
   bb.rpc.register(usageRpcContract, {
     async getPreferences() {
       const preferences = await settings.get();
@@ -104,8 +172,30 @@ export default function plugin(bb: BbPluginApi) {
         compactLimit: normalizeCompactLimitOption(preferences.compactLimit),
       };
     },
-    getUsage({ threadId }) {
-      return loadUsageSnapshot(bb.sdk, threadId);
+    async getUsage({ threadId }) {
+      const snapshot = await loadUsageSnapshot(bb.sdk, threadId);
+      const codexIsAvailable = snapshot.providers.some(
+        (provider) => provider.id === "codex" && provider.status === "ok",
+      );
+      if (codexIsAvailable) {
+        try {
+          lastKnownCodexResetCount = await readCodexResetCredits();
+        } catch {
+          bb.log.warn("Codex usage reset availability could not be loaded.");
+        }
+      } else {
+        lastKnownCodexResetCount = null;
+      }
+      resetGate.setAvailableCount(lastKnownCodexResetCount);
+      return withCodexResetCredits(snapshot, lastKnownCodexResetCount);
+    },
+    prepareReset(): ResetPrepareResult {
+      return resetGate.prepare();
+    },
+    async consumeReset({ confirmationToken }) {
+      return {
+        outcome: await resetGate.consume(confirmationToken),
+      };
     },
   });
 }

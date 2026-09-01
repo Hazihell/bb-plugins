@@ -184,9 +184,11 @@ bb plugin install usage-tracker
 
 Usage Tracker mounts in BB's native sidebar footer beside the existing utility
 icons. Each provider gets a compact progress bar and current usage reading.
-Select Codex or Claude Code to expand its five-hour, weekly, and any additional
-provider-defined limits, reset times, and session status without leaving the
-current thread. There is no separate plugin page to manage. The **Compact
+Select Codex or Claude Code to expand its reported five-hour, weekly, and any
+additional provider-defined limits, reset times, and session status without
+leaving the current thread. Codex exposes available usage resets in the
+expanded details and requires explicit confirmation before consuming one.
+There is no separate plugin page to manage. The **Compact
 limit** setting chooses whether the collapsed percentage and bar prefer weekly
 or five-hour usage.
 
