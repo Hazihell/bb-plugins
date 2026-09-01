@@ -143,13 +143,15 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /min\(max\(38 .* 72\), 100\)/u);
   assert.match(controller, /action: #selector\(agentTapped/u);
   assert.match(controller, /CompactControlButton/u);
-  assert.match(controller, /sendAction\(on: \.leftMouseUp\)/u);
+  assert.match(controller, /override func mouseDown/u);
+  assert.match(controller, /NSApp\.sendAction/u);
   assert.match(controller, /bounds\.contains\(point\) \? self : nil/u);
   assert.match(controller, /close control tapped/u);
   assert.match(controller, /projectInitials/u);
   assert.match(controller, /provider == "cursor" \|\| provider == "acp-cursor"/u);
   assert.match(controller, /\.done: 1, \.working: 2/u);
-  assert.match(controller, /var views: \[NSView\] = \[close, settings, priority, project\]/u);
+  assert.match(controller, /controls: \[priority, project, settings, close\]/u);
+  assert.match(controller, /panelContainer/u);
   assert.match(controller, /NSBezierPath\(roundedRect: bounds/u);
   assert.match(controller, /projectColor/u);
   assert.match(controller, /0xcbf29ce484222325/u);
