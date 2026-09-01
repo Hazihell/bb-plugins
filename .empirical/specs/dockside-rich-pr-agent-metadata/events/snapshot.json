@@ -1,25 +1,21 @@
 {
   "schemaVersion": 1,
-  "sequence": 6,
-  "previousDigest": "sha256:5d1d3cd1b30a65bcd7b5abe7609350b337522aa42af04f69e9e86665dd067c4a",
-  "actor": "agent",
-  "type": "transition",
-  "summary": "Refreshed repository knowledge after the Dockside backend/app additions and confirmed the overview, architecture, commands, and conventions pages are evidence-backed with no stale, missing, invalid, or refinement-required topics.",
-  "createdAt": "2026-08-31T23:19:47.241Z",
-  "stateBeforeDigest": "sha256:9fe056c159f9510804711b2100b444ffc8275467d4f5eb31246a917027ea662e",
-  "stateAfterDigest": "sha256:7e315030b2b443369a147c397dd1fd10efbc3deec48e7d16f367d57f422393a2",
+  "feature": "dockside-rich-pr-agent-metadata",
+  "lastSequence": 9,
+  "lastEventDigest": "sha256:174787d8f6923c4212355f67332191d3b5360c79aa19c9c74924486aa7b2321e",
+  "stateDigest": "sha256:605dc3f81a3fae86a4c00afcd58f5ab3fccd9c45494c7027ff003698f60cd54f",
   "state": {
     "schemaVersion": 5,
-    "revision": 6,
+    "revision": 9,
     "activeFeature": "dockside-rich-pr-agent-metadata",
     "request": "Add rich Orca-style metadata to Dockside thread families: semantic PR status pills and truncated PR titles on root rows and expanded child rows using BB's lazy pull-request hook; derive a single family-level Waiting for agents state and subtle activity tint from child work without stacking icons; lazily fetch and cache bounded final assistant output summaries for completed expanded rows through a typed backend RPC keyed by thread id and updatedAt, with live invalidation and privacy/performance safeguards; infer Done only when a final output exists; preserve filters, bulk selection/deletion, hierarchy, navigation, project creation, and compact layout.",
     "profile": "complex",
     "workflow": "complex",
     "mode": "normal",
-    "phase": "verify",
-    "status": "waiting",
+    "phase": "done",
+    "status": "done",
     "repairAttempts": 0,
-    "message": "Refreshed repository knowledge after the Dockside backend/app additions and confirmed the overview, architecture, commands, and conventions pages are evidence-backed with no stale, missing, invalid, or refinement-required topics.",
+    "message": "Integrated capability changes: dockside-thread-management",
     "implementationActor": "agent",
     "workStartedAt": null,
     "specDigest": "sha256:9848868e8edb6e9da3ee606c7c3989fda773989e338ac1fcea5b6f7295905b56",
@@ -30,23 +26,32 @@
     "capabilityClaimId": "dockside-rich-pr-agent-metadata-b40841a02be2",
     "authorizationDigest": null,
     "evidence": [],
-    "evidenceReceiptIds": [],
+    "evidenceReceiptIds": [
+      "qa-8dc916577f01d470a3cef77c",
+      "qa-348ebe96b15ab5c47f6928df",
+      "qa-da4c19173c901a8b80cdb8ce",
+      "qa-342befed7b21453db576621c",
+      "qa-ea092097d91261bb38383901",
+      "qa-b8f3a6626c103bcba77fd65a",
+      "collected-660f4b48f697b4fd2ea40346",
+      "collected-859f5acc5126e2721ea32577",
+      "qa-71a81708aa0e6d0498571fdd"
+    ],
     "legacyEvidenceCount": 0,
     "completion": {
       "implemented": true,
-      "verified": false,
-      "integrated": false,
+      "verified": true,
+      "integrated": true,
       "delivered": false,
       "published": false,
-      "highest": "implemented",
+      "highest": "integrated",
       "reasons": {
-        "verified": "verified has not been proven by a durable receipt.",
-        "integrated": "integrated has not been proven by a durable receipt.",
         "delivered": "delivered has not been proven by a durable receipt.",
         "published": "published has not been proven by a durable receipt."
       }
     },
-    "updatedAt": "2026-08-31T23:19:47.241Z"
+    "updatedAt": "2026-09-01T00:22:17.593Z"
   },
-  "digest": "sha256:425604fb332d042f5590019b0ce33773ca36165b4ff74e4e92755693ae6124d0"
+  "compactedAt": "2026-09-01T00:22:17.630Z",
+  "digest": "sha256:caccf39d02d1f08365f73b2b32fb70b3ec798a2af4af8e38efe6fb5cf9547902"
 }
