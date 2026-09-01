@@ -122,9 +122,9 @@
       {
         "id": "repo-full-ci",
         "argv": [
-          "npm",
+          "bun",
           "run",
-          "check"
+          "ci"
         ],
         "cwd": ".",
         "timeoutMs": 900000,
