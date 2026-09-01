@@ -291,6 +291,11 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
     private var signalSources: [DispatchSourceSignal] = []
     private var tick = 0
     private var configurationVisible = false
+    private weak var settingsControl: NSButton?
+    private weak var priorityControl: NSButton?
+    private weak var projectControl: NSButton?
+    private weak var panelStack: NSStackView?
+    private weak var panelScroll: NSScrollView?
     private var sortMode = SortMode(
         rawValue: UserDefaults.standard.string(forKey: "BBTouchBarSortMode") ?? ""
     ) ?? .status
@@ -450,7 +455,13 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     @objc private func settingsTapped(_ sender: NSButton) {
         configurationVisible.toggle()
-        schedulePanelRender()
+        priorityControl?.isHidden = !configurationVisible
+        projectControl?.isHidden = !configurationVisible
+        settingsControl?.bezelColor = configurationVisible
+            ? .systemIndigo
+            : NSColor(white: 0.18, alpha: 1)
+        relayoutPanelStack()
+        NativeLog.info("settings controls \(configurationVisible ? "opened" : "closed")")
     }
 
     @objc private func priorityTapped(_ sender: NSButton) {
@@ -512,6 +523,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         }
         settings.bezelColor = configurationVisible ? .systemIndigo : NSColor(white: 0.18, alpha: 1)
         settings.setAccessibilityLabel("BB Touch Bar settings")
+        settingsControl = settings
 
         let close = CompactControlButton(
             title: "✕",
@@ -522,26 +534,26 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         close.bezelColor = NSColor(white: 0.18, alpha: 1)
         close.setAccessibilityLabel("Close BB agent panel")
 
-        var views: [NSView] = [close, settings]
-        if configurationVisible {
-            let priority = CompactControlButton(
-                title: "PRIORITY",
-                width: 86,
-                target: self,
-                action: #selector(priorityTapped(_:))
-            )
-            priority.bezelColor = sortMode == .status ? .systemBlue : NSColor(white: 0.18, alpha: 1)
-            let project = CompactControlButton(
-                title: "PROJECT",
-                width: 82,
-                target: self,
-                action: #selector(projectSortTapped(_:))
-            )
-            project.bezelColor = sortMode == .project ? .systemTeal : NSColor(white: 0.18, alpha: 1)
-            views.append(contentsOf: [priority, project])
-            panelItem.view = scrollContainer(views)
-            return
-        }
+        let priority = CompactControlButton(
+            title: "PRIORITY",
+            width: 86,
+            target: self,
+            action: #selector(priorityTapped(_:))
+        )
+        priority.bezelColor = sortMode == .status ? .systemBlue : NSColor(white: 0.18, alpha: 1)
+        priority.isHidden = !configurationVisible
+        priorityControl = priority
+        let project = CompactControlButton(
+            title: "PROJECT",
+            width: 82,
+            target: self,
+            action: #selector(projectSortTapped(_:))
+        )
+        project.bezelColor = sortMode == .project ? .systemTeal : NSColor(white: 0.18, alpha: 1)
+        project.isHidden = !configurationVisible
+        projectControl = project
+
+        var views: [NSView] = [close, settings, priority, project]
         if !snapshot.connected {
             views.append(message("BB is offline"))
         } else if snapshot.agents.isEmpty {
@@ -644,6 +656,22 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         scroll.horizontalScrollElasticity = .allowed
         scroll.verticalScrollElasticity = .none
         scroll.documentView = stack
+        panelStack = stack
+        panelScroll = scroll
         return scroll
+    }
+
+    private func relayoutPanelStack() {
+        guard let stack = panelStack, let scroll = panelScroll else { return }
+        stack.needsLayout = true
+        stack.layoutSubtreeIfNeeded()
+        let fitting = stack.fittingSize
+        let visible = min(max(fitting.width, 100), Self.panelMaxWidth)
+        stack.frame.size = NSSize(
+            width: max(fitting.width, visible),
+            height: Self.barHeight
+        )
+        scroll.frame.size = NSSize(width: visible, height: Self.barHeight)
+        scroll.needsDisplay = true
     }
 }

@@ -131,6 +131,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /slider\.horizontal\.3/u);
   assert.match(controller, /schedulePanelRender/u);
   assert.match(controller, /DispatchQueue\.main\.async/u);
+  assert.match(controller, /priorityControl\?\.isHidden/u);
+  assert.match(controller, /relayoutPanelStack/u);
+  assert.match(controller, /settings controls/u);
   assert.doesNotMatch(controller, /⚙/u);
   assert.match(controller, /priorityTapped/u);
   assert.match(controller, /projectSortTapped/u);
@@ -141,7 +144,7 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /projectInitials/u);
   assert.match(controller, /provider == "cursor" \|\| provider == "acp-cursor"/u);
   assert.match(controller, /\.done: 1, \.working: 2/u);
-  assert.match(controller, /var views: \[NSView\] = \[close, settings\]/u);
+  assert.match(controller, /var views: \[NSView\] = \[close, settings, priority, project\]/u);
   assert.match(controller, /NSBezierPath\(roundedRect: bounds/u);
   assert.match(controller, /projectColor/u);
   assert.match(controller, /0xcbf29ce484222325/u);
