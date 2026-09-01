@@ -245,46 +245,135 @@ private final class ProjectGroupView: NSView {
     }
 }
 
-private final class HostMetricView: NSView {
-    private let nameLabel = NSTextField(labelWithString: "")
-    private let metricLabel = NSTextField(labelWithString: "")
+private final class HostMetricTile: NSView {
+    private let titleLabel = NSTextField(labelWithString: "")
+    private let valueLabel = NSTextField(labelWithString: "")
+    private let fixedWidth: CGFloat
 
-    init(entry: HostMetricEntry) {
+    init(title: String, value: String, color: NSColor, width: CGFloat) {
+        fixedWidth = width
         super.init(frame: .zero)
         wantsLayer = true
-        layer?.cornerRadius = 6
+        layer?.cornerRadius = 5
         layer?.borderWidth = 1
-        layer?.borderColor = Self.color(for: entry).withAlphaComponent(0.8).cgColor
-        layer?.backgroundColor = NSColor(white: 0.045, alpha: 0.98).cgColor
-        nameLabel.stringValue = entry.name
-        nameLabel.font = .monospacedSystemFont(ofSize: 7.5, weight: .bold)
-        nameLabel.textColor = .white
-        nameLabel.lineBreakMode = .byTruncatingTail
-        metricLabel.stringValue = Self.metrics(entry)
-        metricLabel.font = .monospacedDigitSystemFont(ofSize: 6.5, weight: .medium)
-        metricLabel.textColor = NSColor(white: 0.78, alpha: 1)
-        metricLabel.lineBreakMode = .byTruncatingTail
-        addSubview(nameLabel)
-        addSubview(metricLabel)
-        setAccessibilityLabel("\(entry.name), \(Self.metrics(entry))")
+        layer?.borderColor = color.withAlphaComponent(0.55).cgColor
+        layer?.backgroundColor = color.withAlphaComponent(0.14).cgColor
+        titleLabel.stringValue = title
+        titleLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
+        titleLabel.textColor = color
+        titleLabel.alignment = .center
+        valueLabel.stringValue = value
+        valueLabel.font = .monospacedDigitSystemFont(ofSize: 8, weight: .semibold)
+        valueLabel.textColor = .white
+        valueLabel.alignment = .center
+        addSubview(titleLabel)
+        addSubview(valueLabel)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: 220, height: 30) }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 26) }
 
     override func layout() {
         super.layout()
-        nameLabel.frame = NSRect(x: 7, y: 16, width: bounds.width - 14, height: 10)
-        metricLabel.frame = NSRect(x: 7, y: 4, width: bounds.width - 14, height: 10)
+        titleLabel.frame = NSRect(x: 2, y: 15, width: bounds.width - 4, height: 7)
+        valueLabel.frame = NSRect(x: 2, y: 4, width: bounds.width - 4, height: 10)
+    }
+}
+
+private final class HostMetricView: NSView {
+    private let iconView = NSImageView()
+    private let stateLabel = NSTextField(labelWithString: "")
+    private let nameLabel = NSTextField(labelWithString: "")
+    private let tiles: [HostMetricTile]
+    private let measuredWidth: CGFloat
+
+    init(entry: HostMetricEntry) {
+        let connected = entry.status == "connected"
+        let cpu = HostMetricTile(
+            title: "CPU",
+            value: Self.percent(entry.cpuPercent),
+            color: Self.resourceColor(entry.cpuPercent, connected: connected),
+            width: 42
+        )
+        let memory = HostMetricTile(
+            title: "RAM",
+            value: Self.percent(entry.memoryPercent),
+            color: Self.resourceColor(entry.memoryPercent, connected: connected),
+            width: 42
+        )
+        let disk = HostMetricTile(
+            title: "DISK",
+            value: Self.percent(entry.diskPercent),
+            color: Self.resourceColor(entry.diskPercent, connected: connected),
+            width: 42
+        )
+        let download = HostMetricTile(
+            title: "DOWN",
+            value: Self.rate(entry.receiveBytesPerSecond),
+            color: connected ? .systemRed : NSColor(white: 0.4, alpha: 1),
+            width: 52
+        )
+        let upload = HostMetricTile(
+            title: "UP",
+            value: Self.rate(entry.sendBytesPerSecond),
+            color: connected ? .systemBlue : NSColor(white: 0.4, alpha: 1),
+            width: 52
+        )
+        tiles = [cpu, memory, disk, download, upload]
+        measuredWidth = 105 + tiles.reduce(CGFloat(0)) {
+            $0 + $1.intrinsicContentSize.width
+        } + CGFloat((tiles.count - 1) * 3) + 5
+        super.init(frame: .zero)
+        wantsLayer = true
+        layer?.cornerRadius = 7
+        layer?.borderWidth = 1
+        layer?.borderColor = Self.overallColor(entry).withAlphaComponent(0.75).cgColor
+        layer?.backgroundColor = NSColor(white: 0.035, alpha: 0.98).cgColor
+        layer?.masksToBounds = true
+
+        iconView.image = NSImage(
+            systemSymbolName: "desktopcomputer",
+            accessibilityDescription: "Host"
+        )
+        iconView.contentTintColor = connected ? .systemGreen : .systemRed
+        iconView.imageScaling = .scaleProportionallyDown
+        stateLabel.stringValue = connected ? "LIVE" : "OFFLINE"
+        stateLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
+        stateLabel.textColor = connected ? .systemGreen : .systemRed
+        nameLabel.stringValue = entry.name
+        nameLabel.font = .monospacedSystemFont(ofSize: 7, weight: .bold)
+        nameLabel.textColor = .white
+        nameLabel.lineBreakMode = .byTruncatingTail
+        addSubview(iconView)
+        addSubview(stateLabel)
+        addSubview(nameLabel)
+        for tile in tiles { addSubview(tile) }
+        setAccessibilityLabel("\(entry.name), \(Self.accessibleMetrics(entry))")
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: measuredWidth, height: 30) }
+
+    override func layout() {
+        super.layout()
+        iconView.frame = NSRect(x: 6, y: 8, width: 15, height: 15)
+        stateLabel.frame = NSRect(x: 25, y: 17, width: 73, height: 7)
+        nameLabel.frame = NSRect(x: 25, y: 5, width: 73, height: 10)
+        var x: CGFloat = 104
+        for tile in tiles {
+            let width = tile.intrinsicContentSize.width
+            tile.frame = NSRect(x: x, y: 2, width: width, height: 26)
+            x += width + 3
+        }
     }
 
     private static func percent(_ value: Double?) -> String {
-        value.map { String(Int($0.rounded())) } ?? "—"
+        value.map { "\(Int($0.rounded()))%" } ?? "—"
     }
 
     private static func rate(_ value: Double?) -> String {
         guard var current = value else { return "—" }
-        let units = ["B", "K", "M", "G"]
+        let units = ["B/s", "K/s", "M/s", "G/s"]
         var index = 0
         while current >= 1_024, index < units.count - 1 {
             current /= 1_024
@@ -295,19 +384,24 @@ private final class HostMetricView: NSView {
             : String(format: "%.1f%@", current, units[index])
     }
 
-    private static func metrics(_ entry: HostMetricEntry) -> String {
-        if entry.status != "connected" { return "OFFLINE" }
-        return "CPU \(percent(entry.cpuPercent))  RAM \(percent(entry.memoryPercent))  D \(percent(entry.diskPercent))  ↓\(rate(entry.receiveBytesPerSecond)) ↑\(rate(entry.sendBytesPerSecond))"
+    private static func resourceColor(_ value: Double?, connected: Bool) -> NSColor {
+        guard connected, let value else { return NSColor(white: 0.4, alpha: 1) }
+        if value >= 95 { return .systemRed }
+        if value >= 85 { return .systemOrange }
+        return .systemGreen
     }
 
-    private static func color(for entry: HostMetricEntry) -> NSColor {
+    private static func overallColor(_ entry: HostMetricEntry) -> NSColor {
         guard entry.status == "connected" else { return .systemRed }
         let peak = [entry.cpuPercent, entry.memoryPercent, entry.diskPercent]
             .compactMap { $0 }
             .max() ?? 0
-        if peak >= 95 { return .systemRed }
-        if peak >= 85 { return .systemOrange }
-        return .systemGreen
+        return resourceColor(peak, connected: true)
+    }
+
+    private static func accessibleMetrics(_ entry: HostMetricEntry) -> String {
+        guard entry.status == "connected" else { return "offline" }
+        return "CPU \(percent(entry.cpuPercent)), RAM \(percent(entry.memoryPercent)), disk \(percent(entry.diskPercent)), download \(rate(entry.receiveBytesPerSecond)), upload \(rate(entry.sendBytesPerSecond))"
     }
 }
 

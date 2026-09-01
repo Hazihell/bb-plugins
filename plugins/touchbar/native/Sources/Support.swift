@@ -68,7 +68,7 @@ enum ProviderIcon {
         "claude": "claudecode-color",
         "claudecode": "claudecode-color",
         "claude-code": "claudecode-color",
-        "codex": "codex-color",
+        "codex": "openai",
         "opencode": "opencode",
         "gemini": "gemini-color",
         "geminicli": "geminicli-color",
@@ -115,6 +115,11 @@ enum ProviderIcon {
         if let slug = files[key],
            let url = Bundle.main.url(forResource: slug, withExtension: "png"),
            let branded = NSImage(contentsOf: url) {
+            if key == "codex" {
+                let badge = circularChatGPT(branded)
+                cache[key] = badge
+                return badge
+            }
             branded.size = NSSize(width: 22, height: 22)
             cache[key] = branded
             return branded
@@ -122,6 +127,22 @@ enum ProviderIcon {
 
         let image = generated(provider: key)
         cache[key] = image
+        return image
+    }
+
+    private static func circularChatGPT(_ source: NSImage) -> NSImage {
+        let size = NSSize(width: 22, height: 22)
+        let image = NSImage(size: size)
+        image.lockFocus()
+        NSColor.white.setFill()
+        NSBezierPath(ovalIn: NSRect(origin: .zero, size: size)).fill()
+        source.draw(
+            in: NSRect(x: 4, y: 4, width: 14, height: 14),
+            from: .zero,
+            operation: .sourceOver,
+            fraction: 1
+        )
+        image.unlockFocus()
         return image
     }
 

@@ -201,6 +201,12 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(model, /struct UsageEntry/u);
   assert.match(model, /struct HostMetricEntry/u);
   assert.match(controller, /private final class HostMetricView/u);
+  assert.match(controller, /private final class HostMetricTile/u);
+  assert.match(controller, /title: "CPU"/u);
+  assert.match(controller, /title: "RAM"/u);
+  assert.match(controller, /title: "DISK"/u);
+  assert.match(controller, /title: "DOWN"/u);
+  assert.match(controller, /title: "UP"/u);
   assert.match(controller, /private final class UsageIconStripView/u);
   assert.match(controller, /private final class SettingsControlButton/u);
   assert.match(controller, /private final class SettingsGroupView/u);
@@ -232,6 +238,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   for (const provider of ["opencode", "kimi", "deepseek", "qwen", "windsurf", "cline", "roocode"]) {
     assert.match(support, new RegExp(`"${provider}"`, "u"));
   }
+  assert.match(support, /"codex": "openai"/u);
+  assert.match(support, /circularChatGPT/u);
   assert.match(main, /setActivationPolicy\(\.accessory\)/u);
   assert.match(main, /applicationWillTerminate/u);
   assert.match(build, /DFRFoundation/u);

@@ -11,10 +11,11 @@ Swift/AppKit background app owns the physical Touch Bar:
 - one outlined two-line card per thread with provider, project, status colour,
   badge and activity spinner;
 - tap a card to open that exact BB thread;
-- optional right-side Codex, Claude Code, and Cursor icons with circular usage
+- optional right-side circular ChatGPT, Claude Code, and Cursor icons with usage
   progress rings instead of percentage text;
 - an optional icon-only Host Monitor button that swaps the thread lane for bounded
-  CPU, RAM, disk, download, and upload cards for every enrolled host;
+  host cards containing separate, readable CPU, RAM, disk, download, and upload
+  metric tiles for every enrolled host;
 - tap ✕ to collapse to the ordinary Control Strip;
 - automatic restoration after login and wake.
 
