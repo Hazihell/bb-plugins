@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 6,
+  "revision": 7,
   "activeFeature": "dockside-icon-only-agent-states",
   "request": "Replace Dockside's visible state text with compact accessible icons and remove Done completion state from all child/sub-agent rows. Keep PR state understandable through a colored semantic icon plus number and accessible label/tooltip, keep root output-verified completion as an icon only, use an activity icon plus connector tint for working child families, rely on existing row glyphs for child live status, and preserve all filters, hierarchy, deletion, project creation, navigation, and compact behavior.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "verify",
+  "phase": "review",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Refreshed repository knowledge after icon-only metadata, child completion removal, tests, and QA; all context pages remain current without stale, missing, invalid, or refinement-required topics.",
+  "message": "Verified icon-only states with focused mapping/precedence tests, failure paths, typed contracts, clean integration/package portability, live BB system checks, real wide/compact screenshots, passing fresh-context QA, and a non-blocking security advisory.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:51e6351c52762c208ed8b11ca7d4a4c56fd460b026a50e86981de183e350868e",
@@ -20,21 +20,28 @@
   "capabilityClaimId": "dockside-icon-only-agent-states-b40841a02be2",
   "authorizationDigest": null,
   "evidence": [],
-  "evidenceReceiptIds": [],
+  "evidenceReceiptIds": [
+    "qa-38755c84f799cbb089655abc",
+    "qa-f64ac7316fd0dd596cdfde77",
+    "qa-1438b6d45027a213610af7b1",
+    "qa-b46e56ac1a5b0229eb948ace",
+    "qa-f87cd7f562a176e2826eaa10",
+    "qa-f5101f56d26f9667681767a6",
+    "collected-f63370e6820dff94de2de748"
+  ],
   "legacyEvidenceCount": 0,
   "completion": {
     "implemented": true,
-    "verified": false,
+    "verified": true,
     "integrated": false,
     "delivered": false,
     "published": false,
-    "highest": "implemented",
+    "highest": "verified",
     "reasons": {
-      "verified": "verified has not been proven by a durable receipt.",
       "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T00:47:17.610Z"
+  "updatedAt": "2026-09-01T00:52:10.802Z"
 }
