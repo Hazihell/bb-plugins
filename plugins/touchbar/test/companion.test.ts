@@ -152,6 +152,9 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /\.done: 1, \.working: 2/u);
   assert.match(controller, /controls: \[priority, project, settings, close\]/u);
   assert.match(controller, /panelContainer/u);
+  assert.match(controller, /fixedControls\.filter/u);
+  assert.match(controller, /control\.frame = NSRect/u);
+  assert.doesNotMatch(controller, /controlsStack/u);
   assert.match(controller, /NSBezierPath\(roundedRect: bounds/u);
   assert.match(controller, /projectColor/u);
   assert.match(controller, /0xcbf29ce484222325/u);
