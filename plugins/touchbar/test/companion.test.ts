@@ -139,6 +139,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /projectSortTapped/u);
   assert.match(controller, /private final class GroupDividerView: NSButton/u);
   assert.match(controller, /threadId: entry\.id/u);
+  assert.match(controller, /compactWidth/u);
+  assert.match(controller, /min\(max\(38 .* 72\), 100\)/u);
   assert.match(controller, /action: #selector\(agentTapped/u);
   assert.match(controller, /CompactControlButton/u);
   assert.match(controller, /projectInitials/u);

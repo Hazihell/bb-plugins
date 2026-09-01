@@ -98,6 +98,7 @@ private final class GroupDividerView: NSButton {
     private let statusLabel = NSTextField(labelWithString: "")
     private let projectLabel = NSTextField(labelWithString: "")
     private let compactProject: Bool
+    private let compactWidth: CGFloat
     private var projectBadge: ProjectInitialBadge?
 
     init(
@@ -110,6 +111,9 @@ private final class GroupDividerView: NSButton {
         action: Selector?
     ) {
         compactProject = projectFirst
+        compactWidth = projectFirst
+            ? min(max(38 + CGFloat(min(project.count, 14)) * 4.4, 72), 100)
+            : 96
         super.init(frame: .zero)
         self.target = target
         self.action = action
@@ -154,7 +158,7 @@ private final class GroupDividerView: NSButton {
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
     override var intrinsicContentSize: NSSize {
-        NSSize(width: compactProject ? 120 : 96, height: 30)
+        NSSize(width: compactWidth, height: 30)
     }
 
     override func layout() {
