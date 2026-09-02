@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "feature": "usage-tracker-grok-opencode-thresholds",
+  "claimId": "usage-tracker-grok-opencode-thresholds-a791c56ad195",
+  "repositoryId": "sha256:8b7ffb17d47d3b29f9ec020c10aab5fe8b605e476b7797f7cbcca069de63857d",
+  "baseCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "baseTree": "d5911f0aec136183caa27c0cfb01324a4061a8c8",
+  "featureTree": "sha256:3c3ae9c7b35bea38b58a62e23091d7ce385b2098f56d0e557bb3643cbdbeb935",
+  "targetCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "targetTree": "d5911f0aec136183caa27c0cfb01324a4061a8c8",
+  "capabilityBaseDigests": {
+    "usage-tracker-compact-display": "sha256:86e20cf7ae884464887f82128def9bbd20a7722050cacabeff5afc163a627901",
+    "usage-tracker-provider-usage": "sha256:b7d93dc3f6c18265ec2f97a4754d672ad29c54a16f5c4d9d474f876825d35123"
+  },
+  "deltaDigest": "sha256:49c6f3d65f0f941546d4a6057c91a7d3401c59c4206802d6683173a43e963f14",
+  "resultDigests": {
+    "usage-tracker-compact-display": "sha256:9d9790c55ff4d41a98a46cab06d1e44d3e3ed7bea431ea53e8f61e0f1d086194",
+    "usage-tracker-provider-usage": "sha256:4443fe8c81ecc7253de286b1f9c5e90ebdf234cf6cd6edfa510434714ec12a07"
+  },
+  "verificationReceiptDigests": [
+    "sha256:06fadebec3a61686d10073994715e6d33c207e0a87483721b2885e7d1e518ae5",
+    "sha256:07a6bbc537f0fd094386b8fcc32a5f00f80e043440fa66bf421d068193c60231",
+    "sha256:0a7caa38a680c8d33db81ea92466e415f2ad8b94a77880a18728f372d946ca15",
+    "sha256:338096bcdc037fdfdbc391fff33d1aaca9f1420cabc470523d71c27d351be59c",
+    "sha256:3be0294b33d9ec916421fe28ae3a9045819b8fe9e97be9e096f1dacac2fecc86",
+    "sha256:3cd4b63f6b309307666fd8355f1cc839ff71d50883c6951274bae3df6b541852",
+    "sha256:4b2e53e6834b029c747a674a4bda689c16083964f66378eb95fd09702eacb31e",
+    "sha256:6e2238079154836da984c332b6685e9cf403def61d440476171e67c80234db26",
+    "sha256:9136a85c1f0d29b37a97b7f82499fe80f4027e31382920f8e273dcc202277cca",
+    "sha256:979e801172eb6ff801c9eef29e0fed994909da54d9740091338c598247f6ebae",
+    "sha256:9b46b19354ec385a8bdbf74125c7f32a2ba7658136e6105c2d5fd433629741b1",
+    "sha256:bfae00c71002e61e73785ceb0bd382f760733942d0d9ea0ae570fe72616e5e1a",
+    "sha256:cab419baf5e166313cfe435b1d3f907447ded9d086928b0c3c85c35bfa2bd1ea",
+    "sha256:e5da484e1ccc088c958837ea17729a9ae9de6f66377852b208cb376370597ceb",
+    "sha256:f0a149f95dd97feb993fc8d65a476819dcd27bc0106ec71800df0eb58586050c"
+  ],
+  "integratedAt": "2026-09-02T23:47:39.523Z",
+  "digest": "sha256:8bedcd45a85bdd1f7e12d647e3ad569979bacb964195f278cda0b2a16c0173e4"
+}
