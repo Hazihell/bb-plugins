@@ -227,6 +227,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /CompactNativeButton\(title: "", width: 34\)/u);
   assert.match(controller, /CompactNativeButton\(title: "✕", width: 34\)/u);
   assert.match(controller, /private final class SettingsGroupView/u);
+  assert.match(controller, /private let sectionTitleWidth: CGFloat/u);
+  assert.match(controller, /control\.frame = NSRect\(x: x, y: 1, width: width, height: 28\)/u);
   assert.match(controller, /private final class TouchBarScrollView/u);
   assert.match(controller, /func scrollPage/u);
   assert.match(controller, /override func scrollWheel/u);
@@ -277,8 +279,8 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(model, /dev\.bb\.desktop/u);
   assert.match(model, /activateBB/u);
   assert.match(model, /\["host-monitor", "open", hostId\]/u);
-  assert.match(controller, /width: 36, action: action/u);
-  assert.match(controller, /width: 20, height: 20/u);
+  assert.match(controller, /width: 40, action: action/u);
+  assert.match(controller, /width: 24, height: 24/u);
   assert.match(controller, /width: 20, height: 20/u);
   assert.match(controller, /radius: 12\.5/u);
   assert.doesNotMatch(model, /\["touchbar", "stop"/u);

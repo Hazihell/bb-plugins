@@ -576,14 +576,14 @@ private final class SettingsControlButton: NSButton {
 
     init(title: String, width: CGFloat) {
         fixedWidth = width
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 21))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 28))
         self.title = title
         isBordered = false
         refusesFirstResponder = true
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 21) }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 28) }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         bounds.contains(point) ? self : nil
@@ -597,7 +597,7 @@ private final class SettingsControlButton: NSButton {
     override func draw(_ dirtyRect: NSRect) {
         let fill = bezelColor ?? NSColor(white: 0.18, alpha: 1)
         fill.setFill()
-        let shape = NSBezierPath(roundedRect: bounds, xRadius: 4, yRadius: 4)
+        let shape = NSBezierPath(roundedRect: bounds, xRadius: 6, yRadius: 6)
         shape.fill()
         NSColor.white.withAlphaComponent(0.16).setStroke()
         shape.lineWidth = 1
@@ -605,8 +605,8 @@ private final class SettingsControlButton: NSButton {
 
         if let image {
             let imageRect = NSRect(
-                x: floor((bounds.width - 20) / 2), y: 0.5,
-                width: 20, height: 20
+                x: floor((bounds.width - 24) / 2), y: 2,
+                width: 24, height: 24
             )
             if drawsLightImageTile {
                 NSColor.white.setFill()
@@ -664,13 +664,21 @@ private final class CompactNativeButton: NSButton {
 
 private final class SettingsGroupView: NSView {
     private let sectionTitle: String
+    private let sectionTitleWidth: CGFloat
     private let controls: [SettingsControlButton]
     private let measuredWidth: CGFloat
 
     init(title: String, controls: [SettingsControlButton]) {
         sectionTitle = title
+        let titleFont = NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold)
+        let titleWidth = max(
+            38,
+            ceil((title as NSString).size(withAttributes: [.font: titleFont]).width) + 12
+        )
+        sectionTitleWidth = titleWidth
         self.controls = controls
-        measuredWidth = controls.reduce(CGFloat(8)) { $0 + $1.intrinsicContentSize.width } +
+        measuredWidth = titleWidth +
+            controls.reduce(CGFloat(8)) { $0 + $1.intrinsicContentSize.width } +
             CGFloat(max(controls.count - 1, 0) * 3)
         super.init(frame: .zero)
         wantsLayer = true
@@ -687,10 +695,10 @@ private final class SettingsGroupView: NSView {
 
     override func layout() {
         super.layout()
-        var x: CGFloat = 4
+        var x = sectionTitleWidth + 4
         for control in controls {
             let width = control.intrinsicContentSize.width
-            control.frame = NSRect(x: x, y: 0, width: width, height: 21)
+            control.frame = NSRect(x: x, y: 1, width: width, height: 28)
             x += width + 3
         }
     }
@@ -698,11 +706,16 @@ private final class SettingsGroupView: NSView {
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: NSFont.monospacedSystemFont(ofSize: 5.2, weight: .bold),
+            .font: NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold),
             .foregroundColor: NSColor(white: 0.68, alpha: 1),
         ]
-        (sectionTitle as NSString).draw(
-            at: NSPoint(x: 6, y: 22),
+        let string = sectionTitle as NSString
+        let size = string.size(withAttributes: attributes)
+        string.draw(
+            at: NSPoint(
+                x: floor((sectionTitleWidth - size.width) / 2),
+                y: floor((bounds.height - size.height) / 2)
+            ),
             withAttributes: attributes
         )
     }
@@ -1515,27 +1528,27 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
 
     private func settingsGroups() -> [NSView] {
         let priority = settingControl(
-            title: "PRIORITY", width: 52,
+            title: "PRIORITY", width: 58,
             action: #selector(priorityTapped(_:)),
             selected: sortMode == .status, color: .systemBlue
         )
         let project = settingControl(
-            title: "PROJECT", width: 48,
+            title: "PROJECT", width: 54,
             action: #selector(projectTapped(_:)),
             selected: sortMode == .project, color: .systemOrange
         )
         let dock = settingControl(
-            title: "DOCK", width: 36,
+            title: "DOCK", width: 42,
             action: #selector(dockTapped(_:)),
             selected: sortMode == .dock, color: .systemTeal
         )
         let carousel = settingControl(
-            title: "CAROUSEL", width: 54,
+            title: "CAROUSEL", width: 60,
             action: #selector(carouselTapped(_:)),
             selected: sortMode == .carousel, color: .systemPurple
         )
         let usage = settingControl(
-            title: showUsage ? "ON" : "OFF", width: 38,
+            title: showUsage ? "ON" : "OFF", width: 42,
             action: #selector(usageVisibilityTapped(_:)),
             selected: showUsage, color: .systemBlue
         )
@@ -1555,7 +1568,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
             color: .systemPurple
         )
         let host = settingControl(
-            title: showHostMonitor ? "ON" : "OFF", width: 38,
+            title: showHostMonitor ? "ON" : "OFF", width: 42,
             action: #selector(hostVisibilityTapped(_:)),
             selected: showHostMonitor, color: .systemGreen
         )
@@ -1585,7 +1598,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         let button = SettingsControlButton(title: title, width: width)
         button.target = self
         button.action = action
-        button.font = .monospacedSystemFont(ofSize: 5.8, weight: .bold)
+        button.font = .monospacedSystemFont(ofSize: 6.8, weight: .bold)
         button.bezelColor = selected
             ? color
             : NSColor(white: 0.18, alpha: 1)
@@ -1599,7 +1612,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         color: NSColor
     ) -> SettingsControlButton {
         let button = settingControl(
-            title: "", width: 36, action: action,
+            title: "", width: 40, action: action,
             selected: selected, color: color
         )
         button.image = ProviderIcon.image(for: provider)
