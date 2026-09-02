@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packetDigest": "sha256:b07060267ff7ca55b4a6a720b99b1e9ebf63a32fd2bb0af75817536e12d1e7e9",
+  "mode": "fresh-context",
+  "baseRef": "main",
+  "baseCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "headCommit": "8d2dea644563c44f5d3eef0ee3b66c6c1206c892",
+  "diffDigest": "sha256:62e9249d06eae1c8f536871ee0b20ecb625713059bda8e67312c1c2efa543223",
+  "verdict": "APPROVED",
+  "reviewerActor": "fresh-context-agent",
+  "reviewerInvocationId": "fresh-context-agent-8d2dea64-20260902-7c91e4b3",
+  "reviewerLogin": null,
+  "body": "# Verdict: APPROVED\n\n- PASS AC-1: Stable Grok/OpenCode normalization, ordering, and provider-local fault isolation pass.\n- PASS AC-2: Default-on independent toggles, four-provider RPC/cache/recovery, and unchanged Codex reset behavior pass.\n- PASS AC-UI-1: Direct controls for two or fewer and highest-usage +N summary, accessible ordered overview, and predictable drill-down return for more than two pass.\n- PASS AC-UI-2: Neutral/yellow/red presentation is correctly applied and missing windows remain neutral.\n- PASS AC-3: Unclamped finite threshold classification at 80/95, clamped geometry, and semantic level attributes pass.\n- PASS AC-4: Last-known values, focus, dismissal, accessibility, refresh, windows, and reset confirmation are preserved.\n- PASS AC-5: Clean archived-head checks passed, including 39 focused tests/build, full workspace checks, Taskboard assertion, 0.1.6 assets/docs, three screenshots, and install/reload/browser evidence.\n\n## Security / correctness\n\nNo blocking issues. Strict RPC validation, bounded geometry, provider isolation, and Codex-only confirmation-gated resets remain intact.\n\n## Design / maintainability\n\nProvider order/preferences and threshold classification are centralized; overview/details reuse existing selection, rail, recovery, and focus primitives with appropriate coverage.",
+  "bodyDigest": "sha256:49cc9806b8f781016a581206384a7f68632f9297bbc6bfad5db9aaf2b5eab2d1",
+  "digest": "sha256:66b0484ac7e89d416432c4da50a067df26ac52c391cad8a810924f84f65b5144"
+}

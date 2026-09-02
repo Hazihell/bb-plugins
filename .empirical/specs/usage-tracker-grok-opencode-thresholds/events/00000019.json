@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "sequence": 19,
+  "previousDigest": "sha256:dd8f199c3c27613cca952bb5660e8a52be324526f60abfc4aac88df7e0c37594",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Fresh-context review approved the exact 0.1.6 release commit with all seven criteria passing and no security, correctness, design, or maintainability findings.",
+  "createdAt": "2026-09-02T23:14:47.951Z",
+  "stateBeforeDigest": "sha256:6f6043f3c92909488418c88ae68cc43581ed637cfec414f13c48e8e93890479b",
+  "stateAfterDigest": "sha256:7b6029ccb547e6b6bf86c5c7e3b9da5e6f03aab16d7c5cf73b88176d1523c41a",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 19,
+    "activeFeature": "usage-tracker-grok-opencode-thresholds",
+    "request": "Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. When the enabled provider count exceeds the compact single-row capacity, wrap the strip into a compact layout supporting up to three provider rows while keeping refresh and details usable. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to compact and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "integrate",
+    "status": "waiting",
+    "repairAttempts": 2,
+    "message": "Fresh-context review approved the exact 0.1.6 release commit with all seven criteria passing and no security, correctness, design, or maintainability findings.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:b7111f8a4d8e5d934dce18e75cbc3d7dc1d1615829216395d48f758ca6bf3472",
+    "impactDigest": "sha256:ff88c89c7ab16156de653bd9ad3aa48a3f44f8049b0af2866df2eb15b955bcfe",
+    "capabilityClaimId": "usage-tracker-grok-opencode-thresholds-a791c56ad195",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [
+      "qa-d13fdea6e11269fdc101bd10",
+      "qa-a9c254fcd149436d32b7a389",
+      "collected-bb5fc3a72245be104d6d67fb",
+      "qa-e91d87b863a6e6056a5f0871",
+      "collected-f13acf9a0499c252feb945cb"
+    ],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": true,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "verified",
+      "reasons": {
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-02T23:14:47.951Z"
+  },
+  "digest": "sha256:b9f26d7f0bc87b1386d72b2efb5fa14a7e8b36d3a52ba294fd0913c89751d352"
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "packetDigest": "sha256:ced448ec61cb935581204636018c70446257146ce8c0b8aa1c95b03ba047cf0d",
-  "resultPath": ".empirical/specs/usage-tracker-grok-opencode-thresholds/reviews/e730225ea93d312919705d59.json",
-  "resultDigest": "sha256:e730225ea93d312919705d59c1c9b7ac7210b16ecb8538a1357124515812a2ad",
-  "receiptId": "collected-3dda64063eae2f535edc1906"
+  "packetDigest": "sha256:b07060267ff7ca55b4a6a720b99b1e9ebf63a32fd2bb0af75817536e12d1e7e9",
+  "resultPath": ".empirical/specs/usage-tracker-grok-opencode-thresholds/reviews/66b0484ac7e89d416432c4da.json",
+  "resultDigest": "sha256:66b0484ac7e89d416432c4da50a067df26ac52c391cad8a810924f84f65b5144",
+  "receiptId": "collected-f13acf9a0499c252feb945cb"
 }

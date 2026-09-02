@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packetDigest": "sha256:b07060267ff7ca55b4a6a720b99b1e9ebf63a32fd2bb0af75817536e12d1e7e9",
+  "mode": "fresh-context",
+  "baseRef": "main",
+  "baseCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "headCommit": "8d2dea644563c44f5d3eef0ee3b66c6c1206c892",
+  "diffDigest": "sha256:62e9249d06eae1c8f536871ee0b20ecb625713059bda8e67312c1c2efa543223",
+  "verdict": "APPROVED",
+  "reviewerActor": "fresh-context-agent",
+  "reviewerInvocationId": "fresh-context-agent-8d2dea64-20260902-7c91e4b3",
+  "reviewerLogin": null,
+  "body": "# Verdict: APPROVED\n\n- PASS AC-1: PASS: acp-grok and acp-opencode normalize to grok and openCode in deterministic provider order; omitted and unhealthy providers remain provider-local records while healthy provider windows survive.\n- PASS AC-2: PASS: Grok and OpenCode default on with independent settings; preference/RPC/cache/recovery paths accept all four visible providers, while reset credits and confirmation remain Codex-only.\n- PASS AC-UI-1: PASS: one/two providers retain direct controls; larger sets render the highest available percentage plus +N beside refresh, open a stable-order accessible overview, and drill into details with predictable focus return.\n- PASS AC-UI-2: PASS: summary, overview rows/rails, and detail readings/fills use neutral below 80, warning from 80 to below 95, critical at 95+, with missing windows neutral.\n- PASS AC-3: PASS: usageLevel classifies unclamped finite usedPercent at exact 80/95, barPercent alone is clamped to 0–100, and compact/overview/detail DOM surfaces expose data-level semantics.\n- PASS AC-4: PASS: last-known merging, accessible naming, provider windows, automatic/manual refresh, Escape/outside dismissal, hierarchical focus restoration, and Codex reset confirmation are preserved.\n- PASS AC-5: PASS: archived-head verification passed Usage Tracker typecheck, 39 tests and build, Taskboard release assertions, and full workspace checks; 0.1.6 metadata/docs, three approved release screenshots, install/reload receipts, and browser evidence are committed.\n\n## Security / correctness\n\nPASS: No blocking security or correctness issue found. RPC schemas remain strict and finite, provider failures are isolated, percentage geometry is bounded, and Codex reset remains confirmation-gated and Codex-scoped.\n\n## Design / maintainability\n\nPASS: Provider ordering and preferences are centralized, threshold classification is a small shared pure function, and overview/detail rendering reuses existing selection, rail, recovery, and focus primitives. Focused tests plus browser and release evidence cover the new branches.",
+  "bodyDigest": "sha256:2b187fd33d3c06a15b476def3035f23e7afeffb691fecfa31c6556fc3d0bfd5d",
+  "digest": "sha256:ee821927721fecb655206c2882fae4fb4cf9978757567799a4746ba01b7adf52"
+}

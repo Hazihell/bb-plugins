@@ -1,6 +1,6 @@
 {
   "schemaVersion": 5,
-  "revision": 18,
+  "revision": 23,
   "activeFeature": "usage-tracker-grok-opencode-thresholds",
   "request": "Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. When the enabled provider count exceeds the compact single-row capacity, wrap the strip into a compact layout supporting up to three provider rows while keeping refresh and details usable. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to compact and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.",
   "profile": "complex",
@@ -8,8 +8,8 @@
   "mode": "normal",
   "phase": "review",
   "status": "waiting",
-  "repairAttempts": 2,
-  "message": "Final 0.1.6 tree verified with focused Usage Tracker checks, passing release-coupled Taskboard assertions, full workspace checks, live install/reload, controlled browser interaction, and user-approved screenshots.",
+  "repairAttempts": 3,
+  "message": "Verified Usage Tracker 0.1.6 with focused typecheck/tests/build, live BB install/reload, real Chromium layout/severity/navigation checks, screenshots, and user visual acceptance.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
@@ -21,10 +21,10 @@
   "authorizationDigest": null,
   "evidence": [],
   "evidenceReceiptIds": [
-    "qa-d13fdea6e11269fdc101bd10",
-    "qa-a9c254fcd149436d32b7a389",
-    "collected-bb5fc3a72245be104d6d67fb",
-    "qa-e91d87b863a6e6056a5f0871"
+    "qa-1f59fdf1f04b3bc31a2c5721",
+    "qa-2181bbf07a0968b9c41358a0",
+    "collected-dd93b4419ce5f4741f56675d",
+    "qa-eed9eaac4a39107b82f5cf2e"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -40,5 +40,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-02T23:10:07.310Z"
+  "updatedAt": "2026-09-02T23:39:59.278Z"
 }

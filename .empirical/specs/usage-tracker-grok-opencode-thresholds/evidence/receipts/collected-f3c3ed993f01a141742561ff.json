@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-f3c3ed993f01a141742561ff",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-UI-1",
+    "AC-UI-2"
+  ],
+  "evidenceKinds": [
+    "review"
+  ],
+  "summary": "fresh-context review approved the exact committed base diff",
+  "passed": true,
+  "startedAt": "2026-09-02T23:14:14.802Z",
+  "completedAt": "2026-09-02T23:14:14.802Z",
+  "provenance": {
+    "repositoryId": "sha256:8b7ffb17d47d3b29f9ec020c10aab5fe8b605e476b7797f7cbcca069de63857d",
+    "feature": "usage-tracker-grok-opencode-thresholds",
+    "specRevision": 2,
+    "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
+    "treeDigest": "sha256:3c3ae9c7b35bea38b58a62e23091d7ce385b2098f56d0e557bb3643cbdbeb935",
+    "policyDigest": "sha256:731b81d0979ecfd5867a2bee3fcb7ef26acfc4fe64cb7d90635ec869d19006a8"
+  },
+  "digest": "sha256:a20af9c93f69d6ff6651c97f41ae273bda48e5fef81c33961386b9ea807a8d72",
+  "kind": "collected",
+  "collector": "empirical-review:fresh-context-agent",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/usage-tracker-grok-opencode-thresholds/reviews/ee821927721fecb655206c28.json",
+      "mediaType": "application/json",
+      "bytes": 2828,
+      "digest": "sha256:60252f048b37d92c0ad717f2e7ef019b6695d3e2539934551d8114abd98acd23"
+    },
+    {
+      "path": ".empirical/specs/usage-tracker-grok-opencode-thresholds/reviews/ee821927721fecb655206c28.md",
+      "mediaType": "text/markdown",
+      "bytes": 2076,
+      "digest": "sha256:333662d322dd9dfc63238027e6a6528b05b387900a214c6f031a6d54cbad5f8f"
+    }
+  ]
+}
