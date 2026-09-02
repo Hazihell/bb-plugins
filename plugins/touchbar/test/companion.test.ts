@@ -232,6 +232,10 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /private final class SettingsGroupView/u);
   assert.match(controller, /private let sectionTitleWidth: CGFloat/u);
   assert.match(controller, /control\.frame = NSRect\(x: x, y: 0, width: width, height: 30\)/u);
+  assert.match(controller, /private func settingsGroups\(\)/u);
+  assert.match(controller, /override func hitTest\(_ point: NSPoint\) -> NSView\?/u);
+  assert.ok(controller.includes("settings control tapped \\(sectionTitle)"));
+  assert.match(controller, /NSApp\.sendAction\(action, to: control\.target, from: control\)/u);
   assert.match(controller, /private final class TouchBarScrollView/u);
   assert.match(controller, /func scrollPage/u);
   assert.match(controller, /override func scrollWheel/u);

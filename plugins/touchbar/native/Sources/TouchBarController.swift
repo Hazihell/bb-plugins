@@ -728,6 +728,20 @@ private final class SettingsGroupView: NSView {
         }
     }
 
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        let point = convert(event.locationInWindow, from: nil)
+        guard let control = controls.first(where: {
+            !$0.isHidden && $0.frame.contains(point)
+        }) else { return }
+        guard let action = control.action else { return }
+        NativeLog.info("settings control tapped \(sectionTitle)")
+        NSApp.sendAction(action, to: control.target, from: control)
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         let attributes: [NSAttributedString.Key: Any] = [
