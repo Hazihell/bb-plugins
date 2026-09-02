@@ -761,6 +761,37 @@ private final class SettingsGroupView: NSView {
 }
 
 private final class TouchBarScrollView: NSScrollView {
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        bounds.contains(point) ? self : nil
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard let documentView else { return }
+        let point = documentView.convert(event.locationInWindow, from: nil)
+        guard let button = deepestButton(in: documentView, at: point),
+              let action = button.action else { return }
+        NativeLog.info("touch dispatch (button.identifier?.rawValue ?? \"button\")")
+        NSApp.sendAction(action, to: button.target, from: button)
+    }
+
+    private func deepestButton(in root: NSView, at point: NSPoint) -> NSButton? {
+        var match: NSButton?
+        var matchArea = CGFloat.greatestFiniteMagnitude
+        func visit(_ view: NSView) {
+            guard !view.isHidden, view.alphaValue > 0 else { return }
+            if let button = view as? NSButton, button.isEnabled {
+                let frame = button.convert(button.bounds, to: root)
+                if frame.contains(point), frame.width * frame.height < matchArea {
+                    match = button
+                    matchArea = frame.width * frame.height
+                }
+            }
+            for child in view.subviews { visit(child) }
+        }
+        visit(root)
+        return match
+    }
+
     func scrollPage(_ direction: Int) {
         let distance = max(contentView.bounds.width * 0.72, 140)
         scrollHorizontally(by: CGFloat(direction) * distance)

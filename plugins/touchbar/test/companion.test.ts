@@ -237,6 +237,10 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.ok(controller.includes("settings control tapped \\(sectionTitle)"));
   assert.match(controller, /NSApp\.sendAction\(action, to: control\.target, from: control\)/u);
   assert.match(controller, /private final class TouchBarScrollView/u);
+  assert.match(controller, /override func mouseDown\(with event: NSEvent\)/u);
+  assert.match(controller, /private func deepestButton\(in root: NSView, at point: NSPoint\)/u);
+  assert.ok(controller.includes("touch dispatch (button.identifier"));
+  assert.match(controller, /NSApp\.sendAction\(action, to: button\.target, from: button\)/u);
   assert.match(controller, /func scrollPage/u);
   assert.match(controller, /override func scrollWheel/u);
   assert.match(controller, /panelScrollView\?\.scrollPage\(-1\)/u);
