@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:dc99a5895d4293e1004415895d7f52c2702f7d9a206bdf75fea1d1c687c63d7c",
+  "sourceDigest": "sha256:b2d15cf2bde12ad937889df9608097e71200d01075e43739df4602c98bef95e3",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:ccde20dab7b16f1026e1e05a8dd4d2332692cac21b0feaddbeacdd2063568ca4"
+      "digest": "sha256:f51186d32e401b3acc16f68f16740655bc30cd6d9037ba0264c4099f998282bb"
     },
     {
       "path": "LICENSE",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 68489,
-      "digest": "sha256:39ebc3576a31850a24c8b923c6965fc272ade31a74ad16cc7464463c353af527"
+      "size": 69042,
+      "digest": "sha256:49511fcc9fc4b63d88b8e704f849502d7a398cba2ec07c3616b2dc78df81b822"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1320,8 +1320,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 16978,
-      "digest": "sha256:175a6f845f240b95acac77eaa1d9b653f6ed5a2a3426dab0c2abab06795db139"
+      "size": 17302,
+      "digest": "sha256:63f1dd437394c3b397fb1ec4ad005eeb7aac2118f99743b8b72f348ddc24f685"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1793,7 +1793,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:dc99a5895d4293e1004415895d7f52c2702f7d9a206bdf75fea1d1c687c63d7c",
+      "sourceDigest": "sha256:b2d15cf2bde12ad937889df9608097e71200d01075e43739df4602c98bef95e3",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1889,5 +1889,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:8473a87f2c39aecc18aabf2fa572082a2f286b28b38c204eff3d5decb8a2e0f4"
+  "digest": "sha256:d11f86bac8fc12a0b9e6fa9d63ac13cd81b285e68b168755bb4857cd3ce5b60b"
 }
