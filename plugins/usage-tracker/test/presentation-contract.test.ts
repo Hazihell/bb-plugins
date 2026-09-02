@@ -26,18 +26,15 @@ test("emits semantic severity for compact, rail, and detail presentation", () =>
   assert.match(styles, /data-level="critical"/u);
 });
 
-test("wraps larger provider sets into at most three rows with one refresh column", () => {
-  for (const count of [3, 4, 5, 6]) {
-    assert.match(styles, new RegExp(`data-provider-count="${count}"`, "u"));
-  }
-  assert.match(
-    styles,
-    /grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\) 1\.75rem/u,
-  );
-  assert.match(styles, /grid-template-rows:\s*repeat\(2, 2rem\)/u);
-  assert.match(styles, /grid-template-rows:\s*repeat\(3, 2rem\)/u);
-  assert.match(styles, /grid-column:\s*3/u);
-  assert.match(styles, /grid-row:\s*1 \/ -1/u);
+test("summarizes larger provider sets and exposes the complete overview", () => {
+  assert.match(source, /items\.length > 2/u);
+  assert.match(source, /highestSidebarUsagePrimary\(items\)/u);
+  assert.match(source, /`\+\$\{additionalCount\}`/u);
+  assert.match(source, /Agent usage overview/u);
+  assert.match(source, /usage-tracker-sidebar__overview-provider/u);
+  assert.match(styles, /\.usage-tracker-sidebar__summary/u);
+  assert.match(styles, /\.usage-tracker-sidebar__overview-list/u);
+  assert.match(styles, /\.usage-tracker-sidebar__overview-provider/u);
 });
 
 test("preserves provider-specific details and focus restoration", () => {
@@ -45,4 +42,6 @@ test("preserves provider-specific details and focus restoration", () => {
   assert.match(source, /requestedFocus = isClosing/u);
   assert.match(source, /providerGlyph\(providerId\)/u);
   assert.match(source, /provider\.id === "codex"/u);
+  assert.match(source, /isOverviewOpen = false/u);
+  assert.match(source, /requestedFocus = \{ kind: "summary" \}/u);
 });

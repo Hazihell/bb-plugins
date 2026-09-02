@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packetDigest": "sha256:ced448ec61cb935581204636018c70446257146ce8c0b8aa1c95b03ba047cf0d",
+  "mode": "fresh-context",
+  "baseRef": "main",
+  "baseCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "headCommit": "22da70aae71d3dcf203b06a1ae1471d8253c712b",
+  "diffDigest": "sha256:4254c7904c6848ae6b4463b20536e7570f5b92b936282f2899373ac0cb67fc57",
+  "verdict": "APPROVED",
+  "reviewerActor": "fresh-context-agent",
+  "reviewerInvocationId": "utr-fca-22da70a-20260902-7c91",
+  "reviewerLogin": null,
+  "body": "# Verdict: APPROVED\n\n- PASS AC-1: Provider aliases and deterministic normalization are centralized; missing providers remain local error records.\n- PASS AC-2: Four-provider ordering, toggles, defaults, strict RPC schemas, and recovery commands are present without changing Codex reset paths.\n- PASS AC-UI-1: One/two providers retain flex layout; counts three through six use two columns and up to three rows with a spanning refresh control and provider-keyed details.\n- PASS AC-UI-2: Neutral, warning, and critical presentation applies to compact/detail readings and fills; missing windows remain normal.\n- PASS AC-3: Raw finite percentages classify at exact 80/95 boundaries while geometry clamps separately, with semantic levels on buttons, rails, and rows.\n- PASS AC-4: Last-known merging, focus restoration, accessible names, details, refresh, Escape dismissal, and reset confirmation remain intact.\n- PASS AC-5: Independent commit archive passed SDK types, typecheck, all 38 tests, and build; docs, install/reload, and Chromium evidence are present.\n\n## Security / correctness\n\nNo blocking findings. RPC outputs remain strictly validated, cached provider IDs are allowlisted and reordered, malformed percentages are rejected, and no credential handling or reset-consumption authority was broadened. Dependency installation reported zero vulnerabilities.\n\n## Design / maintainability\n\nD-001 is followed cleanly: provider tables and schemas are extended, severity is a pure helper over raw data, CSS consumes semantic attributes, and reused BB marks have an independent notice. The implementation remains table-driven and typechecked.",
+  "bodyDigest": "sha256:36982a52ca92266fc835b54a2acba2d6e239385b7017274105b25d305d801dea",
+  "digest": "sha256:e730225ea93d312919705d59c1c9b7ac7210b16ecb8538a1357124515812a2ad"
+}

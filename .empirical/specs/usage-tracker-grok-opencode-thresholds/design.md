@@ -9,7 +9,7 @@ Keep the existing Usage Tracker pipeline intact:
 3. `server.ts` validates the expanded snapshot and returns user preferences.
 4. `sidebar-strip.ts` filters the snapshot by the strict visible-provider
    allowlist, reconciles last-known windows, and emits semantic DOM attributes.
-5. `app.css` owns responsive placement and severity presentation.
+5. `app.css` owns right-side vertical placement and severity presentation.
 
 No provider is allowed to affect another provider's normalization or rendering.
 
@@ -50,21 +50,21 @@ neutral.
 
 ## Layout and interaction
 
-One/two-provider strips keep the current 2rem flex row and width tiers. For
-provider counts 3–6, the strip becomes a grid with two `minmax(0, 1fr)` provider
-columns plus a fixed 1.75rem refresh column:
+One/two-provider strips keep their current direct controls and width tiers. For
+more than two providers, the footer renders one compact summary beside refresh:
 
-- counts 3–4: two 2rem provider rows;
-- counts 5–6: three 2rem provider rows;
-- refresh occupies the fixed last column and spans the provider rows;
-- providers remain in DOM/tab order and grid auto-placement fills left-to-right,
-  top-to-bottom;
-- the root remains 11.25rem wide and grows vertically instead of competing with
-  BB's footer icons horizontally.
+- derive the highest available primary-window percentage from enabled providers;
+- show that percentage plus `+N`, where N is every other enabled provider;
+- use the highest percentage's provider mark and severity color;
+- open an overview card containing all enabled providers in stable order, each
+  with mark, name, rail, percentage, and status-aware accessible label;
+- selecting an overview row opens the existing provider details card;
+- closing provider details returns to the overview and restores row focus;
+- closing the overview returns focus to the summary control.
 
-The details card remains absolutely positioned above the footer and has its own
-refresh action at narrow widths. Provider IDs continue to key dialog IDs, focus
-restoration, selection, cached snapshots, and preference synchronization.
+The overview reuses the details card's absolute footer anchoring, surface,
+header, refresh, close, scrolling, and dismissal behavior. Provider IDs continue
+to key detail dialogs, focus restoration, cached snapshots, and preferences.
 
 ## Documentation and attribution
 
@@ -76,8 +76,8 @@ additional BB mark geometry.
 
 - Pure tests: provider order/wire IDs, missing-provider isolation, setting
   combinations, exact threshold boundaries, clamped geometry, mark path data.
-- Source/CSS contract tests: semantic `data-level`, provider-count grid rules,
-  two/three-row selectors, fixed refresh column, warning/critical selectors.
+- Source/CSS contract tests: summary selection/count semantics, overview/detail
+  navigation and focus, semantic `data-level`, and severity selectors.
 - Existing Usage Tracker tests protect last-known merging, focus/accessibility
   copy, reset gating, host resolution, and lifecycle behavior.
 - Focused typecheck/tests/build, local install/reload, browser inspection at
@@ -89,7 +89,7 @@ additional BB mark geometry.
   do not erase healthy providers.
 - Cached snapshots/preferences may predate the IDs: strict validation and live
   RPC refresh converge safely.
-- Extra rows can collide with details positioning: the card remains positioned
-  from the footer and opens above the complete root; live inspection covers it.
+- Overview and provider details must not compete: one card renders at a time and
+  Escape/close follows the explicit details → overview → summary focus path.
 - Workspace-wide SDK drift may fail unrelated checks: focused plugin evidence
   remains required and the unrelated failure is reported separately.

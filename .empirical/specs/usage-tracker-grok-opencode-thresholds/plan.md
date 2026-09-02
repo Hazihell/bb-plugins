@@ -11,8 +11,10 @@
      providers, rails, and detail rows.
 3. Implement responsive presentation.
    - Preserve flex rules for one/two providers.
-   - Add two-row and three-row grid rules for larger provider counts with a
-     fixed spanning refresh column.
+   - Collapse more than two providers into a highest-usage summary with `+N`
+     and one refresh action.
+   - Add an overview card whose provider rows open existing detail cards and
+     whose close/Escape flow restores focus through overview to summary.
    - Add theme-aware warning/critical reading and fill colors.
 4. Add regression coverage.
    - Expand normalization and settings permutations for both providers.

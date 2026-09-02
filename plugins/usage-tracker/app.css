@@ -42,6 +42,13 @@
   --usage-sidebar-width: 6.5rem;
 }
 
+.usage-tracker-sidebar:is(
+    [data-provider-count="3"],
+    [data-provider-count="4"]
+  ) {
+  --usage-sidebar-width: 7.25rem;
+}
+
 [data-collapsible="icon"] .usage-tracker-sidebar {
   display: none;
 }
@@ -84,60 +91,8 @@
   gap: 0.1875rem;
 }
 
-/* Larger provider sets grow vertically instead of squeezing every reading into
- * one line. The explicit rows let the single refresh control span the complete
- * group while provider DOM/tab order keeps filling left-to-right. */
-.usage-tracker-sidebar__strip:is(
-    [data-provider-count="3"],
-    [data-provider-count="4"],
-    [data-provider-count="5"],
-    [data-provider-count="6"]
-  ) {
-  display: grid;
-  height: auto;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) 1.75rem;
-  column-gap: 0.1875rem;
-  row-gap: 0;
-}
-
-.usage-tracker-sidebar__strip:is(
-    [data-provider-count="3"],
-    [data-provider-count="4"]
-  ) {
-  grid-template-rows: repeat(2, 2rem);
-}
-
-.usage-tracker-sidebar__strip:is(
-    [data-provider-count="5"],
-    [data-provider-count="6"]
-  ) {
-  grid-template-rows: repeat(3, 2rem);
-}
-
-.usage-tracker-sidebar__strip:is(
-    [data-provider-count="3"],
-    [data-provider-count="4"],
-    [data-provider-count="5"],
-    [data-provider-count="6"]
-  )
-  .usage-tracker-sidebar__provider {
-  width: 100%;
-  justify-content: flex-end;
-}
-
-.usage-tracker-sidebar__strip:is(
-    [data-provider-count="3"],
-    [data-provider-count="4"],
-    [data-provider-count="5"],
-    [data-provider-count="6"]
-  )
-  .usage-tracker-sidebar__refresh {
-  grid-column: 3;
-  grid-row: 1 / -1;
-  place-self: center end;
-}
-
-.usage-tracker-sidebar__provider {
+.usage-tracker-sidebar__provider,
+.usage-tracker-sidebar__summary {
   display: flex;
   min-width: 0;
   height: 2rem;
@@ -154,8 +109,23 @@
 }
 
 .usage-tracker-sidebar__provider:hover,
-.usage-tracker-sidebar__provider[aria-expanded="true"] {
+.usage-tracker-sidebar__provider[aria-expanded="true"],
+.usage-tracker-sidebar__summary:hover,
+.usage-tracker-sidebar__summary[aria-expanded="true"] {
   background: var(--usage-sidebar-hover);
+}
+
+.usage-tracker-sidebar__summary {
+  padding: 0 0.25rem;
+  gap: 0.25rem;
+}
+
+.usage-tracker-sidebar__summary-count {
+  color: var(--usage-sidebar-muted);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .usage-tracker-sidebar__provider[data-status]:not([data-status="ok"]) {
@@ -163,6 +133,8 @@
 }
 
 .usage-tracker-sidebar__provider:focus-visible,
+.usage-tracker-sidebar__summary:focus-visible,
+.usage-tracker-sidebar__overview-provider:focus-visible,
 .usage-tracker-sidebar__refresh:focus-visible,
 .usage-tracker-sidebar__close:focus-visible,
 .usage-tracker-sidebar__windows:focus-visible,
@@ -172,6 +144,7 @@
 }
 
 .usage-tracker-sidebar__mark,
+.usage-tracker-sidebar__summary-mark,
 .usage-tracker-sidebar__details-mark {
   display: inline-flex;
   flex: none;
@@ -180,7 +153,8 @@
 }
 
 /* Matches the weight of bb's own footer glyphs (16px at 0.8 opacity). */
-.usage-tracker-sidebar__mark {
+.usage-tracker-sidebar__mark,
+.usage-tracker-sidebar__summary-mark {
   width: 0.875rem;
   height: 0.875rem;
   opacity: 0.8;
@@ -189,11 +163,13 @@
 
 .usage-tracker-sidebar__provider[data-provider="claudeCode"]
   .usage-tracker-sidebar__mark,
+.usage-tracker-sidebar__summary-mark[data-provider="claudeCode"],
 .usage-tracker-sidebar__details-mark[data-provider="claudeCode"] {
   color: var(--usage-sidebar-claude);
 }
 
 .usage-tracker-sidebar__mark svg,
+.usage-tracker-sidebar__summary-mark svg,
 .usage-tracker-sidebar__details-mark svg {
   width: 100%;
   height: 100%;
@@ -277,12 +253,20 @@
 
 .usage-tracker-sidebar__provider[data-level="warning"]
   .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__summary[data-level="warning"]
+  .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__overview-provider[data-level="warning"]
+  .usage-tracker-sidebar__reading,
 .usage-tracker-sidebar__window[data-level="warning"]
   .usage-tracker-sidebar__window-heading strong {
   color: var(--usage-sidebar-warning);
 }
 
 .usage-tracker-sidebar__provider[data-level="critical"]
+  .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__summary[data-level="critical"]
+  .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__overview-provider[data-level="critical"]
   .usage-tracker-sidebar__reading,
 .usage-tracker-sidebar__window[data-level="critical"]
   .usage-tracker-sidebar__window-heading strong {
@@ -383,6 +367,57 @@
   gap: 0.75rem;
   padding: 0.625rem 0.625rem 0.5rem;
   border-bottom: 1px solid var(--usage-sidebar-line);
+}
+
+.usage-tracker-sidebar__overview-list {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.usage-tracker-sidebar__overview-provider {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.25rem;
+  cursor: pointer;
+  grid-template-columns: 1rem minmax(0, 1fr) minmax(2.5rem, 4.5rem) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  text-align: left;
+  transition:
+    background-color 140ms ease,
+    opacity 140ms ease;
+}
+
+.usage-tracker-sidebar__overview-provider +
+  .usage-tracker-sidebar__overview-provider {
+  border-top: 1px solid var(--usage-sidebar-line);
+}
+
+.usage-tracker-sidebar__overview-provider:hover {
+  background: var(--usage-sidebar-hover);
+}
+
+.usage-tracker-sidebar__overview-provider[data-status]:not([data-status="ok"]) {
+  opacity: 0.78;
+}
+
+.usage-tracker-sidebar__overview-name {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usage-tracker-sidebar__overview-provider > .usage-tracker-sidebar__rail {
+  height: 0.25rem;
 }
 
 .usage-tracker-sidebar__details-actions {

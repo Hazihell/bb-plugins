@@ -53,3 +53,15 @@ brand mark, optional compact rail, and percentage. The details card remains the
 only place for provider name, all usage windows, reset timing, status recovery,
 and Codex reset controls. No new legend is needed: threshold color is reinforced
 by the exact percentage and expanded context rather than color alone.
+
+## User follow-up
+
+After live inspection, the user rejected the 2×2 grid as visually detached and
+requested four rows on the right. D-002 supersedes the original layout advice:
+one tracker per row preserves rail width and produces a clearer scan path while
+keeping one refresh action beside the stack.
+
+The user also rejected that vertical stack because four rows overwhelmed the
+footer. D-003 supersedes it with progressive disclosure: highest usage stays
+visible, `+N` communicates hidden providers, and one overview click reveals the
+complete comparable list before optional drill-down.

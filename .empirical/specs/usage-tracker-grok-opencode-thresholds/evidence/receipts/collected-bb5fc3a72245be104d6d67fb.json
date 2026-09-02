@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-bb5fc3a72245be104d6d67fb",
+  "criteria": [
+    "AC-UI-1",
+    "AC-UI-2"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Final release tree preserves the approved 32px highest-usage +N summary, complete provider overview, drill-down focus flow, and exact neutral/yellow/red thresholds.",
+  "passed": true,
+  "startedAt": "2026-09-02T23:09:45.622Z",
+  "completedAt": "2026-09-02T23:09:45.622Z",
+  "provenance": {
+    "repositoryId": "sha256:8b7ffb17d47d3b29f9ec020c10aab5fe8b605e476b7797f7cbcca069de63857d",
+    "feature": "usage-tracker-grok-opencode-thresholds",
+    "specRevision": 2,
+    "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
+    "treeDigest": "sha256:3c3ae9c7b35bea38b58a62e23091d7ce385b2098f56d0e557bb3643cbdbeb935",
+    "policyDigest": "sha256:731b81d0979ecfd5867a2bee3fcb7ef26acfc4fe64cb7d90635ec869d19006a8"
+  },
+  "digest": "sha256:32b587a53c3bd8b6288fc1894cac46e512417757f7456a08d6f461f14d401462",
+  "kind": "collected",
+  "collector": "Final controlled Chromium pass and user-approved 0.1.6 screenshots",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/usage-tracker-grok-opencode-thresholds/evidence/sidebar-summary-overview.png",
+      "mediaType": "image/png",
+      "bytes": 69791,
+      "digest": "sha256:2e506793770610c3ba573b422d5c369cd93d3e6c9dd58961c68289004bf38731"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/usage-tracker-codex-details.png",
+      "mediaType": "image/png",
+      "bytes": 29468,
+      "digest": "sha256:1c58ea3828fc1acd313aa1f525bd5d9d4231520d30738d3005e18c61c589d6d6"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/usage-tracker-overview.png",
+      "mediaType": "image/png",
+      "bytes": 33174,
+      "digest": "sha256:ce967007528535d189d0606bc16bf92100f524965bf4a361e20a7960ada65ca3"
+    },
+    {
+      "path": "plugins/usage-tracker/assets/usage-tracker-summary.png",
+      "mediaType": "image/png",
+      "bytes": 6345,
+      "digest": "sha256:292f3d90ef45f00215235a899cfefa95a5a3f828ab302c7e55c4e8a2d46cbdd2"
+    }
+  ]
+}

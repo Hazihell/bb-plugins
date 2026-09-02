@@ -37,6 +37,7 @@ function provider(id, name, usedPercent) {
     serviceWorkers: "block",
   });
   const page = await context.newPage();
+  page.setDefaultTimeout(10_000);
   const snapshot = {
     fetchedAt: "2026-09-02T19:42:00.000Z",
     host: { id: null, name: "Browser QA" },
@@ -80,16 +81,36 @@ function provider(id, name, usedPercent) {
       }),
   );
 
-  await page.goto("http://127.0.0.1:38886/", { waitUntil: "networkidle" });
+  await page.goto("http://127.0.0.1:38886/", {
+    waitUntil: "domcontentloaded",
+  });
   const rootLocator = page.locator("[data-usage-tracker-sidebar]");
   await rootLocator.waitFor({ state: "visible" });
-  const buttons = rootLocator.locator(".usage-tracker-sidebar__provider");
-  await assert.doesNotReject(() => buttons.nth(3).waitFor({ state: "visible" }));
+  const summary = rootLocator.locator(".usage-tracker-sidebar__summary");
+  await summary.waitFor({ state: "visible" });
 
   assert.equal(await rootLocator.getAttribute("data-provider-count"), "4");
-  assert.equal(await buttons.count(), 4);
+  assert.equal(await summary.getAttribute("data-level"), "critical");
+  assert.match((await summary.textContent()) ?? "", /96%\+3/u);
+  const strip = await rootLocator.locator(".usage-tracker-sidebar__strip").evaluate(
+    (node) => {
+      const style = getComputedStyle(node);
+      return {
+        display: style.display,
+        height: style.height,
+      };
+    },
+  );
+  assert.equal(strip.display, "flex");
+  assert.equal(strip.height, "32px");
+
+  await summary.click();
+  const overview = page.getByRole("dialog", { name: "Agent usage overview" });
+  await overview.waitFor({ state: "visible" });
+  const rows = overview.locator(".usage-tracker-sidebar__overview-provider");
+  assert.equal(await rows.count(), 4);
   assert.deepEqual(
-    await buttons.evaluateAll((nodes) =>
+    await rows.evaluateAll((nodes) =>
       nodes.map((node) => [node.dataset.provider, node.dataset.level]),
     ),
     [
@@ -99,22 +120,7 @@ function provider(id, name, usedPercent) {
       ["openCode", "critical"],
     ],
   );
-
-  const grid = await rootLocator.locator(".usage-tracker-sidebar__strip").evaluate(
-    (node) => {
-      const style = getComputedStyle(node);
-      return {
-        display: style.display,
-        columns: style.gridTemplateColumns,
-        rows: style.gridTemplateRows,
-      };
-    },
-  );
-  assert.equal(grid.display, "grid");
-  assert.equal(grid.rows.split(" ").length, 2);
-  assert.equal(grid.columns.split(" ").length, 3);
-
-  const colors = await buttons.evaluateAll((nodes) =>
+  const colors = await rows.evaluateAll((nodes) =>
     nodes.map((node) =>
       getComputedStyle(node.querySelector(".usage-tracker-sidebar__reading"))
         .color,
@@ -123,9 +129,11 @@ function provider(id, name, usedPercent) {
   assert.notEqual(colors[0], colors[1]);
   assert.notEqual(colors[1], colors[2]);
 
-  await rootLocator
-    .locator('.usage-tracker-sidebar__provider[data-provider="grok"]')
-    .click();
+  await page.screenshot({
+    path: path.join(evidenceDirectory, "sidebar-summary-overview.png"),
+    fullPage: true,
+  });
+  await rows.filter({ hasText: "Grok" }).click();
   const dialog = page.getByRole("dialog", { name: "Grok usage limits" });
   await dialog.waitFor({ state: "visible" });
   assert.equal(
@@ -135,26 +143,29 @@ function provider(id, name, usedPercent) {
     1,
   );
 
-  await page.screenshot({
-    path: path.join(evidenceDirectory, "sidebar-thresholds.png"),
-    fullPage: true,
-  });
   await page.keyboard.press("Escape");
   await dialog.waitFor({ state: "hidden" });
   assert.equal(
-    await rootLocator
-      .locator('.usage-tracker-sidebar__provider[data-provider="grok"]')
+    await overview
+      .locator('.usage-tracker-sidebar__overview-provider[data-provider="grok"]')
       .evaluate((node) => document.activeElement === node),
+    true,
+  );
+  await page.keyboard.press("Escape");
+  await overview.waitFor({ state: "hidden" });
+  assert.equal(
+    await summary.evaluate((node) => document.activeElement === node),
     true,
   );
 
   console.log(
     JSON.stringify({
+      summary: "96% +3",
       providerLevels: ["normal", "warning", "critical", "critical"],
-      grid,
+      strip,
       colors,
-      grokDialog: "opened-and-dismissed-with-focus-restored",
-      screenshot: "sidebar-thresholds.png",
+      navigation: "summary-overview-grok-details-overview-summary",
+      screenshot: "sidebar-summary-overview.png",
     }),
   );
   await browser.close();

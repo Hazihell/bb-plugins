@@ -18,14 +18,26 @@ utility icons. Claude Code, Codex, Grok, and OpenCode each show a progress bar
 and their current usage reading, without adding a navigation item or a separate
 plugin page.
 
-![Usage Tracker expanded in BB's sidebar](./assets/usage-tracker-sidebar.png)
+<p align="center">
+  <img src="./assets/usage-tracker-summary.png" width="248" alt="Compact Usage Tracker summary showing the highest provider usage and three additional providers" />
+</p>
+
+<p align="center">
+  <img src="./assets/usage-tracker-overview.png" width="618" alt="Usage Tracker overview listing Claude Code, Codex, Grok, and OpenCode" />
+</p>
+
+<p align="center">
+  <img src="./assets/usage-tracker-codex-details.png" width="610" alt="Expanded Codex weekly usage and reset availability" />
+</p>
 
 ## Features
 
 - Shows Codex, Claude Code, Grok, and OpenCode usage in BB's sidebar footer.
 - Lets you show or hide every provider independently; the strip compacts for
-  one or two providers, wraps larger sets into a two-column layout of up to
-  three rows, and disappears when every provider is disabled.
+  one or two providers and summarizes larger sets with the highest usage plus
+  an additional-provider count. It disappears when every provider is disabled.
+- Opens the summary into a complete provider overview; select any overview row
+  to drill into that provider's existing limit details.
 - Colors usage yellow from 80% and red from 95% in both compact and expanded
   progress displays.
 - Lets you choose whether the compact percentage and progress bar show the
@@ -50,7 +62,7 @@ The configurable Compact limit was contributed by
 Usage Tracker requires BB 0.38 or newer. Install its tracking Git release:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.6 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
@@ -81,6 +93,8 @@ to see the recovery instruction reported by BB.
 
 The collapsed strip is designed for quick scanning:
 
+- With more than two enabled providers, select the highest-usage summary to
+  open the complete provider overview.
 - Select any provider reading to open its details in place.
 - Review the reported **5-hour limit**, **weekly limit**, every additional
   provider-defined window, and their reset times. Codex Pro accounts that do

@@ -191,7 +191,7 @@ bb plugin remove taskboard
 Install the tracking Git release directly from this monorepo:
 
 ```sh
-bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.3 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
+bb plugin install git:https://github.com/MateoCerquetella/bb-plugins.git@^0.1.6 --subdirectory plugins/usage-tracker --tag-prefix usage-tracker/
 ```
 
 After [the BB Community entry](https://github.com/get-bb/marketplace/pull/129)
@@ -203,9 +203,10 @@ bb plugin install usage-tracker
 
 Usage Tracker mounts in BB's native sidebar footer beside the existing utility
 icons. Codex, Claude Code, Grok, and OpenCode each get a compact progress bar
-and current usage reading. Larger provider sets wrap into a two-column strip,
-with yellow warnings from 80% and red critical readings from 95%. Select any
-provider to expand its reported five-hour, weekly, and any
+and current usage reading. With more than two enabled providers, the footer
+shows the highest usage plus a `+N` count and opens a complete provider overview.
+Warnings turn yellow from 80% and red from 95%. Select any provider to expand
+its reported five-hour, weekly, and any
 additional provider-defined limits, reset times, and session status without
 leaving the current thread. Codex exposes available usage resets in the
 expanded details and requires explicit confirmation before consuming one.

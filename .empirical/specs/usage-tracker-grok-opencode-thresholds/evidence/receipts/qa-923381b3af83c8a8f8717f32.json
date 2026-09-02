@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "id": "qa-923381b3af83c8a8f8717f32",
+  "criteria": [
+    "AC-1",
+    "AC-2",
+    "AC-3",
+    "AC-4",
+    "AC-5",
+    "AC-UI-1",
+    "AC-UI-2"
+  ],
+  "evidenceKinds": [
+    "human"
+  ],
+  "summary": "The user approved the live summary/overview/details UI. Fresh acceptance also confirmed four-provider normalization/settings, 80/95 thresholds, highest-usage +N summary, overview drill-down/focus path, Codex reset preservation, 0.1.6 docs/images, install/reload, tests, and build.",
+  "passed": true,
+  "startedAt": "2026-09-02T23:05:35.341Z",
+  "completedAt": "2026-09-02T23:05:35.341Z",
+  "provenance": {
+    "repositoryId": "sha256:8b7ffb17d47d3b29f9ec020c10aab5fe8b605e476b7797f7cbcca069de63857d",
+    "feature": "usage-tracker-grok-opencode-thresholds",
+    "specRevision": 2,
+    "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
+    "treeDigest": "sha256:d9f9f37fedecfb0f52ea4139cbd7d9661c28a7b3ead66e7a57308898b96e50fe",
+    "policyDigest": "sha256:731b81d0979ecfd5867a2bee3fcb7ef26acfc4fe64cb7d90635ec869d19006a8",
+    "workflowRevision": 13,
+    "gitCommit": "22da70aae71d3dcf203b06a1ae1471d8253c712b"
+  },
+  "digest": "sha256:5a931af7161a94a018bab2a156f267f7e393e49742667922a6f156b9f1241ce4",
+  "kind": "qa",
+  "matrixDigest": "sha256:f38ec8b90b74c564b3c2fddbba406cf719bec0d171d436ef8d881156fa652a50",
+  "check": {
+    "id": "qa-fresh-context",
+    "kind": "fresh-context"
+  },
+  "coveredChecks": [
+    "fresh-context"
+  ],
+  "platform": {
+    "os": "linux",
+    "arch": "x64",
+    "node": "22.23.1",
+    "bun": null
+  },
+  "attempts": [
+    {
+      "number": 1,
+      "outcome": "passed",
+      "summary": "The user approved the live summary/overview/details UI. Fresh acceptance also confirmed four-provider normalization/settings, 80/95 thresholds, highest-usage +N summary, overview drill-down/focus path, Codex reset preservation, 0.1.6 docs/images, install/reload, tests, and build.",
+      "startedAt": "2026-09-02T23:05:35.341Z",
+      "completedAt": "2026-09-02T23:05:35.341Z",
+      "durationMs": 0,
+      "collector": "User visual acceptance ('Perfect') plus fresh controlled Chromium acceptance pass",
+      "command": null,
+      "result": null,
+      "cleanStart": false,
+      "sourceTreeBefore": "sha256:d9f9f37fedecfb0f52ea4139cbd7d9661c28a7b3ead66e7a57308898b96e50fe",
+      "sourceTreeAfter": "sha256:d9f9f37fedecfb0f52ea4139cbd7d9661c28a7b3ead66e7a57308898b96e50fe",
+      "artifacts": [
+        {
+          "path": "plugins/usage-tracker/assets/usage-tracker-codex-details.png",
+          "mediaType": "image/png",
+          "bytes": 29468,
+          "digest": "sha256:1c58ea3828fc1acd313aa1f525bd5d9d4231520d30738d3005e18c61c589d6d6"
+        },
+        {
+          "path": "plugins/usage-tracker/assets/usage-tracker-overview.png",
+          "mediaType": "image/png",
+          "bytes": 33174,
+          "digest": "sha256:ce967007528535d189d0606bc16bf92100f524965bf4a361e20a7960ada65ca3"
+        },
+        {
+          "path": "plugins/usage-tracker/assets/usage-tracker-summary.png",
+          "mediaType": "image/png",
+          "bytes": 6345,
+          "digest": "sha256:292f3d90ef45f00215235a899cfefa95a5a3f828ab302c7e55c4e8a2d46cbdd2"
+        }
+      ]
+    }
+  ],
+  "anomalies": []
+}

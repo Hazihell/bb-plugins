@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sequence": 12,
+  "previousDigest": "sha256:86f4cb53fdef5f90ec219d8d82cbe1a08cb28fec800e6773eb25507db61e45c4",
+  "actor": "agent",
+  "type": "transition",
+  "summary": "Implemented the approved highest-usage +N summary, accessible provider overview and drill-down focus flow; added the three user-approved dark screenshots; bumped Usage Tracker to 0.1.6 and updated release documentation. Focused SDK types, typecheck, 39 tests, and production build pass.",
+  "createdAt": "2026-09-02T23:04:20.388Z",
+  "stateBeforeDigest": "sha256:cc22d05e439a978c75a090bc280a991b4f998f97eca04cae17c20b1de4354b11",
+  "stateAfterDigest": "sha256:44760e40f031c681a13a73b1ab6334bf65287bb29ab6518f265920dc4a827c55",
+  "state": {
+    "schemaVersion": 5,
+    "revision": 12,
+    "activeFeature": "usage-tracker-grok-opencode-thresholds",
+    "request": "Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. When the enabled provider count exceeds the compact single-row capacity, wrap the strip into a compact layout supporting up to three provider rows while keeping refresh and details usable. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to compact and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.",
+    "profile": "complex",
+    "workflow": "complex",
+    "mode": "normal",
+    "phase": "context",
+    "status": "waiting",
+    "repairAttempts": 1,
+    "message": "Implemented the approved highest-usage +N summary, accessible provider overview and drill-down focus flow; added the three user-approved dark screenshots; bumped Usage Tracker to 0.1.6 and updated release documentation. Focused SDK types, typecheck, 39 tests, and production build pass.",
+    "implementationActor": "agent",
+    "workStartedAt": null,
+    "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
+    "approvedSpecRevision": 2,
+    "capabilityArchiveRequired": true,
+    "capabilityDeltaDigest": "sha256:b7111f8a4d8e5d934dce18e75cbc3d7dc1d1615829216395d48f758ca6bf3472",
+    "impactDigest": "sha256:ff88c89c7ab16156de653bd9ad3aa48a3f44f8049b0af2866df2eb15b955bcfe",
+    "capabilityClaimId": "usage-tracker-grok-opencode-thresholds-a791c56ad195",
+    "authorizationDigest": null,
+    "evidence": [],
+    "evidenceReceiptIds": [],
+    "legacyEvidenceCount": 0,
+    "completion": {
+      "implemented": true,
+      "verified": false,
+      "integrated": false,
+      "delivered": false,
+      "published": false,
+      "highest": "implemented",
+      "reasons": {
+        "verified": "verified has not been proven by a durable receipt.",
+        "integrated": "integrated has not been proven by a durable receipt.",
+        "delivered": "delivered has not been proven by a durable receipt.",
+        "published": "published has not been proven by a durable receipt."
+      }
+    },
+    "updatedAt": "2026-09-02T23:04:20.388Z"
+  },
+  "digest": "sha256:3efeb20e31ec23b186fca900e1db74d309c13369cecde40a57a556ec9a7c8cc7"
+}

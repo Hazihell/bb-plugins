@@ -2,7 +2,7 @@
 
 ## Request
 
-> Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. When the enabled provider count exceeds the compact single-row capacity, wrap the strip into a compact layout supporting up to three provider rows while keeping refresh and details usable. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to compact and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.
+> Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. Keep one or two providers directly visible; when more than two are enabled, replace the individual controls with one compact summary showing the highest usage and `+N` additional providers. Clicking the summary opens an overview list, and selecting a provider opens its existing details. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to summary, overview, and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.
 
 ## Goal
 
@@ -20,11 +20,13 @@ or exhausted limits at a glance from consistent warning colors.
   independent settings toggles; preference RPC validation, cached provider
   filtering, and provider-specific recovery copy accept all four visible
   providers without changing Codex reset behavior.
-- [ ] [AC-UI-1] [UI] One or two enabled providers retain the current compact
-  single-row presentation. Three through six enabled providers use a two-column
-  grid spanning at most three provider rows, with a single refresh control that
-  remains reachable and with each provider opening the correct details card.
-- [ ] [AC-UI-2] [UI] Compact and expanded usage readings and progress fills use
+- [ ] [AC-UI-1] [UI] One or two enabled providers retain their direct compact
+  controls. With more than two, the footer renders one compact summary control
+  showing the highest available usage and `+N` additional providers beside one
+  refresh action. Activating it opens an accessible overview containing every
+  enabled provider in stable order; activating a row opens that provider's
+  existing details and returns predictably to the overview.
+- [ ] [AC-UI-2] [UI] Summary, overview, and expanded usage readings/fills use
   the normal neutral presentation below 80%, yellow warning presentation from
   80% through 94.999…%, and red critical presentation at 95% and above. Missing
   windows remain neutral.
@@ -47,8 +49,8 @@ or exhausted limits at a glance from consistent warning colors.
   sidebar strip DOM, styling, tests, package metadata, notices, and README.
 - Current BB wire IDs `acp-grok` and `acp-opencode` only; stable internal IDs
   are `grok` and `openCode`.
-- A responsive two-column grid for more than two providers, sized for up to
-  three rows without hiding providers.
+- A scalable compact summary for more than two providers, plus an overview
+  popover that links to each provider's existing detail card.
 - Warning and critical presentation on compact and detail bars/readings.
 
 ## Non-goals
@@ -59,12 +61,13 @@ or exhausted limits at a glance from consistent warning colors.
 - Changing limit selection semantics, refresh cadence, reset-credit accounting,
   or provider authentication.
 - Treating a missing provider key as proof that its CLI is not installed.
+- Adding providers beyond the current four-provider visible allowlist.
 
 ## Verification
 
 - Run focused Usage Tracker tests, typecheck, and production plugin build.
 - Exercise exact threshold boundaries (79.9, 80, 94.9, 95, and over 100) and
-  all enabled-provider combinations relevant to one-row and wrapped layouts.
+  all enabled-provider combinations relevant to direct and summary layouts.
 - Install and reload `./plugins/usage-tracker`, inspect the sidebar at normal and
   narrow widths, open Grok/OpenCode details, and capture a browser screenshot.
 - Record unrelated workspace-wide SDK drift separately rather than weakening

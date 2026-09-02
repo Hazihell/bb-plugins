@@ -3,12 +3,16 @@
 All notable changes to Usage Tracker are documented here.
 
 ## Unreleased
+
+## 0.1.6 - 2026-09-02
+
 ### Added
 
 - Show Grok and OpenCode usage with independent settings, provider details,
   and their BB provider marks.
-- Wrap larger provider sets into a two-column strip of up to three rows, and
-  color usage yellow from 80% and red from 95%.
+- Summarize larger provider sets with the highest usage and a `+N` count, with
+  a click-open provider overview, and color usage yellow from 80% and red from
+  95%.
 - Show available Codex usage resets in expanded details with an explicit
   confirmation before any reset is consumed.
 

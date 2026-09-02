@@ -27,6 +27,28 @@ export interface SidebarUsagePrimarySelection {
   fallback: SidebarUsagePrimaryFallback;
 }
 
+export interface SidebarUsageOverviewItem {
+  provider: ProviderUsage;
+  selection: SidebarUsagePrimarySelection;
+}
+
+export function highestSidebarUsagePrimary(
+  items: readonly SidebarUsageOverviewItem[],
+): SidebarUsageOverviewItem | null {
+  let highest: SidebarUsageOverviewItem | null = null;
+  for (const item of items) {
+    if (item.selection.window === null) continue;
+    if (
+      highest === null ||
+      item.selection.window.usedPercent >
+        (highest.selection.window?.usedPercent ?? Number.NEGATIVE_INFINITY)
+    ) {
+      highest = item;
+    }
+  }
+  return highest;
+}
+
 function isFiveHourLabel(label: string): boolean {
   const normalized = label.toLowerCase();
   return (

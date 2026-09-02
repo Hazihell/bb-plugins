@@ -18,6 +18,7 @@ import {
   type RawUsageResponse,
 } from "../lib/usage.ts";
 import {
+  highestSidebarUsagePrimary,
   mergeLastKnownWindows,
   selectSidebarUsagePrimary,
   sidebarUsageDetailRows,
@@ -441,6 +442,37 @@ test("selects the configured compact usage window", () => {
     "Five-hour limit",
   );
   assert.equal(sidebarUsagePrimarySummary(provider, "Five-hour"), "120%");
+});
+
+test("selects the highest available compact usage for an overview summary", () => {
+  const snapshot = normalizeUsage(
+    {
+      codex: healthyProvider("Weekly limit", 80),
+      "claude-code": healthyProvider("Weekly limit", 79.9),
+      "acp-grok": healthyProvider("Weekly limit", 95),
+      "acp-opencode": healthyProvider("Weekly limit", 96),
+    },
+    { id: null, name: null },
+  );
+  const items = snapshot.providers
+    .filter((provider) => provider.id !== "cursor")
+    .map((provider) => ({
+      provider,
+      selection: selectSidebarUsagePrimary(provider, provider, "Weekly"),
+    }));
+
+  const highest = highestSidebarUsagePrimary(items);
+  assert.equal(highest?.provider.id, "openCode");
+  assert.equal(highest?.selection.window?.usedPercent, 96);
+  assert.equal(
+    highestSidebarUsagePrimary(
+      items.map((item) => ({
+        ...item,
+        selection: { window: null, actualKind: null, fallback: "unavailable" },
+      })),
+    ),
+    null,
+  );
 });
 
 test("keeps additional provider windows in expanded details only", () => {
