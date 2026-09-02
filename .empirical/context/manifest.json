@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:9eec94d861dab6a846472a4df15174b32395bf6842fd854adfda8923995ff9f1",
+  "sourceDigest": "sha256:396b79193da3c888f114c96b79e5ffcdf845c8cadbba1ac55c1c201c36eb6583",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:d45be52e24fecadd4c27206faf36c917d1f14e16aac66f5ecc2d0ccdb9308f94"
+      "digest": "sha256:01a9bb11e1ba42a75fe6749ce221bda47b7f1112730ec2d3a487a7e03c92b122"
     },
     {
       "path": "LICENSE",
@@ -1155,8 +1155,8 @@
     },
     {
       "path": "plugins/touchbar/README.md",
-      "size": 8321,
-      "digest": "sha256:04ede31ddfde1e2efff8e982136e82c649e37023bd25a38e8ee39dab6ca1c1cb"
+      "size": 8450,
+      "digest": "sha256:16ab68844f77876bc71508a39b2161f0f1aaa98f28b2de3cc02e83113633c4b6"
     },
     {
       "path": "plugins/touchbar/assets/icon.svg",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 67461,
-      "digest": "sha256:129bde8675a7f7a435e50fda4186381a0570ab57e249f77240d3e2bdfbf94b0d"
+      "size": 68014,
+      "digest": "sha256:84fcf7a8d4001bc8f2ac1ac987b2ee24d3482c6c0d2de74f68c61d9aa8f17ff3"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1320,8 +1320,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 16451,
-      "digest": "sha256:d68acfa0c336c4fe886257867951df3cae1d6b9e7368b675161da83da07608fc"
+      "size": 16618,
+      "digest": "sha256:1d4ae7a6bc56940e7cb48b4c1b118b70aacf6c3c620c6892a03ae497bfb42db1"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1793,7 +1793,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:9eec94d861dab6a846472a4df15174b32395bf6842fd854adfda8923995ff9f1",
+      "sourceDigest": "sha256:396b79193da3c888f114c96b79e5ffcdf845c8cadbba1ac55c1c201c36eb6583",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1828,7 +1828,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:059ef10cda4cc63e6aaff5732ee9f51dc25c6eaec1e78f4e5baa4eebf48b7fae",
+      "sourceDigest": "sha256:be49539a009b2cb21c02453e982ea83892987aa1653552fa8c20bf7f4553fd33",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1889,5 +1889,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:63fdb1870c7b6e259d53252261b617799892fc489f4c914f942189d774f6834a"
+  "digest": "sha256:cfe7b411d40b62a1f46737832fe39622429986d9a89ce8121680953e34c8b353"
 }
