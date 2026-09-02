@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:b2d15cf2bde12ad937889df9608097e71200d01075e43739df4602c98bef95e3",
+  "sourceDigest": "sha256:a2fddaf7db9294c2776a56b16eb23c645e5652a7694200595ce6c7b2adbb87cf",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:f51186d32e401b3acc16f68f16740655bc30cd6d9037ba0264c4099f998282bb"
+      "digest": "sha256:d508ff58ef2879daef70cf77fc4962b96019c26009351d4da0dbbd45292b9e13"
     },
     {
       "path": "LICENSE",
@@ -1255,8 +1255,8 @@
     },
     {
       "path": "plugins/touchbar/native/Sources/TouchBarController.swift",
-      "size": 69042,
-      "digest": "sha256:49511fcc9fc4b63d88b8e704f849502d7a398cba2ec07c3616b2dc78df81b822"
+      "size": 70341,
+      "digest": "sha256:e0cbdfa4b4f8bba4e74eb517acdd212ecb018b9730719dbd7b0b567e5d6ce9ec"
     },
     {
       "path": "plugins/touchbar/native/Sources/main.swift",
@@ -1320,8 +1320,8 @@
     },
     {
       "path": "plugins/touchbar/test/companion.test.ts",
-      "size": 17302,
-      "digest": "sha256:63f1dd437394c3b397fb1ec4ad005eeb7aac2118f99743b8b72f348ddc24f685"
+      "size": 17643,
+      "digest": "sha256:b88d60c058e38b0984900dea31aa965ed3fb65532e0261559bde7d4868dba37a"
     },
     {
       "path": "plugins/touchbar/test/live-smoke.mjs",
@@ -1793,7 +1793,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:b2d15cf2bde12ad937889df9608097e71200d01075e43739df4602c98bef95e3",
+      "sourceDigest": "sha256:a2fddaf7db9294c2776a56b16eb23c645e5652a7694200595ce6c7b2adbb87cf",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1889,5 +1889,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:d11f86bac8fc12a0b9e6fa9d63ac13cd81b285e68b168755bb4857cd3ce5b60b"
+  "digest": "sha256:458f08e0dde3c2efd07c925a37d6f8a268630bddf20a47ff46cb4314975ea7cb"
 }
