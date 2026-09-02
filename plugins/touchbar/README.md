@@ -106,8 +106,9 @@ cards; subscription usage comes directly from BB's provider usage API.
 
 Tap the slider button for grouped FILTERS, SUBSCRIPTIONS, and HOST MONITOR
 cards directly inside the Touch Bar. Section labels sit at the left so every
-control gets a full-height 28-point touch target and provider icons render at
-24 points. Settings uses a separate native Touch Bar
+control gets a full-height 30-point touch target and provider icons render at
+28 points through native `NSImageView` controls that preserve logo orientation.
+Settings uses a separate native Touch Bar
 item and each render creates fresh controls, so AppKit never replaces or
 reparents the live thread lane. The menu-bar icon remains an optional
 second settings entry point. Toggle Usage and Host Monitor, choose Codex,

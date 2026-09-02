@@ -482,85 +482,63 @@ private final class HostMetricView: NSButton {
     }
 }
 
-private final class UsageIconStripView: NSView {
-    private struct Item {
-        let id: String
-        let name: String
-        let percent: Double?
+private final class UsageRingView: NSView {
+    private let percent: Double?
+    private let iconView = NSImageView()
+
+    init(entry: UsageEntry) {
+        percent = entry.usedPercent
+        super.init(frame: .zero)
+        let provider = entry.id == "claudeCode" ? "claude-code" : entry.id
+        iconView.image = ProviderIcon.image(for: provider)
+        iconView.imageScaling = .scaleProportionallyUpOrDown
+        iconView.alphaValue = entry.usedPercent == nil ? 0.45 : 1
+        iconView.wantsLayer = true
+        iconView.layer?.cornerRadius = 12
+        iconView.layer?.masksToBounds = true
+        iconView.layer?.backgroundColor = entry.id == "cursor"
+            ? NSColor.white.cgColor
+            : NSColor.clear.cgColor
+        addSubview(iconView)
+        setAccessibilityLabel(
+            entry.usedPercent.map {
+                "\(entry.name) \(Int($0.rounded())) percent used"
+            } ?? "\(entry.name) unavailable"
+        )
     }
 
-    private var items: [Item] = []
+    required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
+    override var intrinsicContentSize: NSSize { NSSize(width: 32, height: 30) }
 
-    override var intrinsicContentSize: NSSize {
-        NSSize(width: CGFloat(max(items.count, 1) * 32), height: 30)
-    }
-
-    func update(entries: [UsageEntry], visibility: [String: Bool]) {
-        items = entries.compactMap { entry in
-            guard visibility[entry.id] == true else { return nil }
-            return Item(id: entry.id, name: entry.name, percent: entry.usedPercent)
-        }
-        let accessible = items.map { item in
-            item.percent.map { "\(item.name) \(Int($0.rounded())) percent used" }
-                ?? "\(item.name) unavailable"
-        }.joined(separator: ", ")
-        setAccessibilityLabel(accessible.isEmpty ? "Subscription usage hidden" : accessible)
-        invalidateIntrinsicContentSize()
-        frame.size = intrinsicContentSize
-        needsDisplay = true
+    override func layout() {
+        super.layout()
+        iconView.frame = NSRect(x: 4, y: 3, width: 24, height: 24)
     }
 
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
-        if items.isEmpty {
-            NSColor(white: 0.35, alpha: 1).setStroke()
-            let path = NSBezierPath(ovalIn: NSRect(x: 6, y: 6, width: 18, height: 18))
-            path.lineWidth = 2
-            path.stroke()
-            return
-        }
-        for (index, item) in items.enumerated() {
-            let origin = CGFloat(index * 32)
-            let ringRect = NSRect(x: origin + 2, y: 1, width: 28, height: 28)
-            NSColor(white: 0.22, alpha: 1).setFill()
-            NSBezierPath(ovalIn: ringRect).fill()
-            NSColor(white: 0.34, alpha: 1).setStroke()
-            let background = NSBezierPath(ovalIn: ringRect)
-            background.lineWidth = 3
-            background.stroke()
+        let ringRect = NSRect(x: 2, y: 1, width: 28, height: 28)
+        NSColor(white: 0.22, alpha: 1).setFill()
+        NSBezierPath(ovalIn: ringRect).fill()
+        NSColor(white: 0.34, alpha: 1).setStroke()
+        let background = NSBezierPath(ovalIn: ringRect)
+        background.lineWidth = 3
+        background.stroke()
 
-            if let percent = item.percent {
-                let clamped = min(100, max(0, percent))
-                Self.color(for: clamped).setStroke()
-                let progress = NSBezierPath()
-                progress.appendArc(
-                    withCenter: NSPoint(x: ringRect.midX, y: ringRect.midY),
-                    radius: 12.5,
-                    startAngle: 90,
-                    endAngle: 90 - CGFloat(clamped * 3.6),
-                    clockwise: true
-                )
-                progress.lineWidth = 3
-                progress.lineCapStyle = .round
-                progress.stroke()
-            }
-
-            let provider = item.id == "claudeCode" ? "claude-code" : item.id
-            let iconRect = NSRect(x: origin + 6, y: 5, width: 20, height: 20)
-            if item.id == "cursor" {
-                NSColor.white.setFill()
-                NSBezierPath(ovalIn: iconRect).fill()
-            }
-            NSGraphicsContext.saveGraphicsState()
-            NSBezierPath(ovalIn: iconRect).addClip()
-            ProviderIcon.image(for: provider).draw(
-                in: iconRect,
-                from: .zero,
-                operation: .sourceOver,
-                fraction: item.percent == nil ? 0.45 : 1
-            )
-            NSGraphicsContext.restoreGraphicsState()
-        }
+        guard let percent else { return }
+        let clamped = min(100, max(0, percent))
+        Self.color(for: clamped).setStroke()
+        let progress = NSBezierPath()
+        progress.appendArc(
+            withCenter: NSPoint(x: ringRect.midX, y: ringRect.midY),
+            radius: 12.5,
+            startAngle: 90,
+            endAngle: 90 - CGFloat(clamped * 3.6),
+            clockwise: true
+        )
+        progress.lineWidth = 3
+        progress.lineCapStyle = .round
+        progress.stroke()
     }
 
     private static func color(for percent: Double) -> NSColor {
@@ -570,20 +548,81 @@ private final class UsageIconStripView: NSView {
     }
 }
 
+private final class UsageIconStripView: NSView {
+    private var rings: [UsageRingView] = []
+
+    override var intrinsicContentSize: NSSize {
+        NSSize(width: CGFloat(max(rings.count, 1) * 32), height: 30)
+    }
+
+    func update(entries: [UsageEntry], visibility: [String: Bool]) {
+        for ring in rings { ring.removeFromSuperview() }
+        rings = entries.compactMap { entry in
+            guard visibility[entry.id] == true else { return nil }
+            return UsageRingView(entry: entry)
+        }
+        for ring in rings { addSubview(ring) }
+        setAccessibilityLabel(
+            rings.isEmpty ? "Subscription usage hidden" : "Subscription usage"
+        )
+        invalidateIntrinsicContentSize()
+        frame.size = intrinsicContentSize
+        needsLayout = true
+        needsDisplay = true
+    }
+
+    override func layout() {
+        super.layout()
+        for (index, ring) in rings.enumerated() {
+            ring.frame = NSRect(x: CGFloat(index * 32), y: 0, width: 32, height: 30)
+        }
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        guard rings.isEmpty else { return }
+        NSColor(white: 0.35, alpha: 1).setStroke()
+        let path = NSBezierPath(ovalIn: NSRect(x: 6, y: 6, width: 18, height: 18))
+        path.lineWidth = 2
+        path.stroke()
+    }
+}
+
 private final class SettingsControlButton: NSButton {
     private let fixedWidth: CGFloat
+    private let iconView = NSImageView()
     var drawsLightImageTile = false
 
     init(title: String, width: CGFloat) {
         fixedWidth = width
-        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 28))
+        super.init(frame: NSRect(x: 0, y: 0, width: width, height: 30))
         self.title = title
         isBordered = false
         refusesFirstResponder = true
+        iconView.imageScaling = .scaleProportionallyUpOrDown
+        iconView.wantsLayer = true
+        iconView.layer?.cornerRadius = 14
+        iconView.layer?.masksToBounds = true
+        addSubview(iconView)
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
-    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 28) }
+    override var intrinsicContentSize: NSSize { NSSize(width: fixedWidth, height: 30) }
+
+    override func layout() {
+        super.layout()
+        iconView.image = image
+        iconView.isHidden = image == nil
+        iconView.layer?.backgroundColor = drawsLightImageTile
+            ? NSColor.white.cgColor
+            : NSColor.clear.cgColor
+        iconView.frame = NSRect(
+            x: floor((bounds.width - 28) / 2),
+            y: 1,
+            width: 28,
+            height: 28
+        )
+    }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         bounds.contains(point) ? self : nil
@@ -597,31 +636,17 @@ private final class SettingsControlButton: NSButton {
     override func draw(_ dirtyRect: NSRect) {
         let fill = bezelColor ?? NSColor(white: 0.18, alpha: 1)
         fill.setFill()
-        let shape = NSBezierPath(roundedRect: bounds, xRadius: 6, yRadius: 6)
+        let shape = NSBezierPath(
+            roundedRect: bounds.insetBy(dx: 0, dy: 1),
+            xRadius: 6,
+            yRadius: 6
+        )
         shape.fill()
         NSColor.white.withAlphaComponent(0.16).setStroke()
         shape.lineWidth = 1
         shape.stroke()
 
-        if let image {
-            let imageRect = NSRect(
-                x: floor((bounds.width - 24) / 2), y: 2,
-                width: 24, height: 24
-            )
-            if drawsLightImageTile {
-                NSColor.white.setFill()
-                NSBezierPath(ovalIn: imageRect).fill()
-            }
-            NSGraphicsContext.saveGraphicsState()
-            NSBezierPath(ovalIn: imageRect).addClip()
-            image.draw(
-                in: imageRect,
-                from: .zero,
-                operation: .sourceOver,
-                fraction: isEnabled ? 1 : 0.4
-            )
-            NSGraphicsContext.restoreGraphicsState()
-        } else {
+        if image == nil {
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: font ?? NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold),
                 .foregroundColor: NSColor.white,
@@ -698,7 +723,7 @@ private final class SettingsGroupView: NSView {
         var x = sectionTitleWidth + 4
         for control in controls {
             let width = control.intrinsicContentSize.width
-            control.frame = NSRect(x: x, y: 1, width: width, height: 28)
+            control.frame = NSRect(x: x, y: 0, width: width, height: 30)
             x += width + 3
         }
     }
@@ -1612,7 +1637,7 @@ final class TouchBarController: NSObject, NSTouchBarDelegate {
         color: NSColor
     ) -> SettingsControlButton {
         let button = settingControl(
-            title: "", width: 40, action: action,
+            title: "", width: 44, action: action,
             selected: selected, color: color
         )
         button.image = ProviderIcon.image(for: provider)

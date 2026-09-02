@@ -1,6 +1,6 @@
 cask "bb-touch-bar" do
   version "0.1.0"
-  sha256 "d5ff75e00d62eea0a13f2e37e278faa02d3142f8e1cbbda47dc868060ff2592d"
+  sha256 "6e6a2cdaad16d1c11312c7c3635b93b409b548163c577e9dae1604b0b80056ac"
 
   url "https://github.com/MateoCerquetella/bb-plugins/releases/download/touchbar%2Fv#{version}/BBTouchBar-#{version}-universal.zip"
   name "BB Touch Bar"
