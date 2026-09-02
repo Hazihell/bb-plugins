@@ -255,8 +255,10 @@ test("native app owns the Control Strip and fullscreen panel without physical st
   assert.match(controller, /iconView\.layer\?\.borderWidth = 0/u);
   assert.match(controller, /iconView\.layer\?\.cornerRadius = 12/u);
   assert.match(controller, /iconView\.layer\?\.masksToBounds = true/u);
-  assert.match(controller, /statusLabel\.stringValue = StatusPalette\.badge/u);
-  assert.match(controller, /accentLayer\.frame = CGRect\(x: 0, y: 4, width: 3/u);
+  assert.match(controller, /private final class AgentStatusPill: NSView/u);
+  assert.match(controller, /statusPill\.update/u);
+  assert.match(controller, /floor\(\(bounds\.height - size\.height\) \/ 2\)/u);
+  assert.doesNotMatch(controller, /accentLayer/u);
   assert.match(controller, /bounds\.contains\(point\) \? self : nil/u);
   assert.doesNotMatch(controller, /statusIconView/u);
   assert.match(controller, /hostMonitorTapped/u);

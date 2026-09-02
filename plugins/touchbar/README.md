@@ -118,7 +118,7 @@ Settings, Host Monitor, and X use fixed 34-point native controls to preserve
 space for cards while retaining explicit touch dispatch.
 
 Agent provider icons are embedded as large circular badges in every thread
-card. Status uses a slim Dockside-colored card rail plus a compact text pill:
+card. Status uses the card outline plus a vertically centered compact text pill:
 green working, amber needs-you/waiting, blue unread, red error, and gray
 inactive. Provider artwork stays clean instead of carrying a second status ring.
 

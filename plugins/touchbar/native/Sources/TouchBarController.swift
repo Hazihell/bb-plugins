@@ -734,11 +734,47 @@ private final class TouchBarScrollView: NSScrollView {
     }
 }
 
+private final class AgentStatusPill: NSView {
+    private var text = ""
+    private var color = NSColor.clear
+
+    func update(text: String, color: NSColor) {
+        self.text = text
+        self.color = color
+        setAccessibilityLabel(text)
+        needsDisplay = true
+    }
+
+    override func draw(_ dirtyRect: NSRect) {
+        super.draw(dirtyRect)
+        let shape = NSBezierPath(
+            roundedRect: bounds.insetBy(dx: 0, dy: 1),
+            xRadius: 5,
+            yRadius: 5
+        )
+        color.withAlphaComponent(0.88).setFill()
+        shape.fill()
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.monospacedSystemFont(ofSize: 5.8, weight: .bold),
+            .foregroundColor: NSColor.white,
+        ]
+        let string = text as NSString
+        let size = string.size(withAttributes: attributes)
+        string.draw(
+            at: NSPoint(
+                x: floor((bounds.width - size.width) / 2),
+                y: floor((bounds.height - size.height) / 2)
+            ),
+            withAttributes: attributes
+        )
+    }
+}
+
 private final class AgentButton: NSButton {
     private let iconView = NSImageView()
     private let titleLabel = NSTextField(labelWithString: "")
-    private let statusLabel = NSTextField(labelWithString: "")
-    private let accentLayer = CALayer()
+    private let statusPill = AgentStatusPill()
     private var grouped = false
 
     init(target: AnyObject?, action: Selector?) {
@@ -757,15 +793,7 @@ private final class AgentButton: NSButton {
         iconView.wantsLayer = true
         titleLabel.font = .monospacedSystemFont(ofSize: 9.5, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingTail
-        statusLabel.font = .monospacedSystemFont(ofSize: 5.5, weight: .bold)
-        statusLabel.alignment = .center
-        statusLabel.textColor = .white
-        statusLabel.wantsLayer = true
-        statusLabel.layer?.cornerRadius = 4
-        statusLabel.layer?.masksToBounds = true
-        accentLayer.cornerRadius = 1.5
-        layer?.addSublayer(accentLayer)
-        for view in [iconView, titleLabel, statusLabel] { addSubview(view) }
+        for view in [iconView, titleLabel, statusPill] { addSubview(view) }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) is unsupported") }
@@ -781,8 +809,7 @@ private final class AgentButton: NSButton {
             width: bounds.width - 76,
             height: 14
         )
-        statusLabel.frame = NSRect(x: bounds.width - 38, y: 8, width: 32, height: 14)
-        accentLayer.frame = CGRect(x: 0, y: 4, width: 3, height: bounds.height - 8)
+        statusPill.frame = NSRect(x: bounds.width - 39, y: 6, width: 34, height: 18)
     }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
@@ -792,7 +819,6 @@ private final class AgentButton: NSButton {
     func setGrouped(_ value: Bool) {
         grouped = value
         layer?.borderWidth = value ? 0.5 : 1
-        accentLayer.isHidden = false
     }
 
     func update(entry: AgentEntry, primary: String) {
@@ -808,16 +834,17 @@ private final class AgentButton: NSButton {
         iconView.layer?.borderWidth = 0
         titleLabel.stringValue = primary
         titleLabel.textColor = .white
-        statusLabel.stringValue = StatusPalette.badge(for: entry.status)
-        statusLabel.layer?.backgroundColor = color.withAlphaComponent(0.88).cgColor
+        statusPill.update(
+            text: StatusPalette.badge(for: entry.status),
+            color: color
+        )
         layer?.backgroundColor = NSColor(
             white: grouped ? 0.075 : 0.055,
             alpha: 0.96
         ).cgColor
-        layer?.borderColor = grouped
-            ? NSColor.clear.cgColor
-            : color.withAlphaComponent(0.82).cgColor
-        accentLayer.backgroundColor = color.cgColor
+        layer?.borderColor = color.withAlphaComponent(
+            grouped ? 0.35 : 0.82
+        ).cgColor
         setAccessibilityLabel("\(entry.title), \(entry.project), \(entry.status.rawValue)")
         needsLayout = true
     }
