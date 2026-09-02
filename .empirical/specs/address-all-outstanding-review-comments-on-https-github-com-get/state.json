@@ -1,16 +1,16 @@
 {
   "schemaVersion": 5,
-  "revision": 5,
+  "revision": 7,
   "activeFeature": "address-all-outstanding-review-comments-on-https-github-com-get",
   "request": "Address all outstanding review comments on https://github.com/get-bb/marketplace/pull/162 for the Dockside plugin: move every runtime-imported package from devDependencies to dependencies, verify a clean managed installation/build and the repository checks, prepare the required new matching plugin release, and update the existing marketplace PR. Do not perform any Git push, tag push, release publication, or PR mutation until the explicit release approval required by the submit-a-plugin workflow is obtained.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "yolo",
-  "phase": "implement",
+  "phase": "verify",
   "status": "waiting",
   "repairAttempts": 0,
-  "message": "Planned regression-first dependency correction, isolated and repository verification, clean marketplace metadata preparation, explicit release approval, and post-approval delivery/re-review checks.",
-  "implementationActor": null,
+  "message": "Refreshed repository context after the Dockside manifest, lockfile, version, and regression changes; the report has no stale, missing, invalid, or refinement-required pages.",
+  "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:924878973259c9f8a5a164a32739a4cceccb06c6508dd53eb2af6e6ec1e2020d",
   "approvedSpecRevision": 3,
@@ -23,19 +23,18 @@
   "evidenceReceiptIds": [],
   "legacyEvidenceCount": 0,
   "completion": {
-    "implemented": false,
+    "implemented": true,
     "verified": false,
     "integrated": false,
     "delivered": false,
     "published": false,
-    "highest": "none",
+    "highest": "implemented",
     "reasons": {
-      "implemented": "implemented has not been proven by a durable receipt.",
       "verified": "verified has not been proven by a durable receipt.",
       "integrated": "integrated has not been proven by a durable receipt.",
       "delivered": "delivered has not been proven by a durable receipt.",
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-02T23:00:34.601Z"
+  "updatedAt": "2026-09-02T23:05:59.707Z"
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:a2fddaf7db9294c2776a56b16eb23c645e5652a7694200595ce6c7b2adbb87cf",
+  "sourceDigest": "sha256:79ef5bbe46517658c74e7bec0a0596324c59cb2e2807f46402327767d24bfb47",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -100,8 +100,8 @@
     },
     {
       "path": "package-lock.json",
-      "size": 298190,
-      "digest": "sha256:8a6fbe8682d8446360e592be9a97b3ef3486952e72f44f347efa0651f0822f4e"
+      "size": 298171,
+      "digest": "sha256:e155a32f0b8c33985de440c7fe48d45bcff1e4ad0b2001f32fdf87abc1b0dbd0"
     },
     {
       "path": "package.json",
@@ -441,7 +441,7 @@
     {
       "path": "plugins/dockside/package.json",
       "size": 2142,
-      "digest": "sha256:10ce5a5bbd02dbd50be46acbc79264f5d3b95af53e8182f520bb72f402f7dfca"
+      "digest": "sha256:e3f36dbbce0dc7fbca8d527d8e867659589b8da796ad5817bddbcfddc35dded9"
     },
     {
       "path": "plugins/dockside/server.ts",
@@ -460,8 +460,8 @@
     },
     {
       "path": "plugins/dockside/test/distribution-contract.test.ts",
-      "size": 1363,
-      "digest": "sha256:8b2d41605fe6d373fe90bbd067071129313961d81b778a209a8af6045d8b7a4d"
+      "size": 1684,
+      "digest": "sha256:f16c5ca398f464e358ab12d6dde3ea346739f6330add34fa3dab1c28dd7d7060"
     },
     {
       "path": "plugins/dockside/test/family-order.test.ts",
@@ -1472,21 +1472,6 @@
       "path": "plugins/usage-tracker/types/css-modules.d.ts",
       "size": 24,
       "digest": "sha256:35d26ea66c86da9701e4f4b467913481ffeae910761cea34c775c5dacb7f8eaa"
-    },
-    {
-      "path": "touchbar-ui-concept.html",
-      "size": 10842,
-      "digest": "sha256:0c7310d125bbf77d6d922c581a5ec5211e2875a353c9845e0e4ea4bfc46a81db"
-    },
-    {
-      "path": "touchbar-ui-concepts-v2.html",
-      "size": 10097,
-      "digest": "sha256:a159d57c014487edd9c89e3e4d0490dff03ec858197ba60c938d8e8fc7e0cdb8"
-    },
-    {
-      "path": "touchbar-ui-exploration-v3.html",
-      "size": 12060,
-      "digest": "sha256:bd34528c61b74899d1891f766dad5e994d1dfcbc6066d9c7b4a51452ed096400"
     }
   ],
   "pages": [
@@ -1788,12 +1773,9 @@
         "plugins/usage-tracker/test/reset-credits.test.ts",
         "plugins/usage-tracker/test/usage.test.ts",
         "plugins/usage-tracker/tsconfig.json",
-        "plugins/usage-tracker/types/css-modules.d.ts",
-        "touchbar-ui-concept.html",
-        "touchbar-ui-concepts-v2.html",
-        "touchbar-ui-exploration-v3.html"
+        "plugins/usage-tracker/types/css-modules.d.ts"
       ],
-      "sourceDigest": "sha256:a2fddaf7db9294c2776a56b16eb23c645e5652a7694200595ce6c7b2adbb87cf",
+      "sourceDigest": "sha256:79ef5bbe46517658c74e7bec0a0596324c59cb2e2807f46402327767d24bfb47",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1828,7 +1810,7 @@
         "plugins/usage-tracker/README.md",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:e0cbca42b8de963cbc445b8f8bbf7f2ef6994b26c0f0dd2b53009041ff7dbb97",
+      "sourceDigest": "sha256:158846a3eda0f654fe947db3954f593316daf5cc82062d4d5afb5cc6da97c375",
       "digest": "sha256:37f1b782a0e88dee101030bf6ac6aa2742c329ca37daf764d5022e793ce6bc15",
       "freshness": "fresh"
     },
@@ -1846,7 +1828,7 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:e04f2c2d12c40480f6d5936370dbfc63156eedfcbaf02871d1281302e97f25df",
+      "sourceDigest": "sha256:5b952eea4bbb2fc75c6477553a47e76989b5e4fa91d16934de4174b2037043fe",
       "digest": "sha256:6a3333fdbbcffff93c96400aab0596932dc23cce823061cdedacad5e44ef7bd7",
       "freshness": "fresh"
     },
@@ -1865,7 +1847,7 @@
         "plugins/touchbar/package.json",
         "plugins/usage-tracker/package.json"
       ],
-      "sourceDigest": "sha256:b8b76f15e9cae7297dde42646b0a5decb01e7983893b3b8bfb23a25fe99482ce",
+      "sourceDigest": "sha256:0e5f5cd2bbb620cce7609794d5fbfe093ca4e4fe1f4e0bda6df1696ca10ee2c4",
       "digest": "sha256:06a7a6d07d2649e2d00a93cf62beef749d2f5dada25077c225726f81ec2eeed3",
       "freshness": "fresh"
     },
@@ -1889,5 +1871,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:458f08e0dde3c2efd07c925a37d6f8a268630bddf20a47ff46cb4314975ea7cb"
+  "digest": "sha256:dee156f4e79baf37fec287a5f8fa4dce6ba9bd5adc16ffb683433fceb063d435"
 }
