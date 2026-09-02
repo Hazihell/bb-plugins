@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generator": "empirical-0.30.0",
-  "sourceDigest": "sha256:e37d53c499f7328dd21dd63b7b281d24e986c56568a4464dae4a1effa68f8e49",
+  "sourceDigest": "sha256:1f39ea5719a2d21c6fa0f73f18e278783328e534ef8251a29086ecf5fb1bfda8",
   "files": [
     {
       "path": ".agents/skills/empirical/SKILL.md",
@@ -71,7 +71,7 @@
     {
       "path": "Casks/bb-touch-bar.rb",
       "size": 1370,
-      "digest": "sha256:12a01ef307742001115afce45c4388cb892be3d44fab24d529bf5cc909d8be01"
+      "digest": "sha256:40d0516896369c17382d085c71224e8cbc9c4013f400f85037f222685bf4bdad"
     },
     {
       "path": "LICENSE",
@@ -1793,7 +1793,7 @@
         "touchbar-ui-concepts-v2.html",
         "touchbar-ui-exploration-v3.html"
       ],
-      "sourceDigest": "sha256:e37d53c499f7328dd21dd63b7b281d24e986c56568a4464dae4a1effa68f8e49",
+      "sourceDigest": "sha256:1f39ea5719a2d21c6fa0f73f18e278783328e534ef8251a29086ecf5fb1bfda8",
       "digest": "sha256:eed9cfd95fdecbf70535c9b9bfdb204011bdad5af0a5418d4d923f3a99f354f2",
       "freshness": "fresh"
     },
@@ -1889,5 +1889,5 @@
     }
   ],
   "truncated": false,
-  "digest": "sha256:e5b0075a1bf71e24841def4fae829ca1cc08e255c473f24ec18ce8b6de5c737f"
+  "digest": "sha256:b3cd45c5d20b955c056dcafe8289259bd00730f6ec4a867bef53499910469d79"
 }
