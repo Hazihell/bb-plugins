@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 23,
+  "revision": 24,
   "activeFeature": "usage-tracker-grok-opencode-thresholds",
   "request": "Extend the Usage Tracker sidebar widget to normalize and display Grok (`acp-grok`) and OpenCode (`acp-opencode`) usage alongside the existing enabled providers, with independent settings toggles. When the enabled provider count exceeds the compact single-row capacity, wrap the strip into a compact layout supporting up to three provider rows while keeping refresh and details usable. Apply warning presentation at usage percentages greater than or equal to 80% (yellow) and critical presentation at greater than or equal to 95% (red) to compact and detail percentages/bars. Preserve provider-local fault isolation, cached snapshots, keyboard focus, accessibility, and current Codex reset behavior. Add focused normalization, preference, threshold, markup/CSS contract tests and update Usage Tracker documentation, then build and verify the plugin UI.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "review",
+  "phase": "integrate",
   "status": "waiting",
   "repairAttempts": 3,
-  "message": "Verified Usage Tracker 0.1.6 with focused typecheck/tests/build, live BB install/reload, real Chromium layout/severity/navigation checks, screenshots, and user visual acceptance.",
+  "message": "Fresh isolated review approved all seven criteria for the exact committed main-to-11c6404 diff with no blocking security, correctness, or maintainability findings.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:280f86016f09afc7ef29e7f54d3c6a4ea3acb161f73baf0214fd1004ceb8a4f0",
@@ -24,7 +24,8 @@
     "qa-1f59fdf1f04b3bc31a2c5721",
     "qa-2181bbf07a0968b9c41358a0",
     "collected-dd93b4419ce5f4741f56675d",
-    "qa-eed9eaac4a39107b82f5cf2e"
+    "qa-eed9eaac4a39107b82f5cf2e",
+    "collected-3dd0ab3e1f3728c7245f5995"
   ],
   "legacyEvidenceCount": 0,
   "completion": {
@@ -40,5 +41,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-02T23:39:59.278Z"
+  "updatedAt": "2026-09-02T23:44:24.975Z"
 }

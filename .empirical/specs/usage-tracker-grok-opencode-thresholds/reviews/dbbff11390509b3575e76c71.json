@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "packetDigest": "sha256:6f44bd18871094313ba38a9e6a6b076f81fb3e0fd14be32f73b2010fe9defd53",
+  "mode": "fresh-context",
+  "baseRef": "main",
+  "baseCommit": "b627bb0d43d8fac89e9777b0669700fa6f7e68ef",
+  "headCommit": "11c6404c3e1bb48e409d48f9e0440fa3ae2b151e",
+  "diffDigest": "sha256:9a2f8f0c92de027665b7470c28f08d930edcf0437984c9806b8ba5efffb23278",
+  "verdict": "APPROVED",
+  "reviewerActor": "fresh-context-agent",
+  "reviewerInvocationId": "usage-release-review-20260902-c84dbe12-7a51-4f93-9c62",
+  "reviewerLogin": null,
+  "body": "# Verdict: APPROVED\n\n- PASS AC-1: Wire aliases normalize to stable IDs in deterministic order; omitted or unhealthy providers remain isolated.\n- PASS AC-2: Grok and OpenCode default on, toggle independently, pass RPC/cache allowlists, have recovery copy, and leave Codex reset unchanged.\n- PASS AC-UI-1: One/two providers stay direct; larger sets summarize highest usage +N and preserve accessible overview, drilldown, and focus return.\n- PASS AC-UI-2: Neutral/warning/critical presentation is consistent across summary, overview, rails, and details; missing values stay neutral.\n- PASS AC-3: Exact 80/95 boundaries, finite validation, clamped geometry, and semantic DOM attributes are implemented and tested.\n- PASS AC-4: Last-known merging, focus, Escape, names/windows, refresh, and confirmed Codex resets remain intact.\n- PASS AC-5: Committed tests, typecheck/build receipts, documentation, live install/reload, Chromium evidence, and screenshots cover delivery.\n\n## Security / correctness\n\nNo blocking issue. Provider IDs are allowlisted, RPC outputs remain schema-validated, DOM text assignment is safe, no new privileged operation was introduced, and Codex reset remains gated.\n\n## Design / maintainability\n\nProvider tables, pure severity and overview helpers, and explicit focus state are clear and extensible. Source-string presentation tests are somewhat brittle, but Chromium evidence covers the principal UI path. Unrelated Empirical maintenance in the range weakens atomicity without affecting Usage Tracker behavior.",
+  "bodyDigest": "sha256:8f8a22edf6716d7e868c63348e8e09dc10a256fb0325cccce5c207379023c547",
+  "digest": "sha256:dbbff11390509b3575e76c71ab2b869898cb91e4033d80805785cc5afbe7f4d4"
+}
