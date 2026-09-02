@@ -5,7 +5,7 @@
 <h1 align="center">Usage Tracker for BB</h1>
 
 <p align="center">
-  Codex and Claude Code limits, always visible in BB's sidebar footer.
+  Codex, Claude Code, Grok, and OpenCode limits in BB's sidebar footer.
 </p>
 
 <p align="center">
@@ -14,25 +14,29 @@
 </p>
 
 Usage Tracker adds one compact, live strip beside BB's existing sidebar
-utility icons. Claude Code and Codex each show a progress bar and their current
-usage reading, without adding a navigation item or a separate plugin page.
+utility icons. Claude Code, Codex, Grok, and OpenCode each show a progress bar
+and their current usage reading, without adding a navigation item or a separate
+plugin page.
 
 ![Usage Tracker expanded in BB's sidebar](./assets/usage-tracker-sidebar.png)
 
 ## Features
 
-- Shows Codex and Claude Code subscription usage in BB's sidebar footer.
-- Lets you show or hide Codex and Claude Code independently; the strip
-  compacts for one provider and disappears when both are disabled.
+- Shows Codex, Claude Code, Grok, and OpenCode usage in BB's sidebar footer.
+- Lets you show or hide every provider independently; the strip compacts for
+  one or two providers, wraps larger sets into a two-column layout of up to
+  three rows, and disappears when every provider is disabled.
+- Colors usage yellow from 80% and red from 95% in both compact and expanded
+  progress displays.
 - Lets you choose whether the compact percentage and progress bar show the
   weekly or five-hour limit. Weekly is the default.
-- Expands either provider to show its five-hour, weekly, and additional
+- Expands any provider to show its five-hour, weekly, and additional
   provider-defined percentages.
 - Shows the available Codex usage resets in the expanded details.
 - Includes reset timing and provider session status in the expanded view.
 - Refreshes automatically every five minutes and whenever a stale BB window
   becomes active again.
-- Provides a manual refresh button for both providers.
+- Provides one manual refresh button for all providers.
 - Preserves last-known limit windows through temporary errors, expired
   sessions, and rate limits.
 - Cleans up its UI on plugin reload, disable, or removal and works alongside a
@@ -57,7 +61,7 @@ bb plugin install usage-tracker
 ```
 
 The strip appears in the bottom of the sidebar as soon as the plugin loads.
-Both providers are enabled by default. Change them independently under
+All four providers are enabled by default. Change them independently under
 **Settings → Plugins → Usage Tracker**. The same page lets you choose
 between the weekly and five-hour limit for the compact reading.
 
@@ -66,6 +70,8 @@ The provider CLIs must be installed and signed in for BB to report their usage:
 ```sh
 codex login
 claude
+grok login
+opencode auth login
 ```
 
 If a CLI is missing, signed out, or expired, expand that provider in the strip
@@ -75,7 +81,7 @@ to see the recovery instruction reported by BB.
 
 The collapsed strip is designed for quick scanning:
 
-- Select the Claude Code or Codex reading to open its details in place.
+- Select any provider reading to open its details in place.
 - Review the reported **5-hour limit**, **weekly limit**, every additional
   provider-defined window, and their reset times. Codex Pro accounts that do
   not report a five-hour limit omit that row.
@@ -84,7 +90,7 @@ The collapsed strip is designed for quick scanning:
   does not contact the reset-consumption endpoint.
 - Select the same provider again, use the close button, press <kbd>Esc</kbd>,
   or click outside the details to collapse it.
-- Select the refresh icon to fetch both providers immediately.
+- Select the refresh icon to fetch every provider immediately.
 
 Usage Tracker otherwise refreshes in the background every five minutes. It
 also refreshes when the window regains focus or becomes visible after the last

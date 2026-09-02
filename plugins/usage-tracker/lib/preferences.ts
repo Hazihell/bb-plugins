@@ -1,4 +1,9 @@
-export const SIDEBAR_PROVIDER_IDS = ["claudeCode", "codex"] as const;
+export const SIDEBAR_PROVIDER_IDS = [
+  "claudeCode",
+  "codex",
+  "grok",
+  "openCode",
+] as const;
 export const COMPACT_LIMIT_OPTIONS = ["Weekly", "Five-hour"] as const;
 
 export type SidebarProviderId = (typeof SIDEBAR_PROVIDER_IDS)[number];
@@ -13,18 +18,32 @@ export function normalizeCompactLimitOption(
 export interface UsageTrackerPreferences {
   enableClaudeCode: boolean;
   enableCodex: boolean;
+  enableGrok: boolean;
+  enableOpenCode: boolean;
   compactLimit: CompactLimitOption;
 }
+
+type ProviderPreferenceKey = keyof Pick<
+  UsageTrackerPreferences,
+  "enableClaudeCode" | "enableCodex" | "enableGrok" | "enableOpenCode"
+>;
+
+const PROVIDER_PREFERENCE_KEYS: Readonly<
+  Record<SidebarProviderId, ProviderPreferenceKey>
+> = {
+  claudeCode: "enableClaudeCode",
+  codex: "enableCodex",
+  grok: "enableGrok",
+  openCode: "enableOpenCode",
+};
 
 export function enabledSidebarProviderIds(
   preferences: Pick<
     UsageTrackerPreferences,
-    "enableClaudeCode" | "enableCodex"
+    "enableClaudeCode" | "enableCodex" | "enableGrok" | "enableOpenCode"
   >,
 ): SidebarProviderId[] {
-  return SIDEBAR_PROVIDER_IDS.filter((providerId) =>
-    providerId === "claudeCode"
-      ? preferences.enableClaudeCode
-      : preferences.enableCodex,
+  return SIDEBAR_PROVIDER_IDS.filter(
+    (providerId) => preferences[PROVIDER_PREFERENCE_KEYS[providerId]],
   );
 }

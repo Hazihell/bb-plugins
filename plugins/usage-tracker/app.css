@@ -8,6 +8,16 @@
   --usage-sidebar-hover: var(--sidebar-accent, var(--muted));
   --usage-sidebar-focus: var(--sidebar-ring, var(--ring));
   --usage-sidebar-claude: #d97757;
+  --usage-sidebar-warning: color-mix(
+    in srgb,
+    #eab308 72%,
+    var(--usage-sidebar-text)
+  );
+  --usage-sidebar-critical: color-mix(
+    in srgb,
+    #ef4444 82%,
+    var(--usage-sidebar-text)
+  );
 
   /* Static on purpose: the details card is positioned against the footer. */
   position: static;
@@ -72,6 +82,59 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.1875rem;
+}
+
+/* Larger provider sets grow vertically instead of squeezing every reading into
+ * one line. The explicit rows let the single refresh control span the complete
+ * group while provider DOM/tab order keeps filling left-to-right. */
+.usage-tracker-sidebar__strip:is(
+    [data-provider-count="3"],
+    [data-provider-count="4"],
+    [data-provider-count="5"],
+    [data-provider-count="6"]
+  ) {
+  display: grid;
+  height: auto;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) 1.75rem;
+  column-gap: 0.1875rem;
+  row-gap: 0;
+}
+
+.usage-tracker-sidebar__strip:is(
+    [data-provider-count="3"],
+    [data-provider-count="4"]
+  ) {
+  grid-template-rows: repeat(2, 2rem);
+}
+
+.usage-tracker-sidebar__strip:is(
+    [data-provider-count="5"],
+    [data-provider-count="6"]
+  ) {
+  grid-template-rows: repeat(3, 2rem);
+}
+
+.usage-tracker-sidebar__strip:is(
+    [data-provider-count="3"],
+    [data-provider-count="4"],
+    [data-provider-count="5"],
+    [data-provider-count="6"]
+  )
+  .usage-tracker-sidebar__provider {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.usage-tracker-sidebar__strip:is(
+    [data-provider-count="3"],
+    [data-provider-count="4"],
+    [data-provider-count="5"],
+    [data-provider-count="6"]
+  )
+  .usage-tracker-sidebar__refresh {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  place-self: center end;
 }
 
 .usage-tracker-sidebar__provider {
@@ -187,6 +250,16 @@
   transition: width 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
+.usage-tracker-sidebar__rail[data-level="warning"]
+  .usage-tracker-sidebar__fill {
+  background: var(--usage-sidebar-warning);
+}
+
+.usage-tracker-sidebar__rail[data-level="critical"]
+  .usage-tracker-sidebar__fill {
+  background: var(--usage-sidebar-critical);
+}
+
 /* Hugs its text rather than filling a "100%"-wide box, which would leave a
  * short reading padded away from its mark. */
 .usage-tracker-sidebar__reading {
@@ -200,6 +273,20 @@
   line-height: 1;
   text-overflow: clip;
   white-space: nowrap;
+}
+
+.usage-tracker-sidebar__provider[data-level="warning"]
+  .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__window[data-level="warning"]
+  .usage-tracker-sidebar__window-heading strong {
+  color: var(--usage-sidebar-warning);
+}
+
+.usage-tracker-sidebar__provider[data-level="critical"]
+  .usage-tracker-sidebar__reading,
+.usage-tracker-sidebar__window[data-level="critical"]
+  .usage-tracker-sidebar__window-heading strong {
+  color: var(--usage-sidebar-critical);
 }
 
 /* Narrowest tier: spacing and type size stay put, and the refresh button pays

@@ -149,6 +149,18 @@ export default function plugin(bb: BbPluginApi) {
       description: "Show Codex usage in the sidebar footer.",
       default: true,
     },
+    enableGrok: {
+      type: "boolean",
+      label: "Enable Grok",
+      description: "Show Grok usage in the sidebar footer.",
+      default: true,
+    },
+    enableOpenCode: {
+      type: "boolean",
+      label: "Enable OpenCode",
+      description: "Show OpenCode usage in the sidebar footer.",
+      default: true,
+    },
     compactLimit: {
       type: "select",
       label: "Compact limit",

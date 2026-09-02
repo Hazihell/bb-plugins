@@ -1,15 +1,15 @@
 {
   "schemaVersion": 5,
-  "revision": 8,
+  "revision": 9,
   "activeFeature": "carry-forward-the-verified-dockside-managed-install-dependency-fix-by",
   "request": "Carry forward the verified Dockside managed-install dependency fix by classifying @hugeicons/react, @hugeicons/core-free-icons, and runtime-imported zod as production dependencies with lockfile regression coverage. Also color the project letter badges in Dockside's sidebar using stable deterministic per-project fallback colors, and let users choose and persist an individual color for each project from Dockside's settings page. Key overrides by stable project ID so project renames retain the color. Validate untrusted persisted values, preserve accessible contrast, add focused logic/UI contract tests, build, and verify via local install/reload and browser screenshot.",
   "profile": "complex",
   "workflow": "complex",
   "mode": "normal",
-  "phase": "integrate",
-  "status": "waiting",
+  "phase": "done",
+  "status": "done",
   "repairAttempts": 0,
-  "message": "Fresh-context review approved all seven criteria and found no push-blocking security, correctness, or maintainability issues.",
+  "message": "Closed as stale during authorized repository workflow repair. The feature remains verified but is not claimed as integrated because its promotion full-CI gate fails on pre-existing SDK pin drift.",
   "implementationActor": "agent",
   "workStartedAt": null,
   "specDigest": "sha256:de47219b2e33db5a0ed9fdd674bffa6d0ea3ec10d0228534d7143564e6090b70",
@@ -44,5 +44,5 @@
       "published": "published has not been proven by a durable receipt."
     }
   },
-  "updatedAt": "2026-09-01T22:10:29.758Z"
+  "updatedAt": "2026-09-02T19:27:00.000Z"
 }

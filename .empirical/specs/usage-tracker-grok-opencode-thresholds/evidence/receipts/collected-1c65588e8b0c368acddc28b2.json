@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "collected-1c65588e8b0c368acddc28b2",
+  "criteria": [
+    "AC-UI-1",
+    "AC-UI-2"
+  ],
+  "evidenceKinds": [
+    "browser",
+    "screenshot"
+  ],
+  "summary": "Real BB browser screenshots show the live four-provider two-row grid and controlled 79.9/80/95/96 neutral-yellow-red thresholds with Grok details open.",
+  "passed": true,
+  "startedAt": "2026-09-02T19:45:38.451Z",
+  "completedAt": "2026-09-02T19:45:38.451Z",
+  "provenance": {
+    "repositoryId": "sha256:8b7ffb17d47d3b29f9ec020c10aab5fe8b605e476b7797f7cbcca069de63857d",
+    "feature": "usage-tracker-grok-opencode-thresholds",
+    "specRevision": 2,
+    "specDigest": "sha256:de6ba3b5890db93b85cc712a8521521f8faa6c30e95b6c2c26ac03e59b43bd0c",
+    "treeDigest": "sha256:cdcde42b3d52edda2ead415d2c34e344d29d3cb4ee7e6a5c55e29eb99fdb0db2",
+    "policyDigest": "sha256:731b81d0979ecfd5867a2bee3fcb7ef26acfc4fe64cb7d90635ec869d19006a8"
+  },
+  "digest": "sha256:53cb46608f35d578f37f920fe15a323e93de05182352263b98af6ba9358d6e89",
+  "kind": "collected",
+  "collector": "Playwright Chromium against the locally installed and reloaded BB Usage Tracker plugin",
+  "artifacts": [
+    {
+      "path": ".empirical/specs/usage-tracker-grok-opencode-thresholds/evidence/sidebar-four-providers.png",
+      "mediaType": "image/png",
+      "bytes": 60421,
+      "digest": "sha256:52387e6957ab27fccb96638b19002a11bac635547cc6f56209e12d2f7d7313b4"
+    },
+    {
+      "path": ".empirical/specs/usage-tracker-grok-opencode-thresholds/evidence/sidebar-thresholds.png",
+      "mediaType": "image/png",
+      "bytes": 67990,
+      "digest": "sha256:3dade906423131f17e7f14b3c0fe58565aa7ea85de0a2844f40f0d00718d6616"
+    }
+  ]
+}

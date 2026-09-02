@@ -3,6 +3,7 @@ import {
   formatResetTime,
   formatUsedPercent,
   providerStatusLabel,
+  usageLevel,
   type ProviderUsage,
   type UsageSnapshot,
   type UsageWindow,
@@ -120,9 +121,16 @@ function providerGlyph(providerId: SidebarProviderId): SVGSVGElement {
   svg.setAttribute("aria-hidden", "true");
   svg.setAttribute("focusable", "false");
   if (mark.fillRule !== undefined) svg.setAttribute("fill-rule", mark.fillRule);
-  const path = document.createElementNS(SVG_NAMESPACE, "path");
-  path.setAttribute("d", mark.path);
-  svg.append(path);
+  const paths =
+    mark.paths ?? (mark.path === undefined ? [] : [{ d: mark.path }]);
+  for (const definition of paths) {
+    const path = document.createElementNS(SVG_NAMESPACE, "path");
+    path.setAttribute("d", definition.d);
+    if (definition.fillOpacity !== undefined) {
+      path.setAttribute("fill-opacity", String(definition.fillOpacity));
+    }
+    svg.append(path);
+  }
   return svg;
 }
 
@@ -159,9 +167,15 @@ function closeGlyph(): SVGSVGElement {
 }
 
 function emptyProvider(providerId: SidebarProviderId): ProviderUsage {
+  const names: Readonly<Record<SidebarProviderId, string>> = {
+    claudeCode: "Claude Code",
+    codex: "Codex",
+    grok: "Grok",
+    openCode: "OpenCode",
+  };
   return {
     id: providerId,
-    name: providerId === "codex" ? "Codex" : "Claude Code",
+    name: names[providerId],
     status: "error",
     accountEmail: null,
     planLabel: null,
@@ -332,6 +346,7 @@ function mergeSnapshot(
 
 function progressRail(window: UsageWindow | null): HTMLSpanElement {
   const rail = element("span", "usage-tracker-sidebar__rail");
+  rail.dataset.level = usageLevel(window?.usedPercent ?? null);
   const fill = element("span", "usage-tracker-sidebar__fill");
   fill.style.width = `${window?.barPercent ?? 0}%`;
   if (window === null) rail.dataset.empty = "true";
@@ -344,6 +359,7 @@ function detailWindowRow(
   window: UsageWindow | null,
 ): HTMLDivElement {
   const row = element("div", "usage-tracker-sidebar__window");
+  row.dataset.level = usageLevel(window?.usedPercent ?? null);
   const heading = element("div", "usage-tracker-sidebar__window-heading");
   heading.append(
     element("span", undefined, label),
@@ -840,6 +856,7 @@ export function mountSidebarUsageStrip(signal: AbortSignal): () => void {
       button.type = "button";
       button.dataset.provider = providerId;
       button.dataset.status = provider.status;
+      button.dataset.level = usageLevel(primary.window?.usedPercent ?? null);
       button.setAttribute("aria-haspopup", "dialog");
       button.setAttribute("aria-controls", detailsId(providerId));
       button.setAttribute(

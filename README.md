@@ -26,7 +26,7 @@
 | <img src="./plugins/save-my-model/assets/icon.svg" width="128" height="128" alt="" /> | [Save My Model](./plugins/save-my-model) | [Git release](#save-my-model-quick-start) | Stores provider by BB host and model/reasoning separately for each host and provider. |
 | <img src="./plugins/taskboard/assets/icon.svg" width="128" height="128" alt="" /> | [Taskboard](./plugins/taskboard) | [Git release](#taskboard-quick-start) | Brings each BB project's GitHub, Linear, or Jira tasks into one focused List or Kanban board. |
 | <img src="./plugins/touchbar/assets/icon.svg" width="128" height="128" alt="" /> | [Touch Bar Agent Monitor](./plugins/touchbar) | [Git release](#touch-bar-agent-monitor-quick-start) | Adds a native persistent Control Strip badge and fullscreen BB agent panel to Touch Bar Macs. Requires BB 0.40+. |
-| <img src="./plugins/usage-tracker/assets/icon.svg" width="128" height="128" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex and Claude Code 5-hour and weekly limits beside BB's sidebar utility icons. |
+| <img src="./plugins/usage-tracker/assets/icon.svg" width="128" height="128" alt="" /> | [Usage Tracker](./plugins/usage-tracker) | [Git release](#usage-tracker-quick-start) | Keeps Codex, Claude Code, Grok, and OpenCode limits beside BB's sidebar utility icons. |
 
 ## Action Topbar experimental install
 
@@ -202,8 +202,10 @@ bb plugin install usage-tracker
 ```
 
 Usage Tracker mounts in BB's native sidebar footer beside the existing utility
-icons. Each provider gets a compact progress bar and current usage reading.
-Select Codex or Claude Code to expand its reported five-hour, weekly, and any
+icons. Codex, Claude Code, Grok, and OpenCode each get a compact progress bar
+and current usage reading. Larger provider sets wrap into a two-column strip,
+with yellow warnings from 80% and red critical readings from 95%. Select any
+provider to expand its reported five-hour, weekly, and any
 additional provider-defined limits, reset times, and session status without
 leaving the current thread. Codex exposes available usage resets in the
 expanded details and requires explicit confirmation before consuming one.

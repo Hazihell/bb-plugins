@@ -13,6 +13,7 @@ import {
   formatUsedPercent,
   normalizeUsage,
   providerStatusLabel,
+  usageLevel,
   type RawProviderUsage,
   type RawUsageResponse,
 } from "../lib/usage.ts";
@@ -30,6 +31,7 @@ import {
   enabledSidebarProviderIds,
   normalizeCompactLimitOption,
 } from "../lib/preferences.ts";
+import { providerMark } from "../lib/provider-marks.ts";
 
 function healthyResponse(): RawUsageResponse {
   return {
@@ -53,6 +55,8 @@ function healthyResponse(): RawUsageResponse {
     },
     "claude-code": { status: "expired" },
     "acp-cursor": { status: "unauthenticated" },
+    "acp-grok": { status: "not_installed" },
+    "acp-opencode": { status: "unauthenticated" },
   };
 }
 
@@ -127,19 +131,48 @@ function providerWithFable() {
 
 test("enables sidebar providers independently in display order", () => {
   assert.deepEqual(
-    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: true }),
-    ["claudeCode", "codex"],
+    enabledSidebarProviderIds({
+      enableClaudeCode: true,
+      enableCodex: true,
+      enableGrok: true,
+      enableOpenCode: true,
+    }),
+    ["claudeCode", "codex", "grok", "openCode"],
   );
   assert.deepEqual(
-    enabledSidebarProviderIds({ enableClaudeCode: true, enableCodex: false }),
+    enabledSidebarProviderIds({
+      enableClaudeCode: true,
+      enableCodex: false,
+      enableGrok: false,
+      enableOpenCode: false,
+    }),
     ["claudeCode"],
   );
   assert.deepEqual(
-    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: true }),
+    enabledSidebarProviderIds({
+      enableClaudeCode: false,
+      enableCodex: true,
+      enableGrok: false,
+      enableOpenCode: false,
+    }),
     ["codex"],
   );
   assert.deepEqual(
-    enabledSidebarProviderIds({ enableClaudeCode: false, enableCodex: false }),
+    enabledSidebarProviderIds({
+      enableClaudeCode: true,
+      enableCodex: true,
+      enableGrok: false,
+      enableOpenCode: true,
+    }),
+    ["claudeCode", "codex", "openCode"],
+  );
+  assert.deepEqual(
+    enabledSidebarProviderIds({
+      enableClaudeCode: false,
+      enableCodex: false,
+      enableGrok: false,
+      enableOpenCode: false,
+    }),
     [],
   );
 });
@@ -161,7 +194,7 @@ test("normalizes providers in stable order with every usage window", () => {
   assert.equal(snapshot.fetchedAt, "2026-08-11T17:00:00.000Z");
   assert.deepEqual(
     snapshot.providers.map((provider) => provider.id),
-    ["codex", "claudeCode", "cursor"],
+    ["codex", "claudeCode", "cursor", "grok", "openCode"],
   );
   assert.equal(snapshot.providers[0]?.windows.length, 2);
   assert.equal(snapshot.providers[0]?.windows[0]?.barPercent, 17.25);
@@ -183,6 +216,8 @@ test("keeps current provider wire-key windows intact", () => {
       codex: healthyProvider("Codex weekly", 11),
       "claude-code": healthyProvider("Claude Fable", 22),
       "acp-cursor": healthyProvider("Cursor monthly", 33),
+      "acp-grok": healthyProvider("Grok session", 44),
+      "acp-opencode": healthyProvider("OpenCode monthly", 55),
     },
     { id: null, name: null },
   );
@@ -197,6 +232,8 @@ test("keeps current provider wire-key windows intact", () => {
       ["codex", "ok", [["Codex weekly", 11]]],
       ["claudeCode", "ok", [["Claude Fable", 22]]],
       ["cursor", "ok", [["Cursor monthly", 33]]],
+      ["grok", "ok", [["Grok session", 44]]],
+      ["openCode", "ok", [["OpenCode monthly", 55]]],
     ],
   );
 });
@@ -207,6 +244,8 @@ test("keeps healthy legacy provider windows intact", () => {
       codex: healthyProvider("Codex legacy", 10),
       claudeCode: healthyProvider("Claude legacy", 20),
       cursor: healthyProvider("Cursor legacy", 30),
+      grok: healthyProvider("Grok legacy", 40),
+      openCode: healthyProvider("OpenCode legacy", 50),
     },
     { id: null, name: null },
   );
@@ -215,7 +254,13 @@ test("keeps healthy legacy provider windows intact", () => {
     snapshot.providers.map((provider) =>
       provider.windows.map((window) => window.label),
     ),
-    [["Codex legacy"], ["Claude legacy"], ["Cursor legacy"]],
+    [
+      ["Codex legacy"],
+      ["Claude legacy"],
+      ["Cursor legacy"],
+      ["Grok legacy"],
+      ["OpenCode legacy"],
+    ],
   );
 });
 
@@ -253,6 +298,8 @@ test("prefers current provider keys over legacy aliases", () => {
     claudeCode: healthyProvider("Claude legacy", 21),
     "acp-cursor": healthyProvider("Cursor current", 30),
     cursor: healthyProvider("Cursor legacy", 31),
+    "acp-grok": healthyProvider("Grok current", 40),
+    "acp-opencode": healthyProvider("OpenCode current", 50),
   };
 
   const snapshot = normalizeUsage(response, { id: null, name: null });
@@ -264,6 +311,8 @@ test("prefers current provider keys over legacy aliases", () => {
       [["Codex current", 10]],
       [["Claude current", 20]],
       [["Cursor current", 30]],
+      [["Grok current", 40]],
+      [["OpenCode current", 50]],
     ],
   );
 });
@@ -275,7 +324,7 @@ test("isolates an omitted provider response", () => {
   const snapshot = normalizeUsage(response, { id: null, name: null });
   assert.deepEqual(
     snapshot.providers.map((provider) => provider.status),
-    ["ok", "expired", "error"],
+    ["ok", "expired", "error", "not_installed", "unauthenticated"],
   );
   assert.equal(snapshot.providers[0]?.windows.length, 2);
   assert.deepEqual(snapshot.providers[2], {
@@ -287,6 +336,35 @@ test("isolates an omitted provider response", () => {
     message: "Cursor usage was not reported by bb.",
     windows: [],
   });
+});
+
+test("normalizes Grok and OpenCode and isolates an omitted new provider", () => {
+  const response: RawUsageResponse = {
+    codex: healthyProvider("Codex weekly", 11),
+    "claude-code": healthyProvider("Claude weekly", 22),
+    "acp-cursor": healthyProvider("Cursor monthly", 33),
+    "acp-grok": healthyProvider("Grok session", 44),
+  };
+
+  const snapshot = normalizeUsage(response, { id: null, name: null });
+  assert.deepEqual(
+    snapshot.providers.map((provider) => [
+      provider.id,
+      provider.status,
+      provider.windows[0]?.label ?? null,
+    ]),
+    [
+      ["codex", "ok", "Codex weekly"],
+      ["claudeCode", "ok", "Claude weekly"],
+      ["cursor", "ok", "Cursor monthly"],
+      ["grok", "ok", "Grok session"],
+      ["openCode", "error", null],
+    ],
+  );
+  assert.equal(
+    snapshot.providers[4]?.message,
+    "OpenCode usage was not reported by bb.",
+  );
 });
 
 test("clamps progress geometry and rejects non-finite values", () => {
@@ -303,6 +381,27 @@ test("clamps progress geometry and rejects non-finite values", () => {
     () => normalizeUsage(response, { id: null, name: null }),
     /finite/,
   );
+});
+
+test("classifies exact usage warning and critical thresholds", () => {
+  assert.equal(usageLevel(null), "normal");
+  assert.equal(usageLevel(-1), "normal");
+  assert.equal(usageLevel(79.9), "normal");
+  assert.equal(usageLevel(80), "warning");
+  assert.equal(usageLevel(94.9), "warning");
+  assert.equal(usageLevel(95), "critical");
+  assert.equal(usageLevel(140), "critical");
+  assert.throws(() => usageLevel(Number.NaN), /finite/);
+});
+
+test("provides Grok and layered OpenCode provider marks", () => {
+  const grok = providerMark("grok");
+  const openCode = providerMark("openCode");
+  assert.equal(grok.title, "Grok Build");
+  assert.match(grok.path ?? "", /^M13\.2371/u);
+  assert.equal(openCode.title, "OpenCode");
+  assert.equal(openCode.paths?.length, 2);
+  assert.equal(openCode.paths?.[0]?.fillOpacity, 0.45);
 });
 
 test("formats reset, update, percentage, and cost copy safely", () => {
